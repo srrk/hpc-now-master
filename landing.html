@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HPC Infrastructure Operations for Senior Engineers · hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #e4ddd0;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    /* ── COVER / HERO ── */
+    .cover {
+      background: var(--cover);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NAV ── */
+    .nav-wrap {
+      padding: 0;
+      border-bottom: 1px solid var(--rule-cover);
+    }
+    nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 22px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: .06em;
+    }
+    .logo em { color: var(--terra); font-style: normal; }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .nav-link {
+      font-size: 11px;
+      color: var(--ink3);
+      text-decoration: none;
+      letter-spacing: .05em;
+      transition: color .18s;
+    }
+    .nav-link:hover { color: var(--terra); }
+    .nav-cta {
+      font-size: 11px;
+      letter-spacing: .08em;
+      color: var(--terra);
+      text-decoration: none;
+      border: 1px solid var(--terra-dim);
+      padding: 6px 14px;
+      transition: background .18s, color .18s;
+    }
+    .nav-cta:hover { background: var(--terra); color: var(--paper); }
+
+    /* ── HERO ── */
+    .hero {
+      flex: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 88px 52px 96px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 80px;
+      align-items: end;
+    }
+    .hero-left {}
+    .hero-label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hero-label::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--ink3);
+    }
+    .hero-title {
+      font-family: var(--serif);
+      font-size: clamp(36px, 5vw, 68px);
+      font-weight: 400;
+      line-height: 1.12;
+      color: var(--ink);
+      letter-spacing: -.02em;
+      margin-bottom: 36px;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: var(--terra);
+    }
+    .hero-sub {
+      font-size: 15px;
+      color: var(--ink2);
+      line-height: 1.85;
+      max-width: 520px;
+    }
+    .hero-right {
+      padding-bottom: 8px;
+    }
+    .hero-facts {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--rule-cover);
+      background: rgba(255,255,255,0.35);
+    }
+    .hero-fact {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--rule-cover);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .hero-fact:last-child { border-bottom: none; }
+    .hero-fact-k {
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink3);
+    }
+    .hero-fact-v {
+      font-size: 13px;
+      color: var(--ink);
+      line-height: 1.5;
+    }
+    .hero-cta {
+      display: block;
+      margin-top: 20px;
+      background: var(--terra);
+      color: var(--paper);
+      text-align: center;
+      padding: 14px 20px;
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: opacity .2s;
+    }
+    .hero-cta:hover { opacity: .85; }
+
+    /* ── ZONE EDGE ── */
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* ── TWO COLUMN LAYOUT ── */
+    .page-body {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 52px;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 0 72px;
+      align-items: start;
+    }
+
+    /* ── STICKY SIDEBAR NAV ── */
+    .sidebar {
+      position: sticky;
+      top: 40px;
+      padding: 64px 0 40px;
+      align-self: start;
+    }
+    .side-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .side-nav-item {
+      font-size: 11px;
+      color: var(--ink3);
+      text-decoration: none;
+      letter-spacing: .04em;
+      padding: 6px 0 6px 12px;
+      border-left: 2px solid transparent;
+      transition: color .18s, border-color .18s;
+      line-height: 1.4;
+    }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.active { color: var(--terra); border-color: var(--terra); }
+    .side-nav-divider {
+      height: 1px;
+      background: var(--rule);
+      margin: 10px 0;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main-content {
+      padding: 0;
+      background: var(--paper);
+    }
+
+    /* ── SECTIONS ── */
+    .section {
+      padding: 72px 0 64px;
+      border-top: 1px solid var(--rule);
+    }
+    .section:first-child { border-top: none; padding-top: 80px; }
+
+    .label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .label::after {
+      content: '';
+      width: 36px;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* ── PROSE ── */
+    .prose {
+  font-size: 13px;
+  color: var(--ink2);
+  line-height: 2.05;
+  max-width: 580px;
+}
+    .prose + .prose { margin-top: 1.3em; }
+
+    /* ── PROMISE ── */
+    .promise-hl {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-style: italic;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.45;
+      margin-bottom: 24px;
+      max-width: 500px;
+    }
+
+    /* ── FOR SECTION ── */
+    .for-highlight {
+      border-left: 3px solid var(--terra);
+      padding: 20px 24px;
+      background: var(--terra-bg);
+      margin-top: 28px;
+      max-width: 560px;
+    }
+    .for-highlight p {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 2;
+    }
+
+    /* ── ARC ── */
+    .arc-statement {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.6;
+      max-width: 500px;
+      margin-bottom: 36px;
+    }
+    .arc-flow {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      gap: 0;
+      padding: 24px 0;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+    .arc-flow::-webkit-scrollbar { display: none; }
+    .arc-node {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      white-space: nowrap;
+    }
+    .arc-node-label {
+      font-size: 11px;
+      letter-spacing: .06em;
+      color: var(--ink2);
+      padding: 4px 0;
+    }
+    .arc-node-label strong { color: var(--ink); font-weight: 500; }
+    .arc-node-num {
+      font-size: 9px;
+      color: var(--ink3);
+      margin-right: 5px;
+    }
+    .arc-arrow {
+      color: var(--rule);
+      padding: 0 14px;
+      font-size: 13px;
+    }
+
+    /* ── MODULES ── */
+    .modules-list { display: flex; flex-direction: column; gap: 0; }
+
+    .module {
+      padding: 32px 0;
+      border-top: 1px solid var(--rule);
+    }
+    .module:first-child { border-top: none; padding-top: 0; }
+
+    .module-head {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 0 20px;
+      margin-bottom: 4px;
+      align-items: baseline;
+    }
+    .module-num {
+      font-size: 10px;
+      letter-spacing: .12em;
+      color: var(--ink3);
+      padding-top: 3px;
+      font-weight: 300;
+    }
+    .module-title {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+    .module-tagline {
+      font-family: var(--serif);
+      font-size: 13px;
+      font-style: italic;
+      color: var(--ink3);
+      margin-bottom: 14px;
+      padding-left: 84px;
+    }
+    .module-body {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 2.05;
+      max-width: 580px;
+      margin-bottom: 14px;
+      padding-left: 84px;
+    }
+    .module-outcome {
+      font-size: 12px;
+      color: var(--terra);
+      font-style: italic;
+      line-height: 1.75;
+      padding-left: 84px;
+      padding-right: 0;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .module-outcome::before {
+      content: '→';
+      flex-shrink: 0;
+      color: var(--terra-dim);
+      margin-top: 1px;
+    }
+
+    /* ── MODULE 8 SPECIAL ── */
+    .module-8 {
+      background: var(--dark);
+      padding: 40px 40px 36px;
+      margin: 32px -40px;
+    }
+    .module-8 .module-num { color: #6a6460; }
+    .module-8 .module-title { color: #e8c9b8; }
+    .module-8 .module-tagline { color: #8a8078; font-style: italic; }
+    .module-8 .module-body { color: #b0a89e; }
+    .module-8 .module-outcome { color: #c4956e; }
+    .module-8 .module-outcome::before { color: #5a4a3a; }
+    .module-8 .module-head { margin-bottom: 4px; }
+
+    .incidents {
+      padding-left: 84px;
+      margin: 16px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .incident {
+      font-size: 12px;
+      color: #8a8078;
+      padding: 10px 16px;
+      border-left: 2px solid #3a3028;
+      line-height: 1.7;
+      background: rgba(255,255,255,0.03);
+    }
+    .incident strong { color: #c4956e; font-weight: 400; }
+
+    .module-8-note {
+      padding-left: 84px;
+      font-size: 12px;
+      color: #6a6460;
+      font-style: italic;
+      margin-top: 12px;
+      line-height: 1.7;
+    }
+
+    /* ── CAPSTONE ── */
+    .capstone-wrap {
+      border: 1px solid var(--rule);
+      overflow: hidden;
+    }
+    .capstone-header {
+      background: var(--paper-mid);
+      padding: 28px 32px;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .capstone-tag {
+      font-size: 10px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--terra);
+    }
+    .capstone-flag {
+      font-size: 10px;
+      letter-spacing: .1em;
+      color: var(--ink3);
+      border: 1px solid var(--rule);
+      padding: 3px 10px;
+    }
+    .capstone-body { padding: 32px; }
+    .capstone-title {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.35;
+      margin-bottom: 20px;
+      max-width: 480px;
+    }
+    .deliverables {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 24px 0;
+    }
+    .deliverable {
+      font-size: 12px;
+      color: var(--ink2);
+      padding: 11px 0;
+      border-top: 1px solid var(--rule);
+      line-height: 1.65;
+      display: grid;
+      grid-template-columns: 16px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .deliverable::before {
+      content: '—';
+      color: var(--terra-dim);
+      font-size: 11px;
+      padding-top: 1px;
+    }
+
+    /* ── CERTIFICATE ── */
+    .cert-quote {
+      font-family: var(--serif);
+      font-size: 26px;
+      font-style: italic;
+      color: var(--ink);
+      line-height: 1.4;
+      margin-bottom: 24px;
+      max-width: 460px;
+    }
+    .cert-quote::before { content: '\201C'; color: var(--terra-dim); }
+    .cert-quote::after  { content: '\201D'; color: var(--terra-dim); }
+
+    /* ── FORMAT FACTS ── */
+    .facts {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--rule);
+    }
+    .fact {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 24px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--rule);
+      font-size: 13px;
+      align-items: start;
+    }
+    .fact-k {
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding-top: 2px;
+    }
+    .fact-v { color: var(--ink2); line-height: 1.8; }
+
+    /* ── ABOUT ── */
+    .about-name {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .about-role {
+      font-size: 11px;
+      color: var(--ink3);
+      letter-spacing: .04em;
+      margin-bottom: 28px;
+    }
+    .about-arc {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      align-items: center;
+      padding-top: 24px;
+      border-top: 1px solid var(--rule);
+      margin-top: 28px;
+    }
+    .about-arc::-webkit-scrollbar { display: none; }
+    .arc-stop { font-size: 11px; color: var(--ink3); white-space: nowrap; }
+    .arc-stop strong { color: var(--ink2); font-weight: 400; }
+    .arc-sep { color: var(--rule); padding: 0 12px; font-size: 11px; flex-shrink: 0; }
+
+    /* ── ENROLLMENT ── */
+    .enroll-band {
+      background: var(--dark);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+      margin: 72px -52px 0;
+      padding: 72px 52px 80px;
+    }
+    .enroll-inner {
+      max-width: 600px;
+    }
+    .enroll-label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: #6a6460;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .enroll-label::after {
+      content: '';
+      width: 36px;
+      height: 1px;
+      background: #3a3028;
+    }
+    .enroll-title {
+      font-family: var(--serif);
+      font-size: clamp(22px, 3vw, 32px);
+      font-weight: 400;
+      color: #f0e8e0;
+      line-height: 1.35;
+      margin-bottom: 24px;
+    }
+    .enroll-prose {
+      font-size: 13px;
+      color: #8a8078;
+      line-height: 2.05;
+      margin-bottom: 1.3em;
+      max-width: 520px;
+    }
+    .enroll-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 32px;
+      background: var(--terra);
+      color: var(--paper);
+      padding: 14px 28px;
+      font-size: 12px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: opacity .2s;
+    }
+    .enroll-cta:hover { opacity: .85; }
+    .enroll-cta::after { content: "→"; }
+
+    /* ── FOOTER ── */
+    .footer-wrap {
+      background: var(--dark2);
+      margin: 0 -52px;
+      padding: 28px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-top: 1px solid #2e2820;
+    }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-link {
+      font-size: 11px;
+      color: #6a6460;
+      text-decoration: none;
+      transition: color .18s;
+    }
+    .footer-link:hover { color: var(--terra-dim); }
+
+    /* ── ACTIVE NAV TRACKING ── */
+    .side-nav-item.is-active {
+      color: var(--terra);
+      border-color: var(--terra);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 48px;
+        padding: 72px 44px 80px;
+      }
+      nav { padding: 20px 44px; }
+      .hero-right { max-width: 440px; }
+      .page-body {
+        grid-template-columns: 1fr;
+        padding: 0 44px;
+      }
+      .sidebar { display: none; }
+      .module-8 { margin: 32px -44px; }
+      .enroll-band { margin: 72px -44px 0; padding: 64px 44px 72px; }
+      .footer-wrap { margin: 0 -44px; padding: 24px 44px; }
+    }
+
+    @media (max-width: 640px) {
+      nav { padding: 18px 24px; }
+      .nav-right .nav-link { display: none; }
+      .hero { padding: 56px 24px 64px; }
+      .page-body { padding: 0 24px; }
+      .module-tagline,
+      .module-body,
+      .module-outcome,
+      .incidents,
+      .module-8-note { padding-left: 0; }
+      .module-head { grid-template-columns: 1fr; gap: 2px; }
+      .module-num { display: none; }
+      .module-8 { padding: 28px 24px; margin: 28px -24px; }
+      .capstone-body { padding: 24px 20px; }
+      .enroll-band { margin: 56px -24px 0; padding: 48px 24px 56px; }
+      .footer-wrap { margin: 0 -24px; padding: 20px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ COVER ZONE ══ -->
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="https://hpc.now" class="logo">hpc<em>.now</em></a>
+      <div class="nav-right">
+        <a href="#modules" class="nav-link">Modules</a>
+        <a href="#capstone" class="nav-link">Capstone</a>
+        <a href="#rajesh" class="nav-link">Instructor</a>
+        <a href="mailto:rajesh@hpc.now" class="nav-cta">Start a conversation</a>
+      </div>
+    </nav>
+  </div>
+
+  <section class="hero">
+    <div class="hero-left">
+      <p class="hero-label">Pilot Cohort · March 2026</p>
+      <h1 class="hero-title">
+        HPC Infrastructure<br>
+        Operations for<br>
+        <em>Senior Engineers</em>
+      </h1>
+     <p class="hero-sub">
+When a compute cluster lands on your desk, nobody trains you to run it.<br><br>
+You already understand infrastructure — servers, Linux systems, storage, networking.<br><br>
+This course teaches you how HPC clusters actually work — on a live cluster, from day one.
+</p>
+    </div>
+    <div class="hero-right">
+      <div class="hero-facts">
+        <div class="hero-fact">
+          <span class="hero-fact-k">Format</span>
+          <span class="hero-fact-v">Live cohort sessions · Live cluster throughout</span>
+        </div>
+        <div class="hero-fact">
+          <span class="hero-fact-k">Modules</span>
+          <span class="hero-fact-v">10 modules + optional capstone</span>
+        </div>
+        <div class="hero-fact">
+          <span class="hero-fact-k">Cohort</span>
+          <span class="hero-fact-v">4 – 6 engineers · Pilot pricing</span>
+        </div>
+        <div class="hero-fact">
+          <span class="hero-fact-k">Baseline</span>
+          <span class="hero-fact-v">5+ years IT infrastructure experience</span>
+        </div>
+        <div class="hero-fact">
+          <span class="hero-fact-k">Enrollment</span>
+          <span class="hero-fact-v">15-minute conversation. Not a payment form.</span>
+        </div>
+      </div>
+      <a href="mailto:rajesh@hpc.now" class="hero-cta">Write to rajesh@hpc.now</a>
+    </div>
+  </section>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- ══ TWO-COLUMN BODY ══ -->
+<div class="page-body">
+
+  <!-- STICKY SIDEBAR -->
+  <aside class="sidebar">
+    <nav class="side-nav">
+      <a href="#promise"     class="side-nav-item">The Promise</a>
+      <a href="#for"         class="side-nav-item">Who This Is For</a>
+      <a href="#arc"         class="side-nav-item">The Arc</a>
+      <div class="side-nav-divider"></div>
+      <a href="#modules"     class="side-nav-item">The Modules</a>
+      <a href="#m0"          class="side-nav-item">00 · Orientation</a>
+      <a href="#m1"          class="side-nav-item">01 · Be a User</a>
+      <a href="#m2"          class="side-nav-item">02 · Storage</a>
+      <a href="#m3"          class="side-nav-item">03 · Networking</a>
+      <a href="#m4"          class="side-nav-item">04 · Scheduler</a>
+      <a href="#m5"          class="side-nav-item">05 · Packages</a>
+      <a href="#m6"          class="side-nav-item">06 · Security</a>
+      <a href="#m7"          class="side-nav-item">07 · Monitoring</a>
+      <a href="#m8"          class="side-nav-item">08 · Practicum</a>
+      <a href="#m9"          class="side-nav-item">09 · Bridge</a>
+      <div class="side-nav-divider"></div>
+      <a href="#capstone"    class="side-nav-item">Capstone</a>
+      <a href="#certificate" class="side-nav-item">Certificate</a>
+      <a href="#format"      class="side-nav-item">Format</a>
+      <a href="#rajesh"      class="side-nav-item">Instructor</a>
+      <a href="#enroll"      class="side-nav-item">Enrollment</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- THE PROMISE -->
+    <section class="section" id="promise">
+      <p class="label">the promise</p>
+      <p class="promise-hl">Concept as scaffold. Hands-on as the deliverable.</p>
+      <p class="prose">Every topic in this course is introduced through the lens of what it means on the job — not what it means in a textbook. If a concept doesn't directly unlock a lab exercise or an operational decision, it isn't in this course.</p>
+      <p class="prose">You won't be taught how to think about systems. You already know that. You'll be given HPC-specific muscle memory to layer onto instincts you've spent years building.</p>
+    </section>
+
+    <!-- WHO THIS IS FOR -->
+    <section class="section" id="for">
+      <p class="label">who this is for</p>
+      <p class="prose">You have five or more years of hands-on IT infrastructure experience. You've managed physical servers, virtual machines, storage systems, and Linux environments. You understand how a datacenter works because you've kept one running.</p>
+      <p class="prose">You have not worked inside an HPC environment before — and that's exactly the assumption this course is built on. No HPC background required. No beginner basics taught.</p>
+      <p class="prose">If you've managed virtualisation platforms — VMware, KVM, OpenShift or similar — you already speak most of the language. This course gives you the rest.</p>
+      <div class="for-highlight">
+        <p>The course will not make you immediately employable in HPC overnight — the field is niche and the pyramid narrows at seniority. What it will do is build foundations that work in both directions: a complete shift into HPC operations, or a solid floor to build an AI infrastructure career on top of. Those foundations — scheduler operations, parallel storage, high-speed fabric, cluster observability — sit underneath every serious large-scale compute environment running today.</p>
+      </div>
+    </section>
+
+    <!-- THE ARC -->
+    <section class="section" id="arc">
+      <p class="label">the arc</p>
+      <p class="arc-statement">Ten modules that mirror a new HPC administrator's first ninety days on the job.</p>
+      <p class="prose">Start as a user. Take ownership of each infrastructure layer. Prove competence under pressure. Exit with a clear map of what comes next.</p>
+      <div class="arc-flow">
+        <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">00</span> <strong>Orientation</strong></span><span class="arc-arrow">→</span></div>
+        <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">01</span> <strong>User</strong></span><span class="arc-arrow">→</span></div>
+        <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">02</span> <strong>Storage</strong></span><span class="arc-arrow">→</span></div>
+        <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">03</span> <strong>Network</strong></span><span class="arc-arrow">→</span></div>
+        <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">04</span> <strong>Scheduler</strong></span><span class="arc-arrow">→</span></div>
+        <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">05</span> <strong>Packages</strong></span><span class="arc-arrow">→</span></div>
+        <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">06</span> <strong>Security</strong></span><span class="arc-arrow">→</span></div>
+        <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">07</span> <strong>Monitoring</strong></span><span class="arc-arrow">→</span></div>
+        <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">08</span> <strong>Practicum</strong></span><span class="arc-arrow">→</span></div>
+        <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">09</span> <strong>Bridge</strong></span></div>
+      </div>
+    </section>
+</section>
+
+<!-- RECOGNITION -->
+<section class="section" id="recognition">
+  <p class="label">if this sounds familiar</p>
+
+  <p class="prose">A research team needs compute.</p>
+  <p class="prose">A cluster appears in the datacenter.</p>
+  <p class="prose">Or a GPU system arrives and someone asks if you can operate it.</p>
+
+  <p class="prose">
+  Suddenly you are responsible for infrastructure nobody ever formally trained you to run.
+  </p>
+
+  <p class="prose">
+  Schedulers. Parallel storage. High-speed fabric. MPI workloads. Cluster observability.
+  </p>
+
+  <p class="prose">
+  This course exists for engineers who already run infrastructure — but want to understand how large-scale compute systems actually work.
+  </p>
+</section>
+
+<!-- MODULES -->
+<section class="section" id="modules">
+    <!-- MODULES -->
+    <section class="section" id="modules">
+      <p class="label">the modules</p>
+      <div class="modules-list">
+
+        <div class="module" id="m0">
+          <div class="module-head"><span class="module-num">MODULE 00</span><span class="module-title">HPC Orientation</span></div>
+          <p class="module-tagline">Exploration before instruction.</p>
+          <p class="module-body">You SSH into a live cluster before you're told what you're looking at. Examine running processes, read the scheduler configuration, inspect mounted filesystems, list network interfaces. No instructions — guided exploration followed by a debrief.</p>
+          <p class="module-outcome">You leave this module able to read a cluster's topology and understand its components without requiring documentation.</p>
+        </div>
+
+        <div class="module" id="m1">
+          <div class="module-head"><span class="module-num">MODULE 01</span><span class="module-title">Be an HPC User</span></div>
+          <p class="module-tagline">Build admin empathy by being the user first.</p>
+          <p class="module-body">Before you administer anything, you submit jobs. Serial jobs, multi-threaded jobs, massively parallel MPI jobs. You deliberately submit a job requesting 32 cores that only uses 4 — and read the output to identify the waste. Every operational decision later in the course will be informed by this perspective.</p>
+          <p class="module-outcome">You leave this module able to submit, monitor, and interpret real HPC jobs — and recognise what a poorly-specified job looks like from the scheduler's side.</p>
+        </div>
+
+        <div class="module" id="m2">
+          <div class="module-head"><span class="module-num">MODULE 02</span><span class="module-title">Storage in HPC</span></div>
+          <p class="module-tagline">The most transferable module for datacenter veterans — familiar concepts, radically different implementation.</p>
+          <p class="module-body">You know enterprise NAS. This module starts by showing you precisely why it fails at HPC — and what replaces it. Parallel filesystem architecture, stripe tuning, quota management, scratch lifecycle. You'll benchmark storage under parallel write load, tune stripe counts, and simulate a scratch-full failure — diagnosing and recovering a cluster where a job is failing because a disk has silently filled.</p>
+          <p class="module-outcome">You leave this module able to choose the right storage tier for a workload, configure parallel filesystem stripes, and diagnose I/O bottlenecks before they become incidents.</p>
+        </div>
+
+        <div class="module" id="m3">
+          <div class="module-head"><span class="module-num">MODULE 03</span><span class="module-title">Networking for HPC</span></div>
+          <p class="module-tagline">Understanding when the network is the bottleneck — and proving it with numbers.</p>
+          <p class="module-body">Why standard Ethernet is insufficient for tightly-coupled parallel workloads. High-speed fabric architecture — concepts, health monitoring, and verification. You'll benchmark interconnect performance, verify your jobs are actually using the high-speed fabric and not silently falling back to standard networking, and diagnose a job running ten times slower than expected because of exactly that failure. The module closes with a direct mapping onto GPU collective communications in large-scale compute workloads.</p>
+          <p class="module-outcome">You leave this module able to verify network fabric usage, benchmark interconnect performance, and identify network-related job slowdowns.</p>
+        </div>
+
+        <div class="module" id="m4">
+          <div class="module-head"><span class="module-num">MODULE 04</span><span class="module-title">Scheduler and Queue Management</span></div>
+          <p class="module-tagline">The operational heart of HPC administration. Most of your working day lives here.</p>
+          <p class="module-body">SLURM architecture, partition design, quality of service configuration, fair-share accounting. Node states and what each means operationally. Job dependencies, job arrays, preemption, checkpointing. Every topic is scenario-driven — a researcher reports their job has been pending for six hours; you diagnose it using the scheduler's own tools. Root causes are intentionally varied across participants.</p>
+          <p class="module-outcome">You leave this module able to diagnose pending jobs systematically, configure fair-share policies, and perform node maintenance without disrupting running workloads.</p>
+        </div>
+
+        <div class="module" id="m5">
+          <div class="module-head"><span class="module-num">MODULE 05</span><span class="module-title">Package and Environment Management</span></div>
+          <p class="module-tagline">The invisible infrastructure that makes or breaks researcher productivity.</p>
+          <p class="module-body">Why environment modules exist. How to write them. SPACK for dependency-aware package management. Singularity containers — why Docker doesn't run on HPC clusters, and how to convert Docker images to run under the job scheduler. You'll pull a PyTorch image, convert it, and submit it as a cluster job. Directly applicable to AI infrastructure container workflows.</p>
+          <p class="module-outcome">You leave this module able to maintain software stacks on a shared cluster, support users with module issues, and run containerised workloads under a job scheduler.</p>
+        </div>
+
+        <div class="module" id="m6">
+          <div class="module-head"><span class="module-num">MODULE 06</span><span class="module-title">Security and Access Control</span></div>
+          <p class="module-tagline">Framed as a user lifecycle exercise — onboarding and offboarding drives every topic naturally.</p>
+          <p class="module-body">Linux account management at scale, LDAP integration, SSH key policies, filesystem security on shared parallel filesystems. The lab is a complete user lifecycle — onboard an account from scratch, then offboard it in the correct sequence: suspend the account, handle running jobs, archive the home directory, remove scheduler associations. Everything in the right order.</p>
+          <p class="module-outcome">You leave this module able to manage the complete user lifecycle on an HPC cluster and understand the filesystem security model for shared environments.</p>
+        </div>
+
+        <div class="module" id="m7">
+          <div class="module-head"><span class="module-num">MODULE 07</span><span class="module-title">Monitoring and Observability</span></div>
+          <p class="module-tagline">Build a dashboard you would actually use — not a toy example.</p>
+          <p class="module-body">HPC monitoring philosophy: job-level metrics matter as much as node-level metrics. You'll deploy a scheduler metrics exporter and node exporters on the shared cluster, build a working Grafana dashboard covering cluster utilisation, queue depth, job wait time, and node health — and configure two production-grade alerts: storage reaching capacity, and a node stuck in drain state. Then generate real cluster load and watch the metrics respond.</p>
+          <p class="module-outcome">You leave this module able to build and maintain cluster observability and configure proactive alerting before users have to complain.</p>
+        </div>
+
+        <!-- MODULE 8 — dark treatment -->
+        <div class="module module-8" id="m8">
+          <div class="module-head"><span class="module-num">MODULE 08</span><span class="module-title">Troubleshooting Practicum</span></div>
+          <p class="module-tagline">This is the module that converts knowledge into operational confidence.</p>
+          <p class="module-body">No new concepts. No lectures. Rajesh injects real failures into a live cluster. You receive a symptom description only — no hints, no root cause disclosed. You diagnose.</p>
+          <div class="incidents">
+            <div class="incident"><strong>Incident 1 —</strong> Job submits successfully and never starts.</div>
+            <div class="incident"><strong>Incident 2 —</strong> Job fails immediately with exit code 1.</div>
+            <div class="incident"><strong>Incident 3 —</strong> All cluster nodes simultaneously enter drain state.</div>
+            <div class="incident"><strong>Incident 4 —</strong> Job runs ten times slower than expected.</div>
+            <div class="incident"><strong>Incident 5 —</strong> Storage alert fires. Scratch filesystem silently full.</div>
+            <div class="incident"><strong>Incident 6 —</strong> Jobs complete. Output is wrong.</div>
+          </div>
+          <p class="module-body">Each diagnosis attempt is followed by a structured debrief: the correct diagnostic path, the logs and tools that reveal the root cause, and the fix.</p>
+          <p class="module-8-note">This is not a simulation. This is operational pressure, controlled and deliberate.</p>
+          <p class="module-outcome">You leave this module with a systematic troubleshooting methodology — read logs, correlate symptoms, distinguish user error from infrastructure failure, fix and document.</p>
+        </div>
+
+        <div class="module" id="m9">
+          <div class="module-head"><span class="module-num">MODULE 09</span><span class="module-title">Bridge to Large-Scale Compute</span></div>
+          <p class="module-tagline">No new labs. A mapping session that makes everything you've learned immediately portable.</p>
+          <p class="module-body">This module does not teach AI infrastructure. It shows you exactly where the HPC knowledge from this course sits inside the large-scale compute stack — and names precisely what is new territory from here. GPU collective communications, model checkpoint storage patterns, inference infrastructure, orchestration for ML workloads. You'll know what you know, what you don't yet know, and what to learn next.</p>
+          <p class="module-outcome">You leave this module able to walk into an AI infrastructure role or course already understanding the infrastructure layer — with zero vocabulary confusion.</p>
+        </div>
+
+      </div>
+    </section>
+<!-- WHAT YOU LEAVE WITH -->
+<section class="section" id="outcomes">
+  <p class="label">what you leave with</p>
+
+  <p class="prose">
+  By the end of the course you will be able to:
+  </p>
+
+  <div class="facts" style="max-width:600px">
+
+    <div class="fact">
+      <span class="fact-k">Diagnose</span>
+      <span class="fact-v">why HPC jobs are pending, failing, or running slowly.</span>
+    </div>
+
+    <div class="fact">
+      <span class="fact-k">Understand</span>
+      <span class="fact-v">how schedulers, storage, and networking interact inside clusters.</span>
+    </div>
+
+    <div class="fact">
+      <span class="fact-k">Operate</span>
+      <span class="fact-v">a shared HPC environment supporting real workloads.</span>
+    </div>
+
+    <div class="fact">
+      <span class="fact-k">Support</span>
+      <span class="fact-v">researchers running parallel MPI workloads.</span>
+    </div>
+
+    <div class="fact">
+      <span class="fact-k">Recognise</span>
+      <span class="fact-v">how HPC infrastructure underpins modern AI compute systems.</span>
+    </div>
+
+  </div>
+
+  <p class="prose" style="margin-top:28px">
+  You will not know everything about HPC. But you will know enough to operate a cluster competently and continue learning with confidence.
+  </p>
+</section>
+
+    <!-- CAPSTONE -->
+    <section class="section" id="capstone">
+      <p class="label">the capstone</p>
+      <div class="capstone-wrap">
+        <div class="capstone-header">
+          <span class="capstone-tag">End-to-End Cluster Build</span>
+          <span class="capstone-flag">Optional · Required for Certificate of Capability</span>
+        </div>
+        <div class="capstone-body">
+          <p class="capstone-title">Deploy a complete, production-grade HPC cluster from a blank account over one focused weekend.</p>
+          <p class="prose">Cluster up on Friday evening. All configuration and testing complete by Sunday. Cluster torn down Sunday night. The GitHub repository is the persistent artifact — not the running infrastructure.</p>
+          <p class="prose" style="margin-top:1.2em">The deliverable is a GitHub repository containing:</p>
+          <div class="deliverables">
+            <div class="deliverable">Fully commented cluster configuration — production-ready</div>
+            <div class="deliverable">Scheduler partition and QOS setup with fair-share accounting</div>
+            <div class="deliverable">Working modulefiles for a real HPC application</div>
+            <div class="deliverable">Containerised job submission script running a real workload</div>
+            <div class="deliverable">Grafana dashboard export — cluster utilisation, queue depth, node health</div>
+            <div class="deliverable">Operational runbook covering the five most common HPC admin scenarios</div>
+          </div>
+          <p class="prose">Rajesh reviews the repository and conducts one structured feedback session per participant. Every configuration decision must be defensible.</p>
+          <p class="prose" style="margin-top:1.2em">This is the module that produces a portfolio artifact — something you can show, not just describe.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CERTIFICATE -->
+    <section class="section" id="certificate">
+      <p class="label">certificate of capability</p>
+      <p class="cert-quote">This is not a participation certificate.</p>
+      <p class="prose">It is awarded on demonstrated competency through the capstone. The certificate includes a signed capability table listing each skill area demonstrated — making it substantively different from a course completion badge. It documents what you can do, not that you showed up.</p>
+    </section>
+
+    <!-- FORMAT -->
+    <section class="section" id="format">
+      <p class="label">the format</p>
+      <p class="prose" style="margin-bottom:28px">Ten modules delivered as live cohort sessions. Every lab runs on a live HPC cluster maintained and provisioned by Rajesh. You operate within it from the first session — SSHing into a real cluster, submitting real jobs, working with real infrastructure.</p>
+      <div class="facts">
+        <div class="fact"><span class="fact-k">Cohort</span><span class="fact-v">Four to six engineers. The size at which Rajesh can observe every participant in real time, and at which the group learns from each other's diagnostic approaches.</span></div>
+        <div class="fact"><span class="fact-k">Labs</span><span class="fact-v">Live cluster throughout — not a simulation, not a video walkthrough. Real infrastructure from the first session.</span></div>
+        <div class="fact"><span class="fact-k">Limits</span><span class="fact-v">The course will not run below three participants or above eight.</span></div>
+        <div class="fact"><span class="fact-k">Capstone</span><span class="fact-v">Optional. Required only for the Certificate of Capability. One focused weekend on your own account.</span></div>
+      </div>
+    </section>
+
+    <!-- ABOUT RAJESH -->
+    <section class="section" id="rajesh">
+      <p class="label">the instructor</p>
+      <p class="about-name">Rajesh Kumar</p>
+      <p class="about-role">HPC Infrastructure Architect · 16+ Years · Bengaluru, India</p>
+      <p class="prose">Rajesh has operated HPC infrastructure for sixteen years — across IISc, C-DAC Pune, GE India, Boeing India, and Trianz. Across scheduler, storage, network, compute, and automation simultaneously. Not as a layer specialist. Across all of them, at scale, in production.</p>
+      <p class="prose" style="margin-top:1.2em">He has never been employed by a vendor. That independence is structural — it shapes every comparative assessment, every configuration recommendation, and every opinion in this course.</p>
+      <p class="prose" style="margin-top:1.2em">He built this course because the knowledge that takes years to accumulate inside HPC environments has never been properly written down for the engineers who need it most.</p>
+      <div class="about-arc">
+        <span class="arc-stop"><strong>IISc</strong></span><span class="arc-sep">—</span>
+        <span class="arc-stop"><strong>C-DAC</strong> Pune</span><span class="arc-sep">—</span>
+        <span class="arc-stop"><strong>GE</strong> India</span><span class="arc-sep">—</span>
+        <span class="arc-stop"><strong>Boeing</strong> India</span><span class="arc-sep">—</span>
+        <span class="arc-stop"><strong>Trianz</strong></span>
+      </div>
+    </section>
+
+    <!-- ENROLLMENT -->
+    <section class="section" id="enroll" style="padding-bottom:0; border-bottom:none;">
+      <div class="enroll-band">
+        <div class="enroll-inner">
+          <p class="enroll-label">enrollment</p>
+          <p class="enroll-title">Enrollment starts with a 15-minute conversation — not a payment form.</p>
+          <p class="enroll-prose">This is not a gatekeeping exercise. It is a fit check — to make sure you'll get full value from the course rather than finding yourself covering foundations that are assumed knowledge here.</p>
+          <p class="enroll-prose">Pilot pricing is offered to the founding cohort in exchange for honest feedback. This is not a discount — it is a fair exchange for helping sharpen a curriculum that will outlast this cohort.</p>
+          <a href="mailto:rajesh@hpc.now" class="enroll-cta">Write to rajesh@hpc.now</a>
+        </div>
+      </div>
+      <div class="footer-wrap">
+        <span class="footer-copy">hpc.now &nbsp;·&nbsp; Bengaluru &nbsp;·&nbsp; 2026</span>
+        <a href="mailto:rajesh@hpc.now" class="footer-link">rajesh@hpc.now</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // Sticky sidebar active state tracking
+  const sections = document.querySelectorAll('section[id], div.module[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(item => item.classList.remove('is-active'));
+        const active = document.querySelector(`.side-nav-item[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
