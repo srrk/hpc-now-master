@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reserve Your Place · hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #e4ddd0;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    /* ── COVER ── */
+    .cover {
+      background: var(--cover);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NAV ── */
+    .nav-wrap {
+      padding: 0;
+      border-bottom: 1px solid var(--rule-cover);
+    }
+    nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 22px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: .06em;
+    }
+    .logo em { color: var(--terra); font-style: normal; }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .nav-link {
+      font-size: 11px;
+      color: var(--ink3);
+      text-decoration: none;
+      letter-spacing: .05em;
+      transition: color .18s;
+    }
+    .nav-link:hover { color: var(--terra); }
+    .nav-cta {
+      font-size: 11px;
+      letter-spacing: .08em;
+      color: var(--terra);
+      text-decoration: none;
+      border: 1px solid var(--terra-dim);
+      padding: 6px 14px;
+      transition: background .18s, color .18s;
+    }
+    .nav-cta:hover { background: var(--terra); color: var(--paper); }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 72px 52px 80px;
+      width: 100%;
+    }
+    .hero-label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hero-label::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--ink3);
+    }
+    .hero-title {
+      font-family: var(--serif);
+      font-size: clamp(32px, 4vw, 56px);
+      font-weight: 400;
+      line-height: 1.15;
+      color: var(--ink);
+      letter-spacing: -.02em;
+      margin-bottom: 24px;
+      max-width: 600px;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: var(--terra);
+    }
+    .hero-sub {
+      font-size: 14px;
+      color: var(--ink2);
+      line-height: 2;
+      max-width: 520px;
+    }
+
+    /* ── ZONE EDGE ── */
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* ── PAGE BODY ── */
+    .page-body {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 52px;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 0 72px;
+      align-items: start;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: sticky;
+      top: 40px;
+      padding: 64px 0 40px;
+      align-self: start;
+    }
+    .side-label {
+      font-size: 10px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 20px;
+    }
+    .side-note {
+      font-size: 11px;
+      color: var(--ink3);
+      line-height: 1.9;
+      border-left: 2px solid var(--rule);
+      padding-left: 12px;
+    }
+    .side-note strong {
+      display: block;
+      color: var(--ink2);
+      font-weight: 400;
+      margin-bottom: 10px;
+    }
+    .side-divider {
+      height: 1px;
+      background: var(--rule);
+      margin: 24px 0;
+    }
+    .side-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .side-step {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .side-step-num {
+      font-size: 9px;
+      color: var(--terra);
+      letter-spacing: .1em;
+      padding-top: 2px;
+      flex-shrink: 0;
+      width: 16px;
+    }
+    .side-step-text {
+      font-size: 11px;
+      color: var(--ink3);
+      line-height: 1.7;
+    }
+    .side-divider-2 {
+      height: 1px;
+      background: var(--rule);
+      margin: 24px 0;
+    }
+    .side-meta {
+      font-size: 10px;
+      color: var(--ink3);
+      line-height: 2;
+      letter-spacing: .02em;
+    }
+    .side-meta a {
+      color: var(--terra);
+      text-decoration: none;
+    }
+    .side-meta a:hover { text-decoration: underline; }
+
+    /* ── MAIN CONTENT ── */
+    .main-content {
+      padding: 64px 0 0;
+    }
+
+    /* ── WHAT HAPPENS NEXT ── */
+    .what-next {
+      margin-bottom: 48px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .section-label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .section-label::after {
+      content: '';
+      width: 36px;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* ── STEPS ── */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--rule);
+      max-width: 560px;
+      margin-bottom: 32px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 20px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--rule);
+      align-items: start;
+    }
+    .step-num {
+      font-size: 10px;
+      color: var(--terra);
+      letter-spacing: .1em;
+      padding-top: 3px;
+    }
+    .step-body {}
+    .step-title {
+      font-family: var(--serif);
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+    .step-desc {
+      font-size: 12px;
+      color: var(--ink3);
+      line-height: 1.85;
+    }
+
+    /* ── HIGHLIGHT ── */
+    .highlight {
+      border-left: 3px solid var(--terra);
+      padding: 16px 20px;
+      background: var(--terra-bg);
+      max-width: 560px;
+    }
+    .highlight p {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 2;
+    }
+
+    /* ── FORM SECTION ── */
+    .form-section {
+      padding-top: 0;
+    }
+    .form-label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .form-label::after {
+      content: '';
+      width: 36px;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* ── TALLY WRAP ── */
+    .tally-wrap {
+      margin-bottom: 0;
+    }
+
+    /* ── ENROLLMENT BAND ── */
+    .enroll-band {
+      background: var(--dark);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+      margin: 64px -52px 0;
+      padding: 64px 52px 72px;
+    }
+    .enroll-inner { max-width: 600px; }
+    .enroll-label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: #6a6460;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .enroll-label::after {
+      content: '';
+      width: 36px;
+      height: 1px;
+      background: #3a3028;
+    }
+    .enroll-title {
+      font-family: var(--serif);
+      font-size: clamp(18px, 2.5vw, 26px);
+      font-weight: 400;
+      color: #f0e8e0;
+      line-height: 1.4;
+      margin-bottom: 20px;
+    }
+    .enroll-prose {
+      font-size: 13px;
+      color: #8a8078;
+      line-height: 2.05;
+      margin-bottom: 1.2em;
+      max-width: 500px;
+    }
+    .enroll-links {
+      display: flex;
+      gap: 20px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .enroll-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--terra);
+      color: var(--paper);
+      padding: 12px 24px;
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: opacity .2s;
+    }
+    .enroll-cta:hover { opacity: .85; }
+    .enroll-cta::after { content: "→"; }
+    .enroll-secondary {
+      font-size: 11px;
+      color: #6a6460;
+      text-decoration: none;
+      letter-spacing: .04em;
+      transition: color .18s;
+    }
+    .enroll-secondary:hover { color: var(--terra-dim); }
+
+    /* ── FOOTER ── */
+    .footer-wrap {
+      background: var(--dark2);
+      margin: 0 -52px;
+      padding: 28px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-top: 1px solid #2e2820;
+    }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-link {
+      font-size: 11px;
+      color: #6a6460;
+      text-decoration: none;
+      transition: color .18s;
+    }
+    .footer-link:hover { color: var(--terra-dim); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      nav { padding: 20px 44px; }
+      .hero { padding: 56px 44px 64px; }
+      .page-body {
+        grid-template-columns: 1fr;
+        padding: 0 44px;
+      }
+      .sidebar { display: none; }
+      .enroll-band { margin: 64px -44px 0; padding: 56px 44px 64px; }
+      .footer-wrap { margin: 0 -44px; padding: 24px 44px; }
+    }
+
+    @media (max-width: 640px) {
+      nav { padding: 18px 24px; }
+      .nav-right .nav-link { display: none; }
+      .hero { padding: 48px 24px 56px; }
+      .page-body { padding: 0 24px; }
+      .enroll-band { margin: 56px -24px 0; padding: 48px 24px 56px; }
+      .footer-wrap { margin: 0 -24px; padding: 20px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ COVER ══ -->
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="https://master.hpc.now" class="logo">hpc<em>.now</em></a>
+      <div class="nav-right">
+        <a href="https://master.hpc.now#modules" class="nav-link">Modules</a>
+        <a href="https://master.hpc.now#capstone" class="nav-link">Capstone</a>
+        <a href="https://master.hpc.now#rajesh" class="nav-link">Instructor</a>
+        <a href="mailto:rajesh@hpc.now" class="nav-cta">Start a conversation</a>
+      </div>
+    </nav>
+  </div>
+
+  <div class="hero">
+    <p class="hero-label">HPC Infrastructure Operations · Pilot Cohort 2026</p>
+    <h1 class="hero-title">
+      Reserve your<br>
+      <em>place.</em>
+    </h1>
+    <p class="hero-sub">
+      Leave your name and email.<br><br>
+      Rajesh will write to you within 24 hours
+      to confirm your place and discuss next steps.<br><br>
+      Places are limited.
+    </p>
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- ══ PAGE BODY ══ -->
+<div class="page-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <p class="side-label">What happens next</p>
+    <div class="side-steps">
+      <div class="side-step">
+        <span class="side-step-num">01</span>
+        <span class="side-step-text">You submit this form.</span>
+      </div>
+      <div class="side-step">
+        <span class="side-step-num">02</span>
+        <span class="side-step-text">Rajesh writes to you within 24 hours.</span>
+      </div>
+      <div class="side-step">
+        <span class="side-step-num">03</span>
+        <span class="side-step-text">A short conversation to confirm your place and discuss pilot pricing.</span>
+      </div>
+      <div class="side-step">
+        <span class="side-step-num">04</span>
+        <span class="side-step-text">Your place is confirmed. The cohort begins.</span>
+    <div class="side-divider"></div>
+    <div class="side-meta">
+      hpc.now · March 2026<br>
+      <a href="mailto:rajesh@hpc.now">rajesh@hpc.now</a><br>
+      <a href="https://master.hpc.now">master.hpc.now</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- WHAT HAPPENS NEXT -->
+    <div class="what-next">
+      <p class="section-label">before you submit</p>
+
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">01</span>
+          <div class="step-body">
+            <p class="step-title">You submit your name and email.</p>
+            <p class="step-desc">Three fields. Under a minute.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-num">02</span>
+          <div class="step-body">
+            <p class="step-title">Rajesh writes to you within 24 hours.</p>
+            <p class="step-desc">A short email to confirm receipt
+            and propose next steps.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-num">03</span>
+          <div class="step-body">
+            <p class="step-title">A short conversation to confirm your place.</p>
+            <p class="step-desc">Discuss pilot pricing, agree on start dates,
+            and answer any remaining questions.
+            You've been through the orientation —
+            you already know if this is for you.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-num">04</span>
+          <div class="step-body">
+            <p class="step-title">Your place is confirmed. The cohort begins.</p>
+            <p class="step-desc">Places are limited.
+            Pilot pricing in exchange for honest feedback.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="highlight">
+        <p>
+          You've been through the orientation.
+          You already know what the course is,
+          who it is for, and what it requires.
+          Submitting this form is simply raising your hand.
+          Rajesh will take it from there.
+        </p>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <div class="form-section">
+      <p class="form-label">your details</p>
+
+      <div class="tally-wrap">
+        <iframe
+          data-tally-src="https://tally.so/embed/pbVWxb?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
+          loading="lazy"
+          width="100%"
+          height="560"
+          frameborder="0"
+          marginheight="0"
+          marginwidth="0"
+          title="HPC Now Enrollment Interest">
+        </iframe>
+        <script>
+          var d=document,
+          w="https://tally.so/widgets/embed.js",
+          v=function(){
+            "undefined"!=typeof Tally
+              ? Tally.loadEmbeds()
+              : d.querySelectorAll("iframe[data-tally-src]:not([src])")
+                  .forEach(function(e){ e.src=e.dataset.tallySrc });
+          };
+          if("undefined"!=typeof Tally) v();
+          else if(d.querySelector('script[src="'+w+'"]')==null){
+            var s=d.createElement("script");
+            s.src=w; s.onload=v; s.onerror=v;
+            d.body.appendChild(s);
+          }
+        </script>
+      </div>
+    </div>
+
+    <!-- DARK BAND -->
+    <div class="enroll-band">
+      <div class="enroll-inner">
+        <p class="enroll-label">questions first?</p>
+        <p class="enroll-title">
+          Not ready to submit yet?<br>
+          Write to Rajesh directly.
+        </p>
+        <p class="enroll-prose">
+          If you have any remaining questions about
+          the course, the cohort, or pilot pricing —
+          a direct email gets a straight answer.
+        </p>
+        <p class="enroll-prose">
+          Or read the full course details at master.hpc.now
+          before deciding.
+        </p>
+        <div class="enroll-links">
+          <a href="mailto:rajesh@hpc.now" class="enroll-cta">
+            Write to rajesh@hpc.now
+          </a>
+          <a href="https://master.hpc.now" class="enroll-secondary">
+            ← Back to course details
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-wrap">
+      <span class="footer-copy">hpc.now &nbsp;·&nbsp; Bengaluru &nbsp;·&nbsp; 2026</span>
+      <a href="mailto:rajesh@hpc.now" class="footer-link">rajesh@hpc.now</a>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>
