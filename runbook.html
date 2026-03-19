@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 01 Lab Runbook — hpc.now</title>
+<style>
+
+  /* ─── TOKENS ─────────────────────────────────────────────── */
+  :root {
+    --black:   #1A1A1A;
+    --red:     #B03A2E;
+    --grey:    #6B6B6B;
+    --light:   #F5F5F5;
+    --border:  #E0E0E0;
+    --white:   #FFFFFF;
+    --code-bg: #F7F7F7;
+  }
+
+  /* ─── RESET ──────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ─── BASE ───────────────────────────────────────────────── */
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Courier New', Courier, monospace;
+    background: var(--white);
+    color: var(--black);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── LAYOUT ─────────────────────────────────────────────── */
+  .page {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ─── HEADER ─────────────────────────────────────────────── */
+  .site-header {
+    border-bottom: 1px solid var(--black);
+    padding: 28px 0 20px;
+    margin-bottom: 56px;
+  }
+
+  .site-header .wordmark {
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--black);
+    text-decoration: none;
+  }
+
+  .site-header .wordmark span {
+    color: var(--red);
+  }
+
+  .hero {
+    padding: 48px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 56px;
+  }
+
+  .hero-label {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 16px;
+  }
+
+  .hero-title {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--black);
+    margin-bottom: 16px;
+  }
+
+  .hero-title em {
+    font-style: normal;
+    color: var(--red);
+  }
+
+  .hero-meta {
+    font-size: 12px;
+    color: var(--grey);
+    letter-spacing: 0.06em;
+  }
+
+  /* ─── NAV ────────────────────────────────────────────────── */
+  .toc {
+    background: var(--light);
+    border-left: 3px solid var(--red);
+    padding: 24px 28px;
+    margin-bottom: 56px;
+  }
+
+  .toc-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin-bottom: 14px;
+  }
+
+  .toc ol {
+    list-style: none;
+    counter-reset: toc;
+  }
+
+  .toc ol li {
+    counter-increment: toc;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+
+  .toc ol li::before {
+    content: counter(toc, decimal-leading-zero) " — ";
+    color: var(--red);
+    font-size: 11px;
+  }
+
+  .toc a {
+    color: var(--black);
+    text-decoration: none;
+  }
+
+  .toc a:hover { color: var(--red); }
+
+  /* ─── SECTIONS ───────────────────────────────────────────── */
+  section {
+    margin-bottom: 64px;
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 10px;
+  }
+
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--black);
+    border-bottom: 1px solid var(--black);
+    padding-bottom: 10px;
+    margin-bottom: 28px;
+  }
+
+  /* ─── CLUSTER BLOCKS ─────────────────────────────────────── */
+  .cluster {
+    margin-bottom: 40px;
+  }
+
+  .cluster-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .cluster-tag {
+    background: var(--black);
+    color: var(--white);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+  }
+
+  .cluster-title {
+    font-size: 13px;
+    color: var(--grey);
+    letter-spacing: 0.06em;
+  }
+
+  /* ─── CODE BLOCKS ────────────────────────────────────────── */
+  .cmd-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--black);
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+
+  .cmd-block code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    color: var(--black);
+    display: block;
+    line-height: 1.8;
+    white-space: pre;
+  }
+
+  .cmd-block .prompt {
+    color: var(--red);
+    user-select: none;
+  }
+
+  /* ─── RECORD BOX ─────────────────────────────────────────── */
+  .record {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    padding: 14px 20px;
+    margin: 16px 0 28px;
+    font-size: 12px;
+  }
+
+  .record-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 8px;
+  }
+
+  .record ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .record ul li {
+    padding: 3px 0;
+    font-size: 12px;
+    color: var(--black);
+  }
+
+  .record ul li::before {
+    content: "→ ";
+    color: var(--red);
+  }
+
+  /* ─── NOTICE BOXES ───────────────────────────────────────── */
+  .notice {
+    background: var(--light);
+    border: 1px solid var(--border);
+    padding: 14px 20px;
+    margin: 20px 0;
+    font-size: 12px;
+    color: var(--grey);
+  }
+
+  .notice strong {
+    color: var(--black);
+    display: block;
+    margin-bottom: 4px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ─── STEP NUMBERS ───────────────────────────────────────── */
+  .steps {
+    counter-reset: step;
+  }
+
+  .step {
+    counter-increment: step;
+    padding-left: 40px;
+    position: relative;
+    margin-bottom: 32px;
+  }
+
+  .step::before {
+    content: counter(step, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 11px;
+    color: var(--red);
+    letter-spacing: 0.1em;
+    line-height: 1.7;
+  }
+
+  .step-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 12px;
+  }
+
+  /* ─── PREDICTION BOX ─────────────────────────────────────── */
+  .prediction-box {
+    border: 2px solid var(--black);
+    padding: 20px 24px;
+    margin: 20px 0 28px;
+  }
+
+  .prediction-box .prediction-label {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 10px;
+  }
+
+  .prediction-box p {
+    font-size: 13px;
+    color: var(--black);
+    margin-bottom: 8px;
+  }
+
+  /* ─── TRIAD EXAMPLE ──────────────────────────────────────── */
+  .triad-example {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    margin: 12px 0;
+    font-size: 12px;
+    overflow-x: auto;
+  }
+
+  .triad-example code {
+    font-family: 'Courier New', Courier, monospace;
+    display: block;
+    line-height: 2;
+    white-space: pre;
+  }
+
+  .triad-example .highlight {
+    background: #FFF3CD;
+    display: inline;
+  }
+
+  .triad-example .dim {
+    color: var(--grey);
+  }
+
+  /* ─── QUICK REF ──────────────────────────────────────────── */
+  .quick-ref {
+    background: var(--black);
+    color: var(--white);
+    padding: 32px;
+    margin-bottom: 48px;
+  }
+
+  .quick-ref-title {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 20px;
+  }
+
+  .quick-ref-group {
+    margin-bottom: 24px;
+  }
+
+  .quick-ref-group-label {
+    font-size: 10px;
+    color: #999;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #333;
+  }
+
+  .quick-ref code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    color: #E0E0E0;
+    display: block;
+    line-height: 2;
+  }
+
+  .quick-ref .cmd-comment {
+    color: #666;
+  }
+
+  /* ─── TROUBLESHOOTING ────────────────────────────────────── */
+  .trouble-item {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 0;
+  }
+
+  .trouble-item:last-child { border-bottom: none; }
+
+  .trouble-q {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 8px;
+  }
+
+  .trouble-q::before {
+    content: "⚠ ";
+    color: var(--red);
+  }
+
+  .trouble-a {
+    font-size: 12px;
+    color: var(--grey);
+    margin-bottom: 10px;
+  }
+
+  /* ─── ENV MAP ─────────────────────────────────────────────── */
+  .env-map {
+    border: 1px solid var(--border);
+    padding: 0;
+    margin-top: 16px;
+  }
+
+  .env-map-row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+
+  .env-map-row:last-child { border-bottom: none; }
+
+  .env-map-key {
+    padding: 10px 16px;
+    background: var(--light);
+    color: var(--black);
+    border-right: 1px solid var(--border);
+    font-weight: 700;
+  }
+
+  .env-map-val {
+    padding: 10px 16px;
+    color: var(--grey);
+  }
+
+  /* ─── FOOTER ─────────────────────────────────────────────── */
+  .site-footer {
+    border-top: 1px solid var(--black);
+    padding: 28px 0;
+    margin-top: 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--grey);
+    letter-spacing: 0.08em;
+  }
+
+  .site-footer a {
+    color: var(--red);
+    text-decoration: none;
+  }
+
+  /* ─── DIVIDER ─────────────────────────────────────────────── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 48px 0;
+  }
+
+  /* ─── ACT TRANSITION ─────────────────────────────────────── */
+  .act-transition {
+    text-align: center;
+    padding: 32px 0;
+    margin: 40px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .act-transition p {
+    font-size: 16px;
+    color: var(--grey);
+    line-height: 1.8;
+  }
+
+  .act-transition p strong {
+    color: var(--black);
+    display: block;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  /* ─── RESPONSIVE ─────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    .page { padding: 0 20px; }
+    .hero-title { font-size: 24px; }
+    .env-map-row { grid-template-columns: 1fr; }
+    .env-map-key { border-right: none; border-bottom: 1px solid var(--border); }
+    .site-footer { flex-direction: column; gap: 8px; text-align: center; }
+    .cmd-block code { white-space: pre-wrap; word-break: break-all; }
+  }
+
+  @media print {
+    .toc { display: none; }
+    section { page-break-inside: avoid; }
+    .cmd-block { break-inside: avoid; }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <a href="https://master.hpc.now" class="wordmark">hpc<span>.now</span></a>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-label">Module 01 · CPU + RAM · Lab Runbook</div>
+    <h1 class="hero-title">Today you find<br>the <em>ceiling.</em></h1>
+    <div class="hero-meta">Pilot Cohort · March 2026 · mylab.hpc.now</div>
+  </div>
+
+  <!-- TABLE OF CONTENTS -->
+  <nav class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#start">Getting Started</a></li>
+      <li><a href="#act1">Act 1 — Read the Machine</a></li>
+      <li><a href="#act2">Act 2 — The Binary Race</a></li>
+      <li><a href="#act3a">Act 3A — Scaling</a></li>
+      <li><a href="#act3b">Act 3B — Group Run</a></li>
+      <li><a href="#act3c">Act 3C — NUMA</a></li>
+      <li><a href="#quickref">Quick Reference</a></li>
+      <li><a href="#trouble">If Something Goes Wrong</a></li>
+      <li><a href="#env">Your Lab Environment</a></li>
+    </ol>
+  </nav>
+
+  <!-- GETTING STARTED -->
+  <section id="start">
+    <div class="section-label">Before You Begin</div>
+    <h2 class="section-title">Getting Started</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-title">Confirm your connection</div>
+        <div class="cmd-block">
+          <code><span class="prompt">$ </span>whoami</code>
+        </div>
+        <div class="notice">
+          <strong>Expected output</strong>
+          Your username — user01, user02, etc. If you see something else, disconnect and reconnect using the correct username.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">Open the shared Google Sheet</div>
+        <p style="font-size:13px; color:var(--grey); margin-bottom:12px;">
+          Open the session link shared by Rajesh in a browser tab. Find your username in every section. You will fill your row as the session progresses.
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="step-title">Open the Concepts tab</div>
+        <p style="font-size:13px; color:var(--grey);">
+          In the same Google Sheet open the Concepts tab in a second browser tab. When Rajesh names a term — look it up there. Do not Google during the session.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT 1 -->
+  <section id="act1">
+    <div class="section-label">Act 1</div>
+    <h2 class="section-title">Read the Machine</h2>
+
+    <p style="font-size:13px; color:var(--grey); margin-bottom:28px;">
+      You are about to discover what hardware you are sitting on. Run all six commands below. Read each output carefully before moving to the next.
+    </p>
+
+    <div class="notice">
+      <strong>Fastest fingers first</strong>
+      The Google Sheet has one row for Act 1 — everyone is on the same machine. Fill the row if it is empty. If someone has already filled the spec columns, add your own observation to the Interesting Finding column. Multiple observations are welcome there.
+    </div>
+
+    <!-- Cluster A -->
+    <div class="cluster">
+      <div class="cluster-header">
+        <span class="cluster-tag">Cluster A</span>
+        <span class="cluster-title">Who am I talking to?</span>
+      </div>
+
+      <div class="cmd-block">
+        <code><span class="prompt">$ </span>lscpu</code>
+      </div>
+
+      <div class="cmd-block">
+        <code><span class="prompt">$ </span>cat /proc/cpuinfo | grep "model name" | head -1</code>
+      </div>
+
+      <div class="record">
+        <div class="record-label">Fill in the sheet — Section 1</div>
+        <ul>
+          <li>CPU Model</li>
+          <li>Sockets</li>
+          <li>Cores per Socket</li>
+          <li>NUMA Nodes</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Cluster B -->
+    <div class="cluster">
+      <div class="cluster-header">
+        <span class="cluster-tag">Cluster B</span>
+        <span class="cluster-title">How is memory organised?</span>
+      </div>
+
+      <div class="cmd-block">
+        <code><span class="prompt">$ </span>numactl --hardware</code>
+      </div>
+
+      <div class="cmd-block">
+        <code><span class="prompt">$ </span>numactl --show</code>
+      </div>
+
+      <div class="notice">
+        Look at the distance matrix at the bottom of the numactl --hardware output. Find the numbers 10 and 21. These will matter in Act 3.
+      </div>
+
+      <div class="record">
+        <div class="record-label">Fill in the sheet — Section 1</div>
+        <ul>
+          <li>RAM per NUMA Node</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Cluster C -->
+    <div class="cluster">
+      <div class="cluster-header">
+        <span class="cluster-tag">Cluster C</span>
+        <span class="cluster-title">Show me the full picture</span>
+      </div>
+
+      <div class="cmd-block">
+        <code><span class="prompt">$ </span>lstopo --of ascii</code>
+      </div>
+
+      <div class="notice">
+        lstopo takes a few seconds to render. Wait for it to complete before running the next command.
+      </div>
+
+      <div class="cmd-block">
+        <code><span class="prompt">$ </span>free -h</code>
+      </div>
+
+      <div class="record">
+        <div class="record-label">Fill in the sheet — Section 1</div>
+        <ul>
+          <li>Interesting Finding — write one thing that surprised you or that you did not expect to see</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT 2 -->
+  <section id="act2">
+    <div class="section-label">Act 2</div>
+    <h2 class="section-title">The Binary Race</h2>
+
+    <p style="font-size:13px; color:var(--grey); margin-bottom:28px;">
+      You are about to run the same computation seven different ways on the same hardware. Before running anything — commit your prediction.
+    </p>
+
+    <div class="prediction-box">
+      <div class="prediction-label">Before you run — write your prediction in the sheet</div>
+      <p>Which binary do you think will be fastest?</p>
+      <p>How much faster than the slowest? Write a multiplier — for example 5x or 10x.</p>
+      <p style="color:var(--red); font-size:12px; margin-top:8px;">Commit to it before running anything.</p>
+    </div>
+
+    <div class="cluster">
+      <div class="cluster-header">
+        <span class="cluster-tag">Run</span>
+        <span class="cluster-title">All seven binaries in sequence — approximately 35 to 40 seconds</span>
+      </div>
+
+      <div class="cmd-block">
+        <code><span class="prompt">$ </span>/opt/lab/mod01/run_binary_race.sh</code>
+      </div>
+
+      <div class="notice">
+        Watch the output as it runs. Read each Wall time as it appears. Do not do anything else.
+      </div>
+
+      <div class="notice">
+        <strong>Which number to record</strong>
+        The Wall time line in every run looks like this:
+        <br><br>
+        <code style="font-family:'Courier New',monospace; font-size:12px; color:var(--black);">Wall time   : 23.0877 seconds</code>
+        <br><br>
+        Enter just the number — for example <code style="font-family:'Courier New',monospace;">23.09</code>. Use the Wall time from the program output — not the real time line from the time command.
+      </div>
+
+      <div class="record">
+        <div class="record-label">Fill in the sheet — Section 2</div>
+        <ul>
+          <li>C 1T noSIMD → Wall time</li>
+          <li>Java 1T bare → Wall time</li>
+          <li>Java 1T container → Wall time</li>
+          <li>C 1T SIMD → Wall time</li>
+          <li>Java 72T bare → Wall time</li>
+          <li>C 72T noSIMD → Wall time</li>
+          <li>C 72T SIMD → Wall time</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT 3A -->
+  <section id="act3a">
+    <div class="section-label">Act 3 · Phase A</div>
+    <h2 class="section-title">Scaling</h2>
+
+    <p style="font-size:13px; color:var(--grey); margin-bottom:28px;">
+      You are about to run the same optimised binary with increasing thread counts. Run each command in sequence. After each run record the Wall time in the sheet before running the next command.
+    </p>
+
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-title">1 thread</div>
+        <div class="cmd-block">
+          <code><span class="prompt">$ </span>export OMP_NUM_THREADS=1
+<span class="prompt">$ </span>time /opt/lab/mod01/binaries/matmul_72t_simd</code>
+        </div>
+        <div class="record">
+          <div class="record-label">Fill in the sheet — Section 3</div>
+          <ul><li>1 Thread column</li></ul>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">2 threads</div>
+        <div class="cmd-block">
+          <code><span class="prompt">$ </span>export OMP_NUM_THREADS=2
+<span class="prompt">$ </span>time /opt/lab/mod01/binaries/matmul_72t_simd</code>
+        </div>
+        <div class="record">
+          <div class="record-label">Fill in the sheet — Section 3</div>
+          <ul><li>2 Threads column</li></ul>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">4 threads</div>
+        <div class="cmd-block">
+          <code><span class="prompt">$ </span>export OMP_NUM_THREADS=4
+<span class="prompt">$ </span>time /opt/lab/mod01/binaries/matmul_72t_simd</code>
+        </div>
+        <div class="record">
+          <div class="record-label">Fill in the sheet — Section 3</div>
+          <ul><li>4 Threads column</li></ul>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">8 threads</div>
+        <div class="cmd-block">
+          <code><span class="prompt">$ </span>export OMP_NUM_THREADS=8
+<span class="prompt">$ </span>time /opt/lab/mod01/binaries/matmul_72t_simd</code>
+        </div>
+        <div class="record">
+          <div class="record-label">Fill in the sheet — Section 3</div>
+          <ul><li>8 Threads column</li></ul>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">16 threads</div>
+        <div class="cmd-block">
+          <code><span class="prompt">$ </span>export OMP_NUM_THREADS=16
+<span class="prompt">$ </span>time /opt/lab/mod01/binaries/matmul_72t_simd</code>
+        </div>
+        <div class="record">
+          <div class="record-label">Fill in the sheet — Section 3</div>
+          <ul><li>16 Threads column</li></ul>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">32 threads</div>
+        <div class="cmd-block">
+          <code><span class="prompt">$ </span>export OMP_NUM_THREADS=32
+<span class="prompt">$ </span>time /opt/lab/mod01/binaries/matmul_72t_simd</code>
+        </div>
+        <div class="record">
+          <div class="record-label">Fill in the sheet — Section 3</div>
+          <ul><li>32 Threads column</li></ul>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">72 threads — solo run</div>
+        <div class="cmd-block">
+          <code><span class="prompt">$ </span>export OMP_NUM_THREADS=72
+<span class="prompt">$ </span>time /opt/lab/mod01/binaries/matmul_72t_simd</code>
+        </div>
+        <div class="record">
+          <div class="record-label">Fill in the sheet — Section 3</div>
+          <ul><li>72 Threads Solo column</li></ul>
+        </div>
+        <div class="notice" style="margin-top:12px;">
+          As you fill each row notice where the wall time stops improving as much. That is the ceiling appearing.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ACT 3B -->
+  <section id="act3b">
+    <div class="section-label">Act 3 · Phase B</div>
+    <h2 class="section-title">Group Run</h2>
+
+    <p style="font-size:13px; color:var(--grey); margin-bottom:28px;">
+      Rajesh will count down on the call. When he says Run — press Enter immediately.
+    </p>
+
+    <div class="notice">
+      <strong>Do not run yet</strong>
+      Type the command below in your terminal. Finger on Enter. Wait for Rajesh's countdown.
+    </div>
+
+    <div class="cmd-block">
+      <code><span class="prompt">$ </span>OMP_NUM_THREADS=72 time /opt/lab/mod01/binaries/matmul_72t_simd</code>
+    </div>
+
+    <div class="record">
+      <div class="record-label">Fill in the sheet — Section 3</div>
+      <ul>
+        <li>72 Threads GROUP RUN column</li>
+      </ul>
+    </div>
+
+    <div class="notice" style="margin-top: 4px;">
+      Compare your group run time against your solo 72 thread run. Note whether it is faster, slower, or the same.
+    </div>
+  </section>
+
+  <!-- ACT 3C -->
+  <section id="act3c">
+    <div class="section-label">Act 3 · Phase C</div>
+    <h2 class="section-title">NUMA</h2>
+
+    <p style="font-size:13px; color:var(--grey); margin-bottom:28px;">
+      You are about to run the STREAM memory bandwidth benchmark three ways. The only thing changing between runs is where the memory lives.
+    </p>
+
+    <div class="cluster">
+      <div class="cluster-header">
+        <span class="cluster-tag">Run</span>
+        <span class="cluster-title">Three NUMA configurations — approximately 15 seconds total</span>
+      </div>
+
+      <div class="cmd-block">
+        <code><span class="prompt">$ </span>/opt/lab/mod01/run_numa.sh</code>
+      </div>
+    </div>
+
+    <div class="notice">
+      <strong>How to read STREAM output</strong>
+      STREAM produces a lot of verbose output. Ignore everything except the results table near the bottom of each run. Find the Triad row — it is always the last row in the table. Take the first number after Triad. That is your answer. Ignore all other columns and all other rows.
+    </div>
+
+    <div class="triad-example">
+      <code><span class="dim">Function    Best Rate MB/s  Avg time     Min time     Max time</span>
+<span class="dim">Copy:          149267.6     0.008674     0.008575     0.008818</span>
+<span class="dim">Scale:         123900.0     0.010366     0.010331     0.010417</span>
+<span class="dim">Add:           135987.8     0.014144     0.014119     0.014169</span>
+<span class="highlight">Triad:         135930.5</span><span class="dim">     0.014146     0.014125     0.014193</span></code>
+    </div>
+
+    <p style="font-size:12px; color:var(--grey); margin: 12px 0 24px;">
+      From the example above the number to record is <code style="font-family:'Courier New',monospace; color:var(--black);">135930</code>
+    </p>
+
+    <div class="record">
+      <div class="record-label">Fill in the sheet — Section 4</div>
+      <ul>
+        <li>First Triad number → No Binding column</li>
+        <li>Second Triad number → Local Binding column</li>
+        <li>Third Triad number → Cross-NUMA column</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- QUICK REFERENCE -->
+  <section id="quickref">
+    <div class="quick-ref">
+      <div class="quick-ref-title">Quick Reference — All Commands</div>
+
+      <div class="quick-ref-group">
+        <div class="quick-ref-group-label">Getting Started</div>
+        <code>whoami</code>
+      </div>
+
+      <div class="quick-ref-group">
+        <div class="quick-ref-group-label">Act 1 — Hardware Discovery</div>
+        <code>lscpu</code>
+        <code>cat /proc/cpuinfo | grep "model name" | head -1</code>
+        <code>numactl --hardware</code>
+        <code>numactl --show</code>
+        <code>lstopo --of ascii</code>
+        <code>free -h</code>
+      </div>
+
+      <div class="quick-ref-group">
+        <div class="quick-ref-group-label">Act 2 — Binary Race</div>
+        <code>/opt/lab/mod01/run_binary_race.sh</code>
+      </div>
+
+      <div class="quick-ref-group">
+        <div class="quick-ref-group-label">Act 3A — Scaling (repeat for each thread count)</div>
+        <code>export OMP_NUM_THREADS=1</code>
+        <code>time /opt/lab/mod01/binaries/matmul_72t_simd</code>
+        <code><span class="cmd-comment"># repeat with 2, 4, 8, 16, 32, 72</span></code>
+      </div>
+
+      <div class="quick-ref-group">
+        <div class="quick-ref-group-label">Act 3B — Group Run (wait for countdown)</div>
+        <code>OMP_NUM_THREADS=72 time /opt/lab/mod01/binaries/matmul_72t_simd</code>
+      </div>
+
+      <div class="quick-ref-group">
+        <div class="quick-ref-group-label">Act 3C — NUMA</div>
+        <code>/opt/lab/mod01/run_numa.sh</code>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- TROUBLESHOOTING -->
+  <section id="trouble">
+    <div class="section-label">Help</div>
+    <h2 class="section-title">If Something Goes Wrong</h2>
+
+    <div class="trouble-item">
+      <div class="trouble-q">Command not found</div>
+      <div class="trouble-a">Check you are typing the full path. All scripts are in <code style="font-family:'Courier New',monospace;">/opt/lab/mod01/</code></div>
+    </div>
+
+    <div class="trouble-item">
+      <div class="trouble-q">Wall time looks very different from everyone else</div>
+      <div class="trouble-a">You may have OMP_NUM_THREADS set from a previous run. Reset it and rerun:</div>
+      <div class="cmd-block" style="margin-top:10px;">
+        <code><span class="prompt">$ </span>unset OMP_NUM_THREADS</code>
+      </div>
+    </div>
+
+    <div class="trouble-item">
+      <div class="trouble-q">SSH session froze</div>
+      <div class="trouble-a">Close the terminal. SSH back in. Your work is not lost.</div>
+      <div class="cmd-block" style="margin-top:10px;">
+        <code><span class="prompt">$ </span>ssh userXX@mylab.hpc.now</code>
+      </div>
+      <p style="font-size:12px; color:var(--grey); margin-top:8px;">Replace XX with your number.</p>
+    </div>
+
+    <div class="trouble-item">
+      <div class="trouble-q">Cannot find the right number in STREAM output</div>
+      <div class="trouble-a">Find the results table near the bottom of the output. Find the Triad row — always the last row. Take the first number after Triad. Everything else is noise.</div>
+    </div>
+
+    <div class="trouble-item">
+      <div class="trouble-q">Not sure which column to fill in the sheet</div>
+      <div class="trouble-a">The Wall time line in every program output starts with <code style="font-family:'Courier New',monospace;">Wall time :</code> — that is the number. The TRIAD bandwidth starts with <code style="font-family:'Courier New',monospace;">Triad:</code> — first number after it.</div>
+    </div>
+
+  </section>
+
+  <!-- ENVIRONMENT MAP -->
+  <section id="env">
+    <div class="section-label">Reference</div>
+    <h2 class="section-title">Your Lab Environment</h2>
+
+    <p style="font-size:13px; color:var(--grey); margin-bottom:16px;">
+      All binaries and scripts are at <code style="font-family:'Courier New',monospace; color:var(--black);">/opt/lab/mod01/</code>
+    </p>
+
+    <div class="env-map">
+      <div class="env-map-row">
+        <div class="env-map-key">matmul_1t_nosimd</div>
+        <div class="env-map-val">C binary — 1 thread — no SIMD optimisation</div>
+      </div>
+      <div class="env-map-row">
+        <div class="env-map-key">matmul_1t_simd</div>
+        <div class="env-map-val">C binary — 1 thread — AVX-512 SIMD enabled</div>
+      </div>
+      <div class="env-map-row">
+        <div class="env-map-key">matmul_72t_nosimd</div>
+        <div class="env-map-val">C binary — 72 threads — no SIMD optimisation</div>
+      </div>
+      <div class="env-map-row">
+        <div class="env-map-key">matmul_72t_simd</div>
+        <div class="env-map-val">C binary — 72 threads — AVX-512 SIMD enabled</div>
+      </div>
+      <div class="env-map-row">
+        <div class="env-map-key">stream</div>
+        <div class="env-map-val">STREAM memory bandwidth benchmark</div>
+      </div>
+      <div class="env-map-row">
+        <div class="env-map-key">Matmul.java / .class</div>
+        <div class="env-map-val">Java source and compiled class — JVM runtime</div>
+      </div>
+      <div class="env-map-row">
+        <div class="env-map-key">matmul_python.py</div>
+        <div class="env-map-val">Python script — NumPy runtime</div>
+      </div>
+      <div class="env-map-row">
+        <div class="env-map-key">run_binary_race.sh</div>
+        <div class="env-map-val">Act 2 — runs all seven binaries in sequence</div>
+      </div>
+      <div class="env-map-row">
+        <div class="env-map-key">run_numa.sh</div>
+        <div class="env-map-val">Act 3C — runs STREAM three ways</div>
+      </div>
+      <div class="env-map-row">
+        <div class="env-map-key">lab.sif</div>
+        <div class="env-map-val">Apptainer container image — Java + Python inside</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <span>hpc.now · Module 01 · Pilot Cohort 2026</span>
+    <span><a href="mailto:rajesh@hpc.now">rajesh@hpc.now</a></span>
+  </footer>
+
+</div><!-- /page -->
+
+</body>
+</html>
