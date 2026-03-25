@@ -746,7 +746,7 @@
                         │  │  Login node · Slurm controller       │  │
                         │  │  NFS server for /home                │  │
                         │  └──────────────┬───────────────────────┘  │
-                        │                 │  100 Gbps Ethernet        │
+                        │                 │  Ethernet / TCP            │
                         │       ┌─────────┴─────────┐                │
                         │       │                   │                │
                         │  ┌────▼──────────┐  ┌─────▼──────────┐    │
@@ -766,7 +766,69 @@
         </pre>
       </div>
 
-      <p class="prose"><strong>EFA</strong> — Elastic Fabric Adapter — is the hardware interconnect between the two compute nodes. It is the AWS implementation of the concept you saw in Module 1: a high-speed, kernel-bypassing fabric that cuts inter-node latency from ~150 µs over Ethernet down to ~10–20 µs. You will measure this difference yourself in Section 5.</p>
+      <p class="prose"><strong>EFA</strong> — Elastic Fabric Adapter — is the hardware interconnect between the two compute nodes. Raw bandwidth is not the differentiator here: both EFA and standard Ethernet on c5n.9xlarge top out at around 50 Gbps. The difference is <em>latency</em>. EFA bypasses the OS kernel using RDMA, cutting inter-node message latency from ~150 µs (Ethernet/TCP) to ~10–20 µs. For MPI workloads that exchange messages thousands of times per simulation timestep, that 10× gap is the difference between a 6-hour run and a 3-day run. You will measure it directly in Section 5.</p>
+
+      <div style="margin-top:36px">
+        <p class="subsection-title" style="margin-bottom:20px">How each traffic type actually travels</p>
+
+        <p class="prose" style="margin-bottom:6px">A common misconception: EFA is not a general fast lane for all traffic. It is exclusively used by MPI processes that explicitly request it. All storage I/O — including FSx Lustre — travels over standard Ethernet/TCP. The performance differences between storage tiers come from <em>how many servers are in the path</em>, not from which network transport is used.</p>
+
+        <div class="diagram-block" style="margin-top:20px">
+          <pre>
+  ┌─ /home  (NFS) ──────────────────────────────────────────────────┐
+  │                                                                  │
+  │  compute-01 ──TCP──▶ ┌──────────┐ ──▶ EBS volume               │
+  │  compute-02 ──TCP──▶ │ headnode │       (one disk,              │
+  │                       │ NFS srv  │        one server)            │
+  │                       └──────────┘                              │
+  │  All compute I/O serialises through the headnode's 25 Gbps NIC  │
+  └──────────────────────────────────────────────────────────────────┘
+
+  ┌─ /efs  (Amazon EFS) ────────────────────────────────────────────┐
+  │                                                                  │
+  │  headnode   ──TCP──▶ ┌─────────────────────┐                   │
+  │  compute-01 ──TCP──▶ │  AWS EFS service    │                   │
+  │  compute-02 ──TCP──▶ │  (managed NFS)      │                   │
+  │                       └─────────────────────┘                   │
+  │  Each node has its own independent connection — headnode is not  │
+  │  in the path. Ceiling set by EFS service (~1–3 Gbps).           │
+  └──────────────────────────────────────────────────────────────────┘
+
+  ┌─ /fsx  (FSx Lustre) ────────────────────────────────────────────┐
+  │                                                                  │
+  │  headnode   ──TCP──▶ OST-0 ─┐                                  │
+  │  compute-01 ──TCP──▶ OST-1 ─┤ multiple parallel storage        │
+  │  compute-02 ──TCP──▶ OST-2 ─┘ servers (Object Storage Targets) │
+  │                                                                  │
+  │  Each process gets its own parallel I/O path. No single server  │
+  │  is a bottleneck. Speed comes from parallelism, not transport.  │
+  └──────────────────────────────────────────────────────────────────┘
+
+  ┌─ MPI messages (EFA) ────────────────────────────────────────────┐
+  │                                                                  │
+  │  compute-01 ──EFA──▶ compute-02                                 │
+  │                                                                  │
+  │  Only MPI traffic. Application must explicitly request EFA      │
+  │  (FI_PROVIDER=efa). Kernel is bypassed entirely. ~10–20 µs.    │
+  │  Storage filesystems never use this path.                       │
+  └──────────────────────────────────────────────────────────────────┘
+          </pre>
+        </div>
+
+        <div class="table-wrap" style="margin-top:8px">
+          <table>
+            <thead>
+              <tr><th>Traffic</th><th>Transport</th><th>Bottleneck</th><th>Why faster/slower</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>/home</code> reads</td><td>Ethernet/TCP</td><td>Headnode 25 Gbps NIC (shared)</td><td>Single server for all clients</td></tr>
+              <tr><td><code>/efs</code> reads</td><td>Ethernet/TCP</td><td>EFS service limit (~1–3 Gbps)</td><td>Each node independent, no headnode</td></tr>
+              <tr><td><code>/fsx</code> reads</td><td>Ethernet/TCP</td><td>FSx provisioned throughput</td><td>Parallel OSTs, no single bottleneck</td></tr>
+              <tr><td>MPI messages</td><td>EFA (RDMA)</td><td>~50 Gbps · ~10 µs latency</td><td>Kernel bypassed entirely</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
     <!-- SECTION 0: CONNECT -->
@@ -1020,7 +1082,7 @@
         <p>In a call centre handling a complex escalation, agents need to consult each other constantly. If inter-agent communication is slow, throughput collapses even if each individual agent works quickly. In HPC, MPI processes on different nodes exchange messages thousands of times per second. The latency of those exchanges is the same bottleneck — and this is exactly why InfiniBand was developed, as Rajesh walked you through in Module 1, slides 26–28. EFA is AWS's implementation of the same principle.</p>
       </div>
 
-      <p class="prose">You will run the identical latency test twice — once over standard Ethernet (TCP), once over EFA. The difference is the measurable payoff of the hardware in your cluster architecture diagram.</p>
+      <p class="prose">You will run the identical latency test twice — once over standard Ethernet (TCP), once over EFA. Both paths share the same ~50 Gbps physical network on c5n.9xlarge. What changes is the software path: Ethernet goes through the OS kernel and TCP stack; EFA goes directly from one process's memory to another's, bypassing the kernel entirely. The bandwidth numbers look similar. The latency numbers do not.</p>
 
       <div class="subsection">
         <p class="subsection-title"><span class="sub-num">5.1</span>Ethernet baseline — the slow path</p>
