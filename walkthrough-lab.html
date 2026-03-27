@@ -674,7 +674,7 @@
         </div>
         <div class="rh-meta-row">
           <span class="rh-meta-k">Accounts</span>
-          <span class="rh-meta-v">praneeth · vasu · tanobir · shefali · venkat · velmurugan · guest1 · guest2 · guest3</span>
+          <span class="rh-meta-v">Your first name — confirmed by your instructor at session start</span>
         </div>
       </div>
     </div>
@@ -715,18 +715,7 @@
         <div class="prereq-item"><span class="pi-num">02</span><span>Your assigned username and the shared password <code>hpcnow2026</code>.</span></div>
         <div class="prereq-item"><span class="pi-num">03</span><span>A terminal — macOS Terminal, Windows PowerShell, PuTTY, or any SSH client.</span></div>
       </div>
-      <p class="prose" style="margin-top:28px">Student accounts assigned for this session:</p>
-      <div class="accounts">
-        <span class="account-tag">praneeth</span>
-        <span class="account-tag">vasu</span>
-        <span class="account-tag">tanobir</span>
-        <span class="account-tag">shefali</span>
-        <span class="account-tag">venkat</span>
-        <span class="account-tag">velmurugan</span>
-        <span class="account-tag">guest1</span>
-        <span class="account-tag">guest2</span>
-        <span class="account-tag">guest3</span>
-      </div>
+      <p class="prose" style="margin-top:28px">Your account name is your first name. Your instructor will confirm it at the start of the session — it is the same name you used to register.</p>
     </section>
 
     <!-- CLUSTER AT A GLANCE -->
@@ -846,6 +835,19 @@
       <div class="code-block"><pre><span class="kw">ssh</span> &lt;your-username&gt;@&lt;HEADNODE-IP&gt;</pre></div>
 
       <p class="prose">Enter the password when prompted: <code>hpcnow2026</code></p>
+
+      <div class="key-note" style="margin-top:20px">
+        <p><strong>If SSH refuses with "host key verification failed" —</strong> this happens because each lab deployment brings up a fresh cluster at the same IP or hostname, but with a new host key that doesn't match what your laptop remembered from a previous session.</p>
+        <p style="margin-top:10px">Clear the stale entry and reconnect normally:</p>
+      </div>
+      <div class="code-block"><pre><span class="cm"># Remove the stale host key for this IP (run on your laptop, not the cluster)</span>
+<span class="kw">ssh-keygen -R</span> &lt;HEADNODE-IP&gt;
+
+<span class="cm"># Then connect as normal</span>
+<span class="kw">ssh</span> &lt;your-username&gt;@&lt;HEADNODE-IP&gt;</pre></div>
+      <p class="prose">If you want to skip host key checking entirely for the duration of the lab session — useful if the IP might change mid-session — use the one-liner below. Do not use this on production systems.</p>
+      <div class="code-block"><pre><span class="kw">ssh</span> -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    &lt;your-username&gt;@&lt;HEADNODE-IP&gt;</pre></div>
       <p class="prose" style="margin-top:16px">A successful login shows a prompt like this:</p>
 
       <div class="code-block"><pre><span class="pr">[&lt;your-username&gt;@ip-172-31-xx-xx ~]$</span></pre></div>
