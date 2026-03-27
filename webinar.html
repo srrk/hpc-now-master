@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Free Webinar · What Running a Compute Cluster Actually Looks Like · hpc.now</title>
+  <title>Free HPC Infrastructure Briefing · 28 March 2026 · hpc.now</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -40,9 +40,9 @@
 
     /* ── NAV ── */
     .nav-wrap {
-      padding: 0;
-      border-bottom: 1px solid var(--rule-cover);
       background: var(--cover);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+      border-bottom: 1px solid var(--rule-cover);
     }
     nav {
       max-width: 1200px;
@@ -84,126 +84,216 @@
     }
     .nav-cta:hover { background: var(--terra); color: var(--paper); }
 
-    /* ── HERO ── */
-    .cover {
+    /* ── WEBINAR HERO — COVER ZONE ── */
+    .webinar-cover {
       background: var(--cover);
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+      border-bottom: 1px solid var(--rule-cover);
+      padding: 56px 52px 64px;
     }
 
-    .hero {
+    .webinar-cover-inner {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 80px 52px 88px;
-      width: 100%;
-      display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: 80px;
-      align-items: end;
     }
 
-    .hero-label {
-      font-size: 10px;
-      letter-spacing: .26em;
-      text-transform: uppercase;
-      color: var(--ink3);
-      margin-bottom: 28px;
+    /* ── EVENT META STRIP ── */
+    .event-meta {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 24px;
+      margin-bottom: 36px;
+      flex-wrap: wrap;
     }
-    .hero-label::before {
+    .event-badge {
+      font-size: 9px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--paper);
+      background: var(--terra);
+      padding: 5px 12px;
+    }
+    .event-detail {
+      font-size: 11px;
+      color: var(--ink3);
+      letter-spacing: .06em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .event-detail::before {
       content: '';
-      width: 24px;
+      width: 16px;
       height: 1px;
-      background: var(--ink3);
+      background: var(--rule-cover);
     }
-    .hero-title {
+
+    /* ── TWO-COLUMN ABOVE FOLD ── */
+    .above-fold {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 72px;
+      align-items: start;
+    }
+
+    /* ── LEFT — COPY ── */
+    .fold-left {}
+
+    .webinar-title {
       font-family: var(--serif);
-      font-size: clamp(32px, 4.5vw, 58px);
+      font-size: clamp(30px, 4vw, 52px);
       font-weight: 400;
       line-height: 1.14;
       color: var(--ink);
       letter-spacing: -.02em;
-      margin-bottom: 32px;
+      margin-bottom: 28px;
     }
-    .hero-title em {
+    .webinar-title em {
       font-style: italic;
       color: var(--terra);
     }
-    .hero-sub {
+
+    .webinar-intro {
       font-size: 15px;
       color: var(--ink2);
-      line-height: 1.85;
+      line-height: 2.0;
       max-width: 520px;
+      margin-bottom: 20px;
     }
 
-    /* ── HERO FACT CARD ── */
-    .hero-right { padding-bottom: 8px; }
-    .hero-facts {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      border: 1px solid var(--rule-cover);
-      background: rgba(255,255,255,0.35);
+    .note-strip {
+      display: inline-flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: var(--terra-bg);
+      border-left: 3px solid var(--terra-dim);
+      padding: 12px 16px;
+      margin-top: 8px;
+      max-width: 520px;
     }
-    .hero-fact {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--rule-cover);
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
+    .note-strip p {
+      font-size: 12px;
+      color: var(--ink2);
+      line-height: 1.8;
     }
-    .hero-fact:last-child { border-bottom: none; }
-    .hero-fact-k {
-      font-size: 9px;
-      letter-spacing: .22em;
-      text-transform: uppercase;
-      color: var(--ink3);
-    }
-    .hero-fact-v {
-      font-size: 13px;
-      color: var(--ink);
-      line-height: 1.5;
-    }
-    .hero-fact-v.free {
+    .note-strip strong {
       color: var(--terra);
       font-weight: 500;
     }
 
-    .register-btn {
-      display: block;
-      margin-top: 20px;
-      background: var(--terra);
-      color: var(--paper);
-      text-align: center;
-      padding: 14px 20px;
-      font-size: 11px;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      text-decoration: none;
-      transition: opacity .2s;
-      cursor: pointer;
-      border: none;
-      width: 100%;
-      font-family: var(--mono);
+    /* ── RIGHT — FORM PANEL ── */
+    .fold-right {
+      background: rgba(255,255,255,0.5);
+      border: 1px solid var(--rule-cover);
     }
-    .register-btn:hover { opacity: .85; }
+
+    .form-panel-header {
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid var(--rule-cover);
+    }
+    .form-panel-title {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.35;
+      margin-bottom: 6px;
+    }
+    .form-panel-sub {
+      font-size: 11px;
+      color: var(--ink3);
+      letter-spacing: .03em;
+      line-height: 1.7;
+    }
+
+    .form-facts {
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid var(--rule-cover);
+    }
+    .form-fact {
+      padding: 12px 28px;
+      border-bottom: 1px solid var(--rule-cover);
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 12px;
+      align-items: baseline;
+    }
+    .form-fact:last-child { border-bottom: none; }
+    .form-fact-k {
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding-top: 2px;
+    }
+    .form-fact-v {
+      font-size: 12px;
+      color: var(--ink);
+      line-height: 1.55;
+    }
+
+    .form-embed-area {
+      padding: 24px 28px 28px;
+    }
+    .form-embed-label {
+      font-size: 10px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .form-embed-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* Tally iframe wrapper */
+    .tally-wrap {
+      width: 100%;
+      min-height: 594px;
+      position: relative;
+    }
+    .tally-wrap iframe {
+      width: 100%;
+      border: none;
+      min-height: 594px;
+    }
+
+    /* Fallback if no iframe — direct link */
+    .form-direct {
+      font-size: 11px;
+      color: var(--ink3);
+      margin-top: 14px;
+      line-height: 1.8;
+    }
+    .form-direct a {
+      color: var(--terra);
+      text-decoration: none;
+    }
+    .form-direct a:hover { text-decoration: underline; }
 
     /* ── ZONE EDGE ── */
     .zone-edge { height: 1px; background: var(--rule-cover); }
 
-    /* ── BODY ── */
-    .page-wrap {
-      max-width: 760px;
+    /* ── BODY SECTIONS ── */
+    .page-body {
+      max-width: 1200px;
       margin: 0 auto;
       padding: 0 52px;
     }
 
     .section {
-      padding: 64px 0 56px;
+      padding: 72px 0 64px;
       border-top: 1px solid var(--rule);
+      max-width: 680px;
     }
-    .section:first-child { border-top: none; padding-top: 72px; }
+    .section:first-child { border-top: none; padding-top: 80px; }
 
     .label {
       font-size: 10px;
@@ -226,102 +316,98 @@
       font-size: 15px;
       color: var(--ink2);
       line-height: 2.05;
-      max-width: 600px;
+      max-width: 580px;
     }
     .prose + .prose { margin-top: 1.3em; }
 
-    /* ── DEMO PROGRESSION ── */
-    .demo-title {
+    .promise-hl {
       font-family: var(--serif);
-      font-size: 20px;
+      font-size: 22px;
+      font-style: italic;
       font-weight: 400;
       color: var(--ink);
-      line-height: 1.5;
-      margin-bottom: 36px;
-      max-width: 500px;
+      line-height: 1.45;
+      margin-bottom: 24px;
+      max-width: 520px;
     }
 
-    .demo-steps {
+    /* ── WHAT WE COVER ── */
+    .cover-items {
       display: flex;
       flex-direction: column;
       gap: 0;
-      border-top: 1px solid var(--rule);
-    }
-    .demo-step {
-      display: grid;
-      grid-template-columns: 48px 1fr;
-      gap: 20px;
-      padding: 22px 0;
-      border-bottom: 1px solid var(--rule);
-      align-items: start;
-    }
-    .demo-step-num {
-      font-size: 10px;
-      letter-spacing: .12em;
-      color: var(--ink3);
-      font-weight: 300;
-      padding-top: 3px;
-    }
-    .demo-step-body {}
-    .demo-step-title {
-      font-family: var(--serif);
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--ink);
-      margin-bottom: 6px;
-      line-height: 1.3;
-    }
-    .demo-step-desc {
-      font-size: 13px;
-      color: var(--ink2);
-      line-height: 1.9;
-    }
-    .demo-step-tag {
-      display: inline-block;
-      font-size: 9px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--terra);
-      border: 1px solid var(--terra-dim);
-      padding: 2px 8px;
       margin-top: 8px;
     }
-
-    /* ── WHO THIS IS FOR ── */
-    .for-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-top: 4px;
+    .cover-item {
+      padding: 28px 0;
+      border-top: 1px solid var(--rule);
     }
-    .for-col {}
-    .for-col-head {
-      font-size: 10px;
-      letter-spacing: .16em;
-      text-transform: uppercase;
+    .cover-item:first-child { border-top: none; padding-top: 0; }
+    .cover-item-num {
+      font-size: 9px;
+      letter-spacing: .2em;
       color: var(--ink3);
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--rule);
+      text-transform: uppercase;
+      margin-bottom: 6px;
     }
-    .for-item {
+    .cover-item-title {
+      font-family: var(--serif);
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+    .cover-item-body {
+      font-size: 14px;
+      color: var(--ink2);
+      line-height: 2.0;
+      max-width: 560px;
+    }
+
+    /* ── FOR SECTION ── */
+    .for-highlight {
+      border-left: 3px solid var(--terra);
+      padding: 20px 24px;
+      background: var(--terra-bg);
+      margin-top: 28px;
+      max-width: 560px;
+    }
+    .for-highlight p {
       font-size: 13px;
       color: var(--ink2);
-      padding: 9px 0;
-      border-bottom: 1px solid var(--rule);
-      line-height: 1.65;
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
+      line-height: 2;
     }
-    .for-item:last-child { border-bottom: none; }
-    .for-marker-yes { color: var(--terra); flex-shrink: 0; }
-    .for-marker-no  { color: var(--ink3); flex-shrink: 0; }
+
+    /* ── FORMAT FACTS ── */
+    .facts {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--rule);
+      max-width: 560px;
+    }
+    .fact {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 24px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--rule);
+      font-size: 13px;
+      align-items: start;
+    }
+    .fact-k {
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding-top: 2px;
+    }
+    .fact-v { color: var(--ink2); line-height: 1.8; }
 
     /* ── ABOUT ── */
     .about-name {
       font-family: var(--serif);
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 500;
       color: var(--ink);
       margin-bottom: 4px;
@@ -330,7 +416,7 @@
       font-size: 11px;
       color: var(--ink3);
       letter-spacing: .04em;
-      margin-bottom: 24px;
+      margin-bottom: 28px;
     }
     .about-arc {
       display: flex;
@@ -338,25 +424,28 @@
       overflow-x: auto;
       scrollbar-width: none;
       align-items: center;
-      padding-top: 20px;
+      padding-top: 24px;
       border-top: 1px solid var(--rule);
-      margin-top: 24px;
+      margin-top: 28px;
     }
     .about-arc::-webkit-scrollbar { display: none; }
     .arc-stop { font-size: 11px; color: var(--ink3); white-space: nowrap; }
     .arc-stop strong { color: var(--ink2); font-weight: 400; }
     .arc-sep { color: var(--rule); padding: 0 12px; font-size: 11px; flex-shrink: 0; }
 
-    /* ── REGISTRATION SECTION ── */
+    /* ── BOTTOM REGISTER BAND ── */
     .register-band {
       background: var(--dark);
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
-      margin-top: 72px;
       padding: 72px 52px 80px;
     }
     .register-inner {
-      max-width: 640px;
+      max-width: 1200px;
       margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 72px;
+      align-items: start;
     }
     .register-label {
       font-size: 10px;
@@ -380,21 +469,60 @@
       font-weight: 400;
       color: #f0e8e0;
       line-height: 1.4;
-      margin-bottom: 12px;
+      margin-bottom: 20px;
     }
-    .register-sub {
+    .register-prose {
       font-size: 13px;
       color: #8a8078;
-      line-height: 2;
-      margin-bottom: 36px;
-      max-width: 520px;
+      line-height: 2.05;
+      margin-bottom: 1.2em;
+      max-width: 460px;
     }
+    .register-direct {
+      margin-top: 28px;
+      font-size: 12px;
+      color: #6a6460;
+      line-height: 1.8;
+    }
+    .register-direct a {
+      color: var(--terra-dim);
+      text-decoration: none;
+    }
+    .register-direct a:hover { color: var(--terra); }
 
-    /* Tally embed wrapper — matches dark band */
-    .tally-wrap {
+    /* bottom form panel — dark version */
+    .register-form-panel {
       background: rgba(255,255,255,0.04);
-      border: 1px solid #2e2820;
-      padding: 32px 32px 28px;
+      border: 1px solid #3a3028;
+    }
+    .register-form-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #3a3028;
+    }
+    .register-form-title {
+      font-family: var(--serif);
+      font-size: 15px;
+      color: #e8c9b8;
+      line-height: 1.4;
+    }
+    .register-form-body {
+      padding: 20px 24px 24px;
+    }
+    .register-form-label {
+      font-size: 10px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #5a5248;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .register-form-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #3a3028;
     }
 
     /* ── FOOTER ── */
@@ -419,26 +547,31 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 1024px) {
+      .webinar-cover { padding: 48px 44px 56px; }
       nav { padding: 20px 44px; }
-      .hero {
+      .above-fold {
         grid-template-columns: 1fr;
-        gap: 40px;
-        padding: 64px 44px 72px;
+        gap: 48px;
       }
-      .hero-right { max-width: 400px; }
-      .page-wrap { padding: 0 44px; }
+      .fold-right { max-width: 480px; }
+      .page-body { padding: 0 44px; }
       .register-band { padding: 64px 44px 72px; }
+      .register-inner {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+      .register-form-panel { max-width: 480px; }
       .footer-wrap { padding: 24px 44px; }
     }
+
     @media (max-width: 640px) {
       nav { padding: 18px 24px; }
       .nav-right .nav-link { display: none; }
-      .hero { padding: 48px 24px 56px; }
-      .page-wrap { padding: 0 24px; }
-      .for-grid { grid-template-columns: 1fr; }
+      .webinar-cover { padding: 40px 24px 48px; }
+      .page-body { padding: 0 24px; }
       .register-band { padding: 48px 24px 56px; }
-      .tally-wrap { padding: 24px 20px; }
       .footer-wrap { padding: 20px 24px; }
+      .form-fact { grid-template-columns: 1fr; gap: 4px; }
     }
   </style>
 </head>
@@ -447,109 +580,151 @@
 <!-- ══ NAV ══ -->
 <div class="nav-wrap">
   <nav>
-    <a href="https://master.hpc.now" class="logo">hpc<em>.now</em></a>
+    <a href="https://hpc.now" class="logo">hpc<em>.now</em></a>
     <div class="nav-right">
-      <a href="https://master.hpc.now" class="nav-link">← Course</a>
-      <a href="#register" class="nav-cta">Register Free</a>
+      <a href="#what-we-cover" class="nav-link">What We Cover</a>
+      <a href="#about" class="nav-link">Instructor</a>
+      <a href="#register" class="nav-link">Register</a>
+      <a href="https://master.hpc.now/enroll" class="nav-cta">Enroll in Course</a>
     </div>
   </nav>
 </div>
 
-<!-- ══ HERO ══ -->
-<div class="cover">
-  <section class="hero">
-    <div class="hero-left">
-      <p class="hero-label">Free Webinar · One Session</p>
-      <h1 class="hero-title">
-        What running a<br>
-        compute cluster<br>
-        <em>actually looks like</em>
-      </h1>
-      <p class="hero-sub">
-        Most engineers have never touched an HPC cluster.<br><br>
-        In 75 minutes, you'll go from zero to submitting your first parallel job — on a live cluster — and understand exactly how the stack underneath it works.
-      </p>
+<!-- ══ WEBINAR COVER — TWO COLUMN ABOVE FOLD ══ -->
+<div class="webinar-cover">
+  <div class="webinar-cover-inner">
+
+    <!-- Event meta strip -->
+    <div class="event-meta">
+      <span class="event-badge">Free Briefing</span>
+      <span class="event-detail">Saturday · 28 March 2026</span>
+      <span class="event-detail">10:00 AM IST</span>
+      <span class="event-detail">Live · Google Meet</span>
+      <span class="event-detail">90 minutes</span>
     </div>
-    <div class="hero-right">
-      <div class="hero-facts">
-        <div class="hero-fact">
-          <span class="hero-fact-k">Date</span>
-          <span class="hero-fact-v">Tuesday, 18 March 2026</span>
-        </div>
-        <div class="hero-fact">
-          <span class="hero-fact-k">Time</span>
-          <span class="hero-fact-v">7:30 PM IST · 75 minutes</span>
-        </div>
-        <div class="hero-fact">
-          <span class="hero-fact-k">Format</span>
-          <span class="hero-fact-v">Live online · Hands-on demo with logins provided</span>
-        </div>
-        <div class="hero-fact">
-          <span class="hero-fact-k">Instructor</span>
-          <span class="hero-fact-v">Rajesh Kumar · HPC Architect · 16 years</span>
-        </div>
-        <div class="hero-fact">
-          <span class="hero-fact-k">Cost</span>
-          <span class="hero-fact-v free">Free. No strings.</span>
+
+    <!-- Two column -->
+    <div class="above-fold">
+
+      <!-- LEFT: POST COPY -->
+      <div class="fold-left">
+        <h1 class="webinar-title">
+          HPC Infrastructure<br>
+          for <em>IT Engineers</em>
+        </h1>
+
+        <p class="webinar-intro">
+          I have spent 16 years operating HPC clusters.
+        </p>
+        <p class="webinar-intro">
+          In that time I have watched hundreds of IT engineers arrive at the cluster for the first time — sharp, experienced, production-hardened — and hit the same wall.
+        </p>
+        <p class="webinar-intro">
+          Not because they lacked skill. Because the machine operates on a completely different contract.
+        </p>
+        <p class="webinar-intro">
+          The metric isn't uptime. It's throughput. A cluster can be perfectly available and perfectly failing at the same time. One node down is not a P1. It is Tuesday. The scheduler adapted in milliseconds while the alert was still loading.
+        </p>
+        <p class="webinar-intro">
+          Same infrastructure depth. Completely different problem.
+        </p>
+        <p class="webinar-intro">
+          This is a free 90-minute briefing that maps that territory honestly — what HPC is, how it works, where AI infrastructure fits, and what your path looks like from the inside.
+        </p>
+
+        <div class="note-strip">
+          <p><strong>Note:</strong> If you attended the 17 March orientation — this session covers the same ground. This briefing is for engineers who missed it.</p>
         </div>
       </div>
-      <a href="#register" class="register-btn">Reserve your seat →</a>
-    </div>
-  </section>
+
+      <!-- RIGHT: FORM PANEL -->
+      <div class="fold-right">
+        <div class="form-panel-header">
+          <p class="form-panel-title">Reserve your seat.</p>
+          <p class="form-panel-sub">One session. Live only. No recording distributed.<br>Rajesh sends the Meet link directly.</p>
+        </div>
+
+        <div class="form-facts">
+          <div class="form-fact">
+            <span class="form-fact-k">Date</span>
+            <span class="form-fact-v">Saturday, 28 March 2026</span>
+          </div>
+          <div class="form-fact">
+            <span class="form-fact-k">Time</span>
+            <span class="form-fact-v">10:00 AM IST</span>
+          </div>
+          <div class="form-fact">
+            <span class="form-fact-k">Format</span>
+            <span class="form-fact-v">Live · Google Meet · 90 min</span>
+          </div>
+          <div class="form-fact">
+            <span class="form-fact-k">Cost</span>
+            <span class="form-fact-v">Free</span>
+          </div>
+        </div>
+
+        <div class="form-embed-area">
+          <p class="form-embed-label">Register</p>
+          <div class="tally-wrap">
+            <iframe
+              data-tally-src="https://tally.so/embed/2ELR9M?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
+              loading="lazy"
+              width="100%"
+              height="594"
+              frameborder="0"
+              marginheight="0"
+              marginwidth="0"
+              title="Free Webinar Weekend Cohort">
+            </iframe>
+          </div>
+          <p class="form-direct">
+            Or write directly to <a href="/cdn-cgi/l/email-protection#4d3f2c27283e250d253d2e6323223a"><span class="__cf_email__" data-cfemail="c7b5a6ada2b4af87afb7a4e9a9a8b0">[email&#160;protected]</span></a>
+          </p>
+        </div>
+      </div>
+
+    </div><!-- /above-fold -->
+  </div>
 </div>
 
 <div class="zone-edge"></div>
 
-<!-- ══ BODY ══ -->
-<div class="page-wrap">
+<!-- ══ BODY SECTIONS ══ -->
+<div class="page-body">
 
-  <!-- WHAT YOU WILL DO -->
-  <section class="section" id="demo">
-    <p class="label">what you will do</p>
-    <p class="demo-title">You'll be given logins to a live cluster. Then we run the progression.</p>
+  <!-- WHAT WE COVER -->
+  <section class="section" id="what-we-cover">
+    <p class="label">what we cover</p>
+    <div class="cover-items">
 
-    <div class="demo-steps">
-
-      <div class="demo-step">
-        <span class="demo-step-num">01</span>
-        <div class="demo-step-body">
-          <p class="demo-step-title">Run a job on a single core</p>
-          <p class="demo-step-desc">Your first interaction with a real HPC cluster. Submit a job, watch it run, read the output. You'll see immediately how HPC job execution differs from running a process directly on a server.</p>
-        </div>
+      <div class="cover-item">
+        <p class="cover-item-num">Part 01</p>
+        <p class="cover-item-title">The Case For HPC</p>
+        <p class="cover-item-body">Why HPC exists and what it computes that enterprise IT cannot. Work where being second to finish costs five hundred million dollars and five years. Gone. This section covers the verticals where cluster performance is the difference between first and second — and why second is nothing.</p>
       </div>
 
-      <div class="demo-step">
-        <span class="demo-step-num">02</span>
-        <div class="demo-step-body">
-          <p class="demo-step-title">Scale to multiple cores on one node</p>
-          <p class="demo-step-desc">The same workload, parallelised across cores. Watch the scheduler allocate resources and observe how performance changes — and what stays the same.</p>
-        </div>
+      <div class="cover-item">
+        <p class="cover-item-num">Part 02</p>
+        <p class="cover-item-title">How a Cluster Actually Works</p>
+        <p class="cover-item-body">The architecture — head node, compute nodes, scheduler, parallel filesystem, high-speed interconnect. How a job moves through the cluster from submission to result. What each component does and why it exists. This is the map most IT engineers have never been given.</p>
       </div>
 
-      <div class="demo-step">
-        <span class="demo-step-num">03</span>
-        <div class="demo-step-body">
-          <p class="demo-step-title">Span across multiple nodes</p>
-          <p class="demo-step-desc">Cross the boundary from single-node to distributed compute. This is the moment most engineers have never seen — a workload running simultaneously across separate machines, coordinated by the scheduler.</p>
-          <span class="demo-step-tag">the inflection point</span>
-        </div>
+      <div class="cover-item">
+        <p class="cover-item-num">Part 03</p>
+        <p class="cover-item-title">Same Engineer. New Thinking.</p>
+        <p class="cover-item-body">Six instincts IT engineers bring to HPC that need to be questioned. Not abandoned — questioned. There is a difference. Availability first. Page the on-call when a node goes down. Call the vendor when storage is slow. Each instinct is precisely right for the problem it was built to solve. HPC is a different problem.</p>
       </div>
 
-      <div class="demo-step">
-        <span class="demo-step-num">04</span>
-        <div class="demo-step-body">
-          <p class="demo-step-title">Run on standard Ethernet vs InfiniBand</p>
-          <p class="demo-step-desc">Run the same distributed workload across both fabrics. The performance difference is not subtle. You'll see exactly why HPC clusters use high-speed interconnects — and what happens when MPI falls back silently to standard networking.</p>
-          <span class="demo-step-tag">where things get interesting</span>
-        </div>
+      <div class="cover-item">
+        <p class="cover-item-num">Part 04</p>
+        <p class="cover-item-title">Same Building. Different Machine.</p>
+        <p class="cover-item-body">An HPC cluster and an AI training cluster can share a building. They are not the same machine. This section draws the boundary clearly — where HPC ends, where AI infrastructure begins, what transfers directly between them, and what is genuinely new territory.</p>
       </div>
 
-      <div class="demo-step">
-        <span class="demo-step-num">05</span>
-        <div class="demo-step-body">
-          <p class="demo-step-title">Submit everything as a proper SLURM job</p>
-          <p class="demo-step-desc">Take everything you've just run and submit it correctly through the scheduler — with resource requests, wall time, and output handling. This is how real HPC workloads run in production.</p>
-        </div>
+      <div class="cover-item">
+        <p class="cover-item-num">Part 05</p>
+        <p class="cover-item-title">Three Paths. One Honest Map.</p>
+        <p class="cover-item-body">Can an IT engineer become an HPC engineer? Can they go directly to AI infrastructure? Can an HPC engineer move into AI? Three questions. Three honest answers. Your path named clearly — without vendor bias and without a sales pitch.</p>
       </div>
 
     </div>
@@ -557,41 +732,56 @@
 
   <!-- WHO THIS IS FOR -->
   <section class="section" id="for">
-    <p class="label">who this session is for</p>
-    <p class="prose">This session is open to any engineer curious about HPC — the paid course has strict experience requirements, this session does not. Come if you want to understand what HPC actually is.</p>
+    <p class="label">who this is for</p>
+    <p class="promise-hl">IT engineers who want a practitioner's view of HPC — not a vendor's brochure.</p>
+    <p class="prose">You do not need HPC experience. You need infrastructure experience — Linux, storage, networking, servers. The session assumes you know what a production system is. It does not explain what a server is.</p>
+    <p class="prose">If you are early in your career and genuinely curious, come. The content will challenge you in the right direction.</p>
+    <p class="prose">If you are a decade into infrastructure and have been watching HPC and AI infrastructure grow from the outside — this session gives you the map you have been looking for.</p>
+    <div class="for-highlight">
+      <p>This is not a course preview dressed up as a free session. It is a standalone briefing. You will leave with a clear map of the HPC world — what it is, how it differs from enterprise IT, where AI infrastructure fits, and what your path looks like. If you never enrol in anything, you will still leave with something useful.</p>
+    </div>
+  </section>
 
-    <div class="for-grid" style="margin-top: 32px;">
-      <div class="for-col">
-        <p class="for-col-head">You'll get the most from this if you</p>
-        <div class="for-item"><span class="for-marker-yes">→</span> Work in IT infrastructure, SRE, or platform engineering</div>
-        <div class="for-item"><span class="for-marker-yes">→</span> Are curious about HPC or AI infrastructure as a career direction</div>
-        <div class="for-item"><span class="for-marker-yes">→</span> Have heard terms like SLURM, MPI, or Lustre and want to know what they actually mean</div>
-        <div class="for-item"><span class="for-marker-yes">→</span> Want to see a live cluster before committing to anything</div>
+  <!-- FORMAT -->
+  <section class="section" id="format">
+    <p class="label">the format</p>
+    <p class="prose" style="margin-bottom: 28px;">Live session on Google Meet. Questions welcome throughout — this is not a lecture with a Q&amp;A bolted on at the end. The course is mentioned once, at the end, for those who want to know what comes next.</p>
+    <div class="facts">
+      <div class="fact">
+        <span class="fact-k">Date</span>
+        <span class="fact-v">Saturday, 28 March 2026</span>
       </div>
-      <div class="for-col">
-        <p class="for-col-head">You don't need</p>
-        <div class="for-item"><span class="for-marker-no">—</span> Any HPC experience</div>
-        <div class="for-item"><span class="for-marker-no">—</span> A specific years-of-experience threshold</div>
-        <div class="for-item"><span class="for-marker-no">—</span> Anything installed — logins are provided</div>
-        <div class="for-item"><span class="for-marker-no">—</span> To have seen the paid course page</div>
+      <div class="fact">
+        <span class="fact-k">Time</span>
+        <span class="fact-v">10:00 AM IST</span>
+      </div>
+      <div class="fact">
+        <span class="fact-k">Duration</span>
+        <span class="fact-v">90 minutes</span>
+      </div>
+      <div class="fact">
+        <span class="fact-k">Platform</span>
+        <span class="fact-v">Google Meet — link sent on registration</span>
+      </div>
+      <div class="fact">
+        <span class="fact-k">Recording</span>
+        <span class="fact-v">Not distributed. One session, one room.</span>
+      </div>
+      <div class="fact">
+        <span class="fact-k">Cost</span>
+        <span class="fact-v">Free</span>
       </div>
     </div>
   </section>
 
-  <!-- WHAT COMES AFTER -->
-  <section class="section" id="after">
-    <p class="label">what this session is not</p>
-    <p class="prose">This is not a sales pitch for the paid course. It is a genuine orientation session — the same content Rajesh would want any engineer to have before deciding whether HPC is worth pursuing seriously.</p>
-    <p class="prose">If you're a senior infrastructure engineer after the session and want to go deeper, the pilot cohort for the full course has seats available. But that conversation happens after — not during.</p>
-  </section>
-
   <!-- ABOUT RAJESH -->
-  <section class="section" id="rajesh">
+  <section class="section" id="about">
     <p class="label">the instructor</p>
     <p class="about-name">Rajesh Kumar</p>
     <p class="about-role">HPC Infrastructure Architect · 16+ Years · Bengaluru, India</p>
-    <p class="prose">Rajesh has operated HPC infrastructure for sixteen years across IISc, C-DAC Pune, GE India, and Boeing India — across scheduler, storage, network, compute, and automation simultaneously, at scale, in production.</p>
-    <p class="prose" style="margin-top: 1.2em;">He built the paid course because the operational knowledge that takes years to accumulate inside HPC environments has never been written down for engineers who need it. This free session is the front door.</p>
+    <p class="prose">Rajesh has operated HPC infrastructure for sixteen years — across IISc, C-DAC Pune, GE India, and Boeing India. Scheduler, storage, network, compute, and automation simultaneously. Not as a layer specialist. Across all of them, at scale, in production.</p>
+    <p class="prose" style="margin-top: 1.2em;">He has never been employed by a vendor. That independence is structural — it shapes every comparative assessment, every configuration recommendation, and every opinion in his work.</p>
+    <p class="prose" style="margin-top: 1.2em;">He built hpc.now because the knowledge that takes years to accumulate inside HPC environments has never been properly written down for the engineers who need it most.</p>
     <div class="about-arc">
       <span class="arc-stop"><strong>IISc</strong></span><span class="arc-sep">—</span>
       <span class="arc-stop"><strong>C-DAC</strong> Pune</span><span class="arc-sep">—</span>
@@ -600,39 +790,42 @@
     </div>
   </section>
 
-</div><!-- end page-wrap -->
+</div><!-- /page-body -->
 
-<!-- ══ REGISTRATION BAND ══ -->
+<!-- ══ BOTTOM REGISTER BAND ══ -->
 <div class="register-band" id="register">
   <div class="register-inner">
-    <p class="register-label">registration</p>
-    <p class="register-title">Reserve your seat — it takes 60 seconds.</p>
-    <p class="register-sub">Session link and joining instructions will be sent to your email the day before. Seats are limited — this is a small, interactive session, not a broadcast webinar.</p>
 
-    <div class="tally-wrap">
-      <!--
-        ════════════════════════════════════════════════════════════
-        TALLY EMBED — REPLACE THESE TWO LINES WITH YOUR ACTUAL EMBED
-        ════════════════════════════════════════════════════════════
-        Step 1: In Tally → Share → Embed → copy the script tag
-        Step 2: In Tally → Share → Embed → copy the data-tally-src div
-        Replace the placeholder div below with both copied elements.
+    <!-- LEFT: WHY REGISTER -->
+    <div>
+      <p class="register-label">register</p>
+      <p class="register-title">One session. Live only.<br>Saturday 28 March, 10:00 AM IST.</p>
+      <p class="register-prose">Leave your name and email. Rajesh sends the Google Meet link directly — no automated sequence, no drip campaign. One email with the link.</p>
+      <p class="register-prose">No spam. No follow-up unless you ask for it. If you want to know more about the course after the session, write to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0577646f60766d456d75662b6b6a72">[email&#160;protected]</a>.</p>
+      <p class="register-direct">
+        Prefer email? Write directly to <a href="/cdn-cgi/l/email-protection#95e7f4fff0e6fdd5fde5f6bbfbfae2"><span class="__cf_email__" data-cfemail="c3b1a2a9a6b0ab83abb3a0edadacb4">[email&#160;protected]</span></a>
+      </p>
+    </div>
 
-        They will look like:
-
-        <div data-tally-src="https://tally.so/r/XXXXXX"
-             data-tally-width="100%"
-             data-tally-emoji-text="👋"
-             data-tally-emoji-animation="wave"
-             style="width:100%;height:400px;"></div>
-        <script async src="https://tally.so/widgets/embed.js"></script>
-
-        Keep the .tally-wrap div above — it provides the dark container styling.
-        ════════════════════════════════════════════════════════════
-      -->
-      <div style="text-align: center; padding: 40px 20px; border: 1px dashed #3a3028;">
-        <p style="font-size: 12px; color: #6a6460; letter-spacing: .06em; margin-bottom: 8px; text-transform: uppercase;">TALLY FORM EMBED GOES HERE</p>
-        <p style="font-size: 11px; color: #4a4438; line-height: 1.8;">Replace this placeholder with your Tally embed code.<br>See the HTML comment above for exact instructions.</p>
+    <!-- RIGHT: FORM (DARK VERSION) -->
+    <div class="register-form-panel">
+      <div class="register-form-header">
+        <p class="register-form-title">Reserve your seat — takes 30 seconds.</p>
+      </div>
+      <div class="register-form-body">
+        <p class="register-form-label">Register</p>
+        <div class="tally-wrap">
+          <iframe
+            data-tally-src="https://tally.so/embed/2ELR9M?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
+            loading="lazy"
+            width="100%"
+            height="594"
+            frameborder="0"
+            marginheight="0"
+            marginwidth="0"
+            title="Free Webinar Weekend Cohort">
+          </iframe>
+        </div>
       </div>
     </div>
 
@@ -644,6 +837,28 @@
   <span class="footer-copy">hpc.now &nbsp;·&nbsp; Bengaluru &nbsp;·&nbsp; 2026</span>
   <a href="mailto:rajesh@hpc.now" class="footer-link">rajesh@hpc.now</a>
 </div>
+
+<!-- ══ TALLY EMBED LOADER — placed once before </body> ══ -->
+<script>
+  var d = document,
+      w = "https://tally.so/widgets/embed.js",
+      v = function() {
+        "undefined" != typeof Tally
+          ? Tally.loadEmbeds()
+          : d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach(function(e) {
+              e.src = e.dataset.tallySrc;
+            });
+      };
+  if ("undefined" != typeof Tally) {
+    v();
+  } else if (d.querySelector('script[src="' + w + '"]') == null) {
+    var s = d.createElement("script");
+    s.src = w;
+    s.onload = v;
+    s.onerror = v;
+    d.body.appendChild(s);
+  }
+</script>
 
 </body>
 </html>
