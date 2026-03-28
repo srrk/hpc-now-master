@@ -832,7 +832,7 @@
 
       <p class="prose">Open a terminal and connect with your assigned username and the HeadNode IP from your instructor.</p>
 
-      <div class="code-block"><pre><span class="kw">ssh</span> &lt;your-username&gt;@&lt;HEADNODE-IP&gt;</pre></div>
+      <div class="code-block"><pre><span class="kw">ssh</span> &lt;your-username&gt;@&lt;mylab.hpc.now&gt;</pre></div>
 
       <p class="prose">Enter the password when prompted: <code>hpcnow2026</code></p>
 
@@ -841,13 +841,13 @@
         <p style="margin-top:10px">Clear the stale entry and reconnect normally:</p>
       </div>
       <div class="code-block"><pre><span class="cm"># Remove the stale host key for this IP (run on your laptop, not the cluster)</span>
-<span class="kw">ssh-keygen -R</span> &lt;HEADNODE-IP&gt;
+<span class="kw">ssh-keygen -R</span> &lt;mylab.hpc.now&gt;
 
 <span class="cm"># Then connect as normal</span>
-<span class="kw">ssh</span> &lt;your-username&gt;@&lt;HEADNODE-IP&gt;</pre></div>
+<span class="kw">ssh</span> &lt;your-username&gt;@&lt;mylab.hpc.now&gt;</pre></div>
       <p class="prose">If you want to skip host key checking entirely for the duration of the lab session — useful if the IP might change mid-session — use the one-liner below. Do not use this on production systems.</p>
       <div class="code-block"><pre><span class="kw">ssh</span> -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-    &lt;your-username&gt;@&lt;HEADNODE-IP&gt;</pre></div>
+    &lt;your-username&gt;@&lt;mylab.hpc.now&gt;</pre></div>
       <p class="prose" style="margin-top:16px">A successful login shows a prompt like this:</p>
 
       <div class="code-block"><pre><span class="pr">[&lt;your-username&gt;@ip-172-31-xx-xx ~]$</span></pre></div>
