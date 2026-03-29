@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 3 — Profile a Running MPI Job · hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #e4ddd0;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --navy:       #1C2B4A;
+      --teal:       #2E7D8C;
+      --teal-dim:   #5aa3b0;
+      --teal-bg:    #e8f4f6;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    /* ── COVER ── */
+    .cover {
+      background: var(--cover);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+    }
+
+    .nav-wrap { border-bottom: 1px solid var(--rule-cover); }
+    nav {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: .06em;
+    }
+    .logo em { color: var(--terra); font-style: normal; }
+    .nav-meta { font-size: 11px; color: var(--ink3); letter-spacing: .04em; }
+
+    .cover-body {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 56px 48px 64px;
+    }
+    .cover-label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .cover-label::before { content: ''; width: 24px; height: 1px; background: var(--ink3); }
+    .cover-title {
+      font-family: var(--serif);
+      font-size: clamp(26px, 3.5vw, 46px);
+      font-weight: 400;
+      line-height: 1.15;
+      color: var(--ink);
+      letter-spacing: -.02em;
+      margin-bottom: 10px;
+    }
+    .cover-title em { font-style: italic; color: var(--terra); }
+    .cover-sub {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.8;
+      margin-bottom: 36px;
+      max-width: 520px;
+    }
+
+    .cover-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--rule-cover);
+      border: 1px solid var(--rule-cover);
+      max-width: 700px;
+    }
+    .cover-cell {
+      background: rgba(255,255,255,0.4);
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .cover-cell-k { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink3); }
+    .cover-cell-v { font-size: 12px; color: var(--ink); line-height: 1.5; }
+
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* ── TWO-COLUMN LAYOUT ── */
+    .page-body {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 48px;
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 0 56px;
+      align-items: start;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: sticky;
+      top: 32px;
+      padding: 48px 0 40px;
+      align-self: start;
+    }
+    .side-nav { display: flex; flex-direction: column; gap: 1px; }
+    .side-nav-item {
+      font-size: 11px;
+      color: var(--ink3);
+      text-decoration: none;
+      letter-spacing: .03em;
+      padding: 5px 0 5px 10px;
+      border-left: 2px solid transparent;
+      transition: color .15s, border-color .15s;
+      line-height: 1.4;
+    }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--teal); border-color: var(--teal); }
+    .side-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+
+    /* ── MAIN ── */
+    .main-content { padding: 0; }
+
+    /* ── CONCEPT SECTIONS ── */
+    .concept {
+      padding: 52px 0 48px;
+      border-top: 1px solid var(--rule);
+    }
+    .concept:first-child { border-top: none; padding-top: 64px; }
+
+    .concept-head {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 0 14px;
+      align-items: baseline;
+      margin-bottom: 4px;
+    }
+    .concept-num {
+      font-size: 10px;
+      letter-spacing: .1em;
+      color: var(--ink3);
+      padding-top: 3px;
+    }
+    .concept-title {
+      font-family: var(--serif);
+      font-size: 19px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+    .concept-link {
+      font-size: 10px;
+      letter-spacing: .08em;
+      color: var(--teal-dim);
+      padding-left: 66px;
+      margin-bottom: 24px;
+      display: block;
+    }
+
+    /* ── RUN / OBSERVE / MEANING ── */
+    .rom { display: flex; flex-direction: column; gap: 0; padding-left: 66px; }
+
+    .rom-block { padding: 22px 0; border-top: 1px solid var(--rule); }
+    .rom-block:first-child { border-top: none; padding-top: 0; }
+
+    .rom-label {
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 10px;
+    }
+    .rom-label.run-lbl   { color: var(--teal); }
+    .rom-label.obs-lbl   { color: var(--terra); }
+    .rom-label.means-lbl { color: var(--ink3); }
+
+    /* ── CODE BLOCKS ── */
+    .cmd {
+      background: var(--navy);
+      border-radius: 2px;
+      padding: 16px 20px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.85;
+      color: #e8edf5;
+      overflow-x: auto;
+      max-width: 620px;
+      white-space: pre;
+    }
+    .cmd .c  { color: #4a6070; }
+    .cmd .h  { color: #f0c070; font-weight: 500; }
+    .cmd .ok { color: #70c090; }
+    .cmd .w  { color: #e07050; }
+    .cmd .t  { color: #89c4cc; }
+
+    /* ── OBSERVE BLOCK ── */
+    .observe {
+      background: var(--paper-mid);
+      border: 1px solid var(--rule);
+      border-left: 3px solid var(--terra);
+      padding: 14px 18px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.9;
+      color: var(--ink2);
+      max-width: 620px;
+      white-space: pre-wrap;
+    }
+    .observe .key { color: var(--teal); font-weight: 500; }
+    .observe .bad { color: #c05040; font-weight: 500; }
+    .observe .good { color: #408060; font-weight: 500; }
+
+    /* ── MEANING ── */
+    .meaning {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.95;
+      max-width: 560px;
+    }
+    .meaning strong { color: var(--ink); font-weight: 500; }
+
+    /* ── NOTICE BOX ── */
+    .notice {
+      border-left: 3px solid var(--teal);
+      background: var(--teal-bg);
+      padding: 14px 18px;
+      font-size: 12px;
+      color: var(--ink2);
+      line-height: 1.9;
+      max-width: 580px;
+      margin-top: 14px;
+    }
+    .notice-head {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 6px;
+    }
+
+    .warn-box {
+      border-left: 3px solid var(--terra);
+      background: var(--terra-bg);
+      padding: 14px 18px;
+      font-size: 12px;
+      color: var(--ink2);
+      line-height: 1.9;
+      max-width: 580px;
+      margin-top: 14px;
+    }
+    .warn-box .notice-head { color: var(--terra); }
+
+    /* ── DELIVERABLE ── */
+    .deliverable-box {
+      border: 1px solid var(--rule);
+      max-width: 580px;
+      margin-top: 16px;
+    }
+    .deliverable-header {
+      background: var(--paper-mid);
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--rule);
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--terra);
+    }
+    .deliverable-body { padding: 16px 18px; }
+    .deliverable-item {
+      font-size: 12px;
+      color: var(--ink2);
+      padding: 7px 0;
+      border-top: 1px solid var(--rule);
+      line-height: 1.7;
+      display: grid;
+      grid-template-columns: 12px 1fr;
+      gap: 10px;
+    }
+    .deliverable-item:first-child { border-top: none; }
+    .deliverable-item::before { content: '—'; color: var(--terra-dim); }
+
+    /* ── TROUBLE ── */
+    .trouble-list { display: flex; flex-direction: column; gap: 0; max-width: 580px; }
+    .trouble {
+      padding: 16px 0;
+      border-top: 1px solid var(--rule);
+      display: grid;
+      grid-template-columns: 12px 1fr;
+      gap: 12px;
+    }
+    .trouble::before { content: '!'; color: var(--terra); font-size: 11px; padding-top: 1px; }
+    .trouble-symptom { font-size: 12px; font-weight: 500; color: var(--ink); margin-bottom: 5px; }
+    .trouble-fix { font-size: 12px; color: var(--ink2); line-height: 1.85; }
+    .trouble-fix code {
+      background: var(--paper-mid);
+      padding: 1px 5px;
+      font-family: var(--mono);
+      font-size: 11px;
+      border: 1px solid var(--rule);
+      color: var(--teal);
+    }
+
+    /* ── FOOTER ── */
+    .footer-wrap {
+      background: var(--dark2);
+      margin: 56px -48px 0;
+      padding: 22px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-link { font-size: 11px; color: #6a6460; text-decoration: none; }
+
+    @media print {
+      .sidebar { display: none; }
+      .page-body { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 860px) {
+      .page-body { grid-template-columns: 1fr; padding: 0 24px; }
+      .sidebar { display: none; }
+      nav { padding: 18px 24px; }
+      .cover-body { padding: 44px 24px 52px; }
+      .cover-grid { grid-template-columns: 1fr 1fr; }
+      .footer-wrap { margin: 48px -24px 0; padding: 20px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="https://hpc.now" class="logo">hpc<em>.now</em></a>
+      <span class="nav-meta">Module 3 · Lab 3 Runbook · Cohort 2 · March 2026</span>
+    </nav>
+  </div>
+  <div class="cover-body">
+    <p class="cover-label">Lab 3</p>
+    <h1 class="cover-title">Profile a Running<br><em>MPI Job</em></h1>
+    <p class="cover-sub">
+      A user says their job is slower than expected.<br>
+      You are the admin. Run the commands. Observe the signals. Name the bottleneck.
+    </p>
+    <div class="cover-grid">
+      <div class="cover-cell">
+        <span class="cover-cell-k">Duration</span>
+        <span class="cover-cell-v">90 min live</span>
+      </div>
+      <div class="cover-cell">
+        <span class="cover-cell-k">Nodes</span>
+        <span class="cover-cell-v">2 × compute</span>
+      </div>
+      <div class="cover-cell">
+        <span class="cover-cell-k">Login</span>
+        <span class="cover-cell-v">ssh &lt;user&gt;@&lt;ip&gt;</span>
+      </div>
+      <div class="cover-cell">
+        <span class="cover-cell-k">Password</span>
+        <span class="cover-cell-v">hpcnow2026</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<div class="page-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <nav class="side-nav">
+      <a href="#setup"    class="side-nav-item">00 · Setup</a>
+      <a href="#submit"   class="side-nav-item">01 · Submit</a>
+      <div class="side-divider"></div>
+      <a href="#affinity" class="side-nav-item">02 · Affinity</a>
+      <a href="#numa"     class="side-nav-item">03 · NUMA</a>
+      <a href="#thp"      class="side-nav-item">04 · THP</a>
+      <a href="#profiling" class="side-nav-item">05 · Profiling</a>
+      <a href="#cgroups"  class="side-nav-item">06 · cgroups</a>
+      <a href="#pdsh"     class="side-nav-item">07 · pdsh fix</a>
+      <div class="side-divider"></div>
+      <a href="#fix"      class="side-nav-item">08 · Resubmit</a>
+      <a href="#report"   class="side-nav-item">09 · Report</a>
+      <div class="side-divider"></div>
+      <a href="#trouble"  class="side-nav-item">Troubleshooting</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- 00 SETUP -->
+    <section class="concept" id="setup">
+      <div class="concept-head">
+        <span class="concept-num">00</span>
+        <span class="concept-title">Setup — Verify before you benchmark</span>
+      </div>
+      <span class="concept-link">↑ Slides: Healthy Baseline · 4.1</span>
+
+      <div class="rom">
+
+        <div class="rom-block">
+          <p class="rom-label run-lbl">Run</p>
+          <div class="cmd"><span class="c"># Check all compute nodes are ready</span>
+sinfo
+
+<span class="c"># Check perf is usable — must be 1</span>
+NODES=$(sinfo -h -N -o '%N' | tr '\n' ',' | sed 's/,$//')
+pdsh -w $NODES 'sysctl kernel.perf_event_paranoid'
+
+<span class="c"># Check THP state — record what you see</span>
+pdsh -w $NODES \
+  'cat /sys/kernel/mm/transparent_hugepage/enabled'
+
+<span class="c"># Check NUMA topology on compute node</span>
+ssh $(sinfo -h -N -o '%N' | head -1) 'numactl --hardware'</div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label obs-lbl">Observe</p>
+          <div class="observe">sinfo:  2 nodes · STATE = <span class="good">idle</span>
+
+perf_event_paranoid = <span class="key">1</span>   ← must be 1 before benchmarking
+
+THP: <span class="bad">[always]</span> madvise never   ← note this — you will fix it later
+
+numactl distances:
+  node   0    1
+    0:  <span class="key">10</span>   <span class="bad">21</span>   ← distance 21 = 2.1× slower than local</div>
+          <div class="notice" style="margin-top:12px">
+            <p class="notice-head">If perf_event_paranoid shows 2</p>
+            <p>Stop. Tell Rajesh. Do not submit the benchmark until this is fixed — perf stat will return empty output.</p>
+          </div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label means-lbl">What it means</p>
+          <p class="meaning">Two nodes are available. perf will work. THP is armed on every compute node — this is the misconfiguration you will investigate and fix during the lab. The NUMA distance of 21 means any memory allocated on the wrong node costs 2.1× more to access.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 01 SUBMIT -->
+    <section class="concept" id="submit">
+      <div class="concept-head">
+        <span class="concept-num">01</span>
+        <span class="concept-title">Submit — Get the job running</span>
+      </div>
+      <span class="concept-link">↑ Slides: Lab Objective · Slide 16</span>
+
+      <div class="rom">
+
+        <div class="rom-block">
+          <p class="rom-label run-lbl">Run</p>
+          <div class="cmd"><span class="c"># Inspect the job script before submitting</span>
+cat /opt/hpc-tools/sample-jobs/lab3-benchmark.sh
+
+<span class="c"># Copy to your working directory and submit</span>
+mkdir -p /efs/$USER
+cp /opt/hpc-tools/sample-jobs/lab3-benchmark.sh /efs/$USER/
+sbatch /efs/$USER/lab3-benchmark.sh
+
+<span class="c"># Wait until ST = R before proceeding</span>
+watch -n 2 squeue -j <span class="h">&lt;JOBID&gt;</span></div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label obs-lbl">Observe</p>
+          <div class="observe">Submitted batch job <span class="key">12345</span>
+
+JOBID   ST   NODELIST
+12345   <span class="good">R</span>    compute-dy-c5n4xlarge-[1-2]</div>
+          <div class="notice" style="margin-top:12px">
+            <p class="notice-head">Notice — no --cpu-bind or --mem-bind in the job script</p>
+            <p>This is the misconfiguration. The default job script has no binding flags. You will discover the consequences in sections 02 and 03.</p>
+          </div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label means-lbl">What it means</p>
+          <p class="meaning">Job is running across both compute nodes. Do not proceed until ST shows <strong>R</strong>. You cannot attach profiling tools to a queued job.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 02 AFFINITY -->
+    <section class="concept" id="affinity">
+      <div class="concept-head">
+        <span class="concept-num">02</span>
+        <span class="concept-title">Process Affinity — Did the binding hold?</span>
+      </div>
+      <span class="concept-link">↑ Slides: 4.2 Provocation · 4.2 Lab Moment</span>
+
+      <div class="rom">
+
+        <div class="rom-block">
+          <p class="rom-label run-lbl">Run</p>
+          <div class="cmd"><span class="c"># SSH to the first compute node</span>
+ssh $(sinfo -h -N -o '%N' | head -1)
+
+<span class="c"># Find a running MPI rank — note the PID</span>
+ps aux | grep osu_alltoall | grep -v grep
+
+<span class="c"># Check CPU affinity of that rank</span>
+taskset -cp <span class="h">&lt;PID&gt;</span></div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label obs-lbl">Observe</p>
+          <div class="observe">pid 12456's current affinity list: <span class="bad">0-15</span>
+
+<span class="c"># 0-15 = rank is unpinned — can run on any of 16 CPUs
+# Healthy would show a single CPU: "affinity list: 4"</span></div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label means-lbl">What it means</p>
+          <p class="meaning"><strong>The binding failed.</strong> SLURM applied no cpu-bind because the job script had no <code style="font-family:var(--mono);font-size:11px;color:var(--teal)">--cpu-bind=cores</code> flag. The CFS scheduler is free to migrate this rank between any of the 16 CPUs. Every migration invalidates the CPU cache. IPC drops from 1.5 to 0.3.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 03 NUMA -->
+    <section class="concept" id="numa">
+      <div class="concept-head">
+        <span class="concept-num">03</span>
+        <span class="concept-title">NUMA — Is memory on the wrong node?</span>
+      </div>
+      <span class="concept-link">↑ Slides: 4.3 Provocation · 4.3 Lab Moment</span>
+
+      <div class="rom">
+
+        <div class="rom-block">
+          <p class="rom-label run-lbl">Run</p>
+          <div class="cmd"><span class="c"># Still on the compute node, using the same PID</span>
+numastat -p <span class="h">&lt;PID&gt;</span> | tee /tmp/numa_output.txt</div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label obs-lbl">Observe</p>
+          <div class="observe">Per-node process memory (MBs) for PID 12456
+
+                  Node 0      <span class="bad">Node 1</span>
+               ---------   ---------
+Heap             234.56      <span class="bad">89.23</span>
+Stack              2.34        0.00
+Private         1024.00     <span class="bad">312.45</span>
+               ---------   ---------
+Total           1260.90     <span class="bad">401.68</span>   ← non-zero = NUMA imbalance</div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label means-lbl">What it means</p>
+          <p class="meaning"><strong>401MB is on the wrong NUMA node.</strong> The job's ranks are running on Node 0 CPUs — but 401MB of their memory was allocated on Node 1. Every access to that memory crosses the NUMA boundary at 2.1× the latency of a local access. No error message. No warning. Just slower.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 04 THP -->
+    <section class="concept" id="thp">
+      <div class="concept-head">
+        <span class="concept-num">04</span>
+        <span class="concept-title">THP — Is it armed on all nodes?</span>
+      </div>
+      <span class="concept-link">↑ Slides: 4.4 Provocation · 4.4 Lab Moment</span>
+
+      <div class="rom">
+
+        <div class="rom-block">
+          <p class="rom-label run-lbl">Run</p>
+          <div class="cmd"><span class="c"># Return to head node first</span>
+exit
+
+<span class="c"># Check THP state cluster-wide in one command</span>
+NODES=$(sinfo -h -N -o '%N' | tr '\n' ',' | sed 's/,$//')
+pdsh -w $NODES \
+  'cat /sys/kernel/mm/transparent_hugepage/enabled'</div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label obs-lbl">Observe</p>
+          <div class="observe">compute-dy-c5n4xlarge-1: <span class="bad">[always]</span> madvise never
+compute-dy-c5n4xlarge-2: <span class="bad">[always]</span> madvise never</div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label means-lbl">What it means</p>
+          <p class="meaning"><strong>THP is armed on every compute node.</strong> The bracket shows the active state. <strong>[always]</strong> means the kernel will attempt to promote 4KB pages to 2MB pages automatically — firing a compaction event mid-job. Every MPI rank waits during compaction. This is a cluster-wide configuration problem, not a per-job issue. You will fix it in section 07.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 05 PROFILING -->
+    <section class="concept" id="profiling">
+      <div class="concept-head">
+        <span class="concept-num">05</span>
+        <span class="concept-title">Profiling — Four tools, one sequence</span>
+      </div>
+      <span class="concept-link">↑ Slides: 4.6 Provocation · 4.6 Lab Moment</span>
+
+      <div class="rom">
+
+        <div class="rom-block">
+          <p class="rom-label run-lbl">Run</p>
+          <div class="cmd"><span class="c"># Resubmit if the previous job has finished</span>
+sbatch /efs/$USER/lab3-benchmark.sh
+
+<span class="c"># SSH back to compute node</span>
+ssh $(sinfo -h -N -o '%N' | head -1)
+
+<span class="c"># Find PID again</span>
+ps aux | grep osu_alltoall | grep -v grep
+
+<span class="c"># Tool 1 — IPC: is the CPU doing useful work?</span>
+sudo perf stat -p <span class="h">&lt;PID&gt;</span> sleep 15 \
+  2>&1 | tee /tmp/perf_output.txt
+
+<span class="c"># Tool 2 — NUMA already done — /tmp/numa_output.txt</span>
+
+<span class="c"># Tool 3 — CPU placement: are ranks on the right CPUs?</span>
+mpstat -P ALL 1 5 | tee /tmp/mpstat_output.txt
+
+<span class="c"># Tool 4 — Storage: is I/O the bottleneck?</span>
+iostat -xdm 2 5 | tee /tmp/iostat_output.txt</div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label obs-lbl">Observe</p>
+          <div class="observe"><span class="c">perf stat:</span>
+  instructions per cycle:  <span class="bad">0.31</span>   ← below 0.5 = memory stalled
+  cache-misses:            <span class="bad">7.99%</span>  ← above 5% = cache thrashing
+
+<span class="c">mpstat (look at %usr per CPU):</span>
+  CPU 0-7:  ~99% usr  ← ranks here
+  CPU 8-15: ~0% usr   ← should be idle, check these
+
+<span class="c">iostat (look at await, not %util):</span>
+  await: <span class="good">0.42ms</span>  ← under 1ms = storage is NOT the bottleneck
+  %util: 89%    ← ignore this number in HPC context</div>
+
+          <div class="warn-box" style="margin-top:12px">
+            <p class="notice-head">Storage util at 89–100% is not an incident</p>
+            <p>In HPC, high %util means the storage is working at full speed — that is correct. Read <strong>await</strong>. Under 1ms on this filesystem means storage is not the bottleneck. Do not raise an alert for %util alone.</p>
+          </div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label means-lbl">What it means</p>
+          <p class="meaning"><strong>IPC = 0.31 confirms the job is memory-stalled, not compute-bound.</strong> The CPU is waiting for data from memory on every instruction cycle. Combined with the NUMA result from section 03 — 401MB on the wrong node — the root cause is clear: the job is paying the 2.1× NUMA latency penalty on every remote memory access. Storage is ruled out. I/O is not the bottleneck.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 06 CGROUPS -->
+    <section class="concept" id="cgroups">
+      <div class="concept-head">
+        <span class="concept-num">06</span>
+        <span class="concept-title">cgroups — Read the enforcement boundary</span>
+      </div>
+      <span class="concept-link">↑ Slides: 4.7 Provocation · 4.7 Lab Moment</span>
+
+      <div class="rom">
+
+        <div class="rom-block">
+          <p class="rom-label run-lbl">Run</p>
+          <div class="cmd"><span class="c"># On the compute node — find the SLURM cgroup</span>
+ls /sys/fs/cgroup/system.slice/ | grep slurm
+
+<span class="c"># Read the memory limit for this job</span>
+<span class="c"># Replace 12345 with your JOBID</span>
+cat /sys/fs/cgroup/system.slice/\
+  slurmstepd.scope/job_<span class="h">&lt;JOBID&gt;</span>/memory.max
+
+<span class="c"># Check open file limit</span>
+ulimit -n</div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label obs-lbl">Observe</p>
+          <div class="observe">memory.max = <span class="key">8589934592</span>
+            = 8GB  ← from #SBATCH --mem=8G
+
+ulimit -n = <span class="bad">1024</span>  ← default · too low for parallel I/O jobs</div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label means-lbl">What it means</p>
+          <p class="meaning">SLURM has placed a hard 8GB memory wall around this job. If the job exceeds it, the OOM killer fires silently — no stack trace, no useful error. The raw bytes (8589934592 ÷ 1073741824 = 8GB) is the translation you need to make. The open file limit of 1024 is the default — a parallel I/O job with multiple ranks writing simultaneously can exhaust this quickly.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 07 PDSH FIX -->
+    <section class="concept" id="pdsh">
+      <div class="concept-head">
+        <span class="concept-num">07</span>
+        <span class="concept-title">pdsh — Fix the cluster, not the node</span>
+      </div>
+      <span class="concept-link">↑ Slides: 4.8 pdsh · 4.4 Lab Moment</span>
+
+      <div class="rom">
+
+        <div class="rom-block">
+          <p class="rom-label run-lbl">Run</p>
+          <div class="cmd"><span class="c"># Return to head node</span>
+exit
+
+<span class="c"># Disable THP on all compute nodes simultaneously</span>
+NODES=$(sinfo -h -N -o '%N' | tr '\n' ',' | sed 's/,$//')
+
+pdsh -w $NODES \
+  'echo never > /sys/kernel/mm/transparent_hugepage/enabled && \
+   echo never > /sys/kernel/mm/transparent_hugepage/defrag'
+
+<span class="c"># Verify cluster-wide — one command, all nodes</span>
+pdsh -w $NODES \
+  'cat /sys/kernel/mm/transparent_hugepage/enabled'</div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label obs-lbl">Observe</p>
+          <div class="observe">compute-dy-c5n4xlarge-1: always madvise <span class="good">[never]</span>
+compute-dy-c5n4xlarge-2: always madvise <span class="good">[never]</span></div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label means-lbl">What it means</p>
+          <p class="meaning"><strong>Both nodes fixed in one command.</strong> This is the HPC admin's operational unit — the cluster, not the node. pdsh runs the command on every node simultaneously. The bracket has moved from [always] to [never]. Every job submitted from this point forward runs without THP compaction risk.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 08 RESUBMIT -->
+    <section class="concept" id="fix">
+      <div class="concept-head">
+        <span class="concept-num">08</span>
+        <span class="concept-title">Resubmit — Apply the fix and compare</span>
+      </div>
+      <span class="concept-link">↑ Slides: 4.2 Lab Moment · 4.3 Lab Moment</span>
+
+      <div class="rom">
+
+        <div class="rom-block">
+          <p class="rom-label run-lbl">Run</p>
+          <div class="cmd"><span class="c"># Inspect the fixed job script</span>
+cat /opt/hpc-tools/sample-jobs/lab3-benchmark-fixed.sh
+
+<span class="c"># Copy and submit</span>
+cp /opt/hpc-tools/sample-jobs/lab3-benchmark-fixed.sh /efs/$USER/
+sbatch /efs/$USER/lab3-benchmark-fixed.sh
+
+<span class="c"># Wait for R state, then SSH to compute node</span>
+watch -n 2 squeue -j <span class="h">&lt;FIXED_JOBID&gt;</span>
+ssh $(sinfo -h -N -o '%N' | head -1)
+
+<span class="c"># Repeat the key checks</span>
+ps aux | grep osu_alltoall | grep -v grep
+
+taskset -cp <span class="h">&lt;NEW_PID&gt;</span>
+
+numastat -p <span class="h">&lt;NEW_PID&gt;</span> | tee /tmp/numa_fixed.txt
+
+sudo perf stat -p <span class="h">&lt;NEW_PID&gt;</span> sleep 15 \
+  2>&1 | tee /tmp/perf_fixed.txt</div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label obs-lbl">Observe</p>
+          <div class="observe">taskset: affinity list: <span class="good">4</span>   ← single CPU, binding held
+
+numastat Node 1 Total: <span class="good">0.00</span>  ← all memory local
+
+perf stat IPC: <span class="good">1.47</span>   ← compute bound, healthy</div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label means-lbl">What it means</p>
+          <p class="meaning"><strong>Three signals changed.</strong> Binding held — rank is on a single CPU. Memory is local — Node 1 is zero. IPC recovered — the job is now compute-bound rather than memory-stalled. The two flags <code style="font-family:var(--mono);font-size:11px;color:var(--teal)">--mem-bind=local</code> and <code style="font-family:var(--mono);font-size:11px;color:var(--teal)">--cpu-bind=cores</code> fixed the NUMA imbalance and the affinity failure together.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 09 REPORT -->
+    <section class="concept" id="report">
+      <div class="concept-head">
+        <span class="concept-num">09</span>
+        <span class="concept-title">Report — Three sentences. Evidence required.</span>
+      </div>
+      <span class="concept-link">↑ Slides: Lab Objective · Slide 16</span>
+
+      <div class="rom">
+
+        <div class="rom-block">
+          <p class="rom-label run-lbl">Run</p>
+          <div class="cmd"><span class="c"># Create and fill your diagnostic report</span>
+mkdir -p /efs/$USER/lab3
+
+cat > /efs/$USER/lab3/lab3_report_$USER.txt << 'REPORT'
+Module 3 Lab — Diagnostic Report
+Date: [today]
+Job (original): [JOBID]
+Job (fixed):    [FIXED_JOBID]
+
+=== TOOL OUTPUTS ===
+
+perf stat (original):
+[paste /tmp/perf_output.txt]
+
+numastat (original):
+[paste /tmp/numa_output.txt]
+
+mpstat:
+[paste /tmp/mpstat_output.txt]
+
+iostat:
+[paste /tmp/iostat_output.txt]
+
+perf stat (fixed):
+[paste /tmp/perf_fixed.txt]
+
+numastat (fixed):
+[paste /tmp/numa_fixed.txt]
+
+=== DIAGNOSIS — 3 SENTENCES ===
+Primary bottleneck: [name it]
+Evidence: [cite the specific metric and value]
+Fix applied: [name the exact action]
+
+=== BEFORE / AFTER ===
+Original IPC:  [value]
+Fixed IPC:     [value]
+THP before:    [always / never]
+THP after:     [always / never]
+REPORT
+
+nano /efs/$USER/lab3/lab3_report_$USER.txt</div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label obs-lbl">Observe</p>
+          <div class="observe"><span class="c"># Your diagnosis must contain three things:</span>
+
+<span class="key">1.</span> Primary bottleneck — one of:
+   Memory-bound (NUMA imbalance) / Compute-bound / I/O-bound
+
+<span class="key">2.</span> Evidence — a specific number from a specific tool:
+   "perf stat IPC = 0.31 · numastat Node 1 = 401MB"
+
+<span class="key">3.</span> Fix — the exact action taken:
+   "--mem-bind=local --cpu-bind=cores added · THP disabled cluster-wide"</div>
+        </div>
+
+        <div class="rom-block">
+          <p class="rom-label means-lbl">What it means</p>
+          <p class="meaning">A diagnosis without a cited metric is an opinion. A fix without a before/after comparison is unverified. The report must contain both. Tell Rajesh when your report is at <code style="font-family:var(--mono);font-size:11px;color:var(--teal)">/efs/$USER/lab3/lab3_report_$USER.txt</code></p>
+
+          <div class="deliverable-box">
+            <div class="deliverable-header">Minimum for a complete submission</div>
+            <div class="deliverable-body">
+              <div class="deliverable-item">perf stat output from both original and fixed job</div>
+              <div class="deliverable-item">numastat output showing Node 0 and Node 1 values</div>
+              <div class="deliverable-item">mpstat output at 1-second granularity</div>
+              <div class="deliverable-item">iostat output for at least 3 samples</div>
+              <div class="deliverable-item">3-sentence diagnosis — bottleneck · metric · fix</div>
+              <div class="deliverable-item">IPC before and after the fix</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TROUBLESHOOTING -->
+    <section class="concept" id="trouble">
+      <div class="concept-head">
+        <span class="concept-num"></span>
+        <span class="concept-title">Troubleshooting</span>
+      </div>
+
+      <div class="rom">
+        <div class="rom-block" style="padding-top:0; border-top:none;">
+          <div class="trouble-list">
+
+            <div class="trouble">
+              <div>
+                <p class="trouble-symptom">perf stat returns all zeros</p>
+                <p class="trouble-fix">Run <code>sysctl kernel.perf_event_paranoid</code> on the compute node. If it shows 2 — tell Rajesh. It should have been pre-set to 1 by the cluster bootstrap.</p>
+              </div>
+            </div>
+
+            <div class="trouble">
+              <div>
+                <p class="trouble-symptom">numastat -p shows "no such process" or permission denied</p>
+                <p class="trouble-fix">You must be on the same node as the running MPI rank. Confirm with <code>ps aux | grep osu_alltoall</code>. If empty — the job has finished. Resubmit and run numastat immediately after the job reaches R state.</p>
+              </div>
+            </div>
+
+            <div class="trouble">
+              <div>
+                <p class="trouble-symptom">Job stays in PD (pending) and never starts</p>
+                <p class="trouble-fix">Run <code>squeue -j &lt;JOBID&gt; -o "%.18i %.9P %.8j %.2t %R"</code> to see the reason. If a previous job is still running — <code>scancel &lt;old_jobid&gt;</code> first.</p>
+              </div>
+            </div>
+
+            <div class="trouble">
+              <div>
+                <p class="trouble-symptom">pdsh hangs on first run</p>
+                <p class="trouble-fix">SSH host key checking is blocking pdsh. Run: <code>for n in $(sinfo -h -N -o '%N'); do ssh-keyscan -H $n >> ~/.ssh/known_hosts 2>/dev/null; done</code> — then retry.</p>
+              </div>
+            </div>
+
+            <div class="trouble">
+              <div>
+                <p class="trouble-symptom">taskset shows a single CPU even without --cpu-bind in the job script</p>
+                <p class="trouble-fix">Check <code>scontrol show partition compute | grep CpuBind</code>. If the partition has a CpuBind default set, SLURM applies it regardless. This is correct behaviour — note it in your report.</p>
+              </div>
+            </div>
+
+            <div class="trouble">
+              <div>
+                <p class="trouble-symptom">THP still shows [always] after the pdsh fix</p>
+                <p class="trouble-fix">The pdsh command may have failed silently. Run <code>pdsh -w $NODES 'sudo sh -c "echo never > /sys/kernel/mm/transparent_hugepage/enabled"'</code> and check again.</p>
+              </div>
+            </div>
+
+            <div class="trouble">
+              <div>
+                <p class="trouble-symptom">Benchmark finishes too fast to profile</p>
+                <p class="trouble-fix">Edit your copy of the job script and change <code>-i 100</code> to <code>-i 1000</code>. Resubmit. This gives you more time to attach profiling tools while the job runs.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-wrap">
+        <span class="footer-copy">hpc.now · Module 3 Lab 3 Runbook · Cohort 2 · March 2026</span>
+        <a href="mailto:rajesh@hpc.now" class="footer-link">rajesh@hpc.now</a>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('.concept[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(i => i.classList.remove('is-active'));
+        const a = document.querySelector(`.side-nav-item[href="#${entry.target.id}"]`);
+        if (a) a.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
