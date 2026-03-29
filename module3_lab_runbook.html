@@ -496,9 +496,9 @@ numactl distances:
 cat /opt/hpc-tools/sample-jobs/lab3-benchmark.sh
 
 <span class="c"># Copy to your working directory and submit</span>
-mkdir -p /efs/$USER
-cp /opt/hpc-tools/sample-jobs/lab3-benchmark.sh /efs/$USER/
-sbatch /efs/$USER/lab3-benchmark.sh
+mkdir -p ~/lab3
+cp /opt/hpc-tools/sample-jobs/lab3-benchmark.sh ~/lab3/
+sbatch ~/lab3/lab3-benchmark.sh
 
 <span class="c"># Wait until ST = R before proceeding</span>
 watch -n 2 squeue -j <span class="h">&lt;JOBID&gt;</span></div>
@@ -647,7 +647,7 @@ compute-dy-c5n4xlarge-2: <span class="bad">[always]</span> madvise never</div>
         <div class="rom-block">
           <p class="rom-label run-lbl">Run</p>
           <div class="cmd"><span class="c"># Resubmit if the previous job has finished</span>
-sbatch /efs/$USER/lab3-benchmark.sh
+sbatch ~/lab3/lab3-benchmark.sh
 
 <span class="c"># SSH back to compute node</span>
 ssh $(sinfo -h -N -o '%N' | head -1)
@@ -793,8 +793,8 @@ compute-dy-c5n4xlarge-2: always madvise <span class="good">[never]</span></div>
 cat /opt/hpc-tools/sample-jobs/lab3-benchmark-fixed.sh
 
 <span class="c"># Copy and submit</span>
-cp /opt/hpc-tools/sample-jobs/lab3-benchmark-fixed.sh /efs/$USER/
-sbatch /efs/$USER/lab3-benchmark-fixed.sh
+cp /opt/hpc-tools/sample-jobs/lab3-benchmark-fixed.sh ~/lab3/
+sbatch ~/lab3/lab3-benchmark-fixed.sh
 
 <span class="c"># Wait for R state, then SSH to compute node</span>
 watch -n 2 squeue -j <span class="h">&lt;FIXED_JOBID&gt;</span>
@@ -841,9 +841,9 @@ perf stat IPC: <span class="good">1.47</span>   ← compute bound, healthy</div>
         <div class="rom-block">
           <p class="rom-label run-lbl">Run</p>
           <div class="cmd"><span class="c"># Create and fill your diagnostic report</span>
-mkdir -p /efs/$USER/lab3
+mkdir -p ~/lab3
 
-cat > /efs/$USER/lab3/lab3_report_$USER.txt << 'REPORT'
+cat > ~/lab3/lab3_report_$USER.txt << 'REPORT'
 Module 3 Lab — Diagnostic Report
 Date: [today]
 Job (original): [JOBID]
@@ -881,7 +881,7 @@ THP before:    [always / never]
 THP after:     [always / never]
 REPORT
 
-nano /efs/$USER/lab3/lab3_report_$USER.txt</div>
+nano ~/lab3/lab3_report_$USER.txt</div>
         </div>
 
         <div class="rom-block">
@@ -900,7 +900,7 @@ nano /efs/$USER/lab3/lab3_report_$USER.txt</div>
 
         <div class="rom-block">
           <p class="rom-label means-lbl">What it means</p>
-          <p class="meaning">A diagnosis without a cited metric is an opinion. A fix without a before/after comparison is unverified. The report must contain both. Tell Rajesh when your report is at <code style="font-family:var(--mono);font-size:11px;color:var(--teal)">/efs/$USER/lab3/lab3_report_$USER.txt</code></p>
+          <p class="meaning">A diagnosis without a cited metric is an opinion. A fix without a before/after comparison is unverified. The report must contain both. Tell Rajesh when your report is at <code style="font-family:var(--mono);font-size:11px;color:var(--teal)">~/lab3/lab3_report_$USER.txt</code></p>
 
           <div class="deliverable-box">
             <div class="deliverable-header">Minimum for a complete submission</div>
@@ -984,7 +984,7 @@ nano /efs/$USER/lab3/lab3_report_$USER.txt</div>
 
       <div class="footer-wrap">
         <span class="footer-copy">hpc.now · Module 3 Lab 3 Runbook · Cohort 2 · March 2026</span>
-        <a href="mailto:rajesh@hpc.now" class="footer-link">rajesh@hpc.now</a>
+        <a href="/cdn-cgi/l/email-protection#a7d5c6cdc2d4cfe7cfd7c489c9c8d0" class="footer-link"><span class="__cf_email__" data-cfemail="94e6f5fef1e7fcd4fce4f7bafafbe3">[email&#160;protected]</span></a>
       </div>
 
     </section>
@@ -992,20 +992,11 @@ nano /efs/$USER/lab3/lab3_report_$USER.txt</div>
   </main>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   const sections = document.querySelectorAll('.concept[id]');
   const navItems = document.querySelectorAll('.side-nav-item');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         navItems.forEach(i => i.classList.remove('is-active'));
-        const a = document.querySelector(`.side-nav-item[href="#${entry.target.id}"]`);
-        if (a) a.classList.add('is-active');
-      }
-    });
-  }, { rootMargin: '-20% 0px -70% 0px' });
-  sections.forEach(s => observer.observe(s));
-</script>
-
-</body>
-</html>
+        const a = document.query
