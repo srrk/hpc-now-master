@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Module 3 · Lab Runbook · hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #e4ddd0;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+      --warn-bg:    #fdf3ed;
+      --warn-border:#c8855a;
+      --ok-bg:      #edf5f0;
+      --ok-border:  #5a9970;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    /* ── NAV ── */
+    .nav-wrap {
+      background: var(--cover);
+      border-bottom: 1px solid var(--rule-cover);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 18px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: .06em;
+    }
+    .logo em { color: var(--terra); font-style: normal; }
+    .nav-meta {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .nav-tag {
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--ink3);
+    }
+    .nav-badge {
+      font-size: 10px;
+      letter-spacing: .08em;
+      color: var(--terra);
+      border: 1px solid var(--terra-dim);
+      padding: 3px 10px;
+    }
+
+    /* ── COVER ── */
+    .cover {
+      background: var(--cover);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+      padding: 72px 52px 80px;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 80px;
+      align-items: end;
+    }
+    .cover-label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .cover-label::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--ink3);
+    }
+    .cover-title {
+      font-family: var(--serif);
+      font-size: clamp(28px, 4vw, 52px);
+      font-weight: 400;
+      line-height: 1.15;
+      color: var(--ink);
+      letter-spacing: -.02em;
+      margin-bottom: 20px;
+    }
+    .cover-title em {
+      font-style: italic;
+      color: var(--terra);
+    }
+    .cover-sub {
+      font-size: 14px;
+      color: var(--ink2);
+      line-height: 1.9;
+      max-width: 480px;
+    }
+    .cover-stats {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--rule-cover);
+      background: rgba(255,255,255,0.35);
+    }
+    .stat {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--rule-cover);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .stat:last-child { border-bottom: none; }
+    .stat-k {
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink3);
+    }
+    .stat-v {
+      font-size: 13px;
+      color: var(--ink);
+      line-height: 1.45;
+    }
+    .stat-v em {
+      font-style: normal;
+      color: var(--terra);
+      font-weight: 500;
+    }
+
+    /* ── ZONE EDGE ── */
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* ── TWO COLUMN LAYOUT ── */
+    .page-body {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 52px;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 0 72px;
+      align-items: start;
+    }
+
+    /* ── STICKY SIDEBAR ── */
+    .sidebar {
+      position: sticky;
+      top: 64px;
+      padding: 56px 0 40px;
+      align-self: start;
+    }
+    .side-section {
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin: 20px 0 8px 12px;
+    }
+    .side-section:first-child { margin-top: 0; }
+    .side-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .side-nav-item {
+      font-size: 11px;
+      color: var(--ink3);
+      text-decoration: none;
+      letter-spacing: .04em;
+      padding: 5px 0 5px 12px;
+      border-left: 2px solid transparent;
+      transition: color .18s, border-color .18s;
+      line-height: 1.4;
+    }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+    .side-nav-divider {
+      height: 1px;
+      background: var(--rule);
+      margin: 10px 0;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main-content { padding: 0; }
+
+    /* ── SECTIONS ── */
+    .section {
+      padding: 64px 0 56px;
+      border-top: 1px solid var(--rule);
+    }
+    .section:first-child { border-top: none; padding-top: 72px; }
+
+    .label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .label::after {
+      content: '';
+      width: 36px;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* ── TASK HEADER ── */
+    .task-head {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 0 20px;
+      margin-bottom: 8px;
+      align-items: baseline;
+    }
+    .task-num {
+      font-size: 10px;
+      letter-spacing: .14em;
+      color: var(--ink3);
+      font-weight: 300;
+      padding-top: 4px;
+    }
+    .task-title {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.25;
+    }
+    .task-meta {
+      padding-left: 76px;
+      font-size: 11px;
+      color: var(--ink3);
+      letter-spacing: .05em;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .task-meta span { display: flex; align-items: center; gap: 6px; }
+    .task-meta span::before { content: '·'; color: var(--rule); }
+    .task-meta span:first-child::before { display: none; }
+
+    /* ── PROSE ── */
+    .prose {
+      font-size: 14px;
+      color: var(--ink2);
+      line-height: 2.05;
+      max-width: 600px;
+      padding-left: 76px;
+    }
+    .prose + .prose { margin-top: 1em; }
+
+    /* ── STEP ── */
+    .step {
+      margin: 28px 0;
+      padding-left: 76px;
+    }
+    .step-label {
+      font-size: 10px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .step-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+      max-width: 200px;
+    }
+
+    /* ── CODE BLOCKS ── */
+    .code-wrap {
+      margin: 12px 0 20px;
+      padding-left: 76px;
+    }
+    .code-tag {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding: 6px 0 5px 16px;
+      background: var(--paper-mid);
+      border: 1px solid var(--rule);
+      border-bottom: none;
+      display: inline-block;
+    }
+    pre {
+      background: var(--dark);
+      border: 1px solid #3a3028;
+      padding: 20px 24px;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.9;
+      color: #c8bfb4;
+    }
+    pre .comment { color: #5a5048; }
+    pre .cmd     { color: #e8c9b8; }
+    pre .flag    { color: #c4956e; }
+    pre .output  { color: #8a8078; }
+    pre .good    { color: #7ab896; }
+    pre .bad     { color: #c47a6e; }
+    pre .hl      { color: #f0e0cc; font-weight: 500; }
+
+    /* ── EXPECTED OUTPUT ── */
+    .expected {
+      margin: 16px 0 24px;
+      padding-left: 76px;
+    }
+    .expected-label {
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 8px;
+    }
+    .expected-box {
+      border: 1px solid var(--rule);
+      background: var(--paper-mid);
+      padding: 16px 20px;
+      font-size: 12px;
+      color: var(--ink2);
+      line-height: 1.85;
+      font-family: var(--mono);
+      max-width: 580px;
+    }
+    .expected-box .val { color: var(--terra); font-weight: 500; }
+    .expected-box .arrow { color: var(--terra-dim); }
+    .expected-box .ok { color: #5a9970; }
+    .expected-box .warn { color: #c8855a; }
+
+    /* ── CALLOUT BOXES ── */
+    .callout {
+      margin: 24px 0;
+      padding: 18px 22px;
+      padding-left: 76px;
+      max-width: 640px;
+    }
+    .callout-inner {
+      border-left: 3px solid var(--terra);
+      padding: 16px 20px;
+      background: var(--terra-bg);
+    }
+    .callout-inner.warn {
+      border-color: var(--warn-border);
+      background: var(--warn-bg);
+    }
+    .callout-inner.ok {
+      border-color: var(--ok-border);
+      background: var(--ok-bg);
+    }
+    .callout-k {
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--terra);
+      margin-bottom: 6px;
+    }
+    .callout-inner.warn .callout-k { color: var(--warn-border); }
+    .callout-inner.ok   .callout-k { color: var(--ok-border); }
+    .callout-body {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.95;
+    }
+
+    /* ── IPC METRIC ── */
+    .ipc-pair {
+      padding-left: 76px;
+      margin: 20px 0;
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .ipc-card {
+      border: 1px solid var(--rule);
+      background: var(--paper-mid);
+      padding: 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 180px;
+    }
+    .ipc-card.bad  { border-color: #c47a6e; background: #fdf0ec; }
+    .ipc-card.good { border-color: #7ab896; background: #edf5f0; }
+    .ipc-label {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+    }
+    .ipc-card.bad  .ipc-label { color: #c47a6e; }
+    .ipc-card.good .ipc-label { color: #5a9970; }
+    .ipc-value {
+      font-family: var(--serif);
+      font-size: 32px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .ipc-card.bad  .ipc-value { color: #a05a50; }
+    .ipc-card.good .ipc-value { color: #3a7850; }
+    .ipc-desc {
+      font-size: 11px;
+      color: var(--ink3);
+      line-height: 1.5;
+    }
+
+    /* ── FACTS / REFERENCE TABLE ── */
+    .ref-table {
+      padding-left: 76px;
+      margin: 20px 0;
+      max-width: 580px;
+    }
+    .ref-row {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--rule);
+      font-size: 12px;
+      align-items: start;
+    }
+    .ref-row:first-child { border-top: 1px solid var(--rule); }
+    .ref-k {
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding-top: 1px;
+    }
+    .ref-v { color: var(--ink2); line-height: 1.7; }
+    .ref-v strong { color: var(--ink); font-weight: 500; }
+    .ref-v em { color: var(--terra); font-style: normal; }
+
+    /* ── CHECKLIST ── */
+    .checklist {
+      padding-left: 76px;
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-width: 560px;
+    }
+    .check-item {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--rule);
+      font-size: 12px;
+      color: var(--ink2);
+      line-height: 1.65;
+      align-items: start;
+    }
+    .check-item:first-child { border-top: 1px solid var(--rule); }
+    .check-box {
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--rule);
+      background: var(--paper);
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    .check-item strong { color: var(--ink); font-weight: 500; }
+    .check-item em { color: var(--terra); font-style: normal; }
+
+    /* ── NUMBERS STRIP ── */
+    .numbers-strip {
+      background: var(--dark);
+      margin: 48px -52px 0;
+      padding: 40px 52px;
+      display: flex;
+      gap: 0;
+      border-top: 1px solid #2e2820;
+    }
+    .number-block {
+      flex: 1;
+      padding: 0 32px 0 0;
+      border-right: 1px solid #3a3028;
+    }
+    .number-block:last-child { border-right: none; padding-right: 0; padding-left: 32px; }
+    .number-block:first-child { padding-left: 0; }
+    .num-k {
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #5a5048;
+      margin-bottom: 6px;
+    }
+    .num-v {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 500;
+      color: #e8c9b8;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .num-v em { color: var(--terra-dim); font-style: normal; }
+    .num-desc { font-size: 11px; color: #6a6460; line-height: 1.6; }
+
+    /* ── DARK SECTION (Instructor preflight) ── */
+    .dark-section {
+      background: var(--dark);
+      margin: 0 -52px;
+      padding: 56px 52px;
+    }
+    .dark-section .label { color: #5a5048; }
+    .dark-section .label::after { background: #3a3028; }
+    .dark-section .task-title { color: #e8c9b8; }
+    .dark-section .task-num { color: #5a5048; }
+    .dark-section .task-meta { color: #5a5048; }
+    .dark-section pre {
+      background: #141210;
+      border-color: #2e2820;
+    }
+    .dark-section .prose { color: #8a8078; }
+    .dark-section .step-label { color: #5a5048; }
+    .dark-section .step-label::after { background: #3a3028; }
+    .dark-section .check-item {
+      color: #8a8078;
+      border-color: #3a3028;
+    }
+    .dark-section .check-item:first-child { border-color: #3a3028; }
+    .dark-section .check-box { border-color: #3a3028; background: #1e1a16; }
+    .dark-section .check-item strong { color: #c4956e; }
+    .dark-section .checklist { padding-left: 76px; }
+    .dark-section .ref-row { border-color: #3a3028; }
+    .dark-section .ref-row:first-child { border-color: #3a3028; }
+    .dark-section .ref-k { color: #5a5048; }
+    .dark-section .ref-v { color: #8a8078; }
+    .dark-section .ref-v strong { color: #c4956e; }
+
+    /* ── COMPLETION CRITERIA ── */
+    .criteria-wrap {
+      border: 1px solid var(--rule);
+      overflow: hidden;
+      margin: 0;
+      max-width: 640px;
+    }
+    .criteria-head {
+      background: var(--paper-mid);
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+    }
+    .criteria-tag {
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--terra);
+    }
+    .criteria-note {
+      font-size: 10px;
+      color: var(--ink3);
+      letter-spacing: .05em;
+    }
+    .criteria-body { padding: 0; }
+    .criteria-row {
+      display: grid;
+      grid-template-columns: 32px 200px 1fr 100px;
+      gap: 0;
+      border-bottom: 1px solid var(--rule);
+      font-size: 11px;
+    }
+    .criteria-row:last-child { border-bottom: none; }
+    .criteria-row.head {
+      background: var(--paper-mid);
+      border-bottom: 1px solid var(--rule);
+    }
+    .criteria-cell {
+      padding: 10px 14px;
+      border-right: 1px solid var(--rule);
+      color: var(--ink2);
+      line-height: 1.6;
+    }
+    .criteria-cell:last-child { border-right: none; }
+    .criteria-row.head .criteria-cell {
+      font-size: 9px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--ink3);
+    }
+    .criteria-cell em { color: var(--terra); font-style: normal; }
+    .criteria-cell strong { color: var(--ink); font-weight: 500; }
+
+    /* ── FOOTER ── */
+    .footer-wrap {
+      background: var(--dark2);
+      margin: 0 -52px;
+      padding: 24px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-top: 1px solid #2e2820;
+    }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-link { font-size: 11px; color: #6a6460; text-decoration: none; }
+    .footer-link:hover { color: var(--terra-dim); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .cover { grid-template-columns: 1fr; gap: 40px; padding: 56px 44px 64px; }
+      nav { padding: 16px 44px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 44px; }
+      .sidebar { display: none; }
+      .numbers-strip { margin: 40px -44px 0; padding: 32px 44px; flex-wrap: wrap; gap: 24px; }
+      .number-block { border-right: none; padding: 0; flex: 0 0 calc(50% - 12px); }
+      .dark-section { margin: 0 -44px; padding: 48px 44px; }
+      .footer-wrap { margin: 0 -44px; padding: 20px 44px; }
+    }
+    @media (max-width: 640px) {
+      nav { padding: 14px 24px; }
+      .cover { padding: 44px 24px 52px; }
+      .page-body { padding: 0 24px; }
+      .prose, .code-wrap, .step, .expected, .callout, .ipc-pair,
+      .ref-table, .checklist, .task-meta { padding-left: 0; }
+      .task-head { grid-template-columns: 1fr; }
+      .task-num { display: none; }
+      .numbers-strip { margin: 32px -24px 0; padding: 28px 24px; }
+      .number-block { flex: 0 0 100%; }
+      .dark-section { margin: 0 -24px; padding: 40px 24px; }
+      .footer-wrap { margin: 0 -24px; padding: 18px 24px; }
+      .criteria-row { grid-template-columns: 28px 1fr 80px; }
+      .criteria-row .criteria-cell:nth-child(3) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<div class="nav-wrap">
+  <nav>
+    <a href="https://hpc.now" class="logo">hpc<em>.now</em></a>
+    <div class="nav-meta">
+      <span class="nav-tag">M3 · Linux for HPC · Lab Runbook</span>
+      <span class="nav-badge">v2.1</span>
+    </div>
+  </nav>
+</div>
+
+<!-- ── COVER ── -->
+<div style="background: var(--cover); border-bottom: 1px solid var(--rule-cover);">
+  <div class="cover">
+    <div>
+      <p class="cover-label">Module 3 · Lab Runbook · hpc.now</p>
+      <h1 class="cover-title">
+        A User Says Their Job<br>
+        Is Slow. You Are<br>
+        <em>the Admin.</em>
+      </h1>
+      <p class="cover-sub">Diagnose and remediate two deliberate performance misconfigurations on a running MPI job. Produce a written report with before/after metrics as evidence.</p>
+    </div>
+    <div class="cover-stats">
+      <div class="stat">
+        <span class="stat-k">Platform</span>
+        <span class="stat-v">AWS ParallelCluster · ap-south-1</span>
+      </div>
+      <div class="stat">
+        <span class="stat-k">Compute</span>
+        <span class="stat-v">2 × c5.18xlarge · 72 vCPUs · 144 GiB · 2 NUMA nodes each</span>
+      </div>
+      <div class="stat">
+        <span class="stat-k">Duration</span>
+        <span class="stat-v">90 minutes · 6 tasks</span>
+      </div>
+      <div class="stat">
+        <span class="stat-k">Checklist items</span>
+        <span class="stat-v">13 · 14 · 15 · 16 · 37 · 41</span>
+      </div>
+      <div class="stat">
+        <span class="stat-k">IPC contrast</span>
+        <span class="stat-v"><em>0.12 → 0.24</em> · ~2× improvement</span>
+      </div>
+      <div class="stat">
+        <span class="stat-k">Session cost</span>
+        <span class="stat-v">~$13 · On-Demand · 2 nodes</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- ── NUMBERS STRIP ── -->
+<div class="numbers-strip">
+  <div class="number-block">
+    <p class="num-k">IPC · before fix</p>
+    <p class="num-v"><em>0.12</em></p>
+    <p class="num-desc">Unbound + THP on · memory-stalled · random access across 4GB working set</p>
+  </div>
+  <div class="number-block">
+    <p class="num-k">IPC · after fix</p>
+    <p class="num-v"><em>0.24</em></p>
+    <p class="num-desc">Bound + THP off · ~2× improvement · same hardware · same code</p>
+  </div>
+  <div class="number-block">
+    <p class="num-k">NUMA distance</p>
+    <p class="num-v"><em>10 / 21</em></p>
+    <p class="num-desc">Local = distance 10 · Remote = distance 21 · 2.1× latency penalty</p>
+  </div>
+  <div class="number-block">
+    <p class="num-k">THP compaction</p>
+    <p class="num-v"><em>4,200 μs</em></p>
+    <p class="num-desc">Max compaction pause · fires mid-job · all ranks stall at MPI barrier</p>
+  </div>
+</div>
+
+<!-- ── TWO-COLUMN BODY ── -->
+<div class="page-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <nav class="side-nav">
+      <p class="side-section">Overview</p>
+      <a href="#overview"   class="side-nav-item">Lab Overview</a>
+      <a href="#arch"       class="side-nav-item">Cluster Architecture</a>
+      <a href="#access"     class="side-nav-item">Access &amp; Files</a>
+      <a href="#misconfigs" class="side-nav-item">Misconfigurations</a>
+      <div class="side-nav-divider"></div>
+      <p class="side-section">Tasks</p>
+      <a href="#t1" class="side-nav-item">1 · Admin Baseline</a>
+      <a href="#t2" class="side-nav-item">2 · Profile Unbound</a>
+      <a href="#t3" class="side-nav-item">3 · Remediate THP</a>
+      <a href="#t4" class="side-nav-item">4 · Profile After Fix</a>
+      <a href="#t5" class="side-nav-item">5 · STREAM Benchmark</a>
+      <a href="#t6" class="side-nav-item">6 · Verify &amp; Summary</a>
+      <div class="side-nav-divider"></div>
+      <p class="side-section">Reference</p>
+      <a href="#completion" class="side-nav-item">Completion Criteria</a>
+      <a href="#issues"     class="side-nav-item">Common Issues</a>
+      <a href="#preflight"  class="side-nav-item">Instructor Preflight</a>
+      <a href="#numbers"    class="side-nav-item">Key Numbers</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- OVERVIEW -->
+    <section class="section" id="overview">
+      <p class="label">lab overview</p>
+      <div class="task-head"><span class="task-num"></span><span class="task-title" style="font-size:16px; font-family: var(--mono); font-weight:300;">Platform &amp; Environment</span></div>
+
+      <div class="ref-table" style="padding-left:0; margin-top:16px;">
+        <div class="ref-row"><span class="ref-k">Platform</span><span class="ref-v">AWS ParallelCluster · ap-south-1</span></div>
+        <div class="ref-row"><span class="ref-k">Head Node</span><span class="ref-v">c5.2xlarge · 8 vCPUs · 16 GiB · <strong>mylab.hpc.now</strong></span></div>
+        <div class="ref-row"><span class="ref-k">Compute Nodes</span><span class="ref-v">2 × c5.18xlarge · 72 vCPUs · 144 GiB · 2 NUMA nodes each</span></div>
+        <div class="ref-row"><span class="ref-k">Shared Storage</span><span class="ref-v">ParallelCluster NFS from head node — /home mounted on all nodes</span></div>
+        <div class="ref-row"><span class="ref-k">Apps &amp; Binaries</span><span class="ref-v">/home/apps/</span></div>
+        <div class="ref-row"><span class="ref-k">Job Scripts</span><span class="ref-v">/home/scripts/</span></div>
+        <div class="ref-row"><span class="ref-k">Learner Report</span><span class="ref-v">~/lab_m3_report.txt — your private home directory, auto-populated by helper scripts</span></div>
+      </div>
+    </section>
+
+    <!-- ARCHITECTURE -->
+    <section class="section" id="arch">
+      <p class="label">cluster architecture</p>
+      <div class="code-wrap" style="padding-left:0;">
+        <div class="code-tag">cluster topology</div>
+        <pre>Head Node — c5.2xlarge (8 vCPUs · 16 GiB) · mylab.hpc.now
+│
+├── compute-dy-c5-18xl-1 — c5.18xlarge (72 vCPUs · 144 GiB)
+│   ├── <span class="good">NUMA node 0</span>: CPUs 0–17, 36–53 · 72 GiB · distance <span class="hl">10</span> (local)
+│   ├── <span class="bad">NUMA node 1</span>: CPUs 18–35, 54–71 · 72 GiB · distance <span class="hl">21</span> (remote = 2.1×)
+│   └── jobs from learners 1–3 · 4 ranks each · --cpus-per-task=18
+│
+└── compute-dy-c5-18xl-2 — c5.18xlarge (72 vCPUs · 144 GiB)
+    ├── <span class="good">NUMA node 0</span>: CPUs 0–17, 36–53 · 72 GiB · distance <span class="hl">10</span> (local)
+    ├── <span class="bad">NUMA node 1</span>: CPUs 18–35, 54–71 · 72 GiB · distance <span class="hl">21</span> (remote = 2.1×)
+    └── jobs from learners 4–6 · 4 ranks each · --cpus-per-task=18</pre>
+      </div>
+
+      <div class="callout">
+        <div class="callout-inner">
+          <p class="callout-k">Job isolation on a shared node</p>
+          <p class="callout-body">Multiple jobs run on each compute node simultaneously. Use <strong>scontrol listpids &lt;YOUR_JOBID&gt;</strong> to find your job's PIDs only — not other learners' processes. Your report writes to ~/lab_m3_report.txt in your own home directory.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ACCESS -->
+    <section class="section" id="access">
+      <p class="label">access &amp; file locations</p>
+
+      <div class="step">
+        <p class="step-label">SSH Login</p>
+      </div>
+      <div class="code-wrap">
+        <div class="code-tag">connect to head node</div>
+        <pre><span class="comment"># Connect to the head node</span>
+<span class="cmd">ssh &lt;your-username&gt;@mylab.hpc.now</span>
+<span class="comment"># Password: hpcnow2026</span>
+
+<span class="comment"># From head node — connect to your compute node</span>
+<span class="cmd">ssh compute-dy-c5-18xl-1</span>   <span class="comment"># or compute-dy-c5-18xl-2</span></pre>
+      </div>
+
+      <div class="ref-table">
+        <div class="ref-row"><span class="ref-k">MPI binary</span><span class="ref-v">/home/apps/mem_stress</span></div>
+        <div class="ref-row"><span class="ref-k">STREAM binary</span><span class="ref-v">/home/apps/stream</span></div>
+        <div class="ref-row"><span class="ref-k">Unbound script</span><span class="ref-v">/home/scripts/mem_stress_unbound.sh</span></div>
+        <div class="ref-row"><span class="ref-k">Bound script</span><span class="ref-v">/home/scripts/mem_stress_bound.sh</span></div>
+        <div class="ref-row"><span class="ref-k">Profile helper</span><span class="ref-v">/home/scripts/profile_job.sh</span></div>
+        <div class="ref-row"><span class="ref-k">Your report</span><span class="ref-v">~/lab_m3_report.txt</span></div>
+      </div>
+    </section>
+
+    <!-- MISCONFIGURATIONS -->
+    <section class="section" id="misconfigs">
+      <p class="label">deliberate misconfigurations</p>
+
+      <div class="callout">
+        <div class="callout-inner warn">
+          <p class="callout-k">Pre-applied · Discover through measurement — not instruction</p>
+          <p class="callout-body">Both misconfigurations are applied before the lab starts. You are not told what they are. You discover them by running the diagnostic commands. This is the point.</p>
+        </div>
+      </div>
+
+      <div class="ref-table">
+        <div class="ref-row">
+          <span class="ref-k">Misconfiguration 1</span>
+          <span class="ref-v"><strong>THP set to [always]</strong> on all compute nodes. Transparent Huge Pages compaction causes pauses up to 4,200 μs during memory operations — stalling MPI ranks mid-computation. Discover with: <em>cat /sys/kernel/mm/transparent_hugepage/enabled</em></span>
+        </div>
+        <div class="ref-row">
+          <span class="ref-k">Misconfiguration 2</span>
+          <span class="ref-v"><strong>MPI job submitted without --cpu-bind.</strong> Ranks migrate freely across both NUMA nodes (CPUs 0–71). Remote memory accesses cost 2.1× more than local. Discover with: <em>taskset -cp &lt;PID&gt;</em> — shows affinity list 0-71</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TASK 1 -->
+    <section class="section" id="t1">
+      <p class="label">task 1 of 6</p>
+      <div class="task-head">
+        <span class="task-num">01</span>
+        <span class="task-title">Admin Baseline</span>
+      </div>
+      <div class="task-meta">
+        <span>15 minutes</span>
+        <span>Checklist item 37</span>
+      </div>
+
+      <p class="prose">Confirm the cluster is healthy at the scheduler level. Read the NUMA topology before any job runs. Document the THP misconfiguration as the before state.</p>
+
+      <div class="step">
+        <p class="step-label">Cluster state check</p>
+      </div>
+      <div class="code-wrap">
+        <div class="code-tag">head node</div>
+        <pre><span class="comment"># Confirm all nodes are available</span>
+<span class="cmd">sinfo -N</span>
+<span class="cmd">squeue</span>   <span class="comment"># should be empty at lab start</span></pre>
+      </div>
+
+      <div class="step">
+        <p class="step-label">Read NUMA topology — SSH to compute node first</p>
+      </div>
+      <div class="code-wrap">
+        <div class="code-tag">compute node</div>
+        <pre><span class="cmd">ssh compute-dy-c5-18xl-1</span>
+
+<span class="comment"># Read the hardware NUMA topology</span>
+<span class="cmd">numactl --hardware</span></pre>
+      </div>
+
+      <div class="expected">
+        <p class="expected-label">Expected numactl output — two NUMA nodes</p>
+        <div class="expected-box">
+available: 2 nodes (0-1)<br>
+node 0 cpus: 0 1 2 ... 17 36 37 ... 53<br>
+node 0 size: 72000 MB<br>
+node 1 cpus: 18 19 20 ... 35 54 55 ... 71<br>
+node 1 size: 72000 MB<br>
+node distances:<br>
+node &nbsp; 0 &nbsp; 1<br>
+&nbsp; 0: <span class="val">10</span> &nbsp;21<br>
+&nbsp; 1: &nbsp;21 <span class="val">10</span>
+        </div>
+      </div>
+
+      <p class="prose">Distance 10 = local (1×). Distance 21 = remote (2.1×). An unbound rank allocating memory on the wrong NUMA node pays this 2.1× penalty on every memory access.</p>
+
+      <div class="step">
+        <p class="step-label">Check and record THP state — from head node</p>
+      </div>
+      <div class="code-wrap">
+        <div class="code-tag">head node</div>
+        <pre><span class="cmd">exit</span>   <span class="comment"># back to head node</span>
+
+<span class="comment"># Check THP on all compute nodes simultaneously</span>
+<span class="cmd">pdsh -w compute-[0-1] <span class="flag">"cat /sys/kernel/mm/transparent_hugepage/enabled"</span></span>
+
+<span class="comment"># Record in report</span>
+<span class="cmd">echo "=== THP STATE BEFORE ===" >> ~/lab_m3_report.txt</span>
+<span class="cmd">pdsh -w compute-[0-1] <span class="flag">"cat /sys/kernel/mm/transparent_hugepage/enabled"</span> >> ~/lab_m3_report.txt</span></pre>
+      </div>
+
+      <div class="expected">
+        <p class="expected-label">Expected THP output — misconfiguration confirmed</p>
+        <div class="expected-box">
+compute-dy-c5-18xl-1: <span class="warn">[always]</span> madvise never<br>
+compute-dy-c5-18xl-2: <span class="warn">[always]</span> madvise never
+        </div>
+      </div>
+      <p class="prose">Both nodes show [always]. This is the before state. The fix comes in Task 3.</p>
+    </section>
+
+    <!-- TASK 2 -->
+    <section class="section" id="t2">
+      <p class="label">task 2 of 6</p>
+      <div class="task-head">
+        <span class="task-num">02</span>
+        <span class="task-title">Profile the Unbound Job</span>
+      </div>
+      <div class="task-meta">
+        <span>20 minutes</span>
+        <span>Checklist items 13, 14, 16</span>
+      </div>
+
+      <p class="prose">Submit the unbound MPI job. Profile it with perf stat, numastat, and taskset. Understand what each tool shows and why the numbers are bad.</p>
+
+      <div class="step">
+        <p class="step-label">Submit job and find your PIDs</p>
+      </div>
+      <div class="code-wrap">
+        <div class="code-tag">head node</div>
+        <pre><span class="comment"># Submit the unbound job (runs 15 minutes)</span>
+<span class="cmd">sbatch /home/scripts/mem_stress_unbound.sh</span>
+
+<span class="comment"># Watch until ST=R — Ctrl+C to exit</span>
+<span class="cmd">watch -n 5 squeue</span>
+
+<span class="comment"># Note your JOBID and compute node</span>
+<span class="cmd">squeue -u $USER -o <span class="flag">"%i %N %t"</span></span>
+
+<span class="comment"># SSH to your compute node</span>
+<span class="cmd">ssh compute-dy-c5-18xl-1</span>
+
+<span class="comment"># Find YOUR job's PIDs — not other learners' jobs</span>
+<span class="cmd">scontrol listpids <span class="flag">&lt;YOUR_JOBID&gt;</span></span>
+
+<span class="comment"># Get mem_stress rank PIDs specifically</span>
+<span class="cmd">ps aux | grep mem_stress | grep -v grep</span></pre>
+      </div>
+
+      <div class="callout">
+        <div class="callout-inner warn">
+          <p class="callout-k">Wait 2 minutes after job starts before profiling</p>
+          <p class="callout-body">THP compaction and NUMA memory pressure take time to build up. Profiling in the first 30 seconds will not show the full effect. Wait until you see the job printing output lines before attaching perf stat.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <p class="step-label">Step A — Raw perf stat · read the output · understand what you are seeing</p>
+      </div>
+      <div class="code-wrap">
+        <div class="code-tag">compute node · attach to mem_stress rank PID</div>
+        <pre><span class="cmd">sudo perf stat -e instructions,cycles -p <span class="flag">&lt;MEM_STRESS_PID&gt;</span> sleep 30</span></pre>
+      </div>
+
+      <div class="expected">
+        <p class="expected-label">Expected output — memory stalled</p>
+        <div class="expected-box">
+Performance counter stats for process id '&lt;PID&gt;':<br><br>
+&nbsp; 12,356,141,706 &nbsp; instructions &nbsp; # &nbsp; <span class="warn">0.12</span> &nbsp; insn per cycle<br>
+101,196,841,174 &nbsp; cycles<br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 30.001 seconds time elapsed
+        </div>
+      </div>
+
+      <p class="prose">IPC ≈ 0.12 means the CPU is severely stalled — issuing instructions faster than memory can feed it. The random access pattern across a 4GB working set defeats the hardware prefetcher entirely. Every access goes to DRAM.</p>
+
+      <div class="ipc-pair">
+        <div class="ipc-card bad">
+          <span class="ipc-label">IPC · unbound + THP on</span>
+          <span class="ipc-value">0.12</span>
+          <span class="ipc-desc">memory-stalled · DRAM bound · expected range 0.08 – 0.20</span>
+        </div>
+      </div>
+
+      <div class="step">
+        <p class="step-label">Step B — Helper script · extracts IPC · appends to your report</p>
+      </div>
+      <div class="code-wrap">
+        <div class="code-tag">compute node</div>
+        <pre><span class="cmd">/home/scripts/profile_job.sh <span class="flag">&lt;MEM_STRESS_PID&gt; before</span></span></pre>
+      </div>
+
+      <div class="expected">
+        <p class="expected-label">Script output</p>
+        <div class="expected-box">
+┌──────────────────────────────────────────┐<br>
+│ &nbsp;PERF SUMMARY — BEFORE FIX &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+├──────────────────────────────────────────┤<br>
+│ &nbsp;IPC (insn per cycle) : <span class="warn">0.12</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+├──────────────────────────────────────────┤<br>
+│ &nbsp;Classification : MEMORY-BOUND &nbsp;⚠ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+└──────────────────────────────────────────┘<br>
+✓ &nbsp;Report updated: ~/lab_m3_report.txt
+        </div>
+      </div>
+
+      <div class="step">
+        <p class="step-label">Check NUMA placement and CPU binding</p>
+      </div>
+      <div class="code-wrap">
+        <div class="code-tag">compute node</div>
+        <pre><span class="comment"># NUMA memory distribution — look at the Other_Node row</span>
+<span class="cmd">numastat -p <span class="flag">&lt;MEM_STRESS_PID&gt;</span></span>
+
+<span class="comment"># CPU binding — look at the affinity list</span>
+<span class="cmd">taskset -cp <span class="flag">&lt;MEM_STRESS_PID&gt;</span></span></pre>
+      </div>
+
+      <div class="expected">
+        <p class="expected-label">Expected numastat — cross-NUMA traffic visible</p>
+        <div class="expected-box">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Node 0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Node 1<br>
+Numa_Hit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 124823.0 &nbsp;&nbsp;&nbsp; 118934.0<br>
+Other_Node &nbsp;&nbsp;&nbsp;&nbsp; 11823.0 &nbsp;&nbsp;&nbsp;&nbsp; 12213.0 &nbsp; <span class="arrow">←</span> <span class="warn">cross-NUMA evidence</span>
+        </div>
+      </div>
+
+      <div class="expected">
+        <p class="expected-label">Expected taskset — unbound</p>
+        <div class="expected-box">
+pid &lt;PID&gt;'s current affinity list: <span class="warn">0-71</span><br>
+<span class="arrow">←</span> rank can run on ANY of 72 CPUs — freely crossing NUMA boundary
+        </div>
+      </div>
+    </section>
+
+    <!-- TASK 3 -->
+    <section class="section" id="t3">
+      <p class="label">task 3 of 6</p>
+      <div class="task-head">
+        <span class="task-num">03</span>
+        <span class="task-title">Remediate THP Cluster-Wide</span>
+      </div>
+      <div class="task-meta">
+        <span>10 minutes</span>
+        <span>Checklist item 15</span>
+      </div>
+
+      <p class="prose">Fix THP on all compute nodes with a single pdsh command. One command. Both nodes. Simultaneously. This is what cluster admin work looks like.</p>
+
+      <div class="code-wrap" style="padding-left:0;">
+        <div class="code-tag">head node · fix THP cluster-wide</div>
+        <pre><span class="cmd">exit</span>   <span class="comment"># back to head node if still on compute node</span>
+
+<span class="comment"># Fix THP on ALL compute nodes simultaneously</span>
+<span class="cmd">pdsh -w compute-[0-1] \</span>
+<span class="cmd">  <span class="flag">"echo never | sudo tee /sys/kernel/mm/transparent_hugepage/enabled"</span></span>
+
+<span class="comment"># Verify — both nodes must show [never]</span>
+<span class="cmd">pdsh -w compute-[0-1] \</span>
+<span class="cmd">  <span class="flag">"cat /sys/kernel/mm/transparent_hugepage/enabled"</span></span>
+
+<span class="comment"># Record in report</span>
+<span class="cmd">echo "=== THP STATE AFTER ===" >> ~/lab_m3_report.txt</span>
+<span class="cmd">pdsh -w compute-[0-1] \</span>
+<span class="cmd">  <span class="flag">"cat /sys/kernel/mm/transparent_hugepage/enabled"</span> >> ~/lab_m3_report.txt</span></pre>
+      </div>
+
+      <div class="expected">
+        <p class="expected-label">Expected output — fixed</p>
+        <div class="expected-box">
+compute-dy-c5-18xl-1: always madvise <span class="ok">[never]</span><br>
+compute-dy-c5-18xl-2: always madvise <span class="ok">[never]</span>
+        </div>
+      </div>
+
+      <div class="callout" style="padding-left:0;">
+        <div class="callout-inner ok">
+          <p class="callout-k">The admin lesson here</p>
+          <p class="callout-body">This pdsh command fixes the entire cluster in one operation. Every learner on every compute node benefits. Admin actions are cluster-wide — not per-user, not per-job. No reboot required. Takes effect immediately.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TASK 4 -->
+    <section class="section" id="t4">
+      <p class="label">task 4 of 6</p>
+      <div class="task-head">
+        <span class="task-num">04</span>
+        <span class="task-title">Resubmit with Binding and Profile Again</span>
+      </div>
+      <div class="task-meta">
+        <span>20 minutes</span>
+        <span>Checklist items 13, 14, 16</span>
+      </div>
+
+      <p class="prose">Cancel the unbound job. Resubmit with CPU binding. Run the identical profiling sequence. Own the improvement factor — same hardware, same code, two infrastructure fixes.</p>
+
+      <div class="code-wrap" style="padding-left:0;">
+        <div class="code-tag">head node</div>
+        <pre><span class="comment"># Cancel the unbound job</span>
+<span class="cmd">scancel <span class="flag">&lt;JOBID&gt;</span></span>
+
+<span class="comment"># Resubmit with CPU binding</span>
+<span class="cmd">sbatch /home/scripts/mem_stress_bound.sh</span>
+
+<span class="comment"># Watch until ST=R</span>
+<span class="cmd">watch -n 5 squeue</span>
+
+<span class="comment"># SSH to compute node — find mem_stress PIDs</span>
+<span class="cmd">ssh compute-dy-c5-18xl-1</span>
+<span class="cmd">ps aux | grep mem_stress | grep -v grep</span></pre>
+      </div>
+
+      <div class="step">
+        <p class="step-label">Step A — Raw perf stat · compare to Task 2</p>
+      </div>
+      <div class="code-wrap">
+        <div class="code-tag">compute node</div>
+        <pre><span class="cmd">sudo perf stat -e instructions,cycles -p <span class="flag">&lt;NEW_MEM_STRESS_PID&gt;</span> sleep 30</span></pre>
+      </div>
+
+      <div class="expected">
+        <p class="expected-label">Expected output — improved</p>
+        <div class="expected-box">
+Performance counter stats for process id '&lt;PID&gt;':<br><br>
+&nbsp; 23,934,343,684 &nbsp; instructions &nbsp; # &nbsp; <span class="ok">0.24</span> &nbsp; insn per cycle<br>
+101,046,275,205 &nbsp; cycles<br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 30.001 seconds time elapsed
+        </div>
+      </div>
+
+      <div class="ipc-pair">
+        <div class="ipc-card bad">
+          <span class="ipc-label">Before · unbound + THP on</span>
+          <span class="ipc-value">0.12</span>
+          <span class="ipc-desc">memory-stalled</span>
+        </div>
+        <div class="ipc-card good">
+          <span class="ipc-label">After · bound + THP off</span>
+          <span class="ipc-value">0.24</span>
+          <span class="ipc-desc">improved · ~2× · same hardware</span>
+        </div>
+      </div>
+
+      <div class="step">
+        <p class="step-label">Step B — Helper script · calculates improvement factor automatically</p>
+      </div>
+      <div class="code-wrap">
+        <div class="code-tag">compute node</div>
+        <pre><span class="cmd">/home/scripts/profile_job.sh <span class="flag">&lt;NEW_MEM_STRESS_PID&gt; after</span></span></pre>
+      </div>
+
+      <div class="expected">
+        <p class="expected-label">Script output — improvement factor calculated</p>
+        <div class="expected-box">
+┌──────────────────────────────────────────┐<br>
+│ &nbsp;PERF SUMMARY — AFTER FIX &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+├──────────────────────────────────────────┤<br>
+│ &nbsp;IPC (insn per cycle) : <span class="ok">0.24</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+├──────────────────────────────────────────┤<br>
+│ &nbsp;Classification : IMPROVED &nbsp;&nbsp;&nbsp; ✓ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+├──────────────────────────────────────────┤<br>
+│ &nbsp;IPC improvement : 0.12 → 0.24 = ~2× &nbsp;&nbsp;│<br>
+└──────────────────────────────────────────┘<br>
+✓ &nbsp;Report updated: ~/lab_m3_report.txt
+        </div>
+      </div>
+
+      <div class="step">
+        <p class="step-label">Verify binding and NUMA placement</p>
+      </div>
+      <div class="code-wrap">
+        <div class="code-tag">compute node</div>
+        <pre><span class="comment"># CPU binding — expect pinned cores</span>
+<span class="cmd">taskset -cp <span class="flag">&lt;NEW_MEM_STRESS_PID&gt;</span></span>
+
+<span class="comment"># NUMA memory — expect reduced Other_Node</span>
+<span class="cmd">numastat -p <span class="flag">&lt;NEW_MEM_STRESS_PID&gt;</span></span></pre>
+      </div>
+
+      <div class="expected">
+        <p class="expected-label">Expected taskset — bound</p>
+        <div class="expected-box">
+pid &lt;PID&gt;'s current affinity list: <span class="ok">0,1</span><br>
+<span class="arrow">←</span> pinned to specific cores — no migration across NUMA boundary
+        </div>
+      </div>
+
+      <div class="expected">
+        <p class="expected-label">Expected numastat — reduced cross-NUMA traffic</p>
+        <div class="expected-box">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Node 0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Node 1<br>
+Other_Node &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 343.0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.0 &nbsp; <span class="arrow">←</span> <span class="ok">was ~11,823 in Task 2</span>
+        </div>
+      </div>
+
+      <p class="prose">Other_Node dropped significantly. The binding improvement is real and measurable. Note: the random access pattern means the contrast is ~2× rather than the 4–5× seen with sequential workloads. The signal is honest.</p>
+    </section>
+
+    <!-- TASK 5 -->
+    <section class="section" id="t5">
+      <p class="label">task 5 of 6</p>
+      <div class="task-head">
+        <span class="task-num">05</span>
+        <span class="task-title">STREAM Memory Bandwidth Benchmark</span>
+      </div>
+      <div class="task-meta">
+        <span>15 minutes</span>
+        <span>Checklist item 41</span>
+      </div>
+
+      <p class="prose">Run STREAM as an independent node health check. This is separate from the job — it tells you whether the memory subsystem is performing within specification regardless of what jobs are doing.</p>
+
+      <div class="callout" style="padding-left:0;">
+        <div class="callout-inner">
+          <p class="callout-k">What STREAM is and why it comes last</p>
+          <p class="callout-body">STREAM measures raw memory bandwidth — how fast data moves between CPU and DRAM. It is not a SLURM job. It runs directly on the compute node. It answers one question: is this node's memory hardware healthy? It validates that the IPC improvement you saw was real infrastructure work — not a fluke.</p>
+        </div>
+      </div>
+
+      <div class="code-wrap" style="padding-left:0;">
+        <div class="code-tag">head node · run STREAM on compute node</div>
+        <pre><span class="cmd">exit</span>   <span class="comment"># back to head node</span>
+
+<span class="comment"># Run STREAM — OMP_NUM_THREADS=36 = one full NUMA node on c5.18xlarge</span>
+<span class="cmd">ssh compute-dy-c5-18xl-1 \</span>
+<span class="cmd">  <span class="flag">"cd /home/apps && OMP_NUM_THREADS=36 ./stream | grep Triad"</span></span>
+
+<span class="comment"># Record in report</span>
+<span class="cmd">echo "=== STREAM TRIAD ===" >> ~/lab_m3_report.txt</span>
+<span class="cmd">ssh compute-dy-c5-18xl-1 \</span>
+<span class="cmd">  <span class="flag">"cd /home/apps && OMP_NUM_THREADS=36 ./stream | grep Triad"</span> \</span>
+<span class="cmd">  >> ~/lab_m3_report.txt</span></pre>
+      </div>
+
+      <div class="expected">
+        <p class="expected-label">Expected output</p>
+        <div class="expected-box">
+Triad: &nbsp;&nbsp; <span class="ok">85234.6</span> &nbsp;&nbsp;&nbsp; 0.020718 &nbsp;&nbsp; 0.020717 &nbsp;&nbsp; 0.020726
+        </div>
+      </div>
+
+      <p class="prose">Expected Triad for c5.18xlarge with 36 threads: <strong>80,000–100,000 MB/s</strong>. If result is more than 10% below this range — flag for investigation. Two most likely causes: THP still enabled on this node, or a memory subsystem issue.</p>
+    </section>
+
+    <!-- TASK 6 -->
+    <section class="section" id="t6">
+      <p class="label">task 6 of 6</p>
+      <div class="task-head">
+        <span class="task-num">06</span>
+        <span class="task-title">Cluster-Wide Verification and Admin Summary</span>
+      </div>
+      <div class="task-meta">
+        <span>10 minutes</span>
+        <span>Checklist item 37</span>
+      </div>
+
+      <p class="prose">Confirm all fixes are applied across all nodes. Write a plain-language admin summary — the human deliverable of the lab. A researcher should understand it without knowing what THP or IPC means.</p>
+
+      <div class="code-wrap" style="padding-left:0;">
+        <div class="code-tag">head node · cluster-wide verification</div>
+        <pre><span class="comment"># Verify THP correct on ALL nodes</span>
+<span class="cmd">pdsh -w compute-[0-1] \</span>
+<span class="cmd">  <span class="flag">"cat /sys/kernel/mm/transparent_hugepage/enabled"</span> | sort</span>
+
+<span class="comment"># Verify SLURM daemon healthy on all nodes</span>
+<span class="cmd">pdsh -w compute-[0-1] \</span>
+<span class="cmd">  <span class="flag">"systemctl is-active slurmd"</span> | sort</span></pre>
+      </div>
+
+      <div class="code-wrap" style="padding-left:0;">
+        <div class="code-tag">head node · write admin summary</div>
+        <pre><span class="cmd">cat >> ~/lab_m3_report.txt << 'EOF'</span>
+
+=== ADMIN SUMMARY ===
+<span class="comment"># Write 1 paragraph in plain language suitable for ticket closure.</span>
+<span class="comment"># Cover: what was wrong, what you changed, what improved, STREAM result.</span>
+<span class="comment"># A researcher with no HPC background should understand it.</span>
+
+<span class="cmd">EOF</span></pre>
+      </div>
+
+      <div class="callout" style="padding-left:0;">
+        <div class="callout-inner ok">
+          <p class="callout-k">What makes a good admin summary</p>
+          <p class="callout-body">State the symptom, the root cause in plain terms, the remediation action, and the measurable outcome. Example: "User reported slow MPI job. Investigation found two infrastructure issues: (1) memory page management was misconfigured — fixed cluster-wide; (2) CPU scheduling was not optimised for the workload — fixed at job resubmission. Performance improved ~2× on identical hardware. Memory bandwidth benchmark confirms hardware is healthy."</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPLETION CRITERIA -->
+    <section class="section" id="completion">
+      <p class="label">completion criteria</p>
+      <p class="prose" style="padding-left:0; margin-bottom:20px;">Your lab_m3_report.txt must contain all of the following with specific numbers. Descriptions without numbers do not pass.</p>
+
+      <div class="criteria-wrap">
+        <div class="criteria-head">
+          <span class="criteria-tag">Required report content</span>
+          <span class="criteria-note">All 9 items required · Numbers mandatory</span>
+        </div>
+        <div class="criteria-body">
+          <div class="criteria-row head">
+            <div class="criteria-cell">#</div>
+            <div class="criteria-cell">Required content</div>
+            <div class="criteria-cell">Acceptable range</div>
+            <div class="criteria-cell">Done</div>
+          </div>
+          <div class="criteria-row">
+            <div class="criteria-cell">1</div>
+            <div class="criteria-cell">THP state before — both nodes show [always]</div>
+            <div class="criteria-cell">[always]</div>
+            <div class="criteria-cell">☐</div>
+          </div>
+          <div class="criteria-row">
+            <div class="criteria-cell">2</div>
+            <div class="criteria-cell">THP state after — both nodes show [never]</div>
+            <div class="criteria-cell">[never]</div>
+            <div class="criteria-cell">☐</div>
+          </div>
+          <div class="criteria-row">
+            <div class="criteria-cell">3</div>
+            <div class="criteria-cell">IPC before (from profile_job.sh output)</div>
+            <div class="criteria-cell"><em>0.08 – 0.20</em></div>
+            <div class="criteria-cell">☐</div>
+          </div>
+          <div class="criteria-row">
+            <div class="criteria-cell">4</div>
+            <div class="criteria-cell">IPC after (from profile_job.sh output)</div>
+            <div class="criteria-cell"><em>0.18 – 0.35</em></div>
+            <div class="criteria-cell">☐</div>
+          </div>
+          <div class="criteria-row">
+            <div class="criteria-cell">5</div>
+            <div class="criteria-cell">IPC improvement factor (auto-calculated by script)</div>
+            <div class="criteria-cell"><em>1.5× – 3×</em></div>
+            <div class="criteria-cell">☐</div>
+          </div>
+          <div class="criteria-row">
+            <div class="criteria-cell">6</div>
+            <div class="criteria-cell">numastat Other_Node before — cross-NUMA visible</div>
+            <div class="criteria-cell">&gt; 1,000 hits</div>
+            <div class="criteria-cell">☐</div>
+          </div>
+          <div class="criteria-row">
+            <div class="criteria-cell">7</div>
+            <div class="criteria-cell">numastat Other_Node after — reduced cross-NUMA</div>
+            <div class="criteria-cell">&lt; 1,000 hits</div>
+            <div class="criteria-cell">☐</div>
+          </div>
+          <div class="criteria-row">
+            <div class="criteria-cell">8</div>
+            <div class="criteria-cell">STREAM Triad result vs vendor spec</div>
+            <div class="criteria-cell">&gt; 72,000 MB/s</div>
+            <div class="criteria-cell">☐</div>
+          </div>
+          <div class="criteria-row">
+            <div class="criteria-cell">9</div>
+            <div class="criteria-cell">Admin summary paragraph — plain language, ticket-closure quality</div>
+            <div class="criteria-cell">required</div>
+            <div class="criteria-cell">☐</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMMON ISSUES -->
+    <section class="section" id="issues">
+      <p class="label">common issues and fixes</p>
+
+      <div class="ref-table" style="padding-left:0; max-width:none;">
+        <div class="ref-row" style="grid-template-columns: 220px 200px 1fr;">
+          <span class="ref-k" style="font-size:9px; letter-spacing:.16em;">Symptom</span>
+          <span class="ref-k" style="font-size:9px; letter-spacing:.16em;">Likely cause</span>
+          <span class="ref-k" style="font-size:9px; letter-spacing:.16em;">Fix</span>
+        </div>
+        <div class="ref-row" style="grid-template-columns: 220px 200px 1fr;">
+          <span class="ref-v">scontrol listpids returns empty</span>
+          <span class="ref-v">Job still in queue — not running yet</span>
+          <span class="ref-v">Wait for ST=R in squeue before SSHing to compute node</span>
+        </div>
+        <div class="ref-row" style="grid-template-columns: 220px 200px 1fr;">
+          <span class="ref-v">perf stat shows &lt;not counted&gt;</span>
+          <span class="ref-v">Wrong PID — attached to bash wrapper not mem_stress rank</span>
+          <span class="ref-v">Use ps aux | grep mem_stress to find the actual rank PIDs — not the SLURM batch script PID</span>
+        </div>
+        <div class="ref-row" style="grid-template-columns: 220px 200px 1fr;">
+          <span class="ref-v">IPC after fix still low (~0.15)</span>
+          <span class="ref-v">THP fixed but binding not applied, or profiling too early</span>
+          <span class="ref-v">Check taskset -cp &lt;PID&gt; — must show specific cores not 0-71. Wait 2+ min after job start.</span>
+        </div>
+        <div class="ref-row" style="grid-template-columns: 220px 200px 1fr;">
+          <span class="ref-v">STREAM result very low (&lt;60,000 MB/s)</span>
+          <span class="ref-v">THP still enabled on this specific node</span>
+          <span class="ref-v">Recheck: cat /sys/kernel/mm/transparent_hugepage/enabled and re-apply fix</span>
+        </div>
+        <div class="ref-row" style="grid-template-columns: 220px 200px 1fr;">
+          <span class="ref-v">Multiple jobs in ps aux</span>
+          <span class="ref-v">Sharing compute node with other learners</span>
+          <span class="ref-v">Use scontrol listpids &lt;YOUR_JOBID&gt; — filters to your PIDs only</span>
+        </div>
+        <div class="ref-row" style="grid-template-columns: 220px 200px 1fr;">
+          <span class="ref-v">profile_job.sh after shows N/A improvement</span>
+          <span class="ref-v">profile_job.sh before was not run first</span>
+          <span class="ref-v">Run Task 2 Step B with label <em>before</em> before running Task 4 Step B</span>
+        </div>
+        <div class="ref-row" style="grid-template-columns: 220px 200px 1fr;">
+          <span class="ref-v">Spot nodes not coming up</span>
+          <span class="ref-v">Spot capacity unavailable in ap-south-1</span>
+          <span class="ref-v">Submit with --nodelist=compute-dy-c5-18xl-1 to force specific node; switch to On-Demand if Spot fails repeatedly</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSTRUCTOR PREFLIGHT — dark treatment -->
+    <section class="section dark-section" id="preflight">
+      <p class="label">instructor pre-session checklist</p>
+      <div class="task-head">
+        <span class="task-num"></span>
+        <span class="task-title" style="font-size:15px; font-family:var(--mono); font-weight:300; color:#c8bfb4;">Complete all items before learners SSH in. Item 4 is most important. Item 7 is critical — reset THP after the diagnostic job.</span>
+      </div>
+
+      <div class="checklist">
+        <div class="check-item"><span class="check-box"></span><span><strong>01</strong> Cluster up: sinfo -N — all nodes IDLE or idle~</span></div>
+        <div class="check-item"><span class="check-box"></span><span><strong>02</strong> THP misconfigured: pdsh -w compute-[0-1] "cat /sys/kernel/mm/transparent_hugepage/enabled" — both show [always]</span></div>
+        <div class="check-item"><span class="check-box"></span><span><strong>03</strong> Binaries present: pdsh -w compute-[0-1] "ls /home/apps/mem_stress /home/apps/stream"</span></div>
+        <div class="check-item"><span class="check-box"></span><span><strong>04</strong> Run diagnostic job: sbatch /home/scripts/mem_stress_diag.sh — verify it runs and produces output. Confirm perf stat -e instructions,cycles -p &lt;rank_PID&gt; sleep 10 returns real IPC numbers ~0.12</span></div>
+        <div class="check-item"><span class="check-box"></span><span><strong>05</strong> SLURM topology correct: scontrol show node compute-dy-c5-18xl-1 | grep -i socket — must show Sockets=2 CoresPerSocket=18 ThreadsPerCore=2</span></div>
+        <div class="check-item"><span class="check-box"></span><span><strong>06</strong> Scripts accessible: ls /home/scripts/ — all 4 scripts present</span></div>
+        <div class="check-item"><span class="check-box"></span><span><strong>07</strong> Reset THP after diagnostic: pdsh -w compute-[0-1] "echo always | sudo tee /sys/kernel/mm/transparent_hugepage/enabled"</span></div>
+        <div class="check-item"><span class="check-box"></span><span><strong>08</strong> Test learner login: ssh &lt;username&gt;@mylab.hpc.now with password hpcnow2026</span></div>
+        <div class="check-item"><span class="check-box"></span><span><strong>09</strong> perf works on rank PID: confirm perf stat -e instructions,cycles -p &lt;mem_stress_PID&gt; sleep 10 returns real numbers — not &lt;not counted&gt;</span></div>
+      </div>
+
+      <div class="code-wrap" style="padding-left:0; margin-top:24px;">
+        <div class="code-tag" style="background:#2e2820; border-color:#3a3028; color:#5a5048;">persistent SLURM topology fix — must survive node restarts</div>
+        <pre style="background:#141210; border-color:#2e2820;"><span class="comment"># Edit the compute node definition</span>
+<span class="cmd">sudo vi /opt/slurm/etc/pcluster/slurm_parallelcluster_compute_partition.conf</span>
+
+<span class="comment"># Change NodeName line to include topology:</span>
+<span class="output">NodeName=compute-dy-c5-18xl-[1-2] CPUs=72 <span class="good">Sockets=2 CoresPerSocket=18 ThreadsPerCore=2</span> RealMemory=140083 ...</span>
+
+<span class="comment"># Reload without restart</span>
+<span class="cmd">sudo scontrol reconfigure</span>
+
+<span class="comment"># Verify</span>
+<span class="cmd">scontrol show node compute-dy-c5-18xl-1 | grep -i "socket\|core\|thread"</span>
+<span class="output"><span class="good">Sockets=2  CoresPerSocket=18  ThreadsPerCore=2</span>  ← correct</span></pre>
+      </div>
+    </section>
+
+    <!-- KEY NUMBERS -->
+    <section class="section" id="numbers">
+      <p class="label">key numbers reference</p>
+
+      <div class="ref-table" style="padding-left:0; max-width:600px;">
+        <div class="ref-row">
+          <span class="ref-k">IPC · unbound + THP on</span>
+          <span class="ref-v"><em>0.08 – 0.20</em> · memory-stalled · random access defeats prefetcher</span>
+        </div>
+        <div class="ref-row">
+          <span class="ref-k">IPC · bound + THP off</span>
+          <span class="ref-v"><em>0.18 – 0.35</em> · improved · ~2× contrast on c5.18xlarge</span>
+        </div>
+        <div class="ref-row">
+          <span class="ref-k">THP compaction pause</span>
+          <span class="ref-v">Up to <em>4,200 μs</em> per event · fires mid-job · all ranks stall at MPI barrier</span>
+        </div>
+        <div class="ref-row">
+          <span class="ref-k">NUMA distance local</span>
+          <span class="ref-v"><em>10</em> · 1× cost · same socket</span>
+        </div>
+        <div class="ref-row">
+          <span class="ref-k">NUMA distance remote</span>
+          <span class="ref-v"><em>21</em> · 2.1× cost · cross-socket · every access</span>
+        </div>
+        <div class="ref-row">
+          <span class="ref-k">STREAM Triad · c5.18xlarge</span>
+          <span class="ref-v"><em>80,000 – 100,000 MB/s</em> expected with 36 threads · flag if &gt;10% below</span>
+        </div>
+        <div class="ref-row">
+          <span class="ref-k">Working set</span>
+          <span class="ref-v">4GB per rank · 16GB total for 4 ranks · strided + random access pattern</span>
+        </div>
+        <div class="ref-row">
+          <span class="ref-k">perf command</span>
+          <span class="ref-v">sudo perf stat -e instructions,cycles -p &lt;MEM_STRESS_PID&gt; sleep 30 · LLC-load-misses not supported on c5.18xlarge — omit</span>
+        </div>
+        <div class="ref-row">
+          <span class="ref-k">Why ~2× not 4–5×</span>
+          <span class="ref-v">Random access pattern overwhelms DRAM latency on both bound and unbound runs. Binding reduces cross-NUMA penalty but random access remains the bottleneck. Signal is real and honest.</span>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="footer-wrap" style="margin-top: 64px;">
+        <span class="footer-copy">hpc.now &nbsp;·&nbsp; M3 Lab Runbook &nbsp;·&nbsp; v2.1 &nbsp;·&nbsp; Rajesh Kumar</span>
+        <a href="mailto:rajesh@hpc.now" class="footer-link">rajesh@hpc.now</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(item => item.classList.remove('is-active'));
+        const active = document.querySelector(`.side-nav-item[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -75% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
