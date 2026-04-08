@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M5 · Parallel Filesystems · Lab Runbook · hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #181817;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --teal:       #0f6e56;
+      --teal-dim:   #1d9e75;
+      --teal-bg:    #e8f5f0;
+      --amber:      #c47f1a;
+      --amber-bg:   #fdf4e3;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    /* ── COVER ── */
+    .cover {
+      background: var(--cover);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+    }
+
+    .nav-wrap { border-bottom: 1px solid var(--rule-cover); }
+
+    nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo { font-family: var(--mono); font-size: 12px; color: #f0e8e0; text-decoration: none; letter-spacing: .06em; }
+    .logo em { color: var(--terra-dim); font-style: normal; }
+
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-tag { font-size: 10px; color: #6a6460; letter-spacing: .12em; text-transform: uppercase; }
+    .nav-mod { font-size: 11px; color: var(--terra-dim); letter-spacing: .06em; }
+
+    .hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 72px 52px 80px;
+    }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: #6a6460;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hero-eyebrow::before { content: ''; width: 20px; height: 1px; background: #6a6460; }
+
+    .hero-title {
+      font-family: var(--serif);
+      font-size: clamp(32px, 4.5vw, 56px);
+      font-weight: 400;
+      color: #f0e8e0;
+      line-height: 1.15;
+      letter-spacing: -.02em;
+      margin-bottom: 28px;
+    }
+    .hero-title em { font-style: italic; color: var(--terra-dim); }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      border: 1px solid #2e2820;
+      width: fit-content;
+      margin-top: 36px;
+    }
+    .hero-meta-item {
+      padding: 12px 24px;
+      border-right: 1px solid #2e2820;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .hero-meta-item:last-child { border-right: none; }
+    .hero-meta-k { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .hero-meta-v { font-size: 12px; color: #c8c0b4; }
+
+    /* ── ZONE EDGE ── */
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* ── LAYOUT ── */
+    .page-body {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 52px;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 0 72px;
+      align-items: start;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: sticky;
+      top: 40px;
+      padding: 64px 0 40px;
+      align-self: start;
+    }
+
+    .side-label {
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 12px;
+      padding-left: 14px;
+    }
+
+    .side-nav { display: flex; flex-direction: column; gap: 1px; margin-bottom: 20px; }
+
+    .side-nav-item {
+      font-size: 11px;
+      color: var(--ink3);
+      text-decoration: none;
+      letter-spacing: .03em;
+      padding: 5px 0 5px 14px;
+      border-left: 2px solid transparent;
+      transition: color .18s, border-color .18s;
+      line-height: 1.4;
+    }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+
+    .side-nav-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+
+    .side-nav-part {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding: 8px 0 4px 14px;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main-content { padding: 0; background: var(--paper); }
+
+    /* ── SECTIONS ── */
+    .section {
+      padding: 64px 0 56px;
+      border-top: 1px solid var(--rule);
+    }
+    .section:first-child { border-top: none; padding-top: 72px; }
+
+    .label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .label::after { content: ''; width: 36px; height: 1px; background: var(--rule); }
+
+    /* ── PROSE ── */
+    .prose { font-size: 14px; color: var(--ink2); line-height: 2.05; max-width: 600px; }
+    .prose + .prose { margin-top: 1.2em; }
+
+    /* ── CALLOUT BOXES ── */
+    .callout {
+      border-left: 3px solid var(--terra);
+      padding: 18px 22px;
+      background: var(--terra-bg);
+      margin: 24px 0;
+      max-width: 600px;
+    }
+    .callout p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout strong { color: var(--terra); font-weight: 500; }
+
+    .callout-teal {
+      border-left: 3px solid var(--teal);
+      padding: 18px 22px;
+      background: var(--teal-bg);
+      margin: 24px 0;
+      max-width: 600px;
+    }
+    .callout-teal p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-teal strong { color: var(--teal); font-weight: 500; }
+
+    .callout-amber {
+      border-left: 3px solid var(--amber);
+      padding: 18px 22px;
+      background: var(--amber-bg);
+      margin: 24px 0;
+      max-width: 600px;
+    }
+    .callout-amber p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-amber strong { color: var(--amber); font-weight: 500; }
+
+    /* ── CODE BLOCKS ── */
+    .code-block {
+      background: var(--dark);
+      border: 1px solid #2e2820;
+      padding: 20px 24px;
+      margin: 20px 0;
+      max-width: 640px;
+      overflow-x: auto;
+    }
+
+    .code-label {
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #6a6460;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #2e2820;
+    }
+
+    .code-block pre {
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.8;
+      color: #c8c0b4;
+      white-space: pre;
+    }
+
+    .code-block pre .cmd { color: #9fe1cb; }
+    .code-block pre .cmt { color: #4a4438; font-style: italic; }
+    .code-block pre .out { color: #8a8078; }
+    .code-block pre .warn { color: #e8c9b8; }
+    .code-block pre .ok  { color: #6db89a; }
+
+    /* ── STEP LIST ── */
+    .steps { display: flex; flex-direction: column; gap: 0; max-width: 640px; margin: 24px 0; }
+
+    .step {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 0 20px;
+      padding: 24px 0;
+      border-top: 1px solid var(--rule);
+      align-items: start;
+    }
+    .step:first-child { border-top: none; padding-top: 0; }
+
+    .step-num {
+      font-size: 11px;
+      color: var(--ink3);
+      letter-spacing: .1em;
+      padding-top: 2px;
+      font-weight: 300;
+    }
+
+    .step-body {}
+
+    .step-title {
+      font-family: var(--serif);
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+
+    .step-desc {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.95;
+      margin-bottom: 12px;
+      max-width: 520px;
+    }
+
+    .step-notice {
+      font-size: 12px;
+      color: var(--terra);
+      font-style: italic;
+      line-height: 1.7;
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .step-notice::before { content: '→'; flex-shrink: 0; color: var(--terra-dim); }
+
+    /* ── RECORD TABLE ── */
+    .record-table {
+      border: 1px solid var(--rule);
+      width: 100%;
+      max-width: 600px;
+      margin: 16px 0;
+      border-collapse: collapse;
+    }
+
+    .record-table thead th {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      background: var(--paper-mid);
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--rule);
+      font-weight: 400;
+    }
+
+    .record-table tbody td {
+      font-size: 12px;
+      color: var(--ink2);
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+    .record-table tbody tr:last-child td { border-bottom: none; }
+
+    .record-table .field-name { color: var(--ink); font-weight: 500; width: 200px; }
+    .record-blank {
+      background: #fff;
+      border-bottom: 1px dotted var(--rule-cover);
+      min-width: 180px;
+      height: 20px;
+      display: inline-block;
+    }
+
+    /* ── PART HEADER ── */
+    .part-header {
+      background: var(--dark);
+      padding: 32px 36px 28px;
+      margin: 0 -52px 0 -0px;
+      border-left: 4px solid var(--terra);
+    }
+
+    .part-num {
+      font-size: 9px;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: #6a6460;
+      margin-bottom: 8px;
+    }
+
+    .part-title {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 400;
+      color: #f0e8e0;
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+
+    .part-intent {
+      font-size: 13px;
+      color: #8a8078;
+      line-height: 1.8;
+      max-width: 520px;
+      font-style: italic;
+    }
+
+    .part-slides {
+      font-size: 10px;
+      letter-spacing: .1em;
+      color: var(--terra-dim);
+      margin-top: 12px;
+    }
+
+    /* ── CHECKLIST ITEMS ── */
+    .checklist-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 16px 0;
+    }
+
+    .checklist-tag {
+      font-size: 10px;
+      letter-spacing: .08em;
+      color: var(--teal);
+      border: 1px solid var(--teal);
+      padding: 3px 10px;
+      background: var(--teal-bg);
+    }
+
+    /* ── ACCESS BLOCK ── */
+    .access-block {
+      background: var(--dark);
+      border: 1px solid #2e2820;
+      max-width: 600px;
+      margin: 20px 0;
+    }
+
+    .access-header {
+      background: #2e2820;
+      padding: 10px 20px;
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #6a6460;
+    }
+
+    .access-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 0;
+      border-bottom: 1px solid #2e2820;
+    }
+    .access-row:last-child { border-bottom: none; }
+
+    .access-k {
+      font-size: 10px;
+      letter-spacing: .1em;
+      color: #6a6460;
+      padding: 12px 20px;
+      border-right: 1px solid #2e2820;
+      display: flex;
+      align-items: center;
+    }
+
+    .access-v {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #9fe1cb;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* ── GROUP BADGE ── */
+    .group-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      margin-bottom: 12px;
+    }
+    .group-a { background: var(--teal-bg); color: var(--teal); border: 1px solid var(--teal); }
+    .group-b { background: var(--terra-bg); color: var(--terra); border: 1px solid var(--terra); }
+
+    /* ── LEARNER TABLE ── */
+    .learner-table {
+      border: 1px solid var(--rule);
+      max-width: 500px;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    .learner-table th {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      background: var(--paper-mid);
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--rule);
+      font-weight: 400;
+    }
+    .learner-table td {
+      font-size: 12px;
+      color: var(--ink2);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .learner-table tr:last-child td { border-bottom: none; }
+    .learner-table .mono { font-family: var(--mono); color: var(--teal); }
+    .learner-table .group-a-cell { color: var(--teal); font-weight: 500; }
+    .learner-table .group-b-cell { color: var(--terra); font-weight: 500; }
+
+    /* ── COMPLETION TABLE ── */
+    .completion-table {
+      border: 1px solid var(--rule);
+      max-width: 600px;
+      border-collapse: collapse;
+      margin: 20px 0;
+      width: 100%;
+    }
+    .completion-table th {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      background: var(--paper-mid);
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--rule);
+      font-weight: 400;
+    }
+    .completion-table td {
+      font-size: 12px;
+      color: var(--ink2);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      line-height: 1.65;
+    }
+    .completion-table tr:last-child td { border-bottom: none; }
+    .completion-table .item-num { color: var(--teal); font-weight: 500; white-space: nowrap; }
+
+    /* ── INSTRUCTOR INTERVENTION ── */
+    .intervention {
+      border: 1px solid var(--rule);
+      max-width: 620px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .intervention-header {
+      background: var(--paper-mid);
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .intervention-who {
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--terra);
+      font-weight: 500;
+    }
+
+    .intervention-trap {
+      font-size: 11px;
+      color: var(--ink3);
+      font-style: italic;
+    }
+
+    .intervention-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+
+    .intervention-row {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 12px;
+      font-size: 12px;
+      align-items: start;
+    }
+    .intervention-k { color: var(--ink3); letter-spacing: .04em; padding-top: 1px; }
+    .intervention-v { color: var(--ink2); line-height: 1.7; }
+    .intervention-v em { font-style: italic; color: var(--terra); }
+
+    /* ── FOOTER ── */
+    .footer-wrap {
+      background: var(--dark2);
+      margin: 0 -52px;
+      padding: 24px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-top: 1px solid #2e2820;
+      margin-top: 64px;
+    }
+
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-link { font-size: 11px; color: #6a6460; text-decoration: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      nav, .hero { padding-left: 32px; padding-right: 32px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 32px; }
+      .sidebar { display: none; }
+      .part-header { margin: 0; }
+      .footer-wrap { margin: 64px -32px 0; padding: 24px 32px; }
+    }
+
+    @media (max-width: 640px) {
+      nav, .hero { padding-left: 20px; padding-right: 20px; }
+      .page-body { padding: 0 20px; }
+      .footer-wrap { margin: 64px -20px 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ COVER ══ -->
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="https://hpc.now" class="logo">hpc<em>.now</em></a>
+      <div class="nav-right">
+        <span class="nav-tag">Lab Runbook</span>
+        <span class="nav-mod">M5 · Parallel Filesystems</span>
+      </div>
+    </nav>
+  </div>
+
+  <div class="hero">
+    <p class="hero-eyebrow">Module M5 · Lab Runbook · v2.2</p>
+    <h1 class="hero-title">
+      Parallel Filesystem<br>
+      <em>Operations Lab</em>
+    </h1>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Filesystem</span>
+        <span class="hero-meta-v">AWS FSx for Lustre · 1.2TB · 2 OSTs</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Cluster</span>
+        <span class="hero-meta-v">1 head · 2 compute · t3.medium</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Learners</span>
+        <span class="hero-meta-v">shefali · praneeth · vasu · tanobir · velmurugan</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Duration</span>
+        <span class="hero-meta-v">~75 minutes</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Cost</span>
+        <span class="hero-meta-v">~$0.35/hr · ~$0.71 total</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- ══ BODY ══ -->
+<div class="page-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="side-label">Runbook</div>
+    <nav class="side-nav">
+      <a href="#access" class="side-nav-item">Lab Access</a>
+      <a href="#orientation" class="side-nav-item">Cluster Orientation</a>
+      <div class="side-nav-divider"></div>
+      <div class="side-nav-part">Parts</div>
+      <a href="#part1" class="side-nav-item">1 · Zone Orient</a>
+      <a href="#part2" class="side-nav-item">2 · Health Check</a>
+      <a href="#part3" class="side-nav-item">3 · Stripe Diagnosis</a>
+      <a href="#part4" class="side-nav-item">4 · Stripe Fix</a>
+      <a href="#part5" class="side-nav-item">5 · Space Awareness</a>
+      <div class="side-nav-divider"></div>
+      <a href="#completion" class="side-nav-item">Completion Criteria</a>
+      <a href="#interventions" class="side-nav-item">Interventions</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- ── LAB ACCESS ── -->
+    <section class="section" id="access">
+      <p class="label">lab access</p>
+
+      <p class="prose">All learners connect to the same head node. The hostname resolves to the current lab IP — it changes between lab sessions, so clear your known hosts before connecting.</p>
+
+      <div class="access-block">
+        <div class="access-header">SSH Connection Details</div>
+        <div class="access-row">
+          <span class="access-k">Host</span>
+          <span class="access-v">mylab.hpc.now</span>
+        </div>
+        <div class="access-row">
+          <span class="access-k">Username</span>
+          <span class="access-v">&lt;your username&gt;</span>
+        </div>
+        <div class="access-row">
+          <span class="access-k">Password</span>
+          <span class="access-v">hpcnow2026</span>
+        </div>
+        <div class="access-row">
+          <span class="access-k">Usernames</span>
+          <span class="access-v">shefali · praneeth · vasu · tanobir · velmurugan</span>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>SSH known hosts conflict.</strong> Since <code>mylab.hpc.now</code> maps to a different IP each session, SSH will warn you about a changed host key. Fix this before connecting — run one of the following:</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">Option A — Remove just this host</div>
+        <pre><span class="cmd">ssh-keygen -R mylab.hpc.now</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">Option B — Clear entire known hosts file (if you prefer a clean slate)</div>
+        <pre><span class="cmd">rm ~/.ssh/known_hosts</span>
+<span class="cmt"># or on Windows</span>
+<span class="cmd">del %USERPROFILE%\.ssh\known_hosts</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">Connect</div>
+        <pre><span class="cmd">ssh <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="95e6fdf0f3f4f9fcd5f8ecf9f4f7bbfde5f6bbfbfae2">[email&#160;protected]</a></span>
+<span class="cmt"># Password: hpcnow2026</span>
+<span class="cmt"># Accept the new host key when prompted — type: yes</span></pre>
+      </div>
+
+      <p class="prose" style="margin-top:20px">All five learners connect simultaneously. Every learner works in their own directory under <code>/fsx/scratch/$USER/</code>. No coordination needed to start.</p>
+    </section>
+
+    <!-- ── CLUSTER ORIENTATION ── -->
+    <section class="section" id="orientation">
+      <p class="label">cluster orientation</p>
+
+      <p class="prose">Before the lab parts begin, run these commands to orient yourself to the cluster. These are not lab steps — they are the same commands you would run on day one at any HPC site.</p>
+
+      <div class="code-block">
+        <div class="code-label">Who am I and where am I</div>
+        <pre><span class="cmd">whoami</span>
+<span class="cmd">hostname</span>
+<span class="cmd">id</span>
+<span class="cmt"># Note your UID, primary group, and supplementary groups</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">What compute nodes exist</div>
+        <pre><span class="cmd">sinfo -N -l</span>
+<span class="cmt"># You will see two compute nodes — both idle, both On-Demand static</span>
+<span class="cmt"># Node names follow the ParallelCluster st- (static) naming convention</span>
+<span class="out">NODELIST                     NODES PARTITION       STATE CPUS  MEMORY
+hpcnow-lab-st-t3medium-1         1   compute        idle    2    3886
+hpcnow-lab-st-t3medium-2         1   compute        idle    2    3886</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">What partitions and limits exist</div>
+        <pre><span class="cmd">scontrol show partition</span>
+<span class="cmd">sinfo -s</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">What filesystems are mounted</div>
+        <pre><span class="cmd">df -h</span>
+<span class="cmt"># You will see /fsx mounted — this is the FSx for Lustre filesystem</span>
+<span class="cmt"># You will also see /home mounted — this is NFS from the head node</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">What is in your home and your scratch</div>
+        <pre><span class="cmd">ls -la ~/</span>
+<span class="cmd">ls -la /fsx/scratch/$USER/</span>
+<span class="cmt"># Your IOR job scripts are already in your home directory</span>
+<span class="cmt"># Your scratch directory has been pre-provisioned with stripe_count=1</span></pre>
+      </div>
+
+      <div class="callout-teal">
+        <p><strong>What you now know:</strong> two compute nodes, one partition, two filesystem types — NFS for home, Lustre for scratch. The lab works entirely on the Lustre filesystem at <code>/fsx</code>. Everything you are about to do maps directly onto slides 3 through 22.</p>
+      </div>
+
+      <!-- Learner group table -->
+
+
+      <table class="learner-table">
+        <thead>
+          <tr>
+            <th>Learner</th>
+            <th>Username</th>
+            <th>Group</th>
+            <th>Dept group</th>
+            <th>Project ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Shefali</td>
+            <td class="mono">shefali</td>
+            <td class="group-a-cell">Group A</td>
+            <td class="mono">eng_dept</td>
+            <td class="mono">1001</td>
+          </tr>
+          <tr>
+            <td>Praneeth</td>
+            <td class="mono">praneeth</td>
+            <td class="group-a-cell">Group A</td>
+            <td class="mono">eng_dept</td>
+            <td class="mono">1001</td>
+          </tr>
+          <tr>
+            <td>Vasu</td>
+            <td class="mono">vasu</td>
+            <td class="group-a-cell">Group A</td>
+            <td class="mono">eng_dept</td>
+            <td class="mono">1001</td>
+          </tr>
+          <tr>
+            <td>Tanobir</td>
+            <td class="mono">tanobir</td>
+            <td class="group-b-cell">Group B</td>
+            <td class="mono">life_dept</td>
+            <td class="mono">1002</td>
+          </tr>
+          <tr>
+            <td>Velmurugan</td>
+            <td class="mono">velmurugan</td>
+            <td class="group-b-cell">Group B</td>
+            <td class="mono">life_dept</td>
+            <td class="mono">1002</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ══ PART 1 ══ -->
+    <section class="section" id="part1">
+      <div class="part-header">
+        <p class="part-num">Part 1 of 6 · ~5 minutes</p>
+        <h2 class="part-title">Zone Orientation</h2>
+        <p class="part-intent">Before you read health, before you benchmark — confirm what you are connected to. Every HPC cluster has multiple filesystem zones with different contracts. Read the map before you operate in it.</p>
+        <p class="part-slides">Slide anchor: Slide 3 — Four zones. Four contracts.</p>
+      </div>
+
+      <div class="checklist-items" style="margin-top:24px">
+        <span class="checklist-tag">Item 19 — Filesystem zones</span>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">1.1</span>
+          <div class="step-body">
+            <p class="step-title">Confirm filesystem type per zone</p>
+            <p class="step-desc">Run <code>df -T</code> against all four zones simultaneously. The <code>-T</code> flag shows filesystem type — this is what distinguishes Lustre from NFS at a glance.</p>
+            <div class="code-block">
+              <div class="code-label">Command</div>
+              <pre><span class="cmd">df -T /fsx/scratch/$USER /home/$USER /fsx/project/$USER</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">What you will see</div>
+              <pre><span class="out">Filesystem     Type     1K-blocks      Used Available Use% Mounted on
+10.x.x.x@tcp  lustre  1258291200   8192000  1250099200   1% /fsx
+10.x.x.x:/    nfs      52428800   2097152   50331648   4% /home</span>
+<span class="cmt"># /fsx — Type: lustre. This is the parallel filesystem.</span>
+<span class="cmt"># /home — Type: nfs. This is NFS from the head node.</span></pre>
+            </div>
+            <p class="step-notice">Record the filesystem type for each zone. Lustre and NFS have different performance characteristics, different backup policies, and different quota models. The type is the first thing you confirm.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">1.2</span>
+          <div class="step-body">
+            <p class="step-title">Record your findings</p>
+            <table class="record-table">
+              <thead>
+                <tr><th>Zone</th><th>Mount path</th><th>Filesystem type</th><th>Backed up?</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="field-name">Home</td><td><code>/home/$USER</code></td><td><span class="record-blank"></span></td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">Scratch</td><td><code>/fsx/scratch/$USER</code></td><td><span class="record-blank"></span></td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">Project</td><td><code>/fsx/project/$USER</code></td><td><span class="record-blank"></span></td><td><span class="record-blank"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ PART 2 ══ -->
+    <section class="section" id="part2">
+      <div class="part-header">
+        <p class="part-num">Part 2 of 6 · ~10 minutes</p>
+        <h2 class="part-title">Health Check</h2>
+        <p class="part-intent">Before you touch anything on a shared filesystem, read its state. This is the habit. Two commands, run in order, every time. You are looking at target states and per-OST fill — two different windows into the same filesystem.</p>
+        <p class="part-slides">Slide anchor: Slide 10 — Two commands. One habit. · Slide 9 — LNet.</p>
+      </div>
+
+      <div class="checklist-items" style="margin-top:24px">
+        <span class="checklist-tag">Item 24 — Health commands</span>
+        <span class="checklist-tag">Item 5 — LNet</span>
+        <span class="checklist-tag">Item 20 — OST fill monitoring</span>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">2.1</span>
+          <div class="step-body">
+            <p class="step-title">Check target states with lctl dl</p>
+            <p class="step-desc">Lists all Lustre client devices and their current state. On FSx the MGS and MDS are managed by AWS — you will not see them listed. What you do see are the OSC (Object Storage Client) connections to each OST.</p>
+            <div class="code-block">
+              <div class="code-label">Command</div>
+              <pre><span class="cmd">lctl dl</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">What to look for</div>
+              <pre><span class="out">  0 UP mgc MGC10.x.x.x@tcp ...    <span class="cmt">← config client — UP is healthy</span>
+  1 UP osc fsxtest-OST0000... <span class="ok">ACTIVE</span>  <span class="cmt">← OST 0 client — ACTIVE is healthy</span>
+  2 UP osc fsxtest-OST0001... <span class="ok">ACTIVE</span>  <span class="cmt">← OST 1 client — ACTIVE is healthy</span></span>
+<span class="warn">  # If you see INACTIVE or RECOVERING — note it and tell Rajesh immediately</span></pre>
+            </div>
+            <p class="step-notice">RECOVERING looks like a temporary state. It is not always temporary. Note any non-ACTIVE state before proceeding.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">2.2</span>
+          <div class="step-body">
+            <p class="step-title">Check per-OST fill with lfs df -h</p>
+            <p class="step-desc">Shows per-OST capacity and utilisation. The aggregate row at the bottom is the number monitoring dashboards typically show. The per-OST rows are what actually matters for job failures.</p>
+            <div class="code-block">
+              <div class="code-label">Command</div>
+              <pre><span class="cmd">lfs df -h /fsx/scratch/</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">What to look for</div>
+              <pre><span class="out">UUID                   bytes        Used   Available Use% Mounted on
+fsxtest-OST0000_UUID   600.0G       4.0G     596.0G   1% /fsx[OST:0]
+fsxtest-OST0001_UUID   600.0G       4.0G     596.0G   1% /fsx[OST:1]
+filesystem_summary:    1.2T         8.0G       1.2T   1% /fsx</span>
+<span class="cmt"># Two OST rows — one per target</span>
+<span class="cmt"># Compare OST-level fill against the aggregate — are they balanced?</span></pre>
+            </div>
+            <p class="step-notice">Slide 11 — The aggregate showed 70% and everything looked fine. One OST was at 98%. This is where that slide becomes real. Read per-OST, not just the summary.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">2.3</span>
+          <div class="step-body">
+            <p class="step-title">Check LNet NID</p>
+            <p class="step-desc">Returns the Network Interface Descriptor of this node — the address LNet uses for all Lustre traffic. On FSx the transport is EFA (Elastic Fabric Adapter). On-prem this would show InfiniBand (@o2ib) or TCP (@tcp).</p>
+            <div class="code-block">
+              <div class="code-label">Command</div>
+              <pre><span class="cmd">lctl list_nids</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">What you will see</div>
+              <pre><span class="out">10.x.x.x@tcp</span>
+<span class="cmt"># Format: IP@transport</span>
+<span class="cmt"># On this FSx cluster: TCP transport (EFA abstracted by AWS)</span>
+<span class="cmt"># On-prem InfiniBand: 10.x.x.x@o2ib</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">2.4</span>
+          <div class="step-body">
+            <p class="step-title">Record your health check findings</p>
+            <table class="record-table">
+              <thead><tr><th>Check</th><th>Finding</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">OST 0000 state</td><td><span class="record-blank" style="width:180px"></span></td><td><span class="record-blank" style="width:80px"></span></td></tr>
+                <tr><td class="field-name">OST 0001 state</td><td><span class="record-blank" style="width:180px"></span></td><td><span class="record-blank" style="width:80px"></span></td></tr>
+                <tr><td class="field-name">OST 0000 fill %</td><td><span class="record-blank" style="width:180px"></span></td><td><span class="record-blank" style="width:80px"></span></td></tr>
+                <tr><td class="field-name">OST 0001 fill %</td><td><span class="record-blank" style="width:180px"></span></td><td><span class="record-blank" style="width:80px"></span></td></tr>
+                <tr><td class="field-name">Aggregate fill %</td><td><span class="record-blank" style="width:180px"></span></td><td><span class="record-blank" style="width:80px"></span></td></tr>
+                <tr><td class="field-name">LNet NID</td><td><span class="record-blank" style="width:180px"></span></td><td><span class="record-blank" style="width:80px"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ PART 3 ══ -->
+    <section class="section" id="part3">
+      <div class="part-header">
+        <p class="part-num">Part 3 of 6 · ~15 minutes</p>
+        <h2 class="part-title">Stripe Diagnosis</h2>
+        <p class="part-intent">Read the configuration before you write anything. Your scratch directory has been provisioned with a deliberate stripe misconfiguration. Diagnose it using lfs getstripe, benchmark it using IOR, then read the Layout EA on the file IOR wrote. You are building the before half of the before/after evidence.</p>
+        <p class="part-slides">Slide anchor: Slides 7, 8 — Stripe count and stripe size. Slide 6 — Layout EA.</p>
+      </div>
+
+      <div class="checklist-items" style="margin-top:24px">
+        <span class="checklist-tag">Item 22 — Stripe count</span>
+        <span class="checklist-tag">Item 23 — Stripe size</span>
+        <span class="checklist-tag">Item 33 — IOR benchmark</span>
+      </div>
+
+      <div class="callout-amber">
+        <p><strong>Note on stripe_count on this cluster.</strong> This lab has 2 OSTs. When you run <code>lfs setstripe -c 4</code> in Part 4, Lustre will silently cap the stripe count at 2 — the number of available OSTs. <code>lfs getstripe</code> will show <code>stripe_count: 2</code>, not 4. This is correct behaviour. On a production cluster with 900 OSTs, <code>-c 4</code> would stripe across 4 distinct OSTs.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">3.1</span>
+          <div class="step-body">
+            <p class="step-title">Read the directory stripe configuration</p>
+            <p class="step-desc">lfs getstripe on a directory shows the stripe configuration that will be inherited by all new files written into it. This is the Layout EA default for the directory.</p>
+            <div class="code-block">
+              <div class="code-label">Command</div>
+              <pre><span class="cmd">lfs getstripe /fsx/scratch/$USER/</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">What you will see</div>
+              <pre><span class="out">/fsx/scratch/shefali/:
+stripe_count:  <span class="warn">1</span>       stripe_size:   1048576   stripe_offset: -1</span>
+<span class="cmt"># stripe_count: 1 — all data lands on a single OST</span>
+<span class="cmt"># stripe_size: 1048576 — 1MiB chunks</span>
+<span class="cmt"># stripe_offset: -1 — OST chosen automatically by Lustre</span></pre>
+            </div>
+            <p class="step-notice">stripe_count=1 means no fan-out. All I/O serialises through one OST regardless of how many OSTs exist. This is the misconfiguration.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">3.2</span>
+          <div class="step-body">
+            <p class="step-title">Run IOR — before fix</p>
+            <p class="step-desc">The IOR job script is already in your home directory. It writes and reads a test file in your scratch directory and reports aggregate bandwidth. Submit it now and wait for it to complete.</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">sbatch ~/ior_before.sh</span>
+<span class="cmd">watch squeue -u $USER</span>
+<span class="cmt"># Wait for the job to show COMPLETED</span>
+<span class="cmt"># Ctrl+C to exit watch</span>
+<span class="cmd">cat ~/results/ior_before.txt</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">What to look for in the output</div>
+              <pre><span class="out">access    bw(MiB/s)  IOPS   Latency(s)  block(KiB)  xfer(KiB)
+------    ---------  ----   ----------  ----------  ---------
+write     <span class="warn">~50</span>        ...    ...         ...         ...
+read      <span class="warn">~50</span>        ...    ...         ...         ...</span>
+<span class="cmt"># Record the write bandwidth — this is your before number</span>
+<span class="cmt"># The plateau here is the single-OST ceiling</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">3.3</span>
+          <div class="step-body">
+            <p class="step-title">Inspect the Layout EA on the file IOR wrote</p>
+            <p class="step-desc">Run lfs getstripe on the specific file IOR created. This shows the actual stripe layout — which OST indices received data, how many objects were created. This is reading the Layout EA directly off the MDT.</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">ls /fsx/scratch/$USER/</span>
+<span class="cmt"># Find the IOR test file — it will be named testfile or similar</span>
+<span class="cmd">lfs getstripe /fsx/scratch/$USER/ior_testfile</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">What you will see</div>
+              <pre><span class="out">/fsx/scratch/shefali/ior_testfile:
+lmm_stripe_count:  <span class="warn">1</span>
+lmm_stripe_size:   1048576
+lmm_layout_gen:    0
+lmm_stripe_offset: 0
+	obdidx		 objid		 objid		 group
+	     <span class="warn">0</span>	      12345	    0x3039	             0</span>
+<span class="cmt"># obdidx 0 only — all data on OST 0000</span>
+<span class="cmt"># One object. One OST. The misconfiguration is visible at the file level.</span></pre>
+            </div>
+            <p class="step-notice">This is what the MDS held in the Layout EA. The MDS knew where every byte of this file lives — on OST 0000 only. This is why lfs getstripe is the diagnostic tool, not ls or stat.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">3.4</span>
+          <div class="step-body">
+            <p class="step-title">Record your before-fix findings</p>
+            <table class="record-table">
+              <thead><tr><th>Measurement</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">Directory stripe_count</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">Directory stripe_size</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">IOR write bandwidth (before)</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">File OST indices (from getstripe)</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">Number of objects on file</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ PART 4 ══ -->
+    <section class="section" id="part4">
+      <div class="part-header">
+        <p class="part-num">Part 4 of 6 · ~20 minutes</p>
+        <h2 class="part-title">Stripe Fix and Verification</h2>
+        <p class="part-intent">Fix the stripe configuration, verify it applies to new files — not existing files — and benchmark again. The delta between your before and after IOR numbers is your evidence. Not intuition. Numbers.</p>
+        <p class="part-slides">Slide anchor: Slide 13 — Same filesystem. Same hardware. Different stripe. 4× different bandwidth. · Slide 22 — The delta is your evidence.</p>
+      </div>
+
+      <div class="checklist-items" style="margin-top:24px">
+        <span class="checklist-tag">Item 22 — Stripe count</span>
+        <span class="checklist-tag">Item 23 — Stripe size</span>
+        <span class="checklist-tag">Item 33 — IOR benchmark</span>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">4.1</span>
+          <div class="step-body">
+            <p class="step-title">Fix the stripe configuration on your scratch directory</p>
+            <p class="step-desc">lfs setstripe at directory level changes the default stripe config for all new files written into it. Existing files are not restriped — they keep the configuration they were written with.</p>
+            <div class="code-block">
+              <div class="code-label">Command</div>
+              <pre><span class="cmd">lfs setstripe -c 4 /fsx/scratch/$USER/</span>
+<span class="cmt"># -c 4 requests stripe across 4 OSTs</span>
+<span class="cmt"># FSx has 2 OSTs — Lustre will use 2 (the maximum available)</span>
+<span class="cmt"># The command succeeds — stripe count is capped silently at 2</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">4.2</span>
+          <div class="step-body">
+            <p class="step-title">Verify the directory config changed</p>
+            <div class="code-block">
+              <div class="code-label">Command</div>
+              <pre><span class="cmd">lfs getstripe /fsx/scratch/$USER/</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">What you should see now</div>
+              <pre><span class="out">/fsx/scratch/shefali/:
+stripe_count:  <span class="ok">2</span>       stripe_size:   1048576   stripe_offset: -1</span>
+<span class="cmt"># stripe_count: 2 — confirmed. Lustre capped at 2 (max OSTs available).</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">4.3</span>
+          <div class="step-body">
+            <p class="step-title">Write a new file and verify it gets the new stripe</p>
+            <p class="step-desc">This step is critical. It proves that the directory stripe fix applies to new files — and that the old IOR file is NOT retroactively restriped. Both facts matter operationally.</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">dd if=/dev/zero of=/fsx/scratch/$USER/newfile bs=1M count=100</span>
+<span class="cmd">lfs getstripe /fsx/scratch/$USER/newfile</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">What you will see on the new file</div>
+              <pre><span class="out">lmm_stripe_count:  <span class="ok">2</span>
+	obdidx		 objid
+	     <span class="ok">0</span>	      ...
+	     <span class="ok">1</span>	      ...</span>
+<span class="cmt"># Two OST indices — 0 and 1. Data distributed across both OSTs.</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Now check the OLD IOR file</div>
+              <pre><span class="cmd">lfs getstripe /fsx/scratch/$USER/ior_testfile</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">What you will see on the old file</div>
+              <pre><span class="out">lmm_stripe_count:  <span class="warn">1</span>
+	obdidx		 objid
+	     <span class="warn">0</span>	      ...</span>
+<span class="cmt"># Still stripe_count: 1. The old file was NOT restriped.</span>
+<span class="cmt"># Fixing the directory changes future files only.</span>
+<span class="cmt"># Data already written must be copied to benefit from the new config.</span></pre>
+            </div>
+            <p class="step-notice">This is the operationally important point. If a researcher fixes their stripe config mid-project, their existing output files are unaffected. Only new writes get the new layout. They need to re-run the job — not just change the config.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">4.4</span>
+          <div class="step-body">
+            <p class="step-title">Run IOR — after fix</p>
+            <p class="step-desc">The ior_after.sh script writes to the same target path. Because the directory now has stripe_count=2, the new test file will be written with the new configuration. Compare the bandwidth to Part 3.</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">sbatch ~/ior_after.sh</span>
+<span class="cmd">watch squeue -u $USER</span>
+<span class="cmt"># Wait for COMPLETED</span>
+<span class="cmd">cat ~/results/ior_after.txt</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">4.5</span>
+          <div class="step-body">
+            <p class="step-title">Calculate and record the delta</p>
+            <table class="record-table">
+              <thead><tr><th>Measurement</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">IOR write bandwidth — before</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">IOR write bandwidth — after</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">Improvement factor</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">New file stripe_count</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">Old file stripe_count (unchanged?)</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ PART 5 ══ -->
+    <section class="section" id="part5">
+      <div class="part-header">
+        <p class="part-num">Part 5 of 6 · ~10 minutes</p>
+        <h2 class="part-title">Space Awareness</h2>
+        <p class="part-intent">You have written data. Now find it the Lustre way. lfs find knows about Lustre block allocation in a way that standard find does not. This is the tool you reach for when scratch fills up and you need to identify the offending files fast.</p>
+        <p class="part-slides">Slide anchor: Slide 12 — Not df. Not du. · Slide 11 — The aggregate number lies.</p>
+      </div>
+
+      <div class="checklist-items" style="margin-top:24px">
+        <span class="checklist-tag">Item 21 — lfs find</span>
+        <span class="checklist-tag">Item 20 — OST fill monitoring</span>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">5.1</span>
+          <div class="step-body">
+            <p class="step-title">Find your files by block usage with lfs find</p>
+            <p class="step-desc">The <code>--blocks</code> filter uses Lustre's own block accounting — it knows how many 512-byte blocks a file actually occupies on the OSTs, including sparse files. Standard find has no equivalent filter.</p>
+            <div class="code-block">
+              <div class="code-label">Command</div>
+              <pre><span class="cmd">lfs find /fsx/scratch/$USER --blocks +1 --type f</span>
+<span class="cmt"># --blocks +1 means: files using more than 1 block (i.e. any non-empty file)</span>
+<span class="cmt"># Adjust the threshold: --blocks +102400 means files larger than 100MB</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Compare with standard find</div>
+              <pre><span class="cmd">find /fsx/scratch/$USER -type f</span>
+<span class="cmt"># Returns the same files but cannot filter by Lustre block usage</span>
+<span class="cmt"># find -size uses apparent file size, not allocated Lustre blocks</span>
+<span class="cmt"># On a parallel filesystem these can differ significantly for sparse files</span></pre>
+            </div>
+            <p class="step-notice">When scratch fills: lfs find with --blocks and --uid filters is how you identify which user owns the space. Not df. Not du. lfs find.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">5.2</span>
+          <div class="step-body">
+            <p class="step-title">Re-read per-OST fill after your writes</p>
+            <p class="step-desc">Run lfs df -h again. Your IOR writes and dd writes will have changed the per-OST fill. Observe which OST received more data and whether the distribution is balanced.</p>
+            <div class="code-block">
+              <div class="code-label">Command</div>
+              <pre><span class="cmd">lfs df -h /fsx/scratch/</span>
+<span class="cmt"># Compare OST 0000 and OST 0001 fill percentages</span>
+<span class="cmt"># Are they balanced? Does stripe_count=2 distribute more evenly than stripe_count=1?</span></pre>
+            </div>
+            <table class="record-table" style="margin-top:12px">
+              <thead><tr><th>OST</th><th>Fill % after writes</th><th>Balanced?</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">OST 0000</td><td><span class="record-blank" style="width:120px"></span></td><td><span class="record-blank" style="width:80px"></span></td></tr>
+                <tr><td class="field-name">OST 0001</td><td><span class="record-blank" style="width:120px"></span></td><td><span class="record-blank" style="width:80px"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ══ COMPLETION CRITERIA ══ -->
+    <section class="section" id="completion">
+      <p class="label">completion criteria</p>
+
+      <p class="prose">Every learner must have recorded the following before Rajesh moves to debrief. These map directly to the checklist items this module builds.</p>
+
+      <table class="completion-table">
+        <thead>
+          <tr>
+            <th>Evidence</th>
+            <th>Checklist item</th>
+            <th>Part</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Filesystem type confirmed per zone (lustre vs nfs)</td>
+            <td class="item-num">Item 19</td>
+            <td>Part 1</td>
+          </tr>
+          <tr>
+            <td>lctl dl output — all target states recorded</td>
+            <td class="item-num">Item 24</td>
+            <td>Part 2</td>
+          </tr>
+          <tr>
+            <td>lfs df -h — per-OST fill and aggregate recorded</td>
+            <td class="item-num">Item 20, 24</td>
+            <td>Part 2</td>
+          </tr>
+          <tr>
+            <td>LNet NID recorded</td>
+            <td class="item-num">Item 5</td>
+            <td>Part 2</td>
+          </tr>
+          <tr>
+            <td>Directory stripe_count=1 confirmed before fix</td>
+            <td class="item-num">Item 22, 23</td>
+            <td>Part 3</td>
+          </tr>
+          <tr>
+            <td>IOR write bandwidth recorded — before fix</td>
+            <td class="item-num">Item 33</td>
+            <td>Part 3</td>
+          </tr>
+          <tr>
+            <td>File OST indices from lfs getstripe recorded (1 OST before)</td>
+            <td class="item-num">Item 22</td>
+            <td>Part 3</td>
+          </tr>
+          <tr>
+            <td>lfs setstripe -c 4 executed and verified</td>
+            <td class="item-num">Item 22, 23</td>
+            <td>Part 4</td>
+          </tr>
+          <tr>
+            <td>New file getstripe shows stripe_count=2 (capped at 2 OSTs)</td>
+            <td class="item-num">Item 22</td>
+            <td>Part 4</td>
+          </tr>
+          <tr>
+            <td>Old file getstripe still shows stripe_count=1 (not restriped)</td>
+            <td class="item-num">Item 22</td>
+            <td>Part 4</td>
+          </tr>
+          <tr>
+            <td>IOR write bandwidth recorded — after fix</td>
+            <td class="item-num">Item 33</td>
+            <td>Part 4</td>
+          </tr>
+          <tr>
+            <td>Bandwidth delta calculated and recorded</td>
+            <td class="item-num">Item 33</td>
+            <td>Part 4</td>
+          </tr>
+          <tr>
+            <td>lfs find executed — files located by block usage</td>
+            <td class="item-num">Item 21</td>
+            <td>Part 5</td>
+          </tr>
+
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ══ INSTRUCTOR INTERVENTIONS ══ -->
+    <section class="section" id="interventions">
+      <p class="label">instructor interventions</p>
+
+      <p class="prose">False confidence traps expected in this lab — per learner. Interventions below are for Rajesh only. Do not share with learners.</p>
+
+      <div style="display:flex; flex-direction:column; gap:16px; margin-top:24px;">
+
+        <div class="intervention">
+          <div class="intervention-header">
+            <span class="intervention-who">Vasu</span>
+            <span class="intervention-trap">Stripe = RAID stripe → redundancy mental model</span>
+          </div>
+          <div class="intervention-body">
+            <div class="intervention-row">
+              <span class="intervention-k">When</span>
+              <span class="intervention-v">Step 3.1 — when Vasu sees stripe_count=1 and interprets it as a redundancy risk</span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">Spring</span>
+              <span class="intervention-v"><em>"Vasu — in NetApp what does stripe width mean for your redundancy design? Is that the same thing happening here?"</em></span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">After</span>
+              <span class="intervention-v">Stripe count in Lustre controls parallelism — how many OSTs serve this file simultaneously. Redundancy lives in the RAID beneath each OST. These are completely separate concerns. stripe_count=1 is a performance problem, not a data safety problem.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="intervention">
+          <div class="intervention-header">
+            <span class="intervention-who">Praneeth</span>
+            <span class="intervention-trap">Virtualisation instinct — suggest abstracting the storage layer</span>
+          </div>
+          <div class="intervention-body">
+            <div class="intervention-row">
+              <span class="intervention-k">When</span>
+              <span class="intervention-v">Part 4 — when Praneeth suggests that a storage virtualisation layer could handle this automatically</span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">Spring</span>
+              <span class="intervention-v"><em>"What would a virtualisation layer do with the stripe configuration? Who would set it — and when?"</em></span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">After</span>
+              <span class="intervention-v">Stripe configuration is workload-specific — a large parallel write needs stripe_count=16, a small sequential write needs stripe_count=1. No virtualisation layer can make that decision automatically. The admin sets it per directory based on the workload expected to land there.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="intervention">
+          <div class="intervention-header">
+            <span class="intervention-who">Shefali</span>
+            <span class="intervention-trap">Developer vs operator diagnostic frame</span>
+          </div>
+          <div class="intervention-body">
+            <div class="intervention-row">
+              <span class="intervention-k">When</span>
+              <span class="intervention-v">Part 4 — when Shefali correctly diagnoses but frames lfs setstripe as a user-facing configuration, not an admin operation</span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">Spring</span>
+              <span class="intervention-v"><em>"Who sets this in a production cluster — the researcher or the admin? And when — before the job runs or after?"</em></span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">After</span>
+              <span class="intervention-v">In production, admins pre-configure directory stripe settings appropriate to the expected workload. Researchers may set it themselves on their own scratch directories if they know what they need. But when a performance problem is reported, the admin diagnoses and recommends — and in many sites, applies — the fix.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="intervention">
+          <div class="intervention-header">
+            <span class="intervention-who">Tanobir</span>
+            <span class="intervention-trap">Linux process model — reach for df before lfs df</span>
+          </div>
+          <div class="intervention-body">
+            <div class="intervention-row">
+              <span class="intervention-k">When</span>
+              <span class="intervention-v">Part 2 step 2.2 — if Tanobir runs df -h instead of lfs df -h first</span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">Spring</span>
+              <span class="intervention-v"><em>"What does that output tell you about individual OST fill? Can you see OST 0000 and OST 0001 separately?"</em></span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">After</span>
+              <span class="intervention-v">df -h shows the FSx mount as a single filesystem — one aggregate line. lfs df -h shows per-OST rows. The aggregate is what monitoring dashboards typically surface. The per-OST breakdown is what matters for diagnosing job failures and capacity problems. Always run lfs df -h on a Lustre filesystem.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="intervention">
+          <div class="intervention-header">
+            <span class="intervention-who">Velmurugan</span>
+            <span class="intervention-trap">No dominant trap — scaffold for early wins</span>
+          </div>
+          <div class="intervention-body">
+            <div class="intervention-row">
+              <span class="intervention-k">When</span>
+              <span class="intervention-v">Part 2 — confirm health check sequence before Velmurugan moves on</span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">Approach</span>
+              <span class="intervention-v">Ask Velmurugan to narrate what lctl dl is showing — target by target. Build the habit of reading output, not just running commands. The first successful health check narration is an early win worth reinforcing explicitly.</span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">After</span>
+              <span class="intervention-v">Good. That is exactly the sequence — lctl dl for state, lfs df -h for fill, in that order, every time. That sequence becomes reflex.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Wrong paths -->
+      <p class="prose" style="margin-top:36px; margin-bottom:16px">Common wrong paths across all learners — redirect language:</p>
+
+      <div class="callout">
+        <p><strong>Wrong path:</strong> Learner runs <code>df -h</code> instead of <code>lfs df -h</code><br>
+        <strong>Redirect:</strong> <em>"What does that tell you about individual OST fill? Run the Lustre-aware version."</em></p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Wrong path:</strong> Learner fixes directory stripe, reruns IOR, checks the old file and expects it to show stripe_count=2<br>
+        <strong>Redirect:</strong> <em>"New stripe config applies to new files. What does lfs getstripe show on the file IOR wrote in Part 3? Still stripe_count=1?"</em></p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Wrong path:</strong> Learner sees stripe_count capped at 2 instead of 4 and thinks the command failed<br>
+        <strong>Redirect:</strong> <em>"The command succeeded. How many OSTs does this filesystem have? Lustre cannot stripe across more OSTs than exist. What would stripe_count=4 mean on a cluster with 900 OSTs?"</em></p>
+      </div>
+
+
+
+    </section>
+
+    <!-- FOOTER -->
+    <div class="footer-wrap">
+      <span class="footer-copy">hpc.now · M5 · Parallel Filesystems · Lab Runbook · v2.2</span>
+      <a href="/cdn-cgi/l/email-protection#ddafbcb7b8aeb59db5adbef3b3b2aa" class="footer-link"><span class="__cf_email__" data-cfemail="a1d3c0cbc4d2c9e1c9d1c28fcfced6">[email&#160;protected]</span></a>
+    </div>
+
+  </main>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isInt
