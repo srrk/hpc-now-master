@@ -636,7 +636,7 @@
       </div>
       <div class="hero-meta-item">
         <span class="hero-meta-k">Learners</span>
-        <span class="hero-meta-v">shefali · praneeth · vasu · tanobir · velmurugan</span>
+        <span class="hero-meta-v">arjun · chandra</span>
       </div>
       <div class="hero-meta-item">
         <span class="hero-meta-k">Duration</span>
@@ -699,7 +699,7 @@
         </div>
         <div class="access-row">
           <span class="access-k">Usernames</span>
-          <span class="access-v">shefali · praneeth · vasu · tanobir · velmurugan</span>
+          <span class="access-v">arjun · chandra</span>
         </div>
       </div>
 
@@ -721,12 +721,12 @@
 
       <div class="code-block">
         <div class="code-label">Connect</div>
-        <pre><span class="cmd">ssh <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="95e6fdf0f3f4f9fcd5f8ecf9f4f7bbfde5f6bbfbfae2">[email&#160;protected]</a></span>
+        <pre><span class="cmd">ssh arjun@mylab.hpc.now</span>
 <span class="cmt"># Password: hpcnow2026</span>
 <span class="cmt"># Accept the new host key when prompted — type: yes</span></pre>
       </div>
 
-      <p class="prose" style="margin-top:20px">All five learners connect simultaneously. Every learner works in their own directory under <code>/fsx/scratch/$USER/</code>. No coordination needed to start.</p>
+      <p class="prose" style="margin-top:20px">Both learners connect simultaneously. Each works in their own directory under <code>/fsx/scratch/$USER/</code>. No coordination needed to start.</p>
     </section>
 
     <!-- ── CLUSTER ORIENTATION ── -->
@@ -793,36 +793,15 @@ hpcnow-lab-st-t3medium-2         1   compute        idle    2    3886</span></pr
         </thead>
         <tbody>
           <tr>
-            <td>Shefali</td>
-            <td class="mono">shefali</td>
+            <td>Arjun</td>
+            <td class="mono">arjun</td>
             <td class="group-a-cell">Group A</td>
             <td class="mono">eng_dept</td>
             <td class="mono">1001</td>
           </tr>
           <tr>
-            <td>Praneeth</td>
-            <td class="mono">praneeth</td>
-            <td class="group-a-cell">Group A</td>
-            <td class="mono">eng_dept</td>
-            <td class="mono">1001</td>
-          </tr>
-          <tr>
-            <td>Vasu</td>
-            <td class="mono">vasu</td>
-            <td class="group-a-cell">Group A</td>
-            <td class="mono">eng_dept</td>
-            <td class="mono">1001</td>
-          </tr>
-          <tr>
-            <td>Tanobir</td>
-            <td class="mono">tanobir</td>
-            <td class="group-b-cell">Group B</td>
-            <td class="mono">life_dept</td>
-            <td class="mono">1002</td>
-          </tr>
-          <tr>
-            <td>Velmurugan</td>
-            <td class="mono">velmurugan</td>
+            <td>Chandra</td>
+            <td class="mono">chandra</td>
             <td class="group-b-cell">Group B</td>
             <td class="mono">life_dept</td>
             <td class="mono">1002</td>
@@ -1018,7 +997,7 @@ filesystem_summary:    1.2T         8.0G       1.2T   1% /fsx</span>
             </div>
             <div class="code-block">
               <div class="code-label">What you will see</div>
-              <pre><span class="out">/fsx/scratch/shefali/:
+              <pre><span class="out">/fsx/scratch/arjun/:
 stripe_count:  <span class="warn">1</span>       stripe_size:   1048576   stripe_offset: -1</span>
 <span class="cmt"># stripe_count: 1 — all data lands on a single OST</span>
 <span class="cmt"># stripe_size: 1048576 — 1MiB chunks</span>
@@ -1066,7 +1045,7 @@ read      <span class="warn">~50</span>        ...    ...         ...         ..
             </div>
             <div class="code-block">
               <div class="code-label">What you will see</div>
-              <pre><span class="out">/fsx/scratch/shefali/ior_testfile:
+              <pre><span class="out">/fsx/scratch/arjun/ior_testfile:
 lmm_stripe_count:  <span class="warn">1</span>
 lmm_stripe_size:   1048576
 lmm_layout_gen:    0
@@ -1142,7 +1121,7 @@ lmm_stripe_offset: 0
             </div>
             <div class="code-block">
               <div class="code-label">What you should see now</div>
-              <pre><span class="out">/fsx/scratch/shefali/:
+              <pre><span class="out">/fsx/scratch/arjun/:
 stripe_count:  <span class="ok">2</span>       stripe_size:   1048576   stripe_offset: -1</span>
 <span class="cmt"># stripe_count: 2 — confirmed. Lustre capped at 2 (max OSTs available).</span></pre>
             </div>
@@ -1377,105 +1356,42 @@ stripe_count:  <span class="ok">2</span>       stripe_size:   1048576   stripe_o
 
         <div class="intervention">
           <div class="intervention-header">
-            <span class="intervention-who">Vasu</span>
-            <span class="intervention-trap">Stripe = RAID stripe → redundancy mental model</span>
+            <span class="intervention-who">Arjun</span>
+            <span class="intervention-trap">OT/SCADA network segmentation logic applied to HPC compute fabric</span>
           </div>
           <div class="intervention-body">
             <div class="intervention-row">
               <span class="intervention-k">When</span>
-              <span class="intervention-v">Step 3.1 — when Vasu sees stripe_count=1 and interprets it as a redundancy risk</span>
+              <span class="intervention-v">Part 2 step 2.3 — when Arjun reads the LNet NID and frames it as a network isolation boundary rather than a transport identifier</span>
             </div>
             <div class="intervention-row">
               <span class="intervention-k">Spring</span>
-              <span class="intervention-v"><em>"Vasu — in NetApp what does stripe width mean for your redundancy design? Is that the same thing happening here?"</em></span>
+              <span class="intervention-v"><em>"Arjun — in OT environments what does network segmentation give you? Is that the same purpose the LNet transport boundary is serving here?"</em></span>
             </div>
             <div class="intervention-row">
               <span class="intervention-k">After</span>
-              <span class="intervention-v">Stripe count in Lustre controls parallelism — how many OSTs serve this file simultaneously. Redundancy lives in the RAID beneath each OST. These are completely separate concerns. stripe_count=1 is a performance problem, not a data safety problem.</span>
+              <span class="intervention-v">LNet segmentation is about performance routing — which interface carries which traffic — not security isolation. The NID tells you the address and transport type. The boundary exists to maximise bandwidth, not to enforce access control. These are completely different design goals.</span>
             </div>
           </div>
         </div>
 
         <div class="intervention">
           <div class="intervention-header">
-            <span class="intervention-who">Praneeth</span>
-            <span class="intervention-trap">Virtualisation instinct — suggest abstracting the storage layer</span>
+            <span class="intervention-who">Chandra</span>
+            <span class="intervention-trap">Lustre striping ≠ RAID stripe — NetApp/VMAX SAN mental model</span>
           </div>
           <div class="intervention-body">
             <div class="intervention-row">
               <span class="intervention-k">When</span>
-              <span class="intervention-v">Part 4 — when Praneeth suggests that a storage virtualisation layer could handle this automatically</span>
+              <span class="intervention-v">Step 3.1 — when Chandra sees stripe_count=1 and interprets it as a redundancy or protection gap</span>
             </div>
             <div class="intervention-row">
               <span class="intervention-k">Spring</span>
-              <span class="intervention-v"><em>"What would a virtualisation layer do with the stripe configuration? Who would set it — and when?"</em></span>
+              <span class="intervention-v"><em>"Chandra — tell me about NetApp RAID-DP and what stripe width means for your IO profile. Is that the same concept operating here?"</em></span>
             </div>
             <div class="intervention-row">
               <span class="intervention-k">After</span>
-              <span class="intervention-v">Stripe configuration is workload-specific — a large parallel write needs stripe_count=16, a small sequential write needs stripe_count=1. No virtualisation layer can make that decision automatically. The admin sets it per directory based on the workload expected to land there.</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="intervention">
-          <div class="intervention-header">
-            <span class="intervention-who">Shefali</span>
-            <span class="intervention-trap">Developer vs operator diagnostic frame</span>
-          </div>
-          <div class="intervention-body">
-            <div class="intervention-row">
-              <span class="intervention-k">When</span>
-              <span class="intervention-v">Part 4 — when Shefali correctly diagnoses but frames lfs setstripe as a user-facing configuration, not an admin operation</span>
-            </div>
-            <div class="intervention-row">
-              <span class="intervention-k">Spring</span>
-              <span class="intervention-v"><em>"Who sets this in a production cluster — the researcher or the admin? And when — before the job runs or after?"</em></span>
-            </div>
-            <div class="intervention-row">
-              <span class="intervention-k">After</span>
-              <span class="intervention-v">In production, admins pre-configure directory stripe settings appropriate to the expected workload. Researchers may set it themselves on their own scratch directories if they know what they need. But when a performance problem is reported, the admin diagnoses and recommends — and in many sites, applies — the fix.</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="intervention">
-          <div class="intervention-header">
-            <span class="intervention-who">Tanobir</span>
-            <span class="intervention-trap">Linux process model — reach for df before lfs df</span>
-          </div>
-          <div class="intervention-body">
-            <div class="intervention-row">
-              <span class="intervention-k">When</span>
-              <span class="intervention-v">Part 2 step 2.2 — if Tanobir runs df -h instead of lfs df -h first</span>
-            </div>
-            <div class="intervention-row">
-              <span class="intervention-k">Spring</span>
-              <span class="intervention-v"><em>"What does that output tell you about individual OST fill? Can you see OST 0000 and OST 0001 separately?"</em></span>
-            </div>
-            <div class="intervention-row">
-              <span class="intervention-k">After</span>
-              <span class="intervention-v">df -h shows the FSx mount as a single filesystem — one aggregate line. lfs df -h shows per-OST rows. The aggregate is what monitoring dashboards typically surface. The per-OST breakdown is what matters for diagnosing job failures and capacity problems. Always run lfs df -h on a Lustre filesystem.</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="intervention">
-          <div class="intervention-header">
-            <span class="intervention-who">Velmurugan</span>
-            <span class="intervention-trap">No dominant trap — scaffold for early wins</span>
-          </div>
-          <div class="intervention-body">
-            <div class="intervention-row">
-              <span class="intervention-k">When</span>
-              <span class="intervention-v">Part 2 — confirm health check sequence before Velmurugan moves on</span>
-            </div>
-            <div class="intervention-row">
-              <span class="intervention-k">Approach</span>
-              <span class="intervention-v">Ask Velmurugan to narrate what lctl dl is showing — target by target. Build the habit of reading output, not just running commands. The first successful health check narration is an early win worth reinforcing explicitly.</span>
-            </div>
-            <div class="intervention-row">
-              <span class="intervention-k">After</span>
-              <span class="intervention-v">Good. That is exactly the sequence — lctl dl for state, lfs df -h for fill, in that order, every time. That sequence becomes reflex.</span>
+              <span class="intervention-v">Lustre stripe count controls parallelism — how many OSTs serve this file simultaneously for bandwidth. Redundancy lives in the RAID beneath each OST, completely independent of the Lustre stripe configuration. stripe_count=1 is a performance problem, not a data safety problem. The SAN mental model does not map here.</span>
             </div>
           </div>
         </div>
