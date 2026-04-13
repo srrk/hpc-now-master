@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M9 · HPC Application Management · Lab Runbook · hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #181817;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --teal:       #0f6e56;
+      --teal-dim:   #1d9e75;
+      --teal-bg:    #e8f5f0;
+      --amber:      #c47f1a;
+      --amber-bg:   #fdf4e3;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    /* ── COVER ── */
+    .cover {
+      background: var(--cover);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+    }
+
+    .nav-wrap { border-bottom: 1px solid var(--rule-cover); }
+
+    nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo { font-family: var(--mono); font-size: 12px; color: #f0e8e0; text-decoration: none; letter-spacing: .06em; }
+    .logo em { color: var(--terra-dim); font-style: normal; }
+
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-tag { font-size: 10px; color: #6a6460; letter-spacing: .12em; text-transform: uppercase; }
+    .nav-mod { font-size: 11px; color: var(--terra-dim); letter-spacing: .06em; }
+
+    .hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 72px 52px 80px;
+    }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: #6a6460;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hero-eyebrow::before { content: ''; width: 20px; height: 1px; background: #6a6460; }
+
+    .hero-title {
+      font-family: var(--serif);
+      font-size: clamp(32px, 4.5vw, 56px);
+      font-weight: 400;
+      color: #f0e8e0;
+      line-height: 1.15;
+      letter-spacing: -.02em;
+      margin-bottom: 28px;
+    }
+    .hero-title em { font-style: italic; color: var(--terra-dim); }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      border: 1px solid #2e2820;
+      width: fit-content;
+      margin-top: 36px;
+    }
+    .hero-meta-item {
+      padding: 12px 24px;
+      border-right: 1px solid #2e2820;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .hero-meta-item:last-child { border-right: none; }
+    .hero-meta-k { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .hero-meta-v { font-size: 12px; color: #c8c0b4; }
+
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    .page-body {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 52px;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 0 72px;
+      align-items: start;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: sticky;
+      top: 40px;
+      padding: 64px 0 40px;
+      align-self: start;
+    }
+
+    .side-label {
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 12px;
+      padding-left: 14px;
+    }
+
+    .side-nav { display: flex; flex-direction: column; gap: 1px; margin-bottom: 20px; }
+
+    .side-nav-item {
+      font-size: 11px;
+      color: var(--ink3);
+      text-decoration: none;
+      letter-spacing: .03em;
+      padding: 5px 0 5px 14px;
+      border-left: 2px solid transparent;
+      transition: color .18s, border-color .18s;
+      line-height: 1.4;
+    }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+
+    .side-nav-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+
+    .side-nav-part {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding: 8px 0 4px 14px;
+    }
+
+    /* ── MAIN ── */
+    .main-content { padding: 0; background: var(--paper); }
+
+    .section {
+      padding: 64px 0 56px;
+      border-top: 1px solid var(--rule);
+    }
+    .section:first-child { border-top: none; padding-top: 72px; }
+
+    .label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .label::after { content: ''; width: 36px; height: 1px; background: var(--rule); }
+
+    .prose { font-size: 14px; color: var(--ink2); line-height: 2.05; max-width: 600px; }
+    .prose + .prose { margin-top: 1.2em; }
+
+    /* ── CALLOUTS ── */
+    .callout {
+      border-left: 3px solid var(--terra);
+      padding: 18px 22px;
+      background: var(--terra-bg);
+      margin: 24px 0;
+      max-width: 600px;
+    }
+    .callout p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout strong { color: var(--terra); font-weight: 500; }
+
+    .callout-teal {
+      border-left: 3px solid var(--teal);
+      padding: 18px 22px;
+      background: var(--teal-bg);
+      margin: 24px 0;
+      max-width: 600px;
+    }
+    .callout-teal p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-teal strong { color: var(--teal); font-weight: 500; }
+
+    .callout-amber {
+      border-left: 3px solid var(--amber);
+      padding: 18px 22px;
+      background: var(--amber-bg);
+      margin: 24px 0;
+      max-width: 600px;
+    }
+    .callout-amber p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-amber strong { color: var(--amber); font-weight: 500; }
+
+    /* ── CODE BLOCKS ── */
+    .code-block {
+      background: var(--dark);
+      border: 1px solid #2e2820;
+      padding: 20px 24px;
+      margin: 20px 0;
+      max-width: 640px;
+      overflow-x: auto;
+    }
+
+    .code-label {
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #6a6460;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #2e2820;
+    }
+
+    .code-block pre {
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.8;
+      color: #c8c0b4;
+      white-space: pre;
+    }
+
+    .code-block pre .cmd  { color: #9fe1cb; }
+    .code-block pre .cmt  { color: #4a4438; font-style: italic; }
+    .code-block pre .out  { color: #8a8078; }
+    .code-block pre .warn { color: #e8c9b8; }
+    .code-block pre .ok   { color: #6db89a; }
+
+    /* ── STEPS ── */
+    .steps { display: flex; flex-direction: column; gap: 0; max-width: 640px; margin: 24px 0; }
+
+    .step {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 0 20px;
+      padding: 24px 0;
+      border-top: 1px solid var(--rule);
+      align-items: start;
+    }
+    .step:first-child { border-top: none; padding-top: 0; }
+
+    .step-num {
+      font-size: 11px;
+      color: var(--ink3);
+      letter-spacing: .1em;
+      padding-top: 2px;
+      font-weight: 300;
+    }
+
+    .step-title {
+      font-family: var(--serif);
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+
+    .step-desc {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.95;
+      margin-bottom: 12px;
+      max-width: 520px;
+    }
+
+    .step-notice {
+      font-size: 12px;
+      color: var(--terra);
+      font-style: italic;
+      line-height: 1.7;
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .step-notice::before { content: '→'; flex-shrink: 0; color: var(--terra-dim); }
+
+    /* ── TABLES ── */
+    .record-table {
+      border: 1px solid var(--rule);
+      width: 100%;
+      max-width: 600px;
+      margin: 16px 0;
+      border-collapse: collapse;
+    }
+    .record-table thead th {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      background: var(--paper-mid);
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--rule);
+      font-weight: 400;
+    }
+    .record-table tbody td {
+      font-size: 12px;
+      color: var(--ink2);
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+    .record-table tbody tr:last-child td { border-bottom: none; }
+    .record-table .field-name { color: var(--ink); font-weight: 500; width: 220px; }
+    .record-blank {
+      background: #fff;
+      border-bottom: 1px dotted var(--rule-cover);
+      min-width: 180px;
+      height: 20px;
+      display: inline-block;
+    }
+
+    .completion-table {
+      border: 1px solid var(--rule);
+      max-width: 640px;
+      border-collapse: collapse;
+      margin: 20px 0;
+      width: 100%;
+    }
+    .completion-table th {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      background: var(--paper-mid);
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--rule);
+      font-weight: 400;
+    }
+    .completion-table td {
+      font-size: 12px;
+      color: var(--ink2);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      line-height: 1.65;
+    }
+    .completion-table tr:last-child td { border-bottom: none; }
+    .completion-table .item-num { color: var(--teal); font-weight: 500; white-space: nowrap; }
+
+    .story-table {
+      border: 1px solid var(--rule);
+      max-width: 640px;
+      border-collapse: collapse;
+      margin: 20px 0;
+      width: 100%;
+    }
+    .story-table th {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      background: var(--paper-mid);
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--rule);
+      font-weight: 400;
+    }
+    .story-table td {
+      font-size: 12px;
+      color: var(--ink2);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+    .story-table tr:last-child td { border-bottom: none; }
+    .story-table .stage-num { color: var(--ink); font-weight: 500; white-space: nowrap; }
+    .story-table .output-banner { color: var(--ink3); font-style: italic; }
+    .story-table .output-topo { color: var(--teal); font-weight: 500; }
+
+    .learner-table {
+      border: 1px solid var(--rule);
+      max-width: 520px;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    .learner-table th {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      background: var(--paper-mid);
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--rule);
+      font-weight: 400;
+    }
+    .learner-table td {
+      font-size: 12px;
+      color: var(--ink2);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .learner-table tr:last-child td { border-bottom: none; }
+    .learner-table .mono { font-family: var(--mono); color: var(--teal); }
+    .learner-table .yes-cell { color: var(--teal); font-weight: 500; }
+
+    /* ── ACCESS BLOCK ── */
+    .access-block {
+      background: var(--dark);
+      border: 1px solid #2e2820;
+      max-width: 600px;
+      margin: 20px 0;
+    }
+    .access-header {
+      background: #2e2820;
+      padding: 10px 20px;
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #6a6460;
+    }
+    .access-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 0;
+      border-bottom: 1px solid #2e2820;
+    }
+    .access-row:last-child { border-bottom: none; }
+    .access-k {
+      font-size: 10px;
+      letter-spacing: .1em;
+      color: #6a6460;
+      padding: 12px 20px;
+      border-right: 1px solid #2e2820;
+      display: flex;
+      align-items: center;
+    }
+    .access-v {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #9fe1cb;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* ── PART HEADER ── */
+    .part-header {
+      background: var(--dark);
+      padding: 32px 36px 28px;
+      border-left: 4px solid var(--terra);
+    }
+    .part-num {
+      font-size: 9px;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: #6a6460;
+      margin-bottom: 8px;
+    }
+    .part-title {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 400;
+      color: #f0e8e0;
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+    .part-intent {
+      font-size: 13px;
+      color: #8a8078;
+      line-height: 1.8;
+      max-width: 520px;
+      font-style: italic;
+    }
+    .part-slides {
+      font-size: 10px;
+      letter-spacing: .1em;
+      color: var(--terra-dim);
+      margin-top: 12px;
+    }
+
+    /* ── CHECKLIST TAGS ── */
+    .checklist-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .checklist-tag {
+      font-size: 10px;
+      letter-spacing: .08em;
+      color: var(--teal);
+      border: 1px solid var(--teal);
+      padding: 3px 10px;
+      background: var(--teal-bg);
+    }
+
+    /* ── INTERVENTION ── */
+    .intervention {
+      border: 1px solid var(--rule);
+      max-width: 620px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+    .intervention-header {
+      background: var(--paper-mid);
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .intervention-who {
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--terra);
+      font-weight: 500;
+    }
+    .intervention-trap {
+      font-size: 11px;
+      color: var(--ink3);
+      font-style: italic;
+    }
+    .intervention-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+    .intervention-row {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 12px;
+      font-size: 12px;
+      align-items: start;
+    }
+    .intervention-k { color: var(--ink3); letter-spacing: .04em; padding-top: 1px; }
+    .intervention-v { color: var(--ink2); line-height: 1.7; }
+    .intervention-v em { font-style: italic; color: var(--terra); }
+
+    /* ── FOOTER ── */
+    .footer-wrap {
+      background: var(--dark2);
+      margin: 0 -52px;
+      padding: 24px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-top: 1px solid #2e2820;
+      margin-top: 64px;
+    }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-link { font-size: 11px; color: #6a6460; text-decoration: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      nav, .hero { padding-left: 32px; padding-right: 32px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 32px; }
+      .sidebar { display: none; }
+      .part-header { margin: 0; }
+      .footer-wrap { margin: 64px -32px 0; padding: 24px 32px; }
+    }
+    @media (max-width: 640px) {
+      nav, .hero { padding-left: 20px; padding-right: 20px; }
+      .page-body { padding: 0 20px; }
+      .footer-wrap { margin: 64px -20px 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ COVER ══ -->
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="https://hpc.now" class="logo">hpc<em>.now</em></a>
+      <div class="nav-right">
+        <span class="nav-tag">Lab Runbook</span>
+        <span class="nav-mod">M9 · HPC Application Management</span>
+      </div>
+    </nav>
+  </div>
+
+  <div class="hero">
+    <p class="hero-eyebrow">Module M9 · Lab Runbook · v1.2</p>
+    <h1 class="hero-title">
+      HPC Application<br>
+      <em>Management Lab</em>
+    </h1>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Stages</span>
+        <span class="hero-meta-v">Tarball · Lmod · Spack · EasyBuild · Singularity</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Cluster</span>
+        <span class="hero-meta-v">1 head · 1 compute · t3.medium</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Learners</span>
+        <span class="hero-meta-v">shefali · praneeth · tanobir · vasu · velmurugan</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Duration</span>
+        <span class="hero-meta-v">~90 minutes</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Cost</span>
+        <span class="hero-meta-v">~$0.084/hr</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- ══ BODY ══ -->
+<div class="page-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="side-label">Runbook</div>
+    <nav class="side-nav">
+      <a href="#access" class="side-nav-item">Lab Access</a>
+      <a href="#orientation" class="side-nav-item">Cluster Orientation</a>
+      <a href="#story" class="side-nav-item">The Lab Story</a>
+      <div class="side-nav-divider"></div>
+      <div class="side-nav-part">Stages</div>
+      <a href="#stage1" class="side-nav-item">1 · Tarball</a>
+      <a href="#stage2" class="side-nav-item">2 · Lmod</a>
+      <a href="#stage3" class="side-nav-item">3 · Spack</a>
+      <a href="#stage4" class="side-nav-item">4 · EasyBuild</a>
+      <a href="#stage5" class="side-nav-item">5 · Singularity</a>
+      <div class="side-nav-divider"></div>
+      <a href="#completion" class="side-nav-item">Completion Criteria</a>
+      <a href="#issues" class="side-nav-item">Common Issues</a>
+      <a href="#interventions" class="side-nav-item">Interventions</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- ── LAB ACCESS ── -->
+    <section class="section" id="access">
+      <p class="label">lab access</p>
+
+      <p class="prose">All users connect to the same head node using password authentication. The hostname <code>mylab.hpc.now</code> resolves to the current lab IP — it changes between sessions, so clear your known hosts before connecting.</p>
+
+      <div class="access-block">
+        <div class="access-header">SSH Connection Details</div>
+        <div class="access-row">
+          <span class="access-k">Host</span>
+          <span class="access-v">mylab.hpc.now</span>
+        </div>
+        <div class="access-row">
+          <span class="access-k">Username</span>
+          <span class="access-v">&lt;your username&gt;</span>
+        </div>
+        <div class="access-row">
+          <span class="access-k">Password</span>
+          <span class="access-v">hpcnow2026</span>
+        </div>
+        <div class="access-row">
+          <span class="access-k">Usernames</span>
+          <span class="access-v">shefali · praneeth · tanobir · vasu · velmurugan</span>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>SSH known hosts conflict.</strong> Since <code>mylab.hpc.now</code> maps to a different IP each session, SSH will warn you about a changed host key. Fix this before connecting — run one of the following:</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">Option A — Remove just this host</div>
+        <pre><span class="cmd">ssh-keygen -R mylab.hpc.now</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">Option B — Clear entire known hosts file</div>
+        <pre><span class="cmd">rm ~/.ssh/known_hosts</span>
+<span class="cmt"># or on Windows</span>
+<span class="cmd">del %USERPROFILE%\.ssh\known_hosts</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">Connect</div>
+        <pre><span class="cmd">ssh shefali@mylab.hpc.now</span>
+<span class="cmt"># Password: hpcnow2026</span>
+<span class="cmt"># Accept the new host key when prompted — type: yes</span></pre>
+      </div>
+
+      <p class="prose" style="margin-top:20px">All six users connect simultaneously and work independently. Each user has their own install space under <code>/apps/software/$USER/</code> — no coordination needed.</p>
+
+      <table class="learner-table" style="margin-top:28px">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>UID</th>
+            <th>Groups</th>
+            <th>Can install to /apps?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="mono">shefali</td><td>2014</td><td>hpcusers + hpcadmins</td><td class="yes-cell">Yes</td></tr>
+          <tr><td class="mono">praneeth</td><td>2015</td><td>hpcusers + hpcadmins</td><td class="yes-cell">Yes</td></tr>
+          <tr><td class="mono">tanobir</td><td>2016</td><td>hpcusers + hpcadmins</td><td class="yes-cell">Yes</td></tr>
+          <tr><td class="mono">vasu</td><td>2017</td><td>hpcusers + hpcadmins</td><td class="yes-cell">Yes</td></tr>
+          <tr><td class="mono">velmurugan</td><td>2018</td><td>hpcusers + hpcadmins</td><td class="yes-cell">Yes</td></tr>
+          <tr><td class="mono">labguest</td><td>2019</td><td>hpcusers + hpcadmins</td><td class="yes-cell">Yes — Rajesh's test account</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── CLUSTER ORIENTATION ── -->
+    <section class="section" id="orientation">
+      <p class="label">cluster orientation</p>
+
+      <p class="prose">Before the stages begin, run these commands. These are not lab steps — they are the commands you would run on day one at any HPC site.</p>
+
+      <div class="code-block">
+        <div class="code-label">Who am I and what groups do I belong to</div>
+        <pre><span class="cmd">whoami && id</span>
+<span class="cmt"># Note: hpcadmins should appear in your supplementary groups</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">What compute nodes exist</div>
+        <pre><span class="cmd">sinfo -N -l</span>
+<span class="out">NODELIST               NODES PARTITION  STATE  CPUS  MEMORY
+compute-st-t3medium-1      1   compute  idle      2    3886</span>
+<span class="cmt"># Node name: compute-st-t3medium-1</span>
+<span class="cmt"># pcluster names nodes after the queue, not the cluster name</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">What is in /apps right now</div>
+        <pre><span class="cmd">ls -la /apps/</span>
+<span class="out">drwxrwsr-x  root hpcadmins  software/    </span><span class="cmt">← install here ($USER subtree)</span>
+<span class="out">drwxrwsr-x  root hpcadmins  modulefiles/ </span><span class="cmt">← write modulefiles here</span>
+<span class="out">drwxr-xr-x  root root       lmod/        </span><span class="cmt">← Lmod (shared, read-only)</span>
+<span class="out">drwxr-xr-x  root root       spack/       </span><span class="cmt">← Spack (shared, read-only)</span>
+<span class="out">drwxr-xr-x  root root       easybuild/   </span><span class="cmt">← EasyBuild (shared, read-only)</span>
+<span class="out">drwxrwsr-x  root hpcadmins  containers/  </span><span class="cmt">← container images</span>
+<span class="out">-rw-r--r--  root root       env.sh       </span><span class="cmt">← source in every SLURM job</span>
+<span class="cmt"># drwxrwsr-x = setgid s bit — files inherit hpcadmins group</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">Your personal install space — empty at lab start</div>
+        <pre><span class="cmd">ls -la /apps/software/$USER/</span>
+<span class="cmd">ls -la /apps/modulefiles/$USER/</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">Confirm the shared tools are ready</div>
+        <pre><span class="cmd">module --version</span>
+<span class="cmd">source /apps/spack/share/spack/setup-env.sh && spack --version</span>
+<span class="cmd">export PATH=/apps/easybuild/bin:$PATH && eb --version</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">What tarballs are pre-staged</div>
+        <pre><span class="cmd">ls -lh /tmp/tarballs/</span>
+<span class="out">hwloc-2.9.3.tar.gz
+likwid-5.3.0.tar.gz</span></pre>
+      </div>
+
+      <div class="callout-teal">
+        <p><strong>What you now know:</strong> one compute node, your own writable subtree under <code>/apps/software/$USER/</code> and <code>/apps/modulefiles/$USER/</code>, and the shared tools are ready. The stages below build the same tool — <code>likwid-topology</code> — five different ways.</p>
+      </div>
+    </section>
+
+    <!-- ── THE LAB STORY ── -->
+    <section class="section" id="story">
+      <p class="label">the lab story</p>
+
+      <p class="prose">The lab runs <code>likwid-topology -v</code> in Stages 1 and 2, and <code>likwid-topology</code> (no flag) in Stages 3 and 5. This is not an inconsistency — it is the lesson.</p>
+
+      <table class="story-table" style="margin-top:24px">
+        <thead>
+          <tr>
+            <th>Stage</th>
+            <th>Method</th>
+            <th>Command in job</th>
+            <th>Output</th>
+            <th>Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="stage-num">1 — Tarball</td>
+            <td>Manual PATH exports</td>
+            <td><code>likwid-topology -v</code></td>
+            <td class="output-banner">version banner</td>
+            <td>SIGFPE bug in 5.3.0 on AL2 — tarball inherits it</td>
+          </tr>
+          <tr>
+            <td class="stage-num">2 — Lmod</td>
+            <td>module load</td>
+            <td><code>likwid-topology -v</code></td>
+            <td class="output-banner">version banner</td>
+            <td>Same binary, same bug — Lmod fixed the environment, not the software</td>
+          </tr>
+          <tr>
+            <td class="stage-num">3 — Spack</td>
+            <td>Spack module</td>
+            <td><code>likwid-topology</code></td>
+            <td class="output-topo">full topology</td>
+            <td>Spack chose 5.2.2 — different version, no bug</td>
+          </tr>
+          <tr>
+            <td class="stage-num">4 — EasyBuild</td>
+            <td>Interactive only</td>
+            <td>—</td>
+            <td>toolchain list</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td class="stage-num">5 — Singularity</td>
+            <td>Container</td>
+            <td><code>likwid-topology</code></td>
+            <td class="output-topo">full topology</td>
+            <td>AlmaLinux 8 glibc — different runtime, no bug</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout-amber">
+        <p><strong>This table is the argument for HPC software management tools.</strong> Self-built tarballs inherit every upstream bug on this specific kernel, glibc, and CPU microarchitecture. Spack and containers absorb that pain by choosing different versions or providing different runtimes. You will see this play out live across five stages.</p>
+      </div>
+    </section>
+
+    <!-- ══ STAGE 1 ══ -->
+    <section class="section" id="stage1">
+      <div class="part-header">
+        <p class="part-num">Stage 1 of 5 · ~20 minutes</p>
+        <h2 class="part-title">Tarball Install + Manual Environment</h2>
+        <p class="part-intent">The baseline. You are the package manager. Install hwloc and likwid from source into your own subtree, wire the environment manually in a SLURM job script, and observe exactly what you get — and what you do not get — when you build from upstream source.</p>
+        <p class="part-slides">Slide anchor: Slides 5, 6, 7 — /apps tree · Configure/Build/Install · The job script carries the burden.</p>
+      </div>
+
+      <div class="checklist-items" style="margin-top:24px">
+        <span class="checklist-tag">Item 43 — Install to /apps</span>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">1.1</span>
+          <div class="step-body">
+            <p class="step-title">Install hwloc 2.9.3 from tarball</p>
+            <p class="step-desc">hwloc is the dependency. likwid links against it at compile time. Install hwloc first, into your personal <code>/apps/software/$USER/</code> subtree.</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">cd /tmp/tarballs</span>
+<span class="cmd">tar -xzf hwloc-2.9.3.tar.gz</span>
+<span class="cmd">cd hwloc-2.9.3</span>
+<span class="cmd">./configure --prefix=/apps/software/$USER/hwloc/2.9.3</span>
+<span class="cmd">make -j2</span>
+<span class="cmd">make install</span>
+<span class="cmt"># Verify</span>
+<span class="cmd">/apps/software/$USER/hwloc/2.9.3/bin/lstopo --version</span>
+<span class="out">lstopo 2.9.3</span>
+<span class="cmt"># Note: output starts with "lstopo" — not "hwloc"</span></pre>
+            </div>
+            <p class="step-notice"><code>--prefix</code> is not optional. Without it the default is <code>/usr/local/bin</code> — node-local, invisible to compute nodes. Everything in this lab installs to <code>/apps/software/$USER/</code> via NFS.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">1.2</span>
+          <div class="step-body">
+            <p class="step-title">Install likwid 5.3.0 — five edits to config.mk</p>
+            <p class="step-desc">likwid's <code>config.mk</code> must be edited before building. Five edits are required. The defaults use <code>?=</code> (conditional assignment) and comment out hwloc variables with <code>#</code>. The sed patterns must match exactly.</p>
+            <div class="code-block">
+              <div class="code-label">Commands — all five edits required</div>
+              <pre><span class="cmd">cd /tmp/tarballs</span>
+<span class="cmd">tar -xzf likwid-5.3.0.tar.gz</span>
+<span class="cmd">cd likwid-5.3.0</span>
+<span class="cmd">sed -i "s|^PREFIX ?= /usr/local|PREFIX = /apps/software/$USER/likwid/5.3.0|" config.mk</span>
+<span class="cmd">sed -i "s|^#HWLOC_INCLUDE_DIR = .*|HWLOC_INCLUDE_DIR = /apps/software/$USER/hwloc/2.9.3/include|" config.mk</span>
+<span class="cmd">sed -i "s|^#HWLOC_LIB_DIR = .*|HWLOC_LIB_DIR = /apps/software/$USER/hwloc/2.9.3/lib|" config.mk</span>
+<span class="cmd">sed -i "s|^#HWLOC_LIB_NAME = .*|HWLOC_LIB_NAME = hwloc|" config.mk</span>
+<span class="cmd">sed -i "s|^ACCESSMODE = accessdaemon|ACCESSMODE = perf_event|" config.mk</span>
+<span class="cmd">make -j2</span>
+<span class="cmd">make install</span>
+<span class="cmd">/apps/software/$USER/likwid/5.3.0/bin/likwid-topology -v 2>&1 | head -2</span>
+<span class="out">likwid-topology -- Version 5.3.0 ...</span></pre>
+            </div>
+            <div class="callout">
+              <p><strong>Why five edits, not three.</strong> <code>PREFIX ?=</code> uses conditional assignment — <code>PREFIX =</code> does not match it. <code>HWLOC_INCLUDE_DIR</code> and <code>HWLOC_LIB_DIR</code> are commented out by default — the <code>^#</code> prefix uncomments them. <code>HWLOC_LIB_NAME</code> — without it likwid ignores your hwloc path. <code>ACCESSMODE = accessdaemon</code> causes <code>make install</code> to try <code>chown root</code> on the daemon binary — fails as non-root. <code>perf_event</code> skips this entirely.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">1.3</span>
+          <div class="step-body">
+            <p class="step-title">Submit a SLURM job with manual PATH exports</p>
+            <p class="step-desc">The software is installed. To use it in a SLURM job you must manually export <code>PATH</code> and <code>LD_LIBRARY_PATH</code>. Note: use <code>-v</code> not bare <code>likwid-topology</code> — see the notice below.</p>
+            <div class="code-block">
+              <div class="code-label">Write and submit job script</div>
+              <pre><span class="cmd">cat > ~/stage1.sh << EOF</span>
+<span class="out">#!/bin/bash
+#SBATCH --job-name=stage1-$USER
+#SBATCH --ntasks=1
+#SBATCH --output=/home/$USER/stage1_out_%j.txt
+#SBATCH --error=/home/$USER/stage1_err_%j.txt
+
+source /apps/env.sh
+
+# Stage 1 — manual environment wiring
+# PATH finds the binary. LD_LIBRARY_PATH finds what it needs to run.
+export PATH=/apps/software/$USER/likwid/5.3.0/bin:/apps/software/$USER/hwloc/2.9.3/bin:\$PATH
+export LD_LIBRARY_PATH=/apps/software/$USER/hwloc/2.9.3/lib:/apps/software/$USER/likwid/5.3.0/lib:\${LD_LIBRARY_PATH:-}
+
+likwid-topology -v</span>
+<span class="cmd">EOF</span>
+<span class="cmd">sbatch ~/stage1.sh</span>
+<span class="cmd">watch squeue -u $USER</span>
+<span class="cmt"># Ctrl+C when job disappears</span>
+<span class="cmd">cat ~/stage1_out_*.txt</span>
+<span class="out">likwid-topology -- Version 5.3.0 (commit: ...)
+Built with HWLOC support ...</span></pre>
+            </div>
+            <div class="callout">
+              <p><strong>Why <code>-v</code> and not full topology.</strong> likwid 5.3.0 has a SIGFPE (floating point exception) in its topology detection code on Amazon Linux 2 + Skylake-SP CPUs. Bare <code>likwid-topology</code> crashes before printing anything. <code>-v</code> prints the version banner and exits cleanly — proving the binary was found, PATH was correct, and LD_LIBRARY_PATH was correct. The bug lives in the upstream source you compiled. You absorbed it because you built from source. Watch what Spack and the container do differently in Stages 3 and 5.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">1.4</span>
+          <div class="step-body">
+            <p class="step-title">Record Stage 1 findings</p>
+            <table class="record-table">
+              <thead><tr><th>Measurement</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">hwloc install path</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">likwid install path</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">SLURM job ID</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">First line of stage1_out</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">Export lines in job script</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">Did bare likwid-topology work?</td><td>No — SIGFPE on AL2/Skylake-SP with 5.3.0</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ STAGE 2 ══ -->
+    <section class="section" id="stage2">
+      <div class="part-header">
+        <p class="part-num">Stage 2 of 5 · ~20 minutes</p>
+        <h2 class="part-title">Lmod Modulefiles</h2>
+        <p class="part-intent">Same binaries. No recompilation. The admin now controls the environment — not the job script. One module load replaces two export lines. The SIGFPE bug remains — Lmod manages the environment, not the software quality. That distinction is the point.</p>
+        <p class="part-slides">Slide anchor: Slides 8, 9, 10 — How Lmod works · MODULEPATH · Writing a modulefile.</p>
+      </div>
+
+      <div class="checklist-items" style="margin-top:24px">
+        <span class="checklist-tag">Item 42 — module avail, module show, module spider</span>
+        <span class="checklist-tag">Item 43 — Write modulefile, verify on compute node</span>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">2.1</span>
+          <div class="step-body">
+            <p class="step-title">Write the hwloc modulefile</p>
+            <div class="code-block">
+              <div class="code-label">Create /apps/modulefiles/$USER/hwloc/2.9.3.lua</div>
+              <pre><span class="cmd">mkdir -p /apps/modulefiles/$USER/hwloc</span>
+<span class="cmd">cat > /apps/modulefiles/$USER/hwloc/2.9.3.lua << 'EOF'</span>
+<span class="out">whatis("Name:        hwloc")
+whatis("Version:     2.9.3")
+whatis("Description: Hardware locality — topology detection and binding")
+
+local root = "/apps/software/" .. os.getenv("USER") .. "/hwloc/2.9.3"
+
+prepend_path("PATH",            root .. "/bin")
+prepend_path("LD_LIBRARY_PATH", root .. "/lib")
+prepend_path("MANPATH",         root .. "/share/man")</span>
+<span class="cmd">EOF</span></pre>
+            </div>
+            <p class="step-notice"><code>prepend_path</code> not <code>setenv</code>. <code>setenv("PATH", ...)</code> replaces PATH entirely — the shell loses all system binaries. <code>prepend_path</code> adds to the front and preserves everything else. Most common modulefile authoring mistake.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">2.2</span>
+          <div class="step-body">
+            <p class="step-title">Write the likwid modulefile with <code>depends_on</code></p>
+            <div class="code-block">
+              <div class="code-label">Create /apps/modulefiles/$USER/likwid/5.3.0.lua</div>
+              <pre><span class="cmd">mkdir -p /apps/modulefiles/$USER/likwid</span>
+<span class="cmd">cat > /apps/modulefiles/$USER/likwid/5.3.0.lua << 'EOF'</span>
+<span class="out">whatis("Name:        likwid")
+whatis("Version:     5.3.0")
+whatis("Description: Performance tools for x86 multicore")
+
+depends_on("hwloc/2.9.3")
+-- Lmod loads hwloc automatically. The researcher never types it.
+
+local root = "/apps/software/" .. os.getenv("USER") .. "/likwid/5.3.0"
+
+prepend_path("PATH",            root .. "/bin")
+prepend_path("LD_LIBRARY_PATH", root .. "/lib")</span>
+<span class="cmd">EOF</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">2.3</span>
+          <div class="step-body">
+            <p class="step-title">Rebuild the spider cache</p>
+            <div class="code-block">
+              <div class="code-label">Set MODULEPATH and rebuild cache</div>
+              <pre><span class="cmd">export MODULEPATH=/apps/modulefiles/$USER:${MODULEPATH:-}</span>
+<span class="cmd">/apps/lmod/lmod/lmod/libexec/update_lmod_system_cache_files \
+  -d /apps/lmod/cache \
+  -t /apps/lmod/cache/timestamp \
+  /apps/modulefiles/$USER</span>
+<span class="cmd">module avail</span>
+<span class="cmt"># Should show hwloc/2.9.3 and likwid/5.3.0</span>
+<span class="cmd">module spider hwloc</span>
+<span class="cmt"># Confirms cache was rebuilt</span></pre>
+            </div>
+            <p class="step-notice"><code>module avail</code> scans the filesystem — shows new files immediately. <code>module spider</code> reads a pre-built cache — stale until rebuilt. Always rebuild after adding modulefiles.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">2.4</span>
+          <div class="step-body">
+            <p class="step-title">Verify the dependency chain and the bug</p>
+            <div class="code-block">
+              <div class="code-label">Load and inspect</div>
+              <pre><span class="cmd">module purge</span>
+<span class="cmd">module load likwid/5.3.0</span>
+<span class="cmd">module list</span>
+<span class="out">Currently Loaded Modules:
+  1) hwloc/2.9.3        </span><span class="cmt">← loaded automatically by depends_on</span>
+<span class="out">  2) likwid/5.3.0</span>
+<span class="cmd">likwid-topology -v</span>
+<span class="out">likwid-topology -- Version 5.3.0 ...</span>
+<span class="cmt"># Still use -v — Lmod loaded the same binary, same SIGFPE bug</span></pre>
+            </div>
+            <p class="step-notice">Lmod eliminated the environment management burden. It did not eliminate the software quality problem. That is Stage 3.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">2.5</span>
+          <div class="step-body">
+            <p class="step-title">Submit a SLURM job — zero export lines</p>
+            <div class="code-block">
+              <div class="code-label">Write and submit job script</div>
+              <pre><span class="cmd">cat > ~/stage2.sh << EOF</span>
+<span class="out">#!/bin/bash
+#SBATCH --job-name=stage2-$USER
+#SBATCH --ntasks=1
+#SBATCH --output=/home/$USER/stage2_out_%j.txt
+#SBATCH --error=/home/$USER/stage2_err_%j.txt
+
+source /apps/env.sh
+
+# Stage 2 — Lmod controls the environment
+# Zero PATH exports. One module load. Both tools appear.
+export MODULEPATH=/apps/modulefiles/$USER:\${MODULEPATH:-}
+module load likwid/5.3.0
+
+likwid-topology -v</span>
+<span class="cmd">EOF</span>
+<span class="cmd">sbatch ~/stage2.sh</span>
+<span class="cmd">watch squeue -u $USER</span>
+<span class="cmd">cat ~/stage2_out_*.txt</span>
+<span class="out">likwid-topology -- Version 5.3.0 ...</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">2.6</span>
+          <div class="step-body">
+            <p class="step-title">Record Stage 2 findings</p>
+            <table class="record-table">
+              <thead><tr><th>Measurement</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">module list after one module load</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">SLURM job ID</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">Export lines in stage2.sh</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">First line of stage2_out</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">Did Lmod fix the SIGFPE?</td><td>No — same binary, same bug</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ STAGE 3 ══ -->
+    <section class="section" id="stage3">
+      <div class="part-header">
+        <p class="part-num">Stage 3 of 5 · ~15 minutes</p>
+        <h2 class="part-title">Spack</h2>
+        <p class="part-intent">Spack is a shared pre-installed instance. Read the DAG before anything else. Concretization chose version 5.2.2 — not 5.3.0. That is not an accident. Watch what version 5.2.2 produces on the compute node.</p>
+        <p class="part-slides">Slide anchor: Slides 12, 13, 14 — Read the DAG · Two hashes · The reproducibility artifact.</p>
+      </div>
+
+      <div class="checklist-items" style="margin-top:24px">
+        <span class="checklist-tag">Item 44 — spack install with compiler variant</span>
+      </div>
+
+      <div class="callout-amber">
+        <p><strong>Spack version note.</strong> Spack 0.21.2 on this cluster has likwid up to <strong>5.2.2</strong> — not 5.3.0. Use <code>likwid@5.2.2</code> for all Spack commands. The tarball stages use 5.3.0 from <code>/tmp/tarballs</code> — a different install path, not a conflict. Also: <code>spack install -j 2 likwid@5.2.2</code> — the <code>-j 2</code> flag must come before the spec or Spack reads it as a variant.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">3.1</span>
+          <div class="step-body">
+            <p class="step-title">Read the dependency DAG — before anything else</p>
+            <div class="code-block">
+              <div class="code-label">Show the full spec</div>
+              <pre><span class="cmd">source /apps/spack/share/spack/setup-env.sh</span>
+<span class="cmd">spack spec likwid@5.2.2</span>
+<span class="out">likwid@5.2.2%gcc@7.3.1
+    ^hwloc@...%gcc@7.3.1    </span><span class="cmt">← resolved automatically</span>
+<span class="out">    ^libpci@...
+    ^perl@...
+    ^openssl@...
+    ...</span><span class="cmt">            26 total</span></pre>
+            </div>
+            <p class="step-notice">Count the packages. Note the hash on every line — same spec, same hash, same binary, any cluster. Note Spack chose 5.2.2, not 5.3.0. Concretization resolved the version that satisfies the constraints without you knowing about the SIGFPE bug.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">3.2</span>
+          <div class="step-body">
+            <p class="step-title">Confirm the pre-installed package</p>
+            <div class="code-block">
+              <div class="code-label">Find and install</div>
+              <pre><span class="cmd">source /apps/spack/share/spack/setup-env.sh</span>
+<span class="cmd">spack find</span>
+<span class="out">likwid@5.2.2</span>    <span class="cmt">← pre-built by bootstrap.sh</span>
+<span class="cmd">spack install -j 2 likwid@5.2.2</span>
+<span class="out">==> likwid@5.2.2 is already installed in ...</span>
+<span class="cmt"># Correct — not an error</span></pre>
+            </div>
+            <p class="step-notice">The cache hit is the default. bootstrap.sh pre-built likwid once. Every learner's <code>spack install</code> hits this same cache. On a real facility, 50 research groups share one Spack installation — built once, used by all.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">3.3</span>
+          <div class="step-body">
+            <p class="step-title">Enable Lmod integration and load the module</p>
+            <div class="code-block">
+              <div class="code-label">Generate module tree and load</div>
+              <pre><span class="cmd">source /apps/spack/share/spack/setup-env.sh</span>
+<span class="cmd">spack module lmod refresh -y</span>
+<span class="cmd">SPACK_LMOD=$(find /apps/spack -name "Core" -type d 2>/dev/null | head -1)</span>
+<span class="cmd">export MODULEPATH=${SPACK_LMOD}:${MODULEPATH:-}</span>
+<span class="cmd">LIKWID_MOD=$(module avail likwid 2>&1 | grep -oE 'likwid[^[:space:]]+' | head -1)</span>
+<span class="cmd">module load $LIKWID_MOD</span>
+<span class="cmd">which likwid-topology</span>
+<span class="out">/apps/spack/opt/spack/.../likwid-5.2.2-.../bin/likwid-topology</span>
+<span class="cmt"># Path confirms /apps/spack — not /usr/bin</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">3.4</span>
+          <div class="step-body">
+            <p class="step-title">Submit a SLURM job — full topology this time</p>
+            <div class="code-block">
+              <div class="code-label">Write and submit job script</div>
+              <pre><span class="cmd">SPACK_LMOD=$(find /apps/spack -name "Core" -type d 2>/dev/null | head -1)</span>
+<span class="cmd">cat > ~/stage3.sh << EOF</span>
+<span class="out">#!/bin/bash
+#SBATCH --job-name=stage3-$USER
+#SBATCH --ntasks=1
+#SBATCH --output=/home/$USER/stage3_out_%j.txt
+#SBATCH --error=/home/$USER/stage3_err_%j.txt
+
+source /apps/env.sh
+source /apps/spack/share/spack/setup-env.sh
+export MODULEPATH=${SPACK_LMOD}:\${MODULEPATH:-}
+
+LIKWID_MOD=\$(module avail likwid 2>&1 | grep -oE 'likwid[^[:space:]]+' | head -1)
+[ -n "\$LIKWID_MOD" ] && module load "\$LIKWID_MOD"
+
+likwid-topology</span>
+<span class="cmd">EOF</span>
+<span class="cmd">sbatch ~/stage3.sh</span>
+<span class="cmd">watch squeue -u $USER</span>
+<span class="cmd">cat ~/stage3_out_*.txt</span>
+<span class="out">Machine (2 packages):
+  Package L#0 ...</span>
+<span class="cmt"># Full topology — no SIGFPE</span>
+<span class="cmt"># Spack chose 5.2.2. You did not have to know about the bug.</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">3.5</span>
+          <div class="step-body">
+            <p class="step-title">Locate the reproducibility metadata</p>
+            <div class="code-block">
+              <div class="code-label">Find and read spec.json</div>
+              <pre><span class="cmd">source /apps/spack/share/spack/setup-env.sh</span>
+<span class="cmd">find $(spack location -i likwid@5.2.2)/.spack -name "spec.json" | head -1</span>
+<span class="cmd">cat $(find $(spack location -i likwid@5.2.2)/.spack -name "spec.json" | head -1)</span></pre>
+            </div>
+            <p class="step-notice">In your lab report: one sentence explaining what <code>spec.json</code> is for. This is the Stage 3 written deliverable.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">3.6</span>
+          <div class="step-body">
+            <p class="step-title">Record Stage 3 findings</p>
+            <table class="record-table">
+              <thead><tr><th>Measurement</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">spack spec — packages in DAG</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">Spack likwid version</td><td>5.2.2</td></tr>
+                <tr><td class="field-name">which likwid-topology — /apps/spack path</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">SLURM job ID</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">Did full topology print?</td><td>Yes — 5.2.2, no SIGFPE</td></tr>
+                <tr><td class="field-name">spec.json is for</td><td><span class="record-blank"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ STAGE 4 ══ -->
+    <section class="section" id="stage4">
+      <div class="part-header">
+        <p class="part-num">Stage 4 of 5 · ~10 minutes · Interactive only</p>
+        <h2 class="part-title">EasyBuild Recognition</h2>
+        <p class="part-intent">No build. No SLURM job. Read an easyconfig. Name the toolchain. Know what you are looking at when you encounter EasyBuild at a facility that uses it. That is the 90-day skill level.</p>
+        <p class="part-slides">Slide anchor: Slide 16 — Read the recipe. Name the toolchain.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">4.1</span>
+          <div class="step-body">
+            <p class="step-title">List available toolchains</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">export PATH=/apps/easybuild/bin:$PATH</span>
+<span class="cmd">eb --list-toolchains</span>
+<span class="cmt"># Look for: foss, intel, gompi</span></pre>
+            </div>
+            <table class="record-table" style="margin-top:12px">
+              <thead><tr><th>Toolchain</th><th>What it contains</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">foss</td><td>GCC + OpenMPI + OpenBLAS + FFTW</td></tr>
+                <tr><td class="field-name">intel</td><td>Intel compilers + MKL + Intel MPI</td></tr>
+                <tr><td class="field-name">gompi</td><td>GCC + OpenMPI only</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">4.2</span>
+          <div class="step-body">
+            <p class="step-title">Search for the likwid easyconfig and read it</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">eb --search likwid 2>/dev/null | grep -i "likwid" | head -5</span>
+<span class="cmd">EB_FILE=$(eb --search likwid 2>/dev/null | grep -i "likwid" | head -1 | awk '{print $NF}')</span>
+<span class="cmd">cat "$EB_FILE"</span></pre>
+            </div>
+            <p class="step-desc" style="margin-top:12px">Identify these fields in the output:</p>
+            <table class="record-table">
+              <thead><tr><th>Field</th><th>What it means</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">easyblock</td><td>Which build system EasyBuild uses</td></tr>
+                <tr><td class="field-name">toolchain</td><td>Guaranteed compatible compiler + MPI + math libs</td></tr>
+                <tr><td class="field-name">sources</td><td>Where to download the tarball</td></tr>
+                <tr><td class="field-name">configopts</td><td>Flags passed to ./configure</td></tr>
+              </tbody>
+            </table>
+            <p class="step-notice">Reading the recipe and naming the toolchain is the 90-day skill level for EasyBuild. Authoring easyconfigs from scratch is a 6-month skill.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">4.3</span>
+          <div class="step-body">
+            <p class="step-title">Record Stage 4 findings</p>
+            <table class="record-table">
+              <thead><tr><th>Measurement</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">foss toolchain contains</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">intel toolchain contains</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">likwid easyblock type</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">likwid toolchain in easyconfig</td><td><span class="record-blank"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ STAGE 5 ══ -->
+    <section class="section" id="stage5">
+      <div class="part-header">
+        <p class="part-num">Stage 5 of 5 · ~10 minutes</p>
+        <h2 class="part-title">Singularity Container</h2>
+        <p class="part-intent">Same tool family. Zero installation on the cluster. The container uses AlmaLinux 8 + a different glibc — the SIGFPE bug does not exist in this runtime. The admin's job is three actions: pull (done by bootstrap), bind, verify.</p>
+        <p class="part-slides">Slide anchor: Slides 17, 17A, 18 — Docker vs Singularity architecture · What the admin does with a container.</p>
+      </div>
+
+      <div class="checklist-items" style="margin-top:24px">
+        <span class="checklist-tag">Item 45 — Singularity in SLURM with bind mounts</span>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">5.1</span>
+          <div class="step-body">
+            <p class="step-title">Confirm the container image is available</p>
+            <div class="code-block">
+              <div class="code-label">Command</div>
+              <pre><span class="cmd">ls -lh /apps/containers/hwloc/hwloc-likwid.sif</span>
+<span class="cmt"># AlmaLinux 8 + hwloc + likwid installed via yum</span>
+<span class="cmt"># Pre-built by bootstrap.sh before the lab session</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">5.2</span>
+          <div class="step-body">
+            <p class="step-title">Verify likwid-topology runs inside the container</p>
+            <div class="code-block">
+              <div class="code-label">Interactive test — both bind flags required</div>
+              <pre><span class="cmd">SCMD=$(command -v singularity 2>/dev/null || command -v apptainer 2>/dev/null)</span>
+<span class="cmd">${SCMD} exec \
+  --bind /tmp:/tmp \
+  --bind /etc/passwd:/etc/passwd:ro \
+  --bind /etc/group:/etc/group:ro \
+  /apps/containers/hwloc/hwloc-likwid.sif \
+  likwid-topology</span>
+<span class="out">Machine (2 packages):
+  Package L#0 ...</span>
+<span class="cmt"># Full topology — AlmaLinux 8 glibc, no SIGFPE</span></pre>
+            </div>
+            <div class="callout">
+              <p><strong>Why <code>/etc/passwd</code> and <code>/etc/group</code> bind mounts are required.</strong> Apptainer checks your running UID against the container's <code>/etc/passwd</code> before the container starts. The AlmaLinux 8 base image has no entry for UIDs 2014–2019. Without these binds, Apptainer rejects the launch with: <code>FATAL: Couldn't determine user account information: user: unknown userid NNNN</code>. Binding the host's passwd and group files is the standard pattern on all shared HPC clusters running containers.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">5.3</span>
+          <div class="step-body">
+            <p class="step-title">Submit a SLURM job via the container</p>
+            <div class="code-block">
+              <div class="code-label">Write and submit job script</div>
+              <pre><span class="cmd">SCMD=$(command -v singularity 2>/dev/null || command -v apptainer 2>/dev/null)</span>
+<span class="cmd">cat > ~/stage5.sh << EOF</span>
+<span class="out">#!/bin/bash
+#SBATCH --job-name=stage5-$USER
+#SBATCH --ntasks=1
+#SBATCH --output=/home/$USER/stage5_out_%j.txt
+#SBATCH --error=/home/$USER/stage5_err_%j.txt
+
+source /apps/env.sh
+
+# Stage 5 — same tool family, different runtime
+# No installation. No modulefile. No PATH export.
+# /etc/passwd and /etc/group required for UID resolution in container
+${SCMD} exec \
+  --bind /tmp:/tmp \
+  --bind /etc/passwd:/etc/passwd:ro \
+  --bind /etc/group:/etc/group:ro \
+  /apps/containers/hwloc/hwloc-likwid.sif \
+  likwid-topology</span>
+<span class="cmd">EOF</span>
+<span class="cmd">sbatch ~/stage5.sh</span>
+<span class="cmd">watch squeue -u $USER</span>
+<span class="cmd">cat ~/stage5_out_*.txt</span>
+<span class="out">Machine (2 packages):
+  Package L#0 ...</span>
+<span class="cmt"># Full topology from the container on the compute node</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">5.4</span>
+          <div class="step-body">
+            <p class="step-title">Record Stage 5 findings</p>
+            <table class="record-table">
+              <thead><tr><th>Measurement</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">SLURM job ID</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">First line of stage5_out</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">Container image path</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">singularity or apptainer?</td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">Did full topology print?</td><td>Yes — AlmaLinux 8 glibc, no SIGFPE</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ COMPLETION CRITERIA ══ -->
+    <section class="section" id="completion">
+      <p class="label">completion criteria</p>
+
+      <p class="prose">Every learner must have the following before Rajesh moves to debrief. These map directly to the checklist items this module builds.</p>
+
+      <table class="completion-table">
+        <thead>
+          <tr>
+            <th>Evidence</th>
+            <th>Checklist</th>
+            <th>Stage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>~/stage1_out_*.txt</code> contains likwid version banner</td>
+            <td class="item-num">Item 43</td>
+            <td>Stage 1</td>
+          </tr>
+          <tr>
+            <td>hwloc + likwid installed under <code>/apps/software/$USER/</code></td>
+            <td class="item-num">Item 43</td>
+            <td>Stage 1</td>
+          </tr>
+          <tr>
+            <td><code>~/stage2_out_*.txt</code> contains likwid version banner</td>
+            <td class="item-num">Item 42, 43</td>
+            <td>Stage 2</td>
+          </tr>
+          <tr>
+            <td>Stage 2 job script has zero PATH/LD_LIBRARY_PATH export lines</td>
+            <td class="item-num">Item 43</td>
+            <td>Stage 2</td>
+          </tr>
+          <tr>
+            <td><code>module list</code> shows hwloc AND likwid from one <code>module load</code></td>
+            <td class="item-num">Item 42</td>
+            <td>Stage 2</td>
+          </tr>
+          <tr>
+            <td><code>spack spec</code> output showing full DAG including hwloc</td>
+            <td class="item-num">Item 44</td>
+            <td>Stage 3</td>
+          </tr>
+          <tr>
+            <td><code>which likwid-topology</code> confirms <code>/apps/spack</code> path</td>
+            <td class="item-num">Item 44</td>
+            <td>Stage 3</td>
+          </tr>
+          <tr>
+            <td><code>~/stage3_out_*.txt</code> contains full topology output</td>
+            <td class="item-num">Item 44</td>
+            <td>Stage 3</td>
+          </tr>
+          <tr>
+            <td>One sentence explaining what <code>spec.json</code> records</td>
+            <td class="item-num">Item 44</td>
+            <td>Stage 3</td>
+          </tr>
+          <tr>
+            <td><code>eb --list-toolchains</code> with foss/intel/gompi identified</td>
+            <td class="item-num">—</td>
+            <td>Stage 4</td>
+          </tr>
+          <tr>
+            <td><code>~/stage5_out_*.txt</code> contains full topology output</td>
+            <td class="item-num">Item 45</td>
+            <td>Stage 5</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ══ COMMON ISSUES ══ -->
+    <section class="section" id="issues">
+      <p class="label">common issues and fixes</p>
+
+      <div class="callout">
+        <p><strong>Stage 1/2: Floating point exception when running <code>likwid-topology</code> with no flags.</strong><br>
+        Known SIGFPE bug in likwid 5.3.0 topology detection on Amazon Linux 2 + Skylake-SP. Use <code>likwid-topology -v</code> instead — prints the version banner and exits cleanly, proving the binary works. Full topology is available in Stage 3 (Spack chose 5.2.2) and Stage 5 (container uses AlmaLinux 8 glibc).</p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Stage 1: <code>likwid-topology: command not found</code> in SLURM job.</strong><br>
+        PATH was set in your interactive session but not exported in the job script. Add the export lines inside the job script — not just your terminal.</p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Stage 1: <code>libhwloc.so.15: cannot open shared object file</code></strong><br>
+        LD_LIBRARY_PATH is missing in the job script. Export <code>/apps/software/$USER/hwloc/2.9.3/lib</code> inside the job.</p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Stage 1: <code>make install</code> fails — permission denied on daemon binary.</strong><br>
+        The ACCESSMODE sed edit was missed. Check: <code>grep ACCESSMODE config.mk</code> — if <code>accessdaemon</code>, re-run: <code>sed -i "s|^ACCESSMODE = accessdaemon|ACCESSMODE = perf_event|" config.mk</code></p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Stage 2: SLURM job fails but interactive works.</strong><br>
+        MODULEPATH not set in the job environment. Add <code>export MODULEPATH=/apps/modulefiles/$USER:${MODULEPATH:-}</code> before the <code>module load</code> line in the job script.</p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Stage 2: <code>module spider</code> does not show the new modulefile.</strong><br>
+        Spider cache stale. Run: <code>/apps/lmod/lmod/lmod/libexec/update_lmod_system_cache_files -d /apps/lmod/cache -t /apps/lmod/cache/timestamp /apps/modulefiles/$USER</code></p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Stage 2: <code>module list</code> shows only likwid — not hwloc.</strong><br>
+        <code>depends_on("hwloc/2.9.3")</code> is missing from the likwid modulefile. Add it and reload.</p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Stage 3: variant error on <code>spack install</code>.</strong><br>
+        You wrote <code>spack install likwid@5.2.2 -j2</code> — Spack reads <code>-j2</code> as a variant. Use: <code>spack install -j 2 likwid@5.2.2</code> (flag before the spec).</p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Stage 3: <code>Cannot satisfy 'likwid@5.3.0'</code>.</strong><br>
+        Spack 0.21.2 does not have likwid 5.3.0. Use <code>likwid@5.2.2</code> for all Spack commands.</p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Stage 5: <code>FATAL: Couldn't determine user account information: unknown userid NNNN</code>.</strong><br>
+        The container's <code>/etc/passwd</code> has no entry for your UID. Add both bind flags: <code>--bind /etc/passwd:/etc/passwd:ro --bind /etc/group:/etc/group:ro</code>. This is standard practice on all shared HPC clusters running containers.</p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Stage 5: <code>singularity: command not found</code>.</strong><br>
+        Try: <code>command -v singularity || command -v apptainer</code></p>
+      </div>
+    </section>
+
+    <!-- ══ INSTRUCTOR INTERVENTIONS ══ -->
+    <section class="section" id="interventions">
+      <p class="label">instructor interventions</p>
+
+      <p class="prose">For Rajesh only. Do not share with learners.</p>
+
+      <div style="display:flex; flex-direction:column; gap:16px; margin-top:24px;">
+
+        <div class="intervention">
+          <div class="intervention-header">
+            <span class="intervention-who">Any learner</span>
+            <span class="intervention-trap">Job crashes with Floating point exception — asks why</span>
+          </div>
+          <div class="intervention-body">
+            <div class="intervention-row">
+              <span class="intervention-k">When</span>
+              <span class="intervention-v">Stage 1 or 2 — learner runs <code>likwid-topology</code> with no flag and job crashes before printing anything</span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">Spring</span>
+              <span class="intervention-v"><em>"Read the error. PATH was correct — the binary was found. LD_LIBRARY_PATH was correct — the libraries loaded. The binary itself crashed. You built likwid 5.3.0 from source on Amazon Linux 2 with Skylake-SP. The upstream maintainer did not test that exact combination. You absorbed that cost. Now watch what Spack does in Stage 3 — what version did it choose, and why?"</em></span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">After</span>
+              <span class="intervention-v">Self-built tarballs inherit every upstream bug on this specific kernel, glibc, and CPU. Spack's concretization resolved 5.2.2 — not 5.3.0 — without you knowing about the bug. That is what reproducible builds protect against.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="intervention">
+          <div class="intervention-header">
+            <span class="intervention-who">Any learner</span>
+            <span class="intervention-trap">Installs to /usr/local instead of /apps/software/$USER/</span>
+          </div>
+          <div class="intervention-body">
+            <div class="intervention-row">
+              <span class="intervention-k">When</span>
+              <span class="intervention-v">Stage 1 — learner omits <code>--prefix</code> from <code>./configure</code></span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">Spring</span>
+              <span class="intervention-v"><em>"Where did that install go? Run <code>which lstopo</code>. Now SSH to the compute node and run <code>which lstopo</code> there. Do you see it?"</em></span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">After</span>
+              <span class="intervention-v"><code>/usr/local/bin</code> is node-local. The compute node cannot see it. <code>/apps</code> is NFS-exported — every node sees it automatically. Re-run <code>./configure</code> with <code>--prefix=/apps/software/$USER/hwloc/2.9.3</code>.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="intervention">
+          <div class="intervention-header">
+            <span class="intervention-who">Any learner</span>
+            <span class="intervention-trap">Three seds instead of five in Stage 1.2</span>
+          </div>
+          <div class="intervention-body">
+            <div class="intervention-row">
+              <span class="intervention-k">When</span>
+              <span class="intervention-v">Stage 1 — <code>make install</code> fails with permission error, or likwid silently uses internal hwloc instead of the installed one</span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">Spring</span>
+              <span class="intervention-v"><em>"Did <code>make install</code> fail on the daemon binary? Check your ACCESSMODE. And check whether HWLOC_LIB_NAME is set — without it likwid ignores your hwloc path entirely."</em></span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">After</span>
+              <span class="intervention-v">Five edits are required. Re-run all five seds on <code>config.mk</code>, then <code>make -j2 && make install</code> again.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="intervention">
+          <div class="intervention-header">
+            <span class="intervention-who">Any learner</span>
+            <span class="intervention-trap">Uses setenv instead of prepend_path for PATH in modulefile</span>
+          </div>
+          <div class="intervention-body">
+            <div class="intervention-row">
+              <span class="intervention-k">When</span>
+              <span class="intervention-v">Stage 2 — after <code>module load</code>, learner cannot run <code>ls</code>, <code>cd</code>, or other system commands</span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">Spring</span>
+              <span class="intervention-v"><em>"Run <code>echo $PATH</code> after loading your module. What do you see? Now look at your modulefile — did you use <code>setenv</code> or <code>prepend_path</code> for PATH?"</em></span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">After</span>
+              <span class="intervention-v"><code>setenv</code> replaces PATH entirely — the shell loses all system binaries. Fix the modulefile, reload.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="intervention">
+          <div class="intervention-header">
+            <span class="intervention-who">Any learner</span>
+            <span class="intervention-trap">Stage 2 module works interactively but SLURM job fails</span>
+          </div>
+          <div class="intervention-body">
+            <div class="intervention-row">
+              <span class="intervention-k">When</span>
+              <span class="intervention-v">Stage 2 — SLURM job output shows <code>module: command not found</code> or <code>command not found</code></span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">Spring</span>
+              <span class="intervention-v"><em>"Echo <code>$MODULEPATH</code> inside the job script and check the output file. Is MODULEPATH set? Add <code>export MODULEPATH=/apps/modulefiles/$USER:${MODULEPATH:-}</code> before the module load line."</em></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="intervention">
+          <div class="intervention-header">
+            <span class="intervention-who">Any learner</span>
+            <span class="intervention-trap">Spack cache hit treated as an error</span>
+          </div>
+          <div class="intervention-body">
+            <div class="intervention-row">
+              <span class="intervention-k">When</span>
+              <span class="intervention-v">Stage 3 — learner sees "already installed" and thinks the install failed</span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">Spring</span>
+              <span class="intervention-v"><em>"Spack said it's already installed. Is that a problem? Run <code>spack find likwid</code> — is it there? Run <code>module avail likwid</code> — can you load it? bootstrap.sh pre-built this before you logged in. This is the feature."</em></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="intervention">
+          <div class="intervention-header">
+            <span class="intervention-who">Any learner</span>
+            <span class="intervention-trap">Stage 5 container rejects UID with FATAL error</span>
+          </div>
+          <div class="intervention-body">
+            <div class="intervention-row">
+              <span class="intervention-k">When</span>
+              <span class="intervention-v">Stage 5 — <code>singularity exec</code> fails with <code>FATAL: unknown userid NNNN</code></span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">Spring</span>
+              <span class="intervention-v"><em>"Read the FATAL message. Apptainer checks your UID against the container's <code>/etc/passwd</code> before the container starts. Your UID is not in the AlmaLinux 8 base image. What do you bind from the host to fix it?"</em></span>
+            </div>
+            <div class="intervention-row">
+              <span class="intervention-k">After</span>
+              <span class="intervention-v">Add <code>--bind /etc/passwd:/etc/passwd:ro --bind /etc/group:/etc/group:ro</code> to the <code>singularity exec</code> command. This is standard on every shared HPC cluster running containers. The container sees your identity — all operations inside run as you.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <div class="footer-wrap">
+      <span class="footer-copy">hpc.now · M9 · HPC Application Management · Lab Runbook · v1.2</span>
+      <a href="mailto:rajesh@hpc.now" class="footer-link">rajesh@hpc.now</a>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(item => item.classList.remove('is-active'));
+        const id = entry.target.getAttribute('id');
+        const active = document.querySelector(`.side-nav-item[href="#${id}"]`);
+        if (active) active.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
