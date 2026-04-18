@@ -233,7 +233,7 @@
     <div class="hero-meta">
       <div class="hero-meta-item"><span class="hero-meta-k">Stages</span><span class="hero-meta-v">Tarball · Lmod · Spack · EasyBuild · Singularity</span></div>
       <div class="hero-meta-item"><span class="hero-meta-k">Cluster</span><span class="hero-meta-v">1 head · 1 compute · t3.medium · ap-south-1</span></div>
-      <div class="hero-meta-item"><span class="hero-meta-k">Learners</span><span class="hero-meta-v">shefali · praneeth · tanobir · vasu · velmurugan</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Learners</span><span class="hero-meta-v">chandra · arjun · labguest</span></div>
       <div class="hero-meta-item"><span class="hero-meta-k">Duration</span><span class="hero-meta-v">~90 minutes</span></div>
       <div class="hero-meta-item"><span class="hero-meta-k">Cost</span><span class="hero-meta-v">~$0.084/hr</span></div>
       <div class="hero-meta-item"><span class="hero-meta-k">Validated</span><span class="hero-meta-v validated">15 / 15 PASS</span></div>
@@ -295,7 +295,7 @@
         <div class="access-row"><span class="access-k">Note</span><span class="access-v">resolves to current lab IP — changes each deploy</span></div>
         <div class="access-row"><span class="access-k">Username</span><span class="access-v">&lt;your username&gt;</span></div>
         <div class="access-row"><span class="access-k">Password</span><span class="access-v">hpcnow2026</span></div>
-        <div class="access-row"><span class="access-k">Usernames</span><span class="access-v">shefali · praneeth · tanobir · vasu · velmurugan</span></div>
+        <div class="access-row"><span class="access-k">Usernames</span><span class="access-v">chandra · arjun · labguest</span></div>
       </div>
 
       <div class="callout">
@@ -315,7 +315,7 @@
 
       <div class="code-block">
         <div class="code-label">Connect</div>
-        <pre><span class="cmd">ssh shefali@mylab.hpc.now</span>
+        <pre><span class="cmd">ssh chandra@mylab.hpc.now</span>
 <span class="cmt"># Password: hpcnow2026</span>
 <span class="cmt"># Accept the new host key when prompted — type: yes</span></pre>
       </div>
@@ -325,12 +325,9 @@
       <table class="learner-table" style="margin-top:28px">
         <thead><tr><th>Username</th><th>UID</th><th>Groups</th><th>Can install to /apps?</th></tr></thead>
         <tbody>
-          <tr><td class="mono">shefali</td><td>2014</td><td>hpcusers + hpcadmins</td><td class="yes-cell">Yes</td></tr>
-          <tr><td class="mono">praneeth</td><td>2015</td><td>hpcusers + hpcadmins</td><td class="yes-cell">Yes</td></tr>
-          <tr><td class="mono">tanobir</td><td>2016</td><td>hpcusers + hpcadmins</td><td class="yes-cell">Yes</td></tr>
-          <tr><td class="mono">vasu</td><td>2017</td><td>hpcusers + hpcadmins</td><td class="yes-cell">Yes</td></tr>
-          <tr><td class="mono">velmurugan</td><td>2018</td><td>hpcusers + hpcadmins</td><td class="yes-cell">Yes</td></tr>
-          <tr><td class="mono">labguest</td><td>2019</td><td>hpcusers + hpcadmins</td><td class="yes-cell">Yes — Rajesh's test account</td></tr>
+          <tr><td class="mono">chandra</td><td>2011</td><td>hpcusers + hpcadmins</td><td class="yes-cell">Yes</td></tr>
+          <tr><td class="mono">arjun</td><td>2010</td><td>hpcusers + hpcadmins</td><td class="yes-cell">Yes</td></tr>
+          <tr><td class="mono">labguest</td><td>2013</td><td>hpcusers + hpcadmins</td><td class="yes-cell">Yes — Rajesh's test account</td></tr>
         </tbody>
       </table>
     </section>
@@ -1201,7 +1198,7 @@ ${SCMD} exec \
           <tr><td class="infra-key">Container OS</td><td class="infra-val">AlmaLinux 8 + likwid 5.3.0 built against glibc 2.28</td></tr>
           <tr><td class="infra-key">Container binary</td><td class="infra-val">singularity or apptainer (detect at runtime)</td></tr>
           <tr><td class="infra-key">Container bind mounts</td><td class="infra-val warn">/tmp + /etc/passwd:ro + /etc/group:ro (all three required)</td></tr>
-          <tr><td class="infra-key">Users</td><td class="infra-val">shefali 2014 · praneeth 2015 · tanobir 2016 · vasu 2017 · velmurugan 2018 · labguest 2019</td></tr>
+          <tr><td class="infra-key">Users</td><td class="infra-val">chandra 2011 · arjun 2010 · labguest 2013</td></tr>
           <tr><td class="infra-key">Password</td><td class="infra-val">hpcnow2026</td></tr>
           <tr><td class="infra-key">Primary group</td><td class="infra-val">hpcusers (GID 3000)</td></tr>
           <tr><td class="infra-key">Supplementary group</td><td class="infra-val">hpcadmins (GID 4000)</td></tr>
