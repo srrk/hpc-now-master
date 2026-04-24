@@ -3,1038 +3,2625 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 01 Lab Runbook — hpc.now</title>
+<title>HPC Bootcamp Runbook · hpc-bootcamp-lean</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-
-  /* ─── TOKENS ─────────────────────────────────────────────── */
-  :root {
-    --black:   #1A1A1A;
-    --red:     #B03A2E;
-    --grey:    #6B6B6B;
-    --light:   #F5F5F5;
-    --border:  #E0E0E0;
-    --white:   #FFFFFF;
-    --code-bg: #F7F7F7;
-  }
-
-  /* ─── RESET ──────────────────────────────────────────────── */
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  /* ─── BASE ───────────────────────────────────────────────── */
-  html { font-size: 16px; scroll-behavior: smooth; }
-
-  body {
-    font-family: 'Courier New', Courier, monospace;
-    background: var(--white);
-    color: var(--black);
-    line-height: 1.7;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* ─── LAYOUT ─────────────────────────────────────────────── */
-  .page {
-    max-width: 780px;
-    margin: 0 auto;
-    padding: 0 32px;
-  }
-
-  /* ─── HEADER ─────────────────────────────────────────────── */
-  .site-header {
-    border-bottom: 1px solid var(--black);
-    padding: 28px 0 20px;
-    margin-bottom: 56px;
-  }
-
-  .site-header .wordmark {
-    font-size: 13px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--black);
-    text-decoration: none;
-  }
-
-  .site-header .wordmark span {
-    color: var(--red);
-  }
-
-  .hero {
-    padding: 48px 0 40px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 56px;
-  }
-
-  .hero-label {
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--red);
-    margin-bottom: 16px;
-  }
-
-  .hero-title {
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    color: var(--black);
-    margin-bottom: 16px;
-  }
-
-  .hero-title em {
-    font-style: normal;
-    color: var(--red);
-  }
-
-  .hero-meta {
-    font-size: 12px;
-    color: var(--grey);
-    letter-spacing: 0.06em;
-  }
-
-  /* ─── NAV ────────────────────────────────────────────────── */
-  .toc {
-    background: var(--light);
-    border-left: 3px solid var(--red);
-    padding: 24px 28px;
-    margin-bottom: 56px;
-  }
-
-  .toc-title {
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--grey);
-    margin-bottom: 14px;
-  }
-
-  .toc ol {
-    list-style: none;
-    counter-reset: toc;
-  }
-
-  .toc ol li {
-    counter-increment: toc;
-    margin-bottom: 6px;
-    font-size: 13px;
-  }
-
-  .toc ol li::before {
-    content: counter(toc, decimal-leading-zero) " — ";
-    color: var(--red);
-    font-size: 11px;
-  }
-
-  .toc a {
-    color: var(--black);
-    text-decoration: none;
-  }
-
-  .toc a:hover { color: var(--red); }
-
-  /* ─── SECTIONS ───────────────────────────────────────────── */
-  section {
-    margin-bottom: 64px;
-  }
-
-  .section-label {
-    font-size: 10px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--red);
-    margin-bottom: 10px;
-  }
-
-  .section-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--black);
-    border-bottom: 1px solid var(--black);
-    padding-bottom: 10px;
-    margin-bottom: 28px;
-  }
-
-  /* ─── CLUSTER BLOCKS ─────────────────────────────────────── */
-  .cluster {
-    margin-bottom: 40px;
-  }
-
-  .cluster-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .cluster-tag {
-    background: var(--black);
-    color: var(--white);
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    padding: 3px 8px;
-  }
-
-  .cluster-title {
-    font-size: 13px;
-    color: var(--grey);
-    letter-spacing: 0.06em;
-  }
-
-  /* ─── CODE BLOCKS ────────────────────────────────────────── */
-  .cmd-block {
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--black);
-    padding: 16px 20px;
-    margin-bottom: 12px;
-    position: relative;
-  }
-
-  .cmd-block code {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 13px;
-    color: var(--black);
-    display: block;
-    line-height: 1.8;
-    white-space: pre;
-  }
-
-  .cmd-block .prompt {
-    color: var(--red);
-    user-select: none;
-  }
-
-  /* ─── RECORD BOX ─────────────────────────────────────────── */
-  .record {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--red);
-    padding: 14px 20px;
-    margin: 16px 0 28px;
-    font-size: 12px;
-  }
-
-  .record-label {
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--red);
-    margin-bottom: 8px;
-  }
-
-  .record ul {
-    list-style: none;
-    padding: 0;
-  }
-
-  .record ul li {
-    padding: 3px 0;
-    font-size: 12px;
-    color: var(--black);
-  }
-
-  .record ul li::before {
-    content: "→ ";
-    color: var(--red);
-  }
-
-  /* ─── NOTICE BOXES ───────────────────────────────────────── */
-  .notice {
-    background: var(--light);
-    border: 1px solid var(--border);
-    padding: 14px 20px;
-    margin: 20px 0;
-    font-size: 12px;
-    color: var(--grey);
-  }
-
-  .notice strong {
-    color: var(--black);
-    display: block;
-    margin-bottom: 4px;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  /* ─── STEP NUMBERS ───────────────────────────────────────── */
-  .steps {
-    counter-reset: step;
-  }
-
-  .step {
-    counter-increment: step;
-    padding-left: 40px;
-    position: relative;
-    margin-bottom: 32px;
-  }
-
-  .step::before {
-    content: counter(step, decimal-leading-zero);
-    position: absolute;
-    left: 0;
-    top: 0;
-    font-size: 11px;
-    color: var(--red);
-    letter-spacing: 0.1em;
-    line-height: 1.7;
-  }
-
-  .step-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--black);
-    margin-bottom: 12px;
-  }
-
-  /* ─── PREDICTION BOX ─────────────────────────────────────── */
-  .prediction-box {
-    border: 2px solid var(--black);
-    padding: 20px 24px;
-    margin: 20px 0 28px;
-  }
-
-  .prediction-box .prediction-label {
-    font-size: 10px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--red);
-    margin-bottom: 10px;
-  }
-
-  .prediction-box p {
-    font-size: 13px;
-    color: var(--black);
-    margin-bottom: 8px;
-  }
-
-  /* ─── TRIAD EXAMPLE ──────────────────────────────────────── */
-  .triad-example {
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    padding: 16px 20px;
-    margin: 12px 0;
-    font-size: 12px;
-    overflow-x: auto;
-  }
-
-  .triad-example code {
-    font-family: 'Courier New', Courier, monospace;
-    display: block;
-    line-height: 2;
-    white-space: pre;
-  }
-
-  .triad-example .highlight {
-    background: #FFF3CD;
-    display: inline;
-  }
-
-  .triad-example .dim {
-    color: var(--grey);
-  }
-
-  /* ─── QUICK REF ──────────────────────────────────────────── */
-  .quick-ref {
-    background: var(--black);
-    color: var(--white);
-    padding: 32px;
-    margin-bottom: 48px;
-  }
-
-  .quick-ref-title {
-    font-size: 10px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--red);
-    margin-bottom: 20px;
-  }
-
-  .quick-ref-group {
-    margin-bottom: 24px;
-  }
-
-  .quick-ref-group-label {
-    font-size: 10px;
-    color: #999;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid #333;
-  }
-
-  .quick-ref code {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 12px;
-    color: #E0E0E0;
-    display: block;
-    line-height: 2;
-  }
-
-  .quick-ref .cmd-comment {
-    color: #666;
-  }
-
-  /* ─── TROUBLESHOOTING ────────────────────────────────────── */
-  .trouble-item {
-    border-bottom: 1px solid var(--border);
-    padding: 20px 0;
-  }
-
-  .trouble-item:last-child { border-bottom: none; }
-
-  .trouble-q {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--black);
-    margin-bottom: 8px;
-  }
-
-  .trouble-q::before {
-    content: "⚠ ";
-    color: var(--red);
-  }
-
-  .trouble-a {
-    font-size: 12px;
-    color: var(--grey);
-    margin-bottom: 10px;
-  }
-
-  /* ─── ENV MAP ─────────────────────────────────────────────── */
-  .env-map {
-    border: 1px solid var(--border);
-    padding: 0;
-    margin-top: 16px;
-  }
-
-  .env-map-row {
-    display: grid;
-    grid-template-columns: 220px 1fr;
-    border-bottom: 1px solid var(--border);
-    font-size: 12px;
-  }
-
-  .env-map-row:last-child { border-bottom: none; }
-
-  .env-map-key {
-    padding: 10px 16px;
-    background: var(--light);
-    color: var(--black);
-    border-right: 1px solid var(--border);
-    font-weight: 700;
-  }
-
-  .env-map-val {
-    padding: 10px 16px;
-    color: var(--grey);
-  }
-
-  /* ─── FOOTER ─────────────────────────────────────────────── */
-  .site-footer {
-    border-top: 1px solid var(--black);
-    padding: 28px 0;
-    margin-top: 80px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 11px;
-    color: var(--grey);
-    letter-spacing: 0.08em;
-  }
-
-  .site-footer a {
-    color: var(--red);
-    text-decoration: none;
-  }
-
-  /* ─── DIVIDER ─────────────────────────────────────────────── */
-  .divider {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 48px 0;
-  }
-
-  /* ─── ACT TRANSITION ─────────────────────────────────────── */
-  .act-transition {
-    text-align: center;
-    padding: 32px 0;
-    margin: 40px 0;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .act-transition p {
-    font-size: 16px;
-    color: var(--grey);
-    line-height: 1.8;
-  }
-
-  .act-transition p strong {
-    color: var(--black);
-    display: block;
-    font-size: 18px;
-    margin-bottom: 4px;
-  }
-
-  /* ─── RESPONSIVE ─────────────────────────────────────────── */
-  @media (max-width: 600px) {
-    .page { padding: 0 20px; }
-    .hero-title { font-size: 24px; }
-    .env-map-row { grid-template-columns: 1fr; }
-    .env-map-key { border-right: none; border-bottom: 1px solid var(--border); }
-    .site-footer { flex-direction: column; gap: 8px; text-align: center; }
-    .cmd-block code { white-space: pre-wrap; word-break: break-all; }
-  }
-
-  @media print {
-    .toc { display: none; }
-    section { page-break-inside: avoid; }
-    .cmd-block { break-inside: avoid; }
-  }
-
+:root {
+  --bg: #f4ecd8;
+  --bg-paper: #f9f3e1;
+  --bg-cover: #1f2422;
+  --bg-cover-deep: #161a18;
+  --ink: #1a1a1a;
+  --ink-soft: #44403a;
+  --ink-mute: #6b6660;
+  --rule: #c9bfa5;
+  --rule-soft: #e0d6ba;
+  --accent: #2d5a52;
+  --accent-deep: #1d3e38;
+  --accent-bright: #d8b65a;
+  --code-bg: #1f1d18;
+  --code-ink: #e9dfc8;
+  --code-cmd: #a3d9c4;
+  --code-out: #d8d2bf;
+  --code-cmt: #8a8170;
+  --callout-bg: #ede5cc;
+  --callout-bd: #b8a880;
+  --callout-teal-bg: #d6e6e1;
+  --callout-teal-bd: #5d8a82;
+  --callout-amber-bg: #f4e2b6;
+  --callout-amber-bd: #b8893d;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Lora', Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--bg);
+  font-kerning: normal;
+  -webkit-font-smoothing: antialiased;
+}
+
+code, pre, .mono { font-family: 'IBM Plex Mono', 'Consolas', 'Menlo', monospace; }
+
+/* ── COVER ────────────────────────────────────────────────────── */
+.cover {
+  background: linear-gradient(180deg, var(--bg-cover) 0%, var(--bg-cover-deep) 100%);
+  color: #f4ecd8;
+  padding: 0;
+}
+.nav-wrap { padding: 28px 56px; border-bottom: 1px solid rgba(244,236,216,0.12); }
+.nav-wrap nav { display: flex; align-items: center; justify-content: space-between; max-width: 1240px; margin: 0 auto; }
+.logo {
+  font-family: 'Lora', serif;
+  font-size: 22px; font-weight: 500;
+  color: #f4ecd8; text-decoration: none;
+  letter-spacing: -0.01em;
+}
+.logo em { color: var(--accent-bright); font-style: italic; font-weight: 400; }
+.nav-right { display: flex; gap: 18px; align-items: center; font-size: 13px; color: rgba(244,236,216,0.7); }
+.nav-tag { padding: 4px 10px; border: 1px solid rgba(244,236,216,0.3); border-radius: 2px; text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; }
+.nav-mod { font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
+
+.hero { padding: 80px 56px 100px; max-width: 1240px; margin: 0 auto; }
+.hero-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--accent-bright); margin: 0 0 24px;
+}
+.hero-title {
+  font-family: 'Lora', serif;
+  font-size: 72px; font-weight: 400;
+  line-height: 1.05; letter-spacing: -0.02em;
+  margin: 0 0 56px;
+  color: #f9f3e1;
+}
+.hero-title em { color: var(--accent-bright); font-style: italic; font-weight: 400; }
+.hero-meta {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px 48px;
+  max-width: 900px;
+  border-top: 1px solid rgba(244,236,216,0.18);
+  padding-top: 32px;
+}
+.hero-meta-item { display: flex; flex-direction: column; gap: 4px; }
+.hero-meta-k {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(244,236,216,0.55);
+}
+.hero-meta-v { font-size: 15px; color: #f4ecd8; }
+.hero-meta-v.validated { color: var(--accent-bright); font-weight: 500; }
+
+.zone-edge { height: 4px; background: var(--accent); }
+
+/* ── BODY LAYOUT ──────────────────────────────────────────────── */
+.page-body {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 56px 80px;
+  gap: 56px;
+}
+@media (max-width: 1000px) { .page-body { grid-template-columns: 1fr; padding: 0 24px 60px; } .sidebar { position: static !important; max-height: none !important; border-right: none !important; padding: 24px 0 !important; } }
+
+/* ── SIDEBAR ──────────────────────────────────────────────────── */
+.sidebar {
+  position: sticky; top: 24px;
+  align-self: start;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  padding: 40px 16px 40px 0;
+  border-right: 1px solid var(--rule-soft);
+}
+.side-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-mute); margin-bottom: 18px;
+}
+.side-nav { display: flex; flex-direction: column; gap: 2px; }
+.side-nav-item {
+  display: block;
+  padding: 7px 12px 7px 14px;
+  font-size: 13.5px; line-height: 1.35;
+  color: var(--ink-soft); text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+}
+.side-nav-item:hover { color: var(--accent); border-left-color: var(--rule); }
+.side-nav-item.is-active { color: var(--accent); font-weight: 500; border-left-color: var(--accent); }
+
+/* ── MAIN CONTENT ─────────────────────────────────────────────── */
+.main-content { padding: 40px 0 0; min-width: 0; }
+.main-content > h1:first-of-type { display: none; } /* the title is in the hero */
+
+.main-content h2 {
+  font-family: 'Lora', serif;
+  font-size: 34px; font-weight: 500;
+  line-height: 1.18; letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 64px 0 14px; padding-top: 8px;
+  border-top: 2px solid var(--rule);
+}
+.main-content h2:first-of-type { margin-top: 24px; }
+.main-content h2 em { color: var(--accent); font-style: italic; }
+
+.main-content h3 {
+  font-family: 'Lora', serif;
+  font-size: 22px; font-weight: 500;
+  margin: 36px 0 10px;
+  color: var(--ink);
+}
+
+.main-content h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+  margin: 28px 0 10px;
+  color: var(--ink-mute);
+}
+
+.main-content p { margin: 0 0 16px; }
+.main-content p, .main-content li { color: var(--ink-soft); }
+
+.main-content strong { color: var(--ink); font-weight: 600; }
+.main-content em { font-style: italic; }
+
+.main-content a { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.main-content a:hover { color: var(--accent-deep); }
+
+.main-content ul, .main-content ol { margin: 0 0 18px; padding-left: 1.5em; }
+.main-content li { margin: 6px 0; }
+
+.main-content hr {
+  border: none;
+  border-top: 1px solid var(--rule-soft);
+  margin: 48px 0;
+}
+
+/* inline code */
+.main-content :not(pre) > code {
+  font-size: 0.88em;
+  background: rgba(45,90,82,0.08);
+  color: var(--accent-deep);
+  padding: 1px 6px; border-radius: 3px;
+  border: 1px solid rgba(45,90,82,0.18);
+}
+
+/* ── CODE BLOCKS ──────────────────────────────────────────────── */
+.code-block {
+  position: relative;
+  background: var(--code-bg);
+  border-radius: 6px;
+  margin: 18px 0;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.code-block pre.code {
+  margin: 0;
+  padding: 16px 20px;
+  background: transparent;
+  color: var(--code-ink);
+  font-size: 13.5px;
+  line-height: 1.55;
+  overflow-x: auto;
+  white-space: pre;
+}
+.code-block pre code { color: inherit; background: transparent; padding: 0; border: none; }
+.code-block[data-lang]::before {
+  content: attr(data-lang);
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--code-cmt);
+  background: rgba(255,255,255,0.03);
+  padding: 8px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Copy-to-clipboard button */
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  z-index: 2;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--code-cmt);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 3px;
+  padding: 4px 10px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+}
+.code-block:hover .copy-btn,
+.code-block:focus-within .copy-btn { opacity: 1; }
+.copy-btn:hover {
+  background: rgba(216,182,90,0.15);
+  color: var(--accent-bright);
+  border-color: rgba(216,182,90,0.4);
+}
+.copy-btn:focus { outline: 1px solid var(--accent-bright); outline-offset: 1px; }
+.copy-btn.copied {
+  opacity: 1;
+  color: #a3d9c4;
+  border-color: rgba(163,217,196,0.4);
+  background: rgba(163,217,196,0.10);
+}
+/* On touch devices (no hover), keep button always faintly visible */
+@media (hover: none) {
+  .copy-btn { opacity: 0.6; }
+}
+
+/* ── TABLES ───────────────────────────────────────────────────── */
+.rb-table {
+  width: 100%; border-collapse: collapse;
+  margin: 22px 0;
+  font-size: 14px; line-height: 1.5;
+  background: var(--bg-paper);
+  border: 1px solid var(--rule-soft);
+}
+.rb-table th, .rb-table td {
+  text-align: left; vertical-align: top;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.rb-table th {
+  background: rgba(45,90,82,0.06);
+  color: var(--ink);
+  font-weight: 500;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+  border-bottom: 2px solid var(--rule);
+}
+.rb-table tr:last-child td { border-bottom: none; }
+.rb-table code { font-size: 12.5px; }
+
+/* ── BLOCKQUOTES (used as callouts) ───────────────────────────── */
+.main-content blockquote {
+  background: var(--callout-bg);
+  border-left: 4px solid var(--callout-bd);
+  margin: 22px 0;
+  padding: 14px 20px;
+  border-radius: 0 4px 4px 0;
+  color: var(--ink);
+}
+.main-content blockquote p { margin: 0 0 8px; color: var(--ink); }
+.main-content blockquote p:last-child { margin-bottom: 0; }
+
+/* ── FOOTER ───────────────────────────────────────────────────── */
+.page-footer {
+  border-top: 1px solid var(--rule);
+  background: var(--bg-paper);
+  padding: 36px 56px;
+  font-size: 13px;
+  color: var(--ink-mute);
+  text-align: center;
+}
+.page-footer .validated-pill {
+  display: inline-block;
+  padding: 3px 12px;
+  background: var(--accent);
+  color: #f4ecd8;
+  border-radius: 12px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; letter-spacing: 0.06em;
+  margin: 0 8px;
+}
+
+/* ── PRINT ────────────────────────────────────────────────────── */
+@media print {
+  .cover { page-break-after: always; }
+  .sidebar { display: none; }
+  .page-body { grid-template-columns: 1fr; padding: 0 24px; }
+  .code-block { page-break-inside: avoid; }
+  .rb-table { page-break-inside: avoid; }
+}
 </style>
 </head>
 <body>
 
-<div class="page">
-
-  <!-- HEADER -->
-  <header class="site-header">
-    <a href="https://master.hpc.now" class="wordmark">hpc<span>.now</span></a>
-  </header>
-
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-label">Module 01 · CPU + RAM · Lab Runbook</div>
-    <h1 class="hero-title">Today you find<br>the <em>ceiling.</em></h1>
-    <div class="hero-meta">Pilot Cohort · March 2026 · mylab.hpc.now</div>
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="#" class="logo">hpc<em>-bootcamp</em></a>
+      <div class="nav-right">
+        <span class="nav-tag">Lab Runbook</span>
+        <span class="nav-mod">Rocky 9.7 · OpenHPC 3.3</span>
+      </div>
+    </nav>
   </div>
-
-  <!-- TABLE OF CONTENTS -->
-  <nav class="toc">
-    <div class="toc-title">Contents</div>
-    <ol>
-      <li><a href="#start">Getting Started</a></li>
-      <li><a href="#act1">Act 1 — Read the Machine</a></li>
-      <li><a href="#act2">Act 2 — The Binary Race</a></li>
-      <li><a href="#act3a">Act 3A — Scaling</a></li>
-      <li><a href="#act3b">Act 3B — Group Run</a></li>
-      <li><a href="#act3c">Act 3C — NUMA</a></li>
-      <li><a href="#quickref">Quick Reference</a></li>
-      <li><a href="#trouble">If Something Goes Wrong</a></li>
-      <li><a href="#env">Your Lab Environment</a></li>
-    </ol>
-  </nav>
-
-  <!-- GETTING STARTED -->
-  <section id="start">
-    <div class="section-label">Before You Begin</div>
-    <h2 class="section-title">Getting Started</h2>
-
-    <div class="steps">
-      <div class="step">
-        <div class="step-title">Confirm your connection</div>
-        <div class="cmd-block">
-          <code><span class="prompt">$ </span>whoami</code>
-        </div>
-        <div class="notice">
-          <strong>Expected output</strong>
-          Your username — user01, user02, etc. If you see something else, disconnect and reconnect using the correct username.
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-title">Open the shared Google Sheet</div>
-        <p style="font-size:13px; color:var(--grey); margin-bottom:12px;">
-          Open the session link shared by Rajesh in a browser tab. Find your username in every section. You will fill your row as the session progresses.
-        </p>
-      </div>
-
-      <div class="step">
-        <div class="step-title">Open the Concepts tab</div>
-        <p style="font-size:13px; color:var(--grey);">
-          In the same Google Sheet open the Concepts tab in a second browser tab. When Rajesh names a term — look it up there. Do not Google during the session.
-        </p>
-      </div>
+  <div class="hero">
+    <p class="hero-eyebrow">4-hour live demo · 12 sections · v2.0 · 2026-04-24</p>
+    <h1 class="hero-title">HPC Bootcamp<br><em>Runbook</em></h1>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><span class="hero-meta-k">Version</span><span class="hero-meta-v">v2.0 · 2026-04-24</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Stack</span><span class="hero-meta-v">Rocky 9.7 · OpenHPC 3.3 · Warewulf 4.6.4 · Slurm 24.11.5</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Cluster</span><span class="hero-meta-v">1 head · 2 compute · VirtualBox · Windows 11</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Sections</span><span class="hero-meta-v">12 (00 → 11) + appendices</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Duration</span><span class="hero-meta-v">~50 minutes end-to-end</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Validated</span><span class="hero-meta-v validated">HPL 17.36 GFLOPS · PASS</span></div>
     </div>
-  </section>
-
-  <!-- ACT 1 -->
-  <section id="act1">
-    <div class="section-label">Act 1</div>
-    <h2 class="section-title">Read the Machine</h2>
-
-    <p style="font-size:13px; color:var(--grey); margin-bottom:28px;">
-      You are about to discover what hardware you are sitting on. Run all six commands below. Read each output carefully before moving to the next.
-    </p>
-
-    <div class="notice">
-      <strong>Fastest fingers first</strong>
-      The Google Sheet has one row for Act 1 — everyone is on the same machine. Fill the row if it is empty. If someone has already filled the spec columns, add your own observation to the Interesting Finding column. Multiple observations are welcome there.
-    </div>
-
-    <!-- Cluster A -->
-    <div class="cluster">
-      <div class="cluster-header">
-        <span class="cluster-tag">Cluster A</span>
-        <span class="cluster-title">Who am I talking to?</span>
-      </div>
-
-      <div class="cmd-block">
-        <code><span class="prompt">$ </span>lscpu</code>
-      </div>
-
-      <div class="cmd-block">
-        <code><span class="prompt">$ </span>cat /proc/cpuinfo | grep "model name" | head -1</code>
-      </div>
-
-      <div class="record">
-        <div class="record-label">Fill in the sheet — Section 1</div>
-        <ul>
-          <li>CPU Model</li>
-          <li>Sockets</li>
-          <li>Cores per Socket</li>
-          <li>NUMA Nodes</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Cluster B -->
-    <div class="cluster">
-      <div class="cluster-header">
-        <span class="cluster-tag">Cluster B</span>
-        <span class="cluster-title">How is memory organised?</span>
-      </div>
-
-      <div class="cmd-block">
-        <code><span class="prompt">$ </span>numactl --hardware</code>
-      </div>
-
-      <div class="cmd-block">
-        <code><span class="prompt">$ </span>numactl --show</code>
-      </div>
-
-      <div class="notice">
-        Look at the distance matrix at the bottom of the numactl --hardware output. Find the numbers 10 and 21. These will matter in Act 3.
-      </div>
-
-      <div class="record">
-        <div class="record-label">Fill in the sheet — Section 1</div>
-        <ul>
-          <li>RAM per NUMA Node</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Cluster C -->
-    <div class="cluster">
-      <div class="cluster-header">
-        <span class="cluster-tag">Cluster C</span>
-        <span class="cluster-title">Show me the full picture</span>
-      </div>
-
-      <div class="cmd-block">
-        <code><span class="prompt">$ </span>lstopo --of ascii</code>
-      </div>
-
-      <div class="notice">
-        lstopo takes a few seconds to render. Wait for it to complete before running the next command.
-      </div>
-
-      <div class="cmd-block">
-        <code><span class="prompt">$ </span>free -h</code>
-      </div>
-
-      <div class="record">
-        <div class="record-label">Fill in the sheet — Section 1</div>
-        <ul>
-          <li>Interesting Finding — write one thing that surprised you or that you did not expect to see</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- ACT 2 -->
-  <section id="act2">
-    <div class="section-label">Act 2</div>
-    <h2 class="section-title">The Binary Race</h2>
-
-    <p style="font-size:13px; color:var(--grey); margin-bottom:28px;">
-      You are about to run the same computation seven different ways on the same hardware. Before running anything — commit your prediction.
-    </p>
-
-    <div class="prediction-box">
-      <div class="prediction-label">Before you run — write your prediction in the sheet</div>
-      <p>Which binary do you think will be fastest?</p>
-      <p>How much faster than the slowest? Write a multiplier — for example 5x or 10x.</p>
-      <p style="color:var(--red); font-size:12px; margin-top:8px;">Commit to it before running anything.</p>
-    </div>
-
-    <div class="cluster">
-      <div class="cluster-header">
-        <span class="cluster-tag">Run</span>
-        <span class="cluster-title">All seven binaries in sequence — approximately 35 to 40 seconds</span>
-      </div>
-
-      <div class="cmd-block">
-        <code><span class="prompt">$ </span>/opt/lab/mod01/run_binary_race.sh</code>
-      </div>
-
-      <div class="notice">
-        Watch the output as it runs. Read each Wall time as it appears. Do not do anything else.
-      </div>
-
-      <div class="notice">
-        <strong>Which number to record</strong>
-        The Wall time line in every run looks like this:
-        <br><br>
-        <code style="font-family:'Courier New',monospace; font-size:12px; color:var(--black);">Wall time   : 23.0877 seconds</code>
-        <br><br>
-        Enter just the number — for example <code style="font-family:'Courier New',monospace;">23.09</code>. Use the Wall time from the program output — not the real time line from the time command.
-      </div>
-
-      <div class="record">
-        <div class="record-label">Fill in the sheet — Section 2</div>
-        <ul>
-          <li>C 1T noSIMD → Wall time</li>
-          <li>Java 1T bare → Wall time</li>
-          <li>Java 1T container → Wall time</li>
-          <li>C 1T SIMD → Wall time</li>
-          <li>Java 72T bare → Wall time</li>
-          <li>C 72T noSIMD → Wall time</li>
-          <li>C 72T SIMD → Wall time</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- ACT 3A -->
-  <section id="act3a">
-    <div class="section-label">Act 3 · Phase A</div>
-    <h2 class="section-title">Scaling</h2>
-
-    <p style="font-size:13px; color:var(--grey); margin-bottom:28px;">
-      You are about to run the same optimised binary with increasing thread counts. Run each command in sequence. After each run record the Wall time in the sheet before running the next command.
-    </p>
-
-    <div class="steps">
-
-      <div class="step">
-        <div class="step-title">1 thread</div>
-        <div class="cmd-block">
-          <code><span class="prompt">$ </span>export OMP_NUM_THREADS=1
-<span class="prompt">$ </span>time /opt/lab/mod01/binaries/matmul_72t_simd</code>
-        </div>
-        <div class="record">
-          <div class="record-label">Fill in the sheet — Section 3</div>
-          <ul><li>1 Thread column</li></ul>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-title">2 threads</div>
-        <div class="cmd-block">
-          <code><span class="prompt">$ </span>export OMP_NUM_THREADS=2
-<span class="prompt">$ </span>time /opt/lab/mod01/binaries/matmul_72t_simd</code>
-        </div>
-        <div class="record">
-          <div class="record-label">Fill in the sheet — Section 3</div>
-          <ul><li>2 Threads column</li></ul>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-title">4 threads</div>
-        <div class="cmd-block">
-          <code><span class="prompt">$ </span>export OMP_NUM_THREADS=4
-<span class="prompt">$ </span>time /opt/lab/mod01/binaries/matmul_72t_simd</code>
-        </div>
-        <div class="record">
-          <div class="record-label">Fill in the sheet — Section 3</div>
-          <ul><li>4 Threads column</li></ul>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-title">8 threads</div>
-        <div class="cmd-block">
-          <code><span class="prompt">$ </span>export OMP_NUM_THREADS=8
-<span class="prompt">$ </span>time /opt/lab/mod01/binaries/matmul_72t_simd</code>
-        </div>
-        <div class="record">
-          <div class="record-label">Fill in the sheet — Section 3</div>
-          <ul><li>8 Threads column</li></ul>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-title">16 threads</div>
-        <div class="cmd-block">
-          <code><span class="prompt">$ </span>export OMP_NUM_THREADS=16
-<span class="prompt">$ </span>time /opt/lab/mod01/binaries/matmul_72t_simd</code>
-        </div>
-        <div class="record">
-          <div class="record-label">Fill in the sheet — Section 3</div>
-          <ul><li>16 Threads column</li></ul>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-title">32 threads</div>
-        <div class="cmd-block">
-          <code><span class="prompt">$ </span>export OMP_NUM_THREADS=32
-<span class="prompt">$ </span>time /opt/lab/mod01/binaries/matmul_72t_simd</code>
-        </div>
-        <div class="record">
-          <div class="record-label">Fill in the sheet — Section 3</div>
-          <ul><li>32 Threads column</li></ul>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-title">72 threads — solo run</div>
-        <div class="cmd-block">
-          <code><span class="prompt">$ </span>export OMP_NUM_THREADS=72
-<span class="prompt">$ </span>time /opt/lab/mod01/binaries/matmul_72t_simd</code>
-        </div>
-        <div class="record">
-          <div class="record-label">Fill in the sheet — Section 3</div>
-          <ul><li>72 Threads Solo column</li></ul>
-        </div>
-        <div class="notice" style="margin-top:12px;">
-          As you fill each row notice where the wall time stops improving as much. That is the ceiling appearing.
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ACT 3B -->
-  <section id="act3b">
-    <div class="section-label">Act 3 · Phase B</div>
-    <h2 class="section-title">Group Run</h2>
-
-    <p style="font-size:13px; color:var(--grey); margin-bottom:28px;">
-      Rajesh will count down on the call. When he says Run — press Enter immediately.
-    </p>
-
-    <div class="notice">
-      <strong>Do not run yet</strong>
-      Type the command below in your terminal. Finger on Enter. Wait for Rajesh's countdown.
-    </div>
-
-    <div class="cmd-block">
-      <code><span class="prompt">$ </span>OMP_NUM_THREADS=72 time /opt/lab/mod01/binaries/matmul_72t_simd</code>
-    </div>
-
-    <div class="record">
-      <div class="record-label">Fill in the sheet — Section 3</div>
-      <ul>
-        <li>72 Threads GROUP RUN column</li>
-      </ul>
-    </div>
-
-    <div class="notice" style="margin-top: 4px;">
-      Compare your group run time against your solo 72 thread run. Note whether it is faster, slower, or the same.
-    </div>
-  </section>
-
-  <!-- ACT 3C -->
-  <section id="act3c">
-    <div class="section-label">Act 3 · Phase C</div>
-    <h2 class="section-title">NUMA</h2>
-
-    <p style="font-size:13px; color:var(--grey); margin-bottom:28px;">
-      You are about to run the STREAM memory bandwidth benchmark three ways. The only thing changing between runs is where the memory lives.
-    </p>
-
-    <div class="cluster">
-      <div class="cluster-header">
-        <span class="cluster-tag">Run</span>
-        <span class="cluster-title">Three NUMA configurations — approximately 15 seconds total</span>
-      </div>
-
-      <div class="cmd-block">
-        <code><span class="prompt">$ </span>/opt/lab/mod01/run_numa.sh</code>
-      </div>
-    </div>
-
-    <div class="notice">
-      <strong>How to read STREAM output</strong>
-      STREAM produces a lot of verbose output. Ignore everything except the results table near the bottom of each run. Find the Triad row — it is always the last row in the table. Take the first number after Triad. That is your answer. Ignore all other columns and all other rows.
-    </div>
-
-    <div class="triad-example">
-      <code><span class="dim">Function    Best Rate MB/s  Avg time     Min time     Max time</span>
-<span class="dim">Copy:          149267.6     0.008674     0.008575     0.008818</span>
-<span class="dim">Scale:         123900.0     0.010366     0.010331     0.010417</span>
-<span class="dim">Add:           135987.8     0.014144     0.014119     0.014169</span>
-<span class="highlight">Triad:         135930.5</span><span class="dim">     0.014146     0.014125     0.014193</span></code>
-    </div>
-
-    <p style="font-size:12px; color:var(--grey); margin: 12px 0 24px;">
-      From the example above the number to record is <code style="font-family:'Courier New',monospace; color:var(--black);">135930</code>
-    </p>
-
-    <div class="record">
-      <div class="record-label">Fill in the sheet — Section 4</div>
-      <ul>
-        <li>First Triad number → No Binding column</li>
-        <li>Second Triad number → Local Binding column</li>
-        <li>Third Triad number → Cross-NUMA column</li>
-      </ul>
-    </div>
-  </section>
-
-  <hr class="divider">
-
-  <!-- QUICK REFERENCE -->
-  <section id="quickref">
-    <div class="quick-ref">
-      <div class="quick-ref-title">Quick Reference — All Commands</div>
-
-      <div class="quick-ref-group">
-        <div class="quick-ref-group-label">Getting Started</div>
-        <code>whoami</code>
-      </div>
-
-      <div class="quick-ref-group">
-        <div class="quick-ref-group-label">Act 1 — Hardware Discovery</div>
-        <code>lscpu</code>
-        <code>cat /proc/cpuinfo | grep "model name" | head -1</code>
-        <code>numactl --hardware</code>
-        <code>numactl --show</code>
-        <code>lstopo --of ascii</code>
-        <code>free -h</code>
-      </div>
-
-      <div class="quick-ref-group">
-        <div class="quick-ref-group-label">Act 2 — Binary Race</div>
-        <code>/opt/lab/mod01/run_binary_race.sh</code>
-      </div>
-
-      <div class="quick-ref-group">
-        <div class="quick-ref-group-label">Act 3A — Scaling (repeat for each thread count)</div>
-        <code>export OMP_NUM_THREADS=1</code>
-        <code>time /opt/lab/mod01/binaries/matmul_72t_simd</code>
-        <code><span class="cmd-comment"># repeat with 2, 4, 8, 16, 32, 72</span></code>
-      </div>
-
-      <div class="quick-ref-group">
-        <div class="quick-ref-group-label">Act 3B — Group Run (wait for countdown)</div>
-        <code>OMP_NUM_THREADS=72 time /opt/lab/mod01/binaries/matmul_72t_simd</code>
-      </div>
-
-      <div class="quick-ref-group">
-        <div class="quick-ref-group-label">Act 3C — NUMA</div>
-        <code>/opt/lab/mod01/run_numa.sh</code>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- TROUBLESHOOTING -->
-  <section id="trouble">
-    <div class="section-label">Help</div>
-    <h2 class="section-title">If Something Goes Wrong</h2>
-
-    <div class="trouble-item">
-      <div class="trouble-q">Command not found</div>
-      <div class="trouble-a">Check you are typing the full path. All scripts are in <code style="font-family:'Courier New',monospace;">/opt/lab/mod01/</code></div>
-    </div>
-
-    <div class="trouble-item">
-      <div class="trouble-q">Wall time looks very different from everyone else</div>
-      <div class="trouble-a">You may have OMP_NUM_THREADS set from a previous run. Reset it and rerun:</div>
-      <div class="cmd-block" style="margin-top:10px;">
-        <code><span class="prompt">$ </span>unset OMP_NUM_THREADS</code>
-      </div>
-    </div>
-
-    <div class="trouble-item">
-      <div class="trouble-q">SSH session froze</div>
-      <div class="trouble-a">Close the terminal. SSH back in. Your work is not lost.</div>
-      <div class="cmd-block" style="margin-top:10px;">
-        <code><span class="prompt">$ </span>ssh userXX@mylab.hpc.now</code>
-      </div>
-      <p style="font-size:12px; color:var(--grey); margin-top:8px;">Replace XX with your number.</p>
-    </div>
-
-    <div class="trouble-item">
-      <div class="trouble-q">Cannot find the right number in STREAM output</div>
-      <div class="trouble-a">Find the results table near the bottom of the output. Find the Triad row — always the last row. Take the first number after Triad. Everything else is noise.</div>
-    </div>
-
-    <div class="trouble-item">
-      <div class="trouble-q">Not sure which column to fill in the sheet</div>
-      <div class="trouble-a">The Wall time line in every program output starts with <code style="font-family:'Courier New',monospace;">Wall time :</code> — that is the number. The TRIAD bandwidth starts with <code style="font-family:'Courier New',monospace;">Triad:</code> — first number after it.</div>
-    </div>
-
-  </section>
-
-  <!-- ENVIRONMENT MAP -->
-  <section id="env">
-    <div class="section-label">Reference</div>
-    <h2 class="section-title">Your Lab Environment</h2>
-
-    <p style="font-size:13px; color:var(--grey); margin-bottom:16px;">
-      All binaries and scripts are at <code style="font-family:'Courier New',monospace; color:var(--black);">/opt/lab/mod01/</code>
-    </p>
-
-    <div class="env-map">
-      <div class="env-map-row">
-        <div class="env-map-key">matmul_1t_nosimd</div>
-        <div class="env-map-val">C binary — 1 thread — no SIMD optimisation</div>
-      </div>
-      <div class="env-map-row">
-        <div class="env-map-key">matmul_1t_simd</div>
-        <div class="env-map-val">C binary — 1 thread — AVX-512 SIMD enabled</div>
-      </div>
-      <div class="env-map-row">
-        <div class="env-map-key">matmul_72t_nosimd</div>
-        <div class="env-map-val">C binary — 72 threads — no SIMD optimisation</div>
-      </div>
-      <div class="env-map-row">
-        <div class="env-map-key">matmul_72t_simd</div>
-        <div class="env-map-val">C binary — 72 threads — AVX-512 SIMD enabled</div>
-      </div>
-      <div class="env-map-row">
-        <div class="env-map-key">stream</div>
-        <div class="env-map-val">STREAM memory bandwidth benchmark</div>
-      </div>
-      <div class="env-map-row">
-        <div class="env-map-key">Matmul.java / .class</div>
-        <div class="env-map-val">Java source and compiled class — JVM runtime</div>
-      </div>
-      <div class="env-map-row">
-        <div class="env-map-key">matmul_python.py</div>
-        <div class="env-map-val">Python script — NumPy runtime</div>
-      </div>
-      <div class="env-map-row">
-        <div class="env-map-key">run_binary_race.sh</div>
-        <div class="env-map-val">Act 2 — runs all seven binaries in sequence</div>
-      </div>
-      <div class="env-map-row">
-        <div class="env-map-key">run_numa.sh</div>
-        <div class="env-map-val">Act 3C — runs STREAM three ways</div>
-      </div>
-      <div class="env-map-row">
-        <div class="env-map-key">lab.sif</div>
-        <div class="env-map-val">Apptainer container image — Java + Python inside</div>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- FOOTER -->
-  <footer class="site-footer">
-    <span>hpc.now · Module 01 · Pilot Cohort 2026</span>
-    <span><a href="mailto:rajesh@hpc.now">rajesh@hpc.now</a></span>
-  </footer>
-
-</div><!-- /page -->
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<div class="page-body">
+  <aside class="sidebar">
+    <div class="side-label">Runbook</div>
+    <nav class="side-nav">
+      <a href="#pinned-versions" class="side-nav-item">Pinned versions</a>
+      <a href="#table-of-contents" class="side-nav-item">Table of contents</a>
+      <a href="#section-00-host-preparation" class="side-nav-item">Section 00 — Host preparation</a>
+      <a href="#section-01-what-were-building" class="side-nav-item">Section 01 — What we&#39;re building</a>
+      <a href="#section-02-bring-up-the-head-node" class="side-nav-item">Section 02 — Bring up the head node</a>
+      <a href="#section-03-head-as-a-shared-resource" class="side-nav-item">Section 03 — Head as a shared resource</a>
+      <a href="#section-04-cluster-identity" class="side-nav-item">Section 04 — Cluster identity</a>
+      <a href="#section-05-the-provisioning-engine" class="side-nav-item">Section 05 — The provisioning engine</a>
+      <a href="#section-06-the-job-scheduler" class="side-nav-item">Section 06 — The job scheduler</a>
+      <a href="#section-07-the-science-payload" class="side-nav-item">Section 07 — The science payload</a>
+      <a href="#section-08-compute-nodes-come-alive" class="side-nav-item">Section 08 — Compute nodes come alive</a>
+      <a href="#section-09-run-a-real-job" class="side-nav-item">Section 09 — Run a real job</a>
+      <a href="#section-10-see-it-running" class="side-nav-item">Section 10 — See it running</a>
+      <a href="#section-11-what-we-skipped-and-whats-next" class="side-nav-item">Section 11 — What we skipped and what&#39;s next</a>
+      <a href="#post-bootcamp-self-study" class="side-nav-item">Post-bootcamp self-study</a>
+      <a href="#cleanup-start-over" class="side-nav-item">Cleanup / start over</a>
+      <a href="#reference-scripts" class="side-nav-item">Reference scripts</a>
+    </nav>
+  </aside>
+  <main class="main-content">
+<h1 id="hpc-bootcamp-runbook">HPC Bootcamp Runbook</h1>
+<p><em>Version 2.0 — 2026-04-24. Validated end-to-end against Rocky 9.7 /
+OpenHPC 3.3 / Warewulf 4.6.4 / Slurm 24.11.5.</em></p>
+<p>A 4-hour live-demo runbook that builds a 1 head + 2 compute HPC
+cluster on a 16 GB Windows 11 laptop using VirtualBox. By the end,
+you&#39;ve watched diskless compute nodes PXE-boot, run High
+Performance Linpack across both of them, and saw the job light up a
+Grafana dashboard in real time.</p>
+<p><strong>Format conventions.</strong> Every section is shaped the same way:</p>
+<ul>
+<li><em>What this section does</em> — one-paragraph intent.</li>
+<li><em>Prerequisites</em> — which earlier section must be green.</li>
+<li><em>Steps</em> — numbered, copy-pasteable commands with expected output inline.</li>
+<li><em>What just happened</em> — the conceptual takeaway.</li>
+<li><em>Validation</em> — commands that prove the section landed.</li>
+</ul>
+<p>Command blocks are <code>bash</code>; expected output appears right after.
+Lines starting with <code>#</code> are comment annotations; everything else is
+meant to be pasted into a terminal literally.</p>
+<p><strong>Audience.</strong> This is written for enterprise IT engineers new to
+HPC. Where HPC differs meaningfully from enterprise patterns, the
+<em>what just happened</em> block calls it out. Standard Linux idioms are
+assumed.</p>
+<h3 id="before-you-start">Before you start</h3>
+<table class="rb-table"><thead><tr><th>Resource</th><th>Requirement</th></tr></thead><tbody><tr><td>Host RAM</td><td>16 GB minimum (head VM 4 GB; each compute 4 GB; host headroom)</td></tr><tr><td>Host disk free on <code>C:</code></td><td>40 GB minimum (head VM disk + Rocky box cache + VBox VM dirs)</td></tr><tr><td>CPU</td><td>4+ physical cores (head 2 vCPU; each compute 2 vCPU)</td></tr><tr><td>Time budget</td><td>~50 minutes end-to-end (Section 08&#39;s image build is ~10 min, dominates)</td></tr><tr><td>Internet</td><td>Required first run (~2 GB downloads — Rocky box, OpenHPC, Grafana)</td></tr></tbody></table>
+<p>To start over from any state, see the <a href="#cleanup-start-over">Cleanup / start over</a> appendix at the end.</p>
+<h3 id="required-files-check-before-you-start">Required files — check before you start</h3>
+<p>Every learner needs these six files on disk at the <strong>repository root</strong>
+before the demo starts. They&#39;re in the bootcamp starter zip (or
+<code>git clone</code>).</p>
+<table class="rb-table"><thead><tr><th>File</th><th>Purpose</th></tr></thead><tbody><tr><td><code>Vagrantfile</code></td><td>head-VM definition (4 GB / 2 vCPU / 40 GB disk, two internal networks, NAT port forwards for 3000/9090)</td></tr><tr><td><code>rockylinux-9.7-primary.json</code></td><td>local metadata override pointing Vagrant at the Rocky 9.7 <code>.box</code> artifact</td></tr><tr><td><code>scripts/create-compute-vm.sh</code></td><td>creates the diskless compute VMs via <code>VBoxManage</code> (used in §08)</td></tr><tr><td><code>scripts/grafana-hpc-cluster.json</code></td><td>Grafana dashboard definition (used in §10)</td></tr><tr><td><code>scripts/cleanup.sh</code></td><td>one-shot teardown script (used in the Cleanup appendix)</td></tr><tr><td><code>RUNBOOK.md</code> / <code>RUNBOOK.html</code></td><td>this document</td></tr></tbody></table>
+<p>Quick check from the project directory:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>ls Vagrantfile rockylinux-9.7-primary.json \
+   scripts/create-compute-vm.sh scripts/grafana-hpc-cluster.json scripts/cleanup.sh \
+   RUNBOOK.md</code></pre></div>
+<p>All six should list without error.</p>
+<h3 id="section-snapshots-optional-but-recommended">Section snapshots (optional but recommended)</h3>
+<p>After each section&#39;s <strong>Validation</strong> passes, snapshot the head VM so
+you can roll back to any known-good checkpoint without redoing
+earlier sections. Compute nodes don&#39;t need snapshots — they&#39;re
+diskless and re-PXE from the Warewulf image is the equivalent.</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code># From the project directory, after e.g. Section 03 lands clean:
+vagrant snapshot save s03
+
+# To list what's saved:
+vagrant snapshot list
+
+# To roll back to the Section 03 checkpoint:
+vagrant snapshot restore s03</code></pre></div>
+<p>Typical pattern during a walkthrough: save <code>s02</code>, <code>s03</code>, <code>s04</code>, …,
+<code>s07</code> at each validation boundary. Section 08 and later involve
+compute VMs too, which aren&#39;t captured — if Section 08 goes wrong,
+roll back the head to <code>s07</code> and re-run the cluster-side Section 08
+steps from scratch.</p>
+<hr>
+<h2 id="pinned-versions">Pinned versions</h2>
+<p>The runbook was validated end-to-end with these exact package
+versions. The <code>dnf install</code> commands include the
+Name-Version-Release pins inline.</p>
+<p>If any pin fails with <code>No match for argument</code> on a future run —
+OpenHPC&#39;s updates repo prunes older patch releases every few
+months — drop the version suffix for that one package, re-run,
+and continue. Minor-version drift is almost always harmless.</p>
+<table class="rb-table"><thead><tr><th>Component</th><th>Pinned version</th></tr></thead><tbody><tr><td>Rocky Linux (both head and compute)</td><td><strong>9.7</strong></td></tr><tr><td>OpenHPC release metapackage</td><td><code>ohpc-release-3-1.el9</code></td></tr><tr><td>Warewulf</td><td><code>warewulf-ohpc-4.6.4-340.ohpc.1.3</code></td></tr><tr><td>Warewulf dracut module</td><td><code>warewulf-ohpc-dracut-4.6.4-340.ohpc.1.3</code></td></tr><tr><td>Slurm (controller + slurmd)</td><td><code>slurm-*-ohpc-24.11.5-331.ohpc.1.1</code></td></tr><tr><td>OpenHPC Slurm-server meta</td><td><code>ohpc-slurm-server-3.4-340.ohpc.4.1</code></td></tr><tr><td>Lmod</td><td><code>lmod-ohpc-8.7.64-340.ohpc.2.1</code></td></tr><tr><td>GNU compiler toolchain</td><td><code>gnu12-compilers-ohpc-12.2.0-300.ohpc.3.6</code></td></tr><tr><td>OpenMPI</td><td><code>openmpi4-gnu12-ohpc-4.1.5-300.ohpc.3.2</code></td></tr><tr><td>OSU Micro-Benchmarks</td><td><code>omb-gnu12-openmpi4-ohpc-6.1-300.ohpc.2.6</code></td></tr><tr><td>OpenBLAS (base + serial + devel)</td><td><code>0.3.29-1.el9</code></td></tr><tr><td>Prometheus</td><td><code>prometheus-3.11.2-1.el9</code></td></tr><tr><td>Prometheus node-exporter</td><td><code>node-exporter-1.11.1-1.el9</code></td></tr><tr><td>Grafana</td><td><code>grafana-13.0.1-1</code></td></tr><tr><td>VirtualBox host</td><td><strong>7.2.x</strong></td></tr><tr><td>Vagrant</td><td><strong>2.4.9+</strong></td></tr></tbody></table>
+<p>HPL 2.3 is built from netlib source in Section 07; the <code>ipxe.pxe</code>
+binary Section 08 uses is fetched from <code>boot.ipxe.org</code>. Both are
+external — see the <strong>External artifacts</strong> table below.</p>
+<h3 id="external-artifacts-fetched-during-the-build">External artifacts fetched during the build</h3>
+<table class="rb-table"><thead><tr><th>Artifact</th><th>URL</th><th>Used in</th></tr></thead><tbody><tr><td>OpenHPC 3 release RPM</td><td><code>http://repos.openhpc.community/OpenHPC/3/EL_9/x86_64/ohpc-release-3-1.el9.x86_64.rpm</code></td><td>§05, §08</td></tr><tr><td>Full iPXE binary</td><td><code>https://boot.ipxe.org/ipxe.pxe</code></td><td>§08</td></tr><tr><td>HPL 2.3 source tarball</td><td><code>https://www.netlib.org/benchmark/hpl/hpl-2.3.tar.gz</code></td><td>§07</td></tr><tr><td>Grafana OSS repo</td><td><code>https://rpm.grafana.com</code></td><td>§10</td></tr><tr><td>Docker Hub Rocky Linux base image</td><td><code>docker://rockylinux:9</code></td><td>§08</td></tr><tr><td>Rocky primary mirror (Vagrant box via local metadata override)</td><td><code>https://dl.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-Vagrant-Vbox-9.7-20251123.2.x86_64.box</code></td><td>§02</td></tr></tbody></table>
+<p>For fully offline demos, mirror all six into an artifact cache
+before the bootcamp.</p>
+<hr>
+<h2 id="table-of-contents">Table of contents</h2>
+<ul>
+<li><a href="#section-00-host-preparation">Section 00 — Host preparation</a></li>
+<li><a href="#section-01-what-were-building">Section 01 — What we&#39;re building</a></li>
+<li><a href="#section-02-bring-up-the-head-node">Section 02 — Bring up the head node</a></li>
+<li><a href="#section-03-head-as-a-shared-resource">Section 03 — Head as a shared resource</a></li>
+<li><a href="#section-04-cluster-identity">Section 04 — Cluster identity</a></li>
+<li><a href="#section-05-the-provisioning-engine">Section 05 — The provisioning engine</a></li>
+<li><a href="#section-06-the-job-scheduler">Section 06 — The job scheduler</a></li>
+<li><a href="#section-07-the-science-payload">Section 07 — The science payload</a></li>
+<li><a href="#section-08-compute-nodes-come-alive">Section 08 — Compute nodes come alive</a></li>
+<li><a href="#section-09-run-a-real-job">Section 09 — Run a real job</a></li>
+<li><a href="#section-10-see-it-running">Section 10 — See it running</a></li>
+<li><a href="#section-11-what-we-skipped-and-whats-next">Section 11 — What we skipped and what&#39;s next</a></li>
+<li><a href="#post-bootcamp-self-study">Post-bootcamp self-study</a></li>
+<li><a href="#cleanup-start-over">Cleanup / start over</a></li>
+</ul>
+<hr>
+<h2 id="section-00-host-preparation">Section 00 — Host preparation</h2>
+<h3 id="what-this-section-does">What this section does</h3>
+<p>Windows 11&#39;s default security posture (Hyper-V, Memory Integrity,
+Virtual Machine Platform) fights VirtualBox. This section is
+pre-work — the host is prepared before the bootcamp starts, so
+the demo opens on a machine that can actually run VMs. Learners
+who arrive unprepared watch the host get fixed instead of watching
+the cluster come alive.</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>None. Entry point.</p>
+<h3 id="host-preparation-steps">Host preparation steps</h3>
+<h3 id="why-this-is-necessary">Why this is necessary</h3>
+<p>Windows 11 ships with several security and virtualization features
+enabled by default that fight VirtualBox. Specifically:</p>
+<ul>
+<li><strong>Hyper-V</strong> takes ownership of the CPU&#39;s hardware virtualization
+extensions (VT-x / AMD-V). VirtualBox then either falls back to
+software emulation (10–30× slower) or fails to start VMs at all.</li>
+<li><strong>Memory Integrity (HVCI)</strong> under Core Isolation prevents
+VirtualBox from allocating the memory it needs for VMs.</li>
+<li><strong>Virtual Machine Platform</strong> (the Windows feature backing WSL2)
+enables Hyper-V components even if the Hyper-V role itself
+appears off.</li>
+</ul>
+<p>All three must be disabled before VirtualBox will run VMs at
+acceptable speed.</p>
+<hr>
+<h3 id="step-0-verify-hardware-virtualization-is-enabled-in-firmware">Step 0 — Verify hardware virtualization is enabled in firmware</h3>
+<p>Before touching Windows-level settings, confirm your CPU has
+virtualization support and it&#39;s enabled in the BIOS/UEFI.</p>
+<h3 id="check-from-windows">Check from Windows</h3>
+<p>Open <strong>Task Manager</strong> (<code>Ctrl+Shift+Esc</code>) → <strong>Performance</strong> tab →
+<strong>CPU</strong>. Look at the bottom right for &quot;Virtualization.&quot;</p>
+<p><strong>Expected:</strong> <code>Virtualization: Enabled</code></p>
+<p>If it says <code>Disabled</code>:</p>
+<ol>
+<li>Reboot into BIOS/UEFI (usually <code>F2</code>, <code>F10</code>, <code>Del</code>, or <code>F12</code>
+during boot — varies by laptop vendor).</li>
+<li>Find the setting called <strong>Intel VT-x</strong> / <strong>AMD-V</strong> /
+<strong>Virtualization Technology</strong> / <strong>SVM</strong> (naming varies).</li>
+<li>Enable it. Save and exit.</li>
+<li>Re-verify in Task Manager.</li>
+</ol>
+<p>If your CPU doesn&#39;t support virtualization at all, this bootcamp
+cannot run on your machine. Arrange alternative hardware.</p>
+<hr>
+<h3 id="step-1-disable-hyper-v">Step 1 — Disable Hyper-V</h3>
+<p>Open <strong>PowerShell as Administrator</strong>.</p>
+<div class="code-block" data-lang="powershell"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-powershell"><code>bcdedit /set hypervisorlaunchtype off</code></pre></div>
+<p><strong>Expected:</strong></p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>The operation completed successfully.</code></pre></div>
+<p>Do not reboot yet. Continue to Step 2.</p>
+<hr>
+<h3 id="step-2-disable-virtual-machine-platform-and-windows-hypervisor-platform">Step 2 — Disable Virtual Machine Platform and Windows Hypervisor Platform</h3>
+<p>Open <strong>Control Panel</strong> → <strong>Programs</strong> → <strong>Turn Windows features on
+or off</strong> (or search for &quot;Windows features&quot; from Start).</p>
+<p>Uncheck:</p>
+<ul>
+<li><strong>Hyper-V</strong> (if present and enabled)</li>
+<li><strong>Virtual Machine Platform</strong></li>
+<li><strong>Windows Hypervisor Platform</strong></li>
+<li><strong>Windows Subsystem for Linux</strong> (if you don&#39;t need WSL during the
+bootcamp; re-enable after)</li>
+</ul>
+<p>Click <strong>OK</strong>. Windows will apply the changes. It will prompt to
+reboot — accept, but note that Steps 3 and 4 will also require
+reboots, so you may want to defer until the end.</p>
+<hr>
+<h3 id="step-3-disable-memory-integrity-core-isolation">Step 3 — Disable Memory Integrity (Core Isolation)</h3>
+<p>Open <strong>Windows Security</strong> (search from Start) → <strong>Device Security</strong>
+→ <strong>Core Isolation details</strong> → toggle <strong>Memory Integrity</strong> to
+<strong>Off</strong>.</p>
+<p>Windows will prompt to reboot.</p>
+<hr>
+<h3 id="step-4-reboot">Step 4 — Reboot</h3>
+<p>Reboot now, even if Windows has been prompting you to since Step 2.</p>
+<p><strong>Important — disable Fast Startup first</strong> if you haven&#39;t already:</p>
+<p>Control Panel → <strong>Power Options</strong> → <strong>Choose what the power buttons
+do</strong> → <strong>Change settings that are currently unavailable</strong> → uncheck
+<strong>Turn on fast startup</strong>. Save changes.</p>
+<p>Windows Fast Startup caches the kernel state and can silently
+re-enable disabled features. Without disabling Fast Startup, your
+Hyper-V / Memory Integrity changes may not actually apply.</p>
+<p>Now reboot (full shutdown + power on, not a &quot;restart&quot; — or if you
+disabled Fast Startup, restart is fine).</p>
+<hr>
+<h3 id="step-5-verify-the-disables-took-effect">Step 5 — Verify the disables took effect</h3>
+<p>Open <strong>PowerShell</strong> (regular, doesn&#39;t need admin for this check):</p>
+<div class="code-block" data-lang="powershell"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-powershell"><code>systeminfo | Select-String "Hyper-V"</code></pre></div>
+<p><strong>Expected (healthy):</strong></p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>Hyper-V Requirements:      VM Monitor Mode Extensions: Yes
+                           Virtualization Enabled In Firmware: Yes
+                           Second Level Address Translation: Yes
+                           Data Execution Prevention Available: Yes</code></pre></div>
+<p><strong>Unhealthy — if you see this line instead of the above:</strong></p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>Hyper-V Requirements:      A hypervisor has been detected. Features required for Hyper-V will not be displayed.</code></pre></div>
+<p>If you see the &quot;A hypervisor has been detected&quot; message, Hyper-V is
+still active. Common causes:</p>
+<ul>
+<li>Fast Startup was on during reboot (redo Step 4)</li>
+<li>Virtual Machine Platform or Windows Hypervisor Platform wasn&#39;t
+actually unchecked in Step 2 (re-verify in Windows features)</li>
+<li><code>bcdedit /set hypervisorlaunchtype off</code> didn&#39;t take (re-run Step
+1 in Administrator PowerShell)</li>
+</ul>
+<p>Do not proceed until you see the &quot;VM Monitor Mode Extensions: Yes&quot;
+output instead of the &quot;hypervisor has been detected&quot; message.</p>
+<hr>
+<h3 id="step-6-install-virtualbox">Step 6 — Install VirtualBox</h3>
+<p>Download <strong>VirtualBox 7.2.x</strong> from
+<a href="https://www.virtualbox.org/wiki/Downloads">https://www.virtualbox.org/wiki/Downloads</a>.
+Pick the <strong>Windows hosts</strong> installer.</p>
+<p>Run the installer. Accept defaults. It will warn about a brief
+network disconnect during install — that&#39;s expected.</p>
+<p><strong>After install, close and reopen PowerShell</strong> (the VirtualBox
+<code>VBoxManage</code> command is added to PATH; existing PowerShell windows
+won&#39;t see it).</p>
+<p>Verify:</p>
+<div class="code-block" data-lang="powershell"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-powershell"><code>VBoxManage --version</code></pre></div>
+<p><strong>Expected:</strong></p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>7.2.&lt;patch&gt;r&lt;build&gt;</code></pre></div>
+<p>Any 7.2.x version is fine.</p>
+<hr>
+<h3 id="step-7-install-vagrant">Step 7 — Install Vagrant</h3>
+<p>Download <strong>Vagrant 2.4.9 or later</strong> from
+<a href="https://developer.hashicorp.com/vagrant/downloads">https://developer.hashicorp.com/vagrant/downloads</a>.
+Pick the <strong>Windows AMD64</strong> installer.</p>
+<p>Run the installer. Accept defaults. Reboot if prompted (Vagrant&#39;s
+installer sometimes requests a reboot for PATH updates).</p>
+<p>Verify in a fresh PowerShell:</p>
+<div class="code-block" data-lang="powershell"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-powershell"><code>vagrant --version</code></pre></div>
+<p><strong>Expected:</strong></p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>Vagrant 2.4.9</code></pre></div>
+<p>(or later)</p>
+<hr>
+<h3 id="step-8-optional-install-git-bash">Step 8 — Optional: Install Git Bash</h3>
+<p>Vagrant uses <code>rsync</code> and POSIX tooling for some operations. Git for
+Windows bundles these. Download from
+<a href="https://git-scm.com/download/win">https://git-scm.com/download/win</a>.</p>
+<p>Accept installer defaults. The bootcamp runbook assumes some
+POSIX-style tools are available at the Windows shell level; Git Bash
+provides them.</p>
+<hr>
+<h3 id="host-prep-complete-sanity-check">Host prep complete — sanity check</h3>
+<p>In a fresh PowerShell:</p>
+<div class="code-block" data-lang="powershell"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-powershell"><code>systeminfo | Select-String "VM Monitor Mode"
+VBoxManage --version
+vagrant --version</code></pre></div>
+<p>All three should return expected output. If they do, you&#39;re ready
+for the bootcamp.</p>
+<hr>
+<h3 id="if-windows-update-breaks-this-later">If Windows Update breaks this later</h3>
+<p>Windows Update occasionally re-enables Memory Integrity, Virtual
+Machine Platform, or other features silently. If VirtualBox starts
+behaving strangely (slow VMs, failed starts, &quot;VT-x is not available&quot;
+errors), re-run Steps 5 and 1–3 as a diagnostic pass. The disables
+need to be re-applied periodically on some Windows 11 setups.</p>
+<h3 id="what-just-happened">What just happened</h3>
+<p>Windows 11 ships with several features that either take ownership
+of the CPU&#39;s hardware virtualization extensions (Hyper-V, Virtual
+Machine Platform) or block the memory allocations VirtualBox needs
+(Memory Integrity under Core Isolation). Disabling them is not a
+security downgrade for a dedicated lab laptop — it&#39;s restoring the
+host to a state where a Type-2 hypervisor can function. Fast
+Startup matters because it caches kernel state across &quot;shutdowns&quot;
+and can silently re-enable disabled features; without turning it
+off, the other changes may not stick.</p>
+<h3 id="validation">Validation</h3>
+<p>Run in a fresh PowerShell on the Windows host:</p>
+<div class="code-block" data-lang="powershell"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-powershell"><code>systeminfo | Select-String "VM Monitor Mode"
+VBoxManage --version
+vagrant --version</code></pre></div>
+<p>Expected:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>                           VM Monitor Mode Extensions: Yes
+7.2.&lt;patch&gt;r&lt;build&gt;
+Vagrant 2.4.9</code></pre></div>
+<p>Any VirtualBox 7.2.x; Vagrant 2.4.9 or later. If <code>systeminfo</code>
+returns &quot;A hypervisor has been detected&quot; instead of the VM Monitor
+Mode line, return to <a href="#section-00-host-preparation">Section 00 host preparation</a> Steps 1–4 with
+Fast Startup confirmed off.</p>
+<hr>
+<h2 id="section-01-what-were-building">Section 01 — What we&#39;re building</h2>
+<p>By the end of this bootcamp, a real MPI benchmark — High Performance
+Linpack (HPL) — runs across two diskless compute nodes that PXE-booted
+from a head node we built from nothing. Grafana shows the CPU saturation
+on both compute nodes live as HPL runs. The whole stack fits on a
+single 16 GB laptop.</p>
+<p><strong>Prerequisites:</strong> Section 00 complete (<a href="#section-00-host-preparation">Section 00 host preparation</a> validation passed).</p>
+<h3 id="architecture">Architecture</h3>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>                    ┌──────────────────────────────────────────────────┐
+                    │                      head                         │
+                    │          Rocky 9.7 · 4 GB · 2 vCPU                │
+                    │                                                   │
+                    │  NFS server · Warewulf (wwctl, wwd)               │
+                    │  slurmctld · slurmdbd · MariaDB                   │
+                    │  Munge · Prometheus · Grafana                     │
+                    │                                                   │
+                    │  10.0.0.1 (mgmt)     10.1.0.1 (data)              │
+                    └────────┬───────────────────────────┬──────────────┘
+                             │                           │
+      ═══════════════════════╪═══════════════════════════╪═══════════════════
+      hpc-mgmt  ·  10.0.0.0/24  ·  SSH · PXE · DHCP · Slurm ctrl · Munge
+      ═══════════════════════╪═══════════════════════════╪═══════════════════
+                             │                           │
+      ───────────────────────┼───────────────────────────┼───────────────────
+      hpc-data  ·  10.1.0.0/24  ·  NFS (/home /apps /scratch) · MPI
+      ───────────────────────┼───────────────────────────┼───────────────────
+                             │                           │
+                        10.0.0.11                   10.0.0.12
+                        10.1.0.11                   10.1.0.12
+                             │                           │
+                 ┌───────────┴───────────┐   ┌───────────┴───────────┐
+                 │       compute01        │   │       compute02        │
+                 │   diskless · PXE       │   │   diskless · PXE       │
+                 │                        │   │                        │
+                 │  NFS client · slurmd   │   │  NFS client · slurmd   │
+                 │  node_exporter · Munge │   │  node_exporter · Munge │
+                 └────────────────────────┘   └────────────────────────┘</code></pre></div>
+<p>Two fabrics, three nodes. <code>head</code> owns every service that isn&#39;t compute:
+the scheduler, the provisioning stack, shared storage, observability.
+<code>compute01</code> and <code>compute02</code> are diskless — they pull their root
+filesystem from Warewulf on <code>head</code> over the management fabric at boot,
+run whatever Slurm assigns them, and carry no state of their own.</p>
+<h3 id="terminology">Terminology</h3>
+<p><strong>Head node / compute node.</strong> The head is the single entry point and
+control plane — it runs the scheduler, the provisioning stack, shared
+storage, and observability. Compute nodes are the hands that execute
+the work the scheduler hands them. Users log into the head, never into
+compute nodes directly.</p>
+<p><strong>Scheduler / job.</strong> &quot;Scheduler&quot; in HPC means Slurm (or one of its
+peers — PBS, LSF, Grid Engine). It accepts job submissions, queues
+them, matches them to available resources, and records what ran. A job
+is one submission — a shell script plus a set of resource requests
+(N nodes, M cores, T hours).</p>
+<p><strong>Fabric.</strong> The network. HPC calls it a fabric because the network is
+a high-performance substrate for computation, not a pipe to the
+internet. This lab has two: <code>hpc-mgmt</code> for control traffic and
+<code>hpc-data</code> for NFS and MPI between compute nodes. Production clusters
+add a third — InfiniBand — when MPI latency matters.</p>
+<p><strong>PXE boot / diskless / image / overlay.</strong> PXE lets a machine with no
+disk boot from a DHCP+TFTP server. &quot;Diskless&quot; in HPC means the compute
+node has no local storage — its root filesystem lives in RAM, populated
+from an &quot;image&quot; (Warewulf&#39;s delivered root, historically a chroot, now
+an OCI container). An &quot;overlay&quot; is Warewulf&#39;s per-node customization
+layer on top of the base image: hostname, SSH keys, Slurm config.</p>
+<p><strong>MPI / rank / task.</strong> MPI (Message Passing Interface) is the standard
+for inter-process communication in parallel scientific computing. An
+MPI job runs as a set of processes called &quot;ranks&quot; (rank 0 through
+rank N-1) spread across compute nodes. A Slurm &quot;task&quot; is one process.
+A &quot;job&quot; is the entire submission — all its ranks and all its resources.</p>
+<p><strong>Module / module system.</strong> HPC clusters serve many users with
+conflicting software needs. A module system (Lmod is ours) lets a user
+run <code>module load openmpi/4.1.5</code> and get that exact toolchain in their
+shell without disturbing anyone else. It&#39;s disciplined <code>PATH</code> and
+<code>LD_LIBRARY_PATH</code> manipulation with a friendly front-end.</p>
+<h3 id="enterprise-it-hpc-mapping">Enterprise IT → HPC mapping</h3>
+<table class="rb-table"><thead><tr><th>Enterprise IT</th><th>HPC equivalent</th><th>Key difference</th></tr></thead><tbody><tr><td>Gold image / golden master</td><td>Warewulf container image</td><td>Same idea — one image boots many machines. HPC&#39;s image is stateless and loaded over PXE every boot, not flashed to disk.</td></tr><tr><td>Corporate NTP server</td><td>chrony pointed at pool.ntp.org</td><td>Same protocol, same daemon. HPC fleets need tighter sync because scheduler and MPI depend on clocks agreeing.</td></tr><tr><td>Active Directory / LDAP</td><td>Active Directory / AD+SSSD (production HPC at most commercial sites) or FreeIPA (academic labs)</td><td>Same directory tooling, typically bolted onto the existing enterprise identity. This lab uses local users because 4 hours.</td></tr><tr><td>Kerberos keytab</td><td>Munge key</td><td>Both are pre-shared secrets that let services trust each other. Munge is HPC&#39;s lighter-weight design — no KDC, no tickets, credentials expire in seconds.</td></tr><tr><td>Corporate PXE for workstations</td><td>Warewulf for compute nodes</td><td>PXE infrastructure you already know. Warewulf bundles DHCP, TFTP, HTTP, and an OCI-based image workflow into one CLI.</td></tr><tr><td>SCCM / Ansible Tower</td><td>Warewulf <code>wwctl</code> + overlays</td><td>Declarative node state, centrally managed. Warewulf&#39;s scope is narrower (boot image + per-node overlays) and there&#39;s no agent on compute nodes.</td></tr><tr><td>Corporate file share (CIFS/SMB)</td><td>NFS exports</td><td>Network-attached storage, different protocol. NFS is the HPC default — kernel-native on Linux and MPI workloads hate Windows-era locking semantics.</td></tr><tr><td>NAS appliance</td><td>Head serving NFS (this lab) / Lustre, GPFS, BeeGFS (production)</td><td>Same role, very different scale. Production HPC storage is a parallel filesystem across many servers, not a single NAS.</td></tr><tr><td>VLANs / broadcast domains</td><td>Internal fabrics (<code>hpc-mgmt</code>, <code>hpc-data</code>)</td><td>Same concept — layer-2 isolation. HPC calls them fabrics and often has more of them, including one reserved for low-latency MPI.</td></tr><tr><td>10/25 GbE corporate networking</td><td>InfiniBand or RoCE for MPI</td><td>Ethernet works for MPI; InfiniBand is 5-50× lower latency. Production HPC invests heavily here; this lab uses plain ethernet.</td></tr><tr><td>Tiered storage (SAN / NAS / archive)</td><td><code>/home</code> + <code>/apps</code> + <code>/scratch</code></td><td>Same tiering idea, different drivers. HPC tiers by expected lifetime: <code>/home</code> backed up, <code>/apps</code> holds shared software, <code>/scratch</code> fast and disposable.</td></tr><tr><td>vCenter / SCVMM</td><td>No direct equivalent</td><td>Closest pair is Warewulf (compute node lifecycle) + Slurm (workload placement). HPC doesn&#39;t think of nodes as movable VMs.</td></tr><tr><td>VMware HA / DRS</td><td>No equivalent</td><td>HPC nodes are cattle. A failed node drops its jobs; Slurm re-queues them. No live migration.</td></tr><tr><td>Chargeback / showback</td><td>Slurm accounting (<code>slurmdbd</code> + MariaDB)</td><td>Identical motivation — track who used what for how long. Ships with the scheduler, not bolted on.</td></tr><tr><td>Service account</td><td>Munge-authenticated service-to-service trust</td><td>Both establish that a request came from a trusted process. Munge credentials are signed and expire in seconds, not months.</td></tr><tr><td>systemd service</td><td>systemd service</td><td>Same. <code>slurmctld.service</code>, <code>warewulfd.service</code>, <code>munge.service</code> — same unit files you already read.</td></tr><tr><td>Package manager (dnf / apt)</td><td>dnf + OpenHPC repo</td><td>Same tooling, one extra signed repository. OpenHPC packages install to <code>/opt/ohpc/</code>, not <code>/usr/</code>, so they coexist with system packages.</td></tr><tr><td>Patch management / OS updates</td><td>Image rebuild + reboot (compute) · dnf update (head)</td><td>For compute nodes: rebuild the Warewulf image and reboot. The head still patches conventionally.</td></tr><tr><td>Prometheus + Grafana (enterprise)</td><td>Prometheus + Grafana (HPC)</td><td>Identical. Same exporters, same dashboards, same alerting patterns. HPC adds job-aware metrics; the stack is the same.</td></tr><tr><td>RHEL / CentOS / Rocky (enterprise)</td><td>RHEL / CentOS / Rocky (HPC)</td><td>Same distros. HPC clusters typically sit one minor version behind because the stack (drivers, MPI, scheduler) needs to catch up.</td></tr><tr><td>Ansible / Puppet / Chef</td><td>Ansible / Puppet / Chef + Warewulf</td><td>Same config-management tools manage the head. Compute nodes themselves are configured by Warewulf&#39;s overlays, not by an agent.</td></tr><tr><td>Backup / DR</td><td>Mostly absent by design</td><td><code>/home</code> and <code>/apps</code> are usually backed up; <code>/scratch</code> explicitly isn&#39;t — it&#39;s disposable. Whole-cluster DR in HPC is rare.</td></tr><tr><td>&quot;The server&quot; (single-purpose role)</td><td>&quot;The node&quot; — interchangeable by design</td><td>A compute node is provisioned, used, decommissioned, and re-provisioned with zero ceremony. Hostnames are identifiers, not identities.</td></tr><tr><td>RDP / interactive desktop</td><td><code>ssh</code> + <code>sbatch</code></td><td>HPC is batch-first; interactive use exists but isn&#39;t primary.</td></tr></tbody></table>
+<h3 id="the-promise">The promise</h3>
+<p>By the end of Section 09, HPL — a real parallel benchmark — runs across
+both compute nodes and produces a GFLOPS number you can compare to
+other clusters. Section 10 shows that same job live on a Grafana
+dashboard. If both of those land, the bootcamp has delivered.</p>
+<p>This is a scaffolding exercise, not a certification. You will not leave
+here capable of running a production HPC cluster. You will leave with
+a mental map — the concepts, the terminology, the patterns — so that
+when HPC shows up in your career, you recognize what you&#39;re looking at
+and know where to go deeper. Section 11 is that map, role by role.</p>
+<p>With the map in hand, we start by bringing up the head node.</p>
+<hr>
+<h2 id="section-02-bring-up-the-head-node">Section 02 — Bring up the head node</h2>
+<h3 id="what-this-section-does">What this section does</h3>
+<p>Turn the Vagrantfile into a running Rocky 9.7 VM named <code>head</code> with
+two vCPUs, 4 GB of RAM, 40 GB of root disk, and three network
+interfaces (NAT + <code>hpc-mgmt</code> + <code>hpc-data</code>). By the end, <code>vagrant ssh</code> drops into a shell on a Linux box you own, the root filesystem
+has been grown to fill the virtual disk, and the VM is sane.</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>Section 00 (<a href="#section-00-host-preparation">Section 00 host preparation</a>) complete. You&#39;re at the
+repository root (directory containing <code>Vagrantfile</code>).</p>
+<h3 id="steps">Steps</h3>
+<ol>
+<li><strong>Bring the VM up.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>vagrant up</code></pre></div>
+<p>Expected tail:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>==&gt; default: Machine booted and ready!
+==&gt; default: Checking for guest additions in VM...
+    default: No guest additions were detected on the base box...
+==&gt; default: Setting hostname...
+==&gt; default: Configuring and enabling network interfaces...
+==&gt; default: Rsyncing folder: ...</code></pre></div>
+<p>Two warning classes are expected and safe to ignore:</p>
+<ul>
+<li><code>You assigned a static IP ending in &quot;.1&quot; or &quot;:1&quot;</code> (4 copies) —
+benign on VirtualBox internal networks; no router is present.</li>
+<li><code>No guest additions were detected</code> — Rocky&#39;s base box doesn&#39;t
+ship them; Vagrant falls back to <code>rsync</code> for <code>/vagrant</code> sync.</li>
+</ul>
+<ol start="2">
+<li><strong>Confirm the VM is running.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>vagrant status</code></pre></div>
+<p>Expected: <code>default   running (virtualbox)</code>.</p>
+<ol start="3">
+<li><strong>SSH into head and grow the root partition.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>vagrant ssh</code></pre></div>
+<p>The Vagrantfile declares a 40 GB primary disk, but that directive
+only resizes the <em>virtual disk</em>. Inside the guest, Rocky&#39;s base
+box leaves <code>/dev/sda4</code> at the ~9 GB base-box size. Grow it:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo dnf install -y cloud-utils-growpart
+sudo growpart /dev/sda 4
+sudo xfs_growfs /
+df -h /</code></pre></div>
+<p>Expected (final line):</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>/dev/sda4        39G  3.1G   36G   8% /</code></pre></div>
+<p>Without this step, the filesystem fills up halfway through
+Section 08.</p>
+<h3 id="what-just-happened">What just happened</h3>
+<p>Vagrant resolved the <code>rockylinux/9</code> box to version 9.7.0 via the
+local metadata override (<code>rockylinux-9.7-primary.json</code>), pulled
+the <code>.box</code> artifact from Rocky&#39;s primary mirror, created a
+VirtualBox VM named <code>head</code> at 40 GB virtual disk, applied the
+three firmware customizations (<code>--chipset ich9</code>, <code>--ioapic on</code>,
+<code>--hpet on</code>) that EL9 needs to boot multi-vCPU, attached three
+network adapters (NAT + two internal networks), and booted it.
+<code>growpart</code> and <code>xfs_growfs</code> extended the root filesystem to fill
+the disk.</p>
+<h3 id="validation">Validation</h3>
+<p>Inside the VM:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>hostname
+grep -E '^(NAME|VERSION)=' /etc/os-release
+nproc
+ip -br a
+df -h /</code></pre></div>
+<p>Expected:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>head
+NAME="Rocky Linux"
+VERSION="9.7 (Blue Onyx)"
+2
+lo               UNKNOWN        127.0.0.1/8 ::1/128
+eth0             UP             10.0.2.15/24 ...
+eth1             UP             10.0.0.1/24 ...
+eth2             UP             10.1.0.1/24 ...
+/dev/sda4        39G   3.1G  36G   8% /</code></pre></div>
+<p>Six things must land: hostname <code>head</code>, Rocky 9.7, 2 CPUs, three
+UP interfaces with the right IPs, <code>/</code> at 39 G capacity. A <code>nproc</code>
+of 1 means the Vagrantfile firmware customizations didn&#39;t apply;
+a disk smaller than 39 G means <code>growpart</code> was skipped.</p>
+<hr>
+<h2 id="section-03-head-as-a-shared-resource">Section 03 — Head as a shared resource</h2>
+<h3 id="what-this-section-does">What this section does</h3>
+<p>Turn the generic Rocky VM into something that will anchor a
+cluster: cluster-wide hostname resolution, lab-only security
+posture, persistent logs, the standard four-repo package foundation,
+baseline admin tooling, time synchronization, and three NFS exports
+wired to the data fabric. Most of this is enterprise-IT muscle
+memory; two choices are HPC-specific.</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>Section 02 complete. You&#39;re at <code>[vagrant@head ~]$</code>.</p>
+<h3 id="steps">Steps</h3>
+<ol>
+<li><strong>Add cluster hosts to <code>/etc/hosts</code>.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo tee -a /etc/hosts &gt;/dev/null &lt;&lt;'HOSTS'
+
+# --- cluster ---
+# hpc-mgmt fabric (10.0.0.0/24)
+10.0.0.1    head
+10.0.0.11   compute01
+10.0.0.12   compute02
+
+# hpc-data fabric (10.1.0.0/24)
+10.1.0.1    head-data
+10.1.0.11   compute01-data
+10.1.0.12   compute02-data
+HOSTS</code></pre></div>
+<p>Two hostnames per node — the short name on the mgmt fabric, a
+<code>-data</code> alias on the data fabric. NFS and MPI use the <code>-data</code>
+names; SSH, Slurm control, and Warewulf use the short names.</p>
+<p>Verify:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>getent hosts compute01 compute01-data head-data</code></pre></div>
+<p>Expected:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>10.0.0.11       compute01
+10.1.0.11       compute01-data
+10.1.0.1        head-data</code></pre></div>
+<p>Looking up <code>head</code> from head itself returns the machine&#39;s own
+interface addresses — NSS&#39;s <code>myhostname</code> module pre-empts. This
+is harmless: compute nodes looking up <code>head</code> via their own
+<code>/etc/hosts</code> correctly get <code>10.0.0.1</code>.</p>
+<ol start="2">
+<li><strong>Lab-only posture: SELinux permissive, firewalld off, persistent journal.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo sed -i 's/^SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
+sudo setenforce 0
+sudo systemctl disable --now firewalld
+sudo mkdir -p /var/log/journal
+sudo systemd-tmpfiles --create --prefix /var/log/journal
+sudo systemctl restart systemd-journald</code></pre></div>
+<p>Verify:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>getenforce                          # Permissive
+systemctl is-active firewalld       # inactive
+sudo journalctl --disk-usage        # some MB used in the file system</code></pre></div>
+<p>A production cluster keeps SELinux enforcing and runs firewalld
+with a minimal ruleset; we skip both because the cluster is
+single-user on internal fabrics and time is short. Persistent
+journald is general Linux hygiene — by default journald logs to
+RAM (<code>/run/log/journal</code>) and discards on reboot.</p>
+<ol start="3">
+<li><strong>Enable CRB + EPEL and install baseline packages.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo dnf config-manager --set-enabled crb
+sudo dnf install -y epel-release
+sudo dnf install -y vim tmux bind-utils net-tools</code></pre></div>
+<p>Rocky 9 ships BaseOS + AppStream enabled. CRB (CodeReady Builder)
+carries dev packages OpenHPC dependencies need; EPEL carries
+community tooling. The four-repo foundation (BaseOS / AppStream /
+CRB / EPEL) is standard for any RHEL-family HPC head.</p>
+<p>Verify:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo dnf repolist --enabled | awk 'NR==1 || /^(baseos|appstream|crb|epel )/'</code></pre></div>
+<p>Expected:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>repo id    repo name
+appstream  Rocky Linux 9 - AppStream
+baseos     Rocky Linux 9 - BaseOS
+crb        Rocky Linux 9 - CRB
+epel       Extra Packages for Enterprise Linux 9 - x86_64</code></pre></div>
+<ol start="4">
+<li><strong>Verify time sync.</strong></li>
+</ol>
+<p>Chrony is pre-installed and active on the Rocky base image.</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>chronyc sources
+chronyc tracking | head -2</code></pre></div>
+<p>Expected: one source marked <code>^*</code>, <code>Stratum 2-5</code>.</p>
+<ol start="5">
+<li><strong>Create NFS exports.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo mkdir -p /export/home /export/apps /export/scratch
+sudo chmod 1777 /export/scratch
+
+sudo tee /etc/exports &gt;/dev/null &lt;&lt;'EXPORTS'
+/export/home     10.1.0.0/24(rw,sync,no_root_squash,no_subtree_check)
+/export/apps     10.1.0.0/24(rw,sync,no_root_squash,no_subtree_check)
+/export/scratch  10.1.0.0/24(rw,sync,no_root_squash,no_subtree_check)
+EXPORTS
+
+sudo systemctl enable --now nfs-server
+sudo exportfs -ra
+sudo exportfs -v</code></pre></div>
+<p><code>/export/scratch</code> gets sticky-bit <code>1777</code> so every user can write
+their own files without disturbing anyone else&#39;s (same as <code>/tmp</code>).
+The export ACL is restricted to <code>10.1.0.0/24</code>, the <code>hpc-data</code>
+fabric. This is the second HPC-specific choice in this section:
+a compute node reaching NFS from its <code>hpc-mgmt</code> address
+(<code>10.0.0.11</code>) will be refused, so bulk traffic <em>can only</em> flow
+on the data fabric.</p>
+<h3 id="what-just-happened">What just happened</h3>
+<p>The head is now in the posture an HPC controller expects. Every
+cluster node resolves on both fabrics by hostname. Lab-only
+security is out of the way. Logs persist. The four-repo package
+foundation and baseline tooling are in place. Time is synchronized
+against the public NTP pool. Three NFS exports are bound to the
+data fabric, waiting for compute-node clients.</p>
+<p>None of this is HPC-specific except the two-fabric hostname
+pattern and the fabric-restricted NFS ACL. Those two encode the
+architecture of the cluster — control on one fabric, bulk data on
+the other — at the OS layer, before any HPC software is installed.</p>
+<h3 id="validation">Validation</h3>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>getenforce
+systemctl is-active firewalld nfs-server chronyd
+sudo exportfs -v
+getent hosts head-data compute01</code></pre></div>
+<p>Expected:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>Permissive
+inactive
+active
+active
+/export/home  	10.1.0.0/24(...)
+/export/apps  	10.1.0.0/24(...)
+/export/scratch
+		10.1.0.0/24(...)
+10.1.0.1        head-data
+10.0.0.11       compute01</code></pre></div>
+<hr>
+<h2 id="section-04-cluster-identity">Section 04 — Cluster identity</h2>
+<h3 id="what-this-section-does">What this section does</h3>
+<p>Install Munge (HPC&#39;s service-to-service auth broker), generate the
+cluster&#39;s shared key, create two HPC users with NFS-backed homes
+bind-mounted onto <code>/home</code>, give <code>hpcadmin</code> passwordless sudo, and
+generate SSH keypairs for root + both users so passwordless SSH
+works across the cluster the moment compute nodes come online.
+This is the first section where the pattern stops being generic
+Linux and starts being HPC-specific; Munge is the teaching beat.</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>Section 03 complete. NFS server is running, <code>/export/home</code> exported
+to <code>10.1.0.0/24</code>.</p>
+<h3 id="steps">Steps</h3>
+<ol>
+<li><strong>Install Munge and generate the shared key.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo dnf install -y munge munge-libs
+sudo /usr/sbin/create-munge-key -f
+sudo systemctl enable --now munge
+munge -n | unmunge | head -6</code></pre></div>
+<p>Expected (tail):</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>STATUS:           Success (0)
+ENCODE_HOST:      head (&lt;ip&gt;)
+ENCODE_TIME:      &lt;timestamp&gt;
+DECODE_TIME:      &lt;timestamp&gt;
+TTL:              300
+CIPHER:           aes128 (4)</code></pre></div>
+<p><strong>Why Munge.</strong> Every HPC service — Slurm&#39;s daemons, Warewulf,
+MPI process launchers — needs to prove to peers that a request
+really came from a cluster member. In enterprise IT you&#39;d reach
+for Kerberos: KDC, keytabs, TGTs, renewals. HPC&#39;s trust model is
+narrower: every node holds the same symmetric key in
+<code>/etc/munge/munge.key</code> (mode 400, owned <code>munge:munge</code>). Any
+process on any cluster node can ask its local <code>munged</code> to sign
+or verify a credential — no network protocol between nodes, no
+TGT expiry. Simpler than Kerberos and sufficient because cluster
+nodes are equally-trusted peers. The key file will travel to
+every compute node in Section 08.</p>
+<ol start="2">
+<li><strong>Create the two HPC users.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo useradd -u 1100 -m -d /home/hpcadmin -s /bin/bash -c 'HPC admin' hpcadmin
+sudo useradd -u 1101 -m -d /home/hpcuser  -s /bin/bash -c 'HPC user'  hpcuser</code></pre></div>
+<p>UIDs are pinned so they&#39;ll match the same users on compute nodes
+in Section 08. Consistent UIDs across the cluster are the
+prerequisite for NFS to feel sane — without them, a file
+<code>hpcadmin</code> writes on head appears as an unmapped UID on a
+compute node with no permission to edit.</p>
+<ol start="3">
+<li><strong>Move existing homes into <code>/export/home</code> and bind-mount <code>/home</code>.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo rsync -a /home/ /export/home/
+sudo tee -a /etc/fstab &gt;/dev/null &lt;&lt;'FSTAB'
+
+# Cluster home: /home is a bind of /export/home so users' files live on
+# the NFS-exported path and appear identically on head and compute.
+/export/home  /home  none  bind  0 0
+FSTAB
+sudo mount /home
+findmnt /home
+stat -c 'dev=%d inode=%i' /home /export/home</code></pre></div>
+<p>Expected:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>TARGET SOURCE                  FSTYPE OPTIONS
+/home  /dev/sda4[/export/home] xfs    rw,...
+dev=&lt;N&gt; inode=&lt;M&gt;
+dev=&lt;N&gt; inode=&lt;M&gt;</code></pre></div>
+<p>The two <code>stat</code> lines must show the same device and inode — that&#39;s
+the proof of a bind mount.</p>
+<ol start="4">
+<li><strong>Passwordless sudo for <code>hpcadmin</code>.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>echo 'hpcadmin ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/hpcadmin
+sudo chmod 440 /etc/sudoers.d/hpcadmin
+sudo visudo -c -f /etc/sudoers.d/hpcadmin</code></pre></div>
+<p>Expected: <code>/etc/sudoers.d/hpcadmin: parsed OK</code>.</p>
+<p><code>visudo -c</code> is the sanity check; a malformed drop-in can lock
+you out of sudo entirely.</p>
+<ol start="5">
+<li><strong>Generate SSH keypairs for root, <code>hpcadmin</code>, and <code>hpcuser</code>.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo bash -c '
+set -e
+for u in root hpcadmin hpcuser; do
+  if [ "$u" = root ]; then home=/root; else home=/home/$u; fi
+  install -d -m 700 -o $u -g $u "$home/.ssh"
+  sudo -u $u ssh-keygen -t ed25519 -N "" -f "$home/.ssh/id_ed25519" -C "$u@cluster" -q
+  cat "$home/.ssh/id_ed25519.pub" &gt;&gt; "$home/.ssh/authorized_keys"
+  chown $u:$u "$home/.ssh/authorized_keys"
+  chmod 600 "$home/.ssh/authorized_keys"
+  cat &gt; "$home/.ssh/config" &lt;&lt;SSHCFG
+Host compute* head*
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    LogLevel ERROR
+SSHCFG
+  chown $u:$u "$home/.ssh/config"
+  chmod 600 "$home/.ssh/config"
+done
+'</code></pre></div>
+<p>Each user gets <code>id_ed25519</code> / <code>id_ed25519.pub</code>, their own pubkey
+appended to <code>authorized_keys</code>, and a <code>.ssh/config</code> that disables
+host-key checking for <code>compute*</code> and <code>head*</code> hosts. Compute nodes
+get re-imaged frequently, so host keys change often; on an
+internal fabric this is the pragmatic choice.</p>
+<p>Because <code>/home</code> is NFS-shared across the cluster, the users&#39;
+<code>authorized_keys</code> and <code>.ssh/config</code> appear automatically on
+every compute node. Root&#39;s keys live in <code>/root/.ssh/</code> — not on
+NFS — so root&#39;s public key has to be pushed into the compute
+image in Section 08.</p>
+<h3 id="what-just-happened">What just happened</h3>
+<ul>
+<li><strong>Munge</strong> is running on head and holds the cluster&#39;s shared
+secret. The key travels to every compute node in Section 08
+so Slurm and Warewulf daemons can authenticate peer-to-peer.</li>
+<li><strong>Two HPC users exist</strong> with UIDs 1100 and 1101 that will
+match on compute nodes. Their homes live in <code>/export/home</code>,
+which NFS serves on <code>hpc-data</code>.</li>
+<li><strong><code>/home</code> is a bind of <code>/export/home</code>.</strong> Users, scripts, and
+SSH configs see one canonical path on every node.</li>
+<li><strong>SSH keypairs</strong> are in place for root, <code>hpcadmin</code>, and
+<code>hpcuser</code>; each trusts its own key.</li>
+</ul>
+<h3 id="validation">Validation</h3>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>systemctl is-active munge
+id hpcadmin
+id hpcuser
+findmnt /home
+sudo -u hpcadmin sudo -n whoami
+sudo -u hpcadmin ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR localhost 'whoami; hostname; pwd'</code></pre></div>
+<p>Expected (condensed):</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>active
+uid=1100(hpcadmin) gid=1100(hpcadmin) groups=1100(hpcadmin)
+uid=1101(hpcuser) gid=1101(hpcuser) groups=1101(hpcuser)
+/home  /dev/sda4[/export/home] ...
+root
+hpcadmin
+head
+/home/hpcadmin</code></pre></div>
+<hr>
+<h2 id="section-05-the-provisioning-engine">Section 05 — The provisioning engine</h2>
+<h3 id="what-this-section-does">What this section does</h3>
+<p>Install Warewulf 4 via OpenHPC, configure it for our two-fabric
+network, and start <code>warewulfd</code>. This is the engine that will
+deliver diskless OS images to compute nodes in Section 08. DHCP
+is configured in <code>warewulf.conf</code> but intentionally not started
+here — no compute nodes exist, and serving DHCP to nothing is
+noisy. DHCP comes on in Section 08.</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>Section 04 complete.</p>
+<h3 id="steps">Steps</h3>
+<ol>
+<li><strong>Add the OpenHPC 3 repo.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo dnf install -y http://repos.openhpc.community/OpenHPC/3/EL_9/x86_64/ohpc-release-3-1.el9.x86_64.rpm
+sudo dnf makecache</code></pre></div>
+<p>The <code>ohpc-release</code> RPM drops <code>OpenHPC.repo</code> into
+<code>/etc/yum.repos.d/</code> enabling both <code>[OpenHPC]</code> (base) and
+<code>[OpenHPC-updates]</code>, and installs the signing GPG key.</p>
+<p>Verify:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo dnf repolist --enabled | grep -i openhpc</code></pre></div>
+<p>Expected:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>OpenHPC          OpenHPC-3 - Base
+OpenHPC-updates  OpenHPC-3 - Updates</code></pre></div>
+<ol start="2">
+<li><strong>Install Warewulf 4.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo dnf install -y warewulf-ohpc-4.6.4-340.ohpc.1.3
+wwctl version</code></pre></div>
+<p>The package name is <code>warewulf-ohpc</code>, <strong>not</strong> <code>ohpc-warewulf</code>.
+OpenHPC 3 also ships Warewulf 3 under the <code>ohpc-warewulf</code>
+meta-package — that&#39;s the legacy chroot-based version. We want
+Warewulf 4 (OCI-based), which is the singular-named
+<code>warewulf-ohpc</code>.</p>
+<p>Expected:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>wwctl version:	 4.6.4-1
+rpc version: apiPrefix:"rc1" apiVersion:"1" warewulfVersion:"4.6.4-1"</code></pre></div>
+<ol start="3">
+<li><strong>Configure <code>/etc/warewulf/warewulf.conf</code>.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo cp /etc/warewulf/warewulf.conf /etc/warewulf/warewulf.conf.default
+sudo tee /etc/warewulf/warewulf.conf &gt;/dev/null &lt;&lt;'WWCONF'
+ipaddr: 10.0.0.1
+netmask: 255.255.255.0
+network: 10.0.0.0
+warewulf:
+    port: 9873
+    secure: false
+    update interval: 60
+    autobuild overlays: true
+    host overlay: true
+    grubboot: false
+    systemd name: warewulfd
+api:
+    enabled: false
+    allowed subnets:
+        - 127.0.0.0/8
+        - ::1/128
+dhcp:
+    enabled: false
+    template: default
+    range start: 10.0.0.100
+    range end: 10.0.0.200
+    systemd name: dhcpd
+tftp:
+    enabled: true
+    tftproot: /srv/tftpboot
+    systemd name: tftp
+    ipxe:
+        00:0B: arm64-efi/snponly.efi
+        "00:00": undionly.kpxe
+        "00:07": ipxe-snponly-x86_64.efi
+        "00:09": ipxe-snponly-x86_64.efi
+nfs:
+    enabled: false
+    systemd name: nfs-server
+ssh:
+    key types:
+        - ed25519
+        - ecdsa
+        - rsa
+        - dsa
+image mounts:
+    - source: /etc/resolv.conf
+      dest: /etc/resolv.conf
+      readonly: true
+WWCONF</code></pre></div>
+<p>Key differences from the upstream default:</p>
+<ul>
+<li><code>netmask: 255.255.255.0</code> — /24 matching the <code>hpc-mgmt</code> network.</li>
+<li><code>dhcp.enabled: false</code> — config present, daemon off until Section 08.</li>
+<li><code>nfs.enabled: false</code> — we set up NFS ourselves in Section 03.</li>
+</ul>
+<ol start="4">
+<li><strong>Generate PXE artifacts and start warewulfd.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo wwctl configure tftp
+sudo systemctl enable --now warewulfd</code></pre></div>
+<p><code>wwctl configure tftp</code> drops iPXE binaries (<code>undionly.kpxe</code>,
+<code>ipxe-snponly-x86_64.efi</code>, and aarch64 equivalent) into
+<code>/srv/tftpboot/warewulf/</code> and enables <code>tftp.socket</code>.</p>
+<p>Verify:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>systemctl is-active warewulfd
+sudo ss -tulnp | awk '/:(9873|69) / || NR==1'
+sudo wwctl profile list
+sudo wwctl node list
+systemctl is-enabled dhcpd
+systemctl is-active dhcpd</code></pre></div>
+<p>Expected:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>active
+Netid State  ... Local Address:Port ...
+udp   UNCONN 0 0    *:69   *:* users:(("in.tftpd",...))
+tcp   LISTEN 0 4096 *:9873 *:* users:(("wwctl",...))
+PROFILE NAME  COMMENT/DESCRIPTION
+------------  -------------------
+default       This profile is automatically included for each node
+NODE NAME  PROFILES  NETWORK
+---------  --------  -------
+disabled
+inactive</code></pre></div>
+<h3 id="what-just-happened">What just happened</h3>
+<p>The head is now an HPC provisioning server. <code>warewulfd</code> listens
+on <code>10.0.0.1:9873</code> for compute nodes to fetch runtime overlays.
+TFTP on UDP 69 is ready to serve iPXE boot binaries. The <code>default</code>
+node profile has been auto-created; any compute node defined
+later inherits its settings.</p>
+<p>DHCP is intentionally off. Turning it on now would mean head
+answers DHCP on an internal network with no clients — harmless,
+but muddies the story. Section 08 flips <code>dhcp.enabled: true</code>,
+runs <code>wwctl configure --all</code>, and starts <code>dhcpd</code> at the same
+moment the first compute node powers on.</p>
+<h3 id="validation">Validation</h3>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>wwctl version
+sudo wwctl profile list
+systemctl is-active warewulfd
+systemctl is-active dhcpd</code></pre></div>
+<p>Expected:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>wwctl version:	 4.6.4-1
+...
+default  This profile is automatically included for each node
+active
+inactive</code></pre></div>
+<hr>
+<h2 id="section-06-the-job-scheduler">Section 06 — The job scheduler</h2>
+<h3 id="what-this-section-does">What this section does</h3>
+<p>Stand up Slurm — the controller (<code>slurmctld</code>), the accounting
+daemon (<code>slurmdbd</code>), and its MariaDB backing store. Register the
+cluster (<code>hpc</code>) in the accounting DB. <code>slurm.conf</code> is written
+with the MPI launcher, timeout, and Epilog settings Section 09
+will need, so no reconfig later. By the end, <code>sinfo</code>, <code>squeue</code>,
+and <code>sacctmgr</code> all work on head even though no compute nodes are
+up; Slurm knows <code>compute[01-02]</code> are defined and waits for a
+<code>slurmd</code> to check in.</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>Section 04 (Munge) and Section 05 (OpenHPC repo).</p>
+<h3 id="steps">Steps</h3>
+<ol>
+<li><strong>Install MariaDB + Slurm server.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo dnf install -y mariadb-server ohpc-slurm-server-3.4-340.ohpc.4.1</code></pre></div>
+<p><code>ohpc-slurm-server</code> pulls <code>slurm-ohpc</code>, <code>slurm-slurmctld-ohpc</code>,
+<code>slurm-slurmdbd-ohpc</code>, <code>slurm-example-configs-ohpc</code>, plus
+dependencies. The <code>slurm</code> system user (UID 202) is created
+automatically.</p>
+<ol start="2">
+<li><strong>Enable MariaDB and create the accounting database.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo systemctl enable --now mariadb
+sudo mysql &lt;&lt;'SQL'
+CREATE DATABASE IF NOT EXISTS slurm_acct_db;
+CREATE USER IF NOT EXISTS 'slurm'@'localhost' IDENTIFIED BY 'slurmdbpass';
+GRANT ALL PRIVILEGES ON slurm_acct_db.* TO 'slurm'@'localhost';
+FLUSH PRIVILEGES;
+SQL</code></pre></div>
+<p>Lab-only password. A production site would generate a strong
+random password, store it in a secret manager, and restrict the
+DB user&#39;s reach to <code>localhost</code> (done here) plus TLS.</p>
+<ol start="3">
+<li><strong>Create the runtime directories Slurm expects.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo install -d -m 755 -o slurm -g slurm /var/log/slurm /var/spool/slurmctld /var/spool/slurmd
+sudo tee /etc/tmpfiles.d/slurm.conf &gt;/dev/null &lt;&lt;'TMPF'
+d /run/slurm 0755 slurm slurm -
+TMPF
+sudo systemd-tmpfiles --create /etc/tmpfiles.d/slurm.conf</code></pre></div>
+<p><code>/run/slurm/</code> is where slurmctld/slurmdbd drop their PID files.
+<code>/run</code> is tmpfs, so the tmpfiles.d drop-in recreates it on every
+reboot.</p>
+<ol start="4">
+<li><strong>Write <code>slurmdbd.conf</code>.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo tee /etc/slurm/slurmdbd.conf &gt;/dev/null &lt;&lt;'SLURMDBD'
+AuthType=auth/munge
+AuthInfo=/var/run/munge/munge.socket.2
+DbdAddr=localhost
+DbdHost=localhost
+SlurmUser=slurm
+DebugLevel=info
+LogFile=/var/log/slurm/slurmdbd.log
+PidFile=/run/slurm/slurmdbd.pid
+StorageType=accounting_storage/mysql
+StorageHost=localhost
+StorageUser=slurm
+StoragePass=slurmdbpass
+StorageLoc=slurm_acct_db
+SLURMDBD
+sudo chown slurm:slurm /etc/slurm/slurmdbd.conf
+sudo chmod 600 /etc/slurm/slurmdbd.conf</code></pre></div>
+<p>Mode <code>600</code> owned by <code>slurm</code> because the file contains the DB
+password. slurmdbd refuses to start otherwise.</p>
+<ol start="5">
+<li><strong>Start slurmdbd.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo systemctl enable --now slurmdbd</code></pre></div>
+<p>Verify:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>systemctl is-active slurmdbd
+sudo mysql slurm_acct_db -e 'SHOW TABLES;' | head -5</code></pre></div>
+<p>Expected:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>active
+Tables_in_slurm_acct_db
+acct_coord_table
+acct_table
+cluster_table</code></pre></div>
+<p>On first start, slurmdbd creates ~12 tables. A log warning
+&quot;Database settings not recommended values&quot; is harmless at this
+scale.</p>
+<ol start="6">
+<li><strong>Write <code>slurm.conf</code>.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo tee /etc/slurm/slurm.conf &gt;/dev/null &lt;&lt;'SLURM'
+# Cluster identity
+ClusterName=hpc
+SlurmctldHost=head(10.0.0.1)
+
+# Process tracking and auth
+ProctrackType=proctrack/cgroup
+MpiDefault=pmix                     # OpenHPC's OpenMPI 4 uses PMIx, not PMI-1/2
+ReturnToService=1
+SlurmUser=slurm
+SlurmctldPidFile=/run/slurm/slurmctld.pid
+SlurmctldPort=6817
+SlurmdPidFile=/run/slurm/slurmd.pid
+SlurmdPort=6818
+SlurmdSpoolDir=/var/spool/slurmd
+StateSaveLocation=/var/spool/slurmctld
+SwitchType=switch/none
+TaskPlugin=task/affinity
+PropagateResourceLimitsExcept=MEMLOCK
+
+# Timers
+InactiveLimit=0
+KillWait=30
+MinJobAge=300
+SlurmctldTimeout=120
+SlurmdTimeout=600                   # Generous; compute reboots take ~90s
+Waittime=0
+
+# Scheduling
+SchedulerType=sched/backfill
+SelectType=select/cons_tres
+SelectTypeParameters=CR_Core_Memory
+
+# Logging
+SlurmctldDebug=info
+SlurmctldLogFile=/var/log/slurm/slurmctld.log
+SlurmdDebug=info
+SlurmdLogFile=/var/log/slurm/slurmd.log
+
+# Accounting via slurmdbd
+JobAcctGatherType=jobacct_gather/linux
+JobAcctGatherFrequency=30
+JobCompType=jobcomp/filetxt
+AccountingStorageType=accounting_storage/slurmdbd
+AccountingStorageHost=localhost
+
+# NOTE: Epilog= deliberately omitted. OpenHPC's example epilog
+# runs `pkill -KILL -U $UID` which returns 1 when no processes
+# match — Slurm reads non-zero as "epilog failed" and drains
+# the node after every trivial job.
+SlurmctldParameters=enable_configless
+LaunchParameters=use_interactive_step
+
+# Nodes and partition
+NodeName=compute[01-02] CPUs=2 Sockets=1 CoresPerSocket=2 ThreadsPerCore=1 RealMemory=1900 State=UNKNOWN
+PartitionName=normal Nodes=compute[01-02] Default=YES MaxTime=INFINITE State=UP
+SLURM
+sudo chown slurm:slurm /etc/slurm/slurm.conf</code></pre></div>
+<p>Three lines worth pointing out:</p>
+<ul>
+<li><code>MpiDefault=pmix</code> — OpenHPC&#39;s OpenMPI ships with PMIx support
+but not Slurm&#39;s classic PMI-1/2. Setting this now means
+Section 09 can launch MPI jobs with <code>srun</code> directly.</li>
+<li><code>SlurmdTimeout=600</code> — generous timeout so that compute
+reboots don&#39;t auto-down the nodes.</li>
+<li><code>SlurmctldParameters=enable_configless</code> — compute nodes
+fetch <code>slurm.conf</code> from the controller at boot instead of
+carrying a synced copy in every overlay.</li>
+</ul>
+<ol start="7">
+<li><strong>Start slurmctld.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo systemctl enable --now slurmctld</code></pre></div>
+<p>Verify:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>systemctl is-active slurmctld
+sudo tail -5 /var/log/slurm/slurmctld.log</code></pre></div>
+<p>Expected tail includes <code>Running as primary controller</code>.</p>
+<ol start="8">
+<li><strong>Register the cluster with sacctmgr (idempotent).</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo sacctmgr -i add cluster Name=hpc</code></pre></div>
+<p>Modern Slurm (22.05+) auto-registers a cluster the first time
+slurmctld contacts slurmdbd, so you&#39;ll usually see:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code> This cluster hpc already exists.  Not adding.</code></pre></div>
+<p>That IS the success path.</p>
+<h3 id="what-just-happened">What just happened</h3>
+<p>Slurm&#39;s control plane is alive. <code>slurmctld</code> holds the cluster
+state. <code>slurmdbd</code> records every job, step, and exit through
+MariaDB. The two daemons authenticate to each other over Munge.
+<code>MpiDefault=pmix</code> and <code>SlurmdTimeout=600</code> are set so Section 09
+runs clean without any reconfig.</p>
+<p>The accounting DB is the HPC equivalent of the chargeback
+system enterprise IT already knows. Every job&#39;s start/end,
+CPU-seconds, memory high-water, partition, user, account — all
+logged.</p>
+<h3 id="validation">Validation</h3>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo sacctmgr list cluster
+sinfo
+squeue
+sudo scontrol show config | grep -E 'ClusterName|MpiDefault|SlurmctldHost|SlurmdTimeout'</code></pre></div>
+<p>Expected:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>   Cluster     ControlHost  ControlPort   RPC     Share ...
+---------- --------------- ------------ ----- --------- ...
+       hpc       127.0.0.1         6817 10752         1 ...
+
+PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST
+normal*      up   infinite      2   unk* compute[01-02]
+
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+
+ClusterName             = hpc
+MpiDefault              = pmix
+SlurmctldHost[0]        = head(10.0.0.1)
+SlurmdTimeout           = 600 sec</code></pre></div>
+<p>Both compute nodes in state <code>unk*</code> is the correct Section 06
+endpoint. They transition to <code>idle</code> in Section 08 when <code>slurmd</code>
+on each compute contacts the controller.</p>
+<hr>
+<h2 id="section-07-the-science-payload">Section 07 — The science payload</h2>
+<h3 id="what-this-section-does">What this section does</h3>
+<p>Install the researcher-facing layer: GCC 12 toolchain, OpenMPI
+4.1.5, Lmod, OSU Micro-Benchmarks, and HPL (High Performance
+Linpack, built from source because OpenHPC 3.3 no longer ships
+it as a package). Everything lands under <code>/opt/ohpc/</code>, which is
+bind-mounted onto <code>/export/apps</code> so the whole software tree is
+already on the NFS-exported path compute nodes will mount in
+Section 08.</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>Section 06 complete.</p>
+<h3 id="steps">Steps</h3>
+<ol>
+<li><strong>Install the OpenHPC software stack + build tools.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo dnf install -y \
+  lmod-ohpc-8.7.64-340.ohpc.2.1 \
+  gnu12-compilers-ohpc-12.2.0-300.ohpc.3.6 \
+  openmpi4-gnu12-ohpc-4.1.5-300.ohpc.3.2 \
+  omb-gnu12-openmpi4-ohpc-6.1-300.ohpc.2.6 \
+  ohpc-autotools-3.4-340.ohpc.4.1 \
+  make \
+  openblas-devel-0.3.29-1.el9</code></pre></div>
+<ul>
+<li><code>make</code> — Rocky minimal doesn&#39;t ship it and <code>ohpc-autotools</code>
+only provides autoconf/automake/libtool. HPL build below
+needs it.</li>
+<li><code>openblas-devel</code> pulls in <code>openblas-serial</code> (which ships the
+actual <code>/lib64/libopenblas.so.0</code> that <code>xhpl</code> links against).</li>
+</ul>
+<p>Everything else installs under <code>/opt/ohpc/</code>.</p>
+<ol start="2">
+<li><strong>Bind-mount <code>/opt/ohpc</code> onto <code>/export/apps</code>.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo rsync -a /opt/ohpc/ /export/apps/
+sudo find /opt/ohpc -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+sudo tee -a /etc/fstab &gt;/dev/null &lt;&lt;'FSTAB'
+
+# OpenHPC software tree: /opt/ohpc is a bind of /export/apps so package
+# installs land on the NFS-exported path for compute nodes.
+/export/apps  /opt/ohpc  none  bind  0 0
+FSTAB
+sudo mount /opt/ohpc</code></pre></div>
+<p>Same pattern as <code>/home</code> in Section 04. Future writes to
+<code>/opt/ohpc</code> (package installs, the HPL build below) land on
+<code>/export/apps</code>. Compute nodes in Section 08 NFS-mount
+<code>head-data:/export/apps</code> onto <code>/opt/ohpc</code> and see the same tree.</p>
+<p>Verify:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>findmnt /opt/ohpc</code></pre></div>
+<p>Expected:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>TARGET    SOURCE                  FSTYPE OPTIONS
+/opt/ohpc /dev/sda4[/export/apps] xfs    rw,...</code></pre></div>
+<ol start="3">
+<li><strong>Build HPL 2.3 from source.</strong></li>
+</ol>
+<p>HPL is not packaged in OpenHPC 3.3 (dropped upstream — production
+sites build against tuned BLAS, so a generic packaged HPL isn&#39;t
+representative). Source from netlib.</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>cd /tmp
+curl -sLO https://www.netlib.org/benchmark/hpl/hpl-2.3.tar.gz
+tar xzf hpl-2.3.tar.gz
+cd hpl-2.3
+
+tee Make.Linux_gnu12_openmpi4 &gt;/dev/null &lt;&lt;'MAKE'
+SHELL        = /bin/sh
+CD           = cd
+CP           = cp
+LN_S         = ln -s
+MKDIR        = mkdir
+RM           = /bin/rm -f
+TOUCH        = touch
+ARCH         = Linux_gnu12_openmpi4
+TOPdir       = /tmp/hpl-2.3
+INCdir       = $(TOPdir)/include
+BINdir       = $(TOPdir)/bin/$(ARCH)
+LIBdir       = $(TOPdir)/lib/$(ARCH)
+HPLlib       = $(LIBdir)/libhpl.a
+MPdir        =
+MPinc        =
+MPlib        =
+LAdir        = /usr/lib64
+LAinc        =
+LAlib        = -lopenblas
+F2CDEFS      = -DAdd_ -DF77_INTEGER=int -DStringSunStyle
+HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) $(LAinc) $(MPinc)
+HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib)
+HPL_OPTS     = -DHPL_PROGRESS_REPORT
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES)
+CC           = mpicc
+CCNOOPT      = $(HPL_DEFS)
+CCFLAGS      = $(HPL_DEFS) -O3 -funroll-loops
+LINKER       = mpicc
+LINKFLAGS    = $(CCFLAGS)
+ARCHIVER     = ar
+ARFLAGS      = r
+RANLIB       = echo
+MAKE
+
+source /etc/profile.d/lmod.sh
+module load gnu12 openmpi4
+make arch=Linux_gnu12_openmpi4</code></pre></div>
+<p><code>module load gnu12 openmpi4</code> puts <code>mpicc</code> on PATH and pulls in
+the MPI headers and libraries. <code>-lopenblas</code> resolves against
+EPEL&#39;s <code>/lib64/libopenblas.so.0</code>. Build takes ~2 minutes on the
+head VM.</p>
+<p>Output at <code>/tmp/hpl-2.3/bin/Linux_gnu12_openmpi4/xhpl</code>.</p>
+<ol start="4">
+<li><strong>Stage HPL under <code>/opt/ohpc/pub/apps/</code> and install the modulefile.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo install -d -m 755 /opt/ohpc/pub/apps/hpl/2.3/bin
+sudo install -m 755 /tmp/hpl-2.3/bin/Linux_gnu12_openmpi4/xhpl /opt/ohpc/pub/apps/hpl/2.3/bin/xhpl
+sudo install -m 644 /tmp/hpl-2.3/bin/Linux_gnu12_openmpi4/HPL.dat /opt/ohpc/pub/apps/hpl/2.3/bin/HPL.dat
+
+sudo install -d -m 755 /opt/ohpc/pub/moduledeps/gnu12-openmpi4/hpl
+sudo tee /opt/ohpc/pub/moduledeps/gnu12-openmpi4/hpl/2.3.lua &gt;/dev/null &lt;&lt;'LUA'
+help([[HPL 2.3 — High Performance Linpack,
+built with GCC 12 + OpenMPI 4.1.5 + OpenBLAS.]])
+whatis("Name: HPL")
+whatis("Version: 2.3")
+whatis("Category: benchmark")
+local root = "/opt/ohpc/pub/apps/hpl/2.3"
+prepend_path("PATH", pathJoin(root, "bin"))
+setenv("HPL_DIR", root)
+LUA</code></pre></div>
+<p>The modulefile sits under <code>/opt/ohpc/pub/moduledeps/gnu12-openmpi4/</code>
+— the Lmod hierarchy slot reserved for software depending on
+both GCC 12 and OpenMPI 4. Lmod only surfaces <code>hpl</code> after both
+<code>gnu12</code> and <code>openmpi4</code> are loaded.</p>
+<h3 id="what-just-happened">What just happened</h3>
+<p>The researcher-facing stack is in place. A user logging in,
+loading the right modules, and compiling a C+MPI program gets
+the OpenHPC toolchain. The software tree lives at <code>/opt/ohpc/</code>
+on head and will appear at <code>/opt/ohpc/</code> on every compute node
+via NFS from <code>head-data:/export/apps</code>.</p>
+<h3 id="validation">Validation</h3>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>source /etc/profile.d/lmod.sh
+module avail
+module load gnu12 openmpi4
+module avail hpl
+module load hpl omb
+which xhpl
+module list</code></pre></div>
+<p>Expected (condensed):</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>-------------------------- /opt/ohpc/pub/modulefiles --------------------------
+   autotools   gnu12/12.2.0   hwloc/2.12.0   ... ucx/1.18.0
+
+------------------- /opt/ohpc/pub/moduledeps/gnu12-openmpi4 -------------------
+   hpl/2.3
+
+/opt/ohpc/pub/apps/hpl/2.3/bin/xhpl
+
+Currently Loaded Modules:
+  1) gnu12/12.2.0   3) ucx/1.18.0         5) openmpi4/4.1.5   7) omb/6.1
+  2) hwloc/2.12.0   4) libfabric/1.18.0   6) hpl/2.3</code></pre></div>
+<p>The moduledep hierarchy is the teaching point: <code>hpl</code> doesn&#39;t
+appear in <code>module avail</code> output until both <code>gnu12</code> and
+<code>openmpi4</code> are loaded, because HPL is linked against that
+specific combination.</p>
+<hr>
+<h2 id="section-08-compute-nodes-come-alive">Section 08 — Compute nodes come alive</h2>
+<h3 id="what-this-section-does">What this section does</h3>
+<p>Import a Rocky 9 base image into Warewulf. Install all the compute
+packages in one shot, including the non-obvious ones — especially
+<code>warewulf-ohpc-dracut</code> (the boot-time image fetcher),
+<code>openblas-serial</code> (the actual BLAS library), <code>lua-posix</code> +
+<code>lua-filesystem</code> (Lmod&#39;s runtime deps), and <code>node-exporter</code> (for
+Section 10). Bake in secrets (Munge key, root pubkey), cluster
+hostnames, users, slurmd config, log directories, and a dracut
+config with <code>hostonly=&quot;no&quot;</code>. Regenerate the initramfs with the
+<code>wwinit</code> module included. Point the default profile at the image,
+define both compute nodes on both fabrics, swap Warewulf&#39;s
+<code>undionly.kpxe</code> for a full iPXE binary (VirtualBox&#39;s UNDI breaks
+iPXE&#39;s built-in variant), enable DHCP with <code>always-broadcast on;</code>,
+and create the diskless VMs. By the end, <code>sinfo</code> shows two <code>idle</code>
+nodes and <code>srun</code> runs across them.</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>Sections 01-07 complete. This section takes ~15 min, dominated by
+the image package install.</p>
+<h3 id="steps">Steps</h3>
+<ol>
+<li><strong>Import the Rocky 9 base image.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo wwctl image import docker://rockylinux:9 rocky-9
+sudo wwctl image list</code></pre></div>
+<p>Expected: <code>rocky-9</code> appears in the list.</p>
+<ol start="2">
+<li><strong>Install all compute-side packages in one shot.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo tee /srv/warewulf/chroots/rocky-9/rootfs/tmp/install-compute.sh &gt;/dev/null &lt;&lt;'SCRIPT'
+#!/bin/bash
+set -e
+dnf install -y http://repos.openhpc.community/OpenHPC/3/EL_9/x86_64/ohpc-release-3-1.el9.x86_64.rpm
+dnf install -y epel-release
+dnf install -y \
+    kernel-core kernel-modules dracut \
+    nfs-utils \
+    munge \
+    openssh openssh-server openssh-clients \
+    slurm-slurmd-ohpc-24.11.5-331.ohpc.1.1 \
+    chrony \
+    openblas-0.3.29-1.el9 openblas-serial-0.3.29-1.el9 \
+    warewulf-ohpc-dracut-4.6.4-340.ohpc.1.3 \
+    lua lua-posix lua-filesystem \
+    node-exporter-1.11.1-1.el9
+systemctl enable munge slurmd chronyd sshd node_exporter
+SCRIPT
+sudo chmod +x /srv/warewulf/chroots/rocky-9/rootfs/tmp/install-compute.sh
+sudo wwctl image exec rocky-9 -- /tmp/install-compute.sh</code></pre></div>
+<p>Non-obvious packages and why:</p>
+<ul>
+<li><strong><code>openblas-serial</code></strong> — on EL9, <code>openblas</code> is an umbrella
+package with no library content; <code>openblas-serial</code> actually
+ships <code>/lib64/libopenblas.so.0</code> that <code>xhpl</code> links against.</li>
+<li><strong><code>warewulf-ohpc-dracut</code></strong> — the dracut module that downloads
+the root image over HTTP at boot. Without it, boot panics at
+&quot;unable to mount root fs&quot;.</li>
+<li><strong><code>lua lua-posix lua-filesystem</code></strong> — Lmod&#39;s runtime Lua deps;
+<code>lmod-ohpc</code> doesn&#39;t pull them.</li>
+<li><strong><code>node-exporter</code></strong> — enabled now so Section 10 metrics work
+without a second compute reboot.</li>
+</ul>
+<p>This step takes ~10-12 minutes.</p>
+<ol start="3">
+<li><strong>Bake in secrets and cluster context.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>IMG=/srv/warewulf/chroots/rocky-9/rootfs
+
+# Munge key
+sudo install -d -m 700 "$IMG/etc/munge"
+sudo cp /etc/munge/munge.key "$IMG/etc/munge/munge.key"
+
+# Root SSH pubkey (so head can ssh root@compute without a password)
+sudo install -d -m 700 "$IMG/root/.ssh"
+sudo cp /root/.ssh/id_ed25519.pub "$IMG/root/.ssh/authorized_keys"
+sudo chmod 600 "$IMG/root/.ssh/authorized_keys"
+
+# Lmod init script from head
+sudo cp /etc/profile.d/lmod.sh "$IMG/etc/profile.d/lmod.sh"
+
+# Cluster /etc/hosts — eliminates early-boot name-resolution surprises
+sudo tee -a "$IMG/etc/hosts" &gt;/dev/null &lt;&lt;'HOSTS'
+
+# Cluster
+10.0.0.1    head
+10.0.0.11   compute01
+10.0.0.12   compute02
+10.1.0.1    head-data
+10.1.0.11   compute01-data
+10.1.0.12   compute02-data
+HOSTS</code></pre></div>
+<ol start="4">
+<li><strong>Customize users, slurmd, dracut, log dirs; regenerate initramfs.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo tee /srv/warewulf/chroots/rocky-9/rootfs/tmp/customize.sh &gt;/dev/null &lt;&lt;'SCRIPT'
+#!/bin/bash
+set -e
+
+# HPC users with UIDs matching head; -M = no home creation (NFS-mounted)
+useradd -u 1100 -M -d /home/hpcadmin -s /bin/bash -c 'HPC admin' hpcadmin 2&gt;/dev/null || true
+useradd -u 1101 -M -d /home/hpcuser  -s /bin/bash -c 'HPC user'  hpcuser  2&gt;/dev/null || true
+
+# Munge ownership — MUST be done inside chroot (image's munge UID may
+# differ from head's). Fix the /etc/munge directory, not just the key.
+chown munge:munge /etc/munge /etc/munge/munge.key
+chmod 400 /etc/munge/munge.key
+
+# Log dirs — munge refuses to start without /var/log/munge existing
+install -d -m 700 -o munge -g munge /var/log/munge
+install -d -m 755 -o root  -g root  /var/log/slurm
+
+# slurmd configless — fetch slurm.conf from head:6817 at boot
+mkdir -p /etc/sysconfig
+echo 'SLURMD_OPTIONS="--conf-server=head"' &gt; /etc/sysconfig/slurmd
+
+# tmpfiles.d for /run/slurm
+mkdir -p /etc/tmpfiles.d
+echo 'd /run/slurm 0755 slurm slurm -' &gt; /etc/tmpfiles.d/slurm.conf
+
+# dracut: hostonly=no + include wwinit (critical for image-over-HTTP boot)
+mkdir -p /etc/dracut.conf.d
+cat &gt; /etc/dracut.conf.d/99-warewulf.conf &lt;&lt;'CONF'
+hostonly="no"
+add_dracutmodules+=" wwinit "
+CONF
+
+# NFS mount points (the fstab entries come from WW profile overlay)
+mkdir -p /home /opt/ohpc /scratch
+
+# SELinux permissive to match head
+[ -f /etc/selinux/config ] &amp;&amp; sed -i 's/^SELINUX=.*/SELINUX=permissive/' /etc/selinux/config
+
+# Regenerate initramfs with wwinit baked in
+KVER=$(ls /lib/modules/ | head -1)
+dracut --force --kver "$KVER" "/boot/initramfs-${KVER}.img"
+SCRIPT
+sudo chmod +x /srv/warewulf/chroots/rocky-9/rootfs/tmp/customize.sh
+sudo wwctl image exec rocky-9 -- /tmp/customize.sh</code></pre></div>
+<ol start="5">
+<li><strong>Replace Warewulf&#39;s bundled <code>undionly.kpxe</code> with a full iPXE binary.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>cd /tmp
+curl -sfLO https://boot.ipxe.org/ipxe.pxe
+sudo cp /srv/tftpboot/warewulf/undionly.kpxe /srv/tftpboot/warewulf/undionly.kpxe.orig
+sudo cp /tmp/ipxe.pxe /srv/tftpboot/warewulf/undionly.kpxe</code></pre></div>
+<p>VirtualBox&#39;s UNDI interface has a known bug that prevents iPXE&#39;s
+undionly variant from transmitting DHCP packets. The full
+<code>ipxe.pxe</code> binary ships its own native Intel NIC drivers and
+bypasses UNDI entirely. Same filename on disk — no DHCP config
+change needed.</p>
+<ol start="6">
+<li><strong>Configure the default Warewulf profile.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo wwctl profile set --yes default \
+  --image=rocky-9 \
+  --kernelargs='crashkernel=no net.ifnames=0 biosdevname=0 console=ttyS0,115200 console=tty0' \
+  --tagadd=IPXEMenuEntry=dracut
+
+sudo python3 &lt;&lt;'PY'
+import yaml
+with open('/etc/warewulf/nodes.conf') as f:
+    cfg = yaml.safe_load(f)
+cfg['nodeprofiles']['default']['resources']['fstab'] = [
+  {'file': '/home',     'spec': '10.1.0.1:/export/home',    'vfstype': 'nfs', 'mntops': 'defaults,_netdev,nofail,vers=4'},
+  {'file': '/opt/ohpc', 'spec': '10.1.0.1:/export/apps',    'vfstype': 'nfs', 'mntops': 'defaults,_netdev,nofail,vers=4,ro'},
+  {'file': '/scratch',  'spec': '10.1.0.1:/export/scratch', 'vfstype': 'nfs', 'mntops': 'defaults,_netdev,nofail,vers=4'},
+]
+with open('/etc/warewulf/nodes.conf', 'w') as f:
+    yaml.dump(cfg, f, default_flow_style=False, sort_keys=False)
+PY</code></pre></div>
+<p>Three notable settings:</p>
+<ul>
+<li><code>IPXEMenuEntry=dracut</code> forces the two-stage dracut boot. The
+BIOS default loads the whole 1.4 GB image as initrd, which
+OOMs in a 2 GB tmpfs. (Compute VMs have 4 GB; tmpfs default is
+½ RAM = 2 GB.) The dracut method fetches the image over HTTP
+into a roomy tmpfs after it&#39;s mounted.</li>
+<li><code>Kernel.Args</code> — classic <code>ethN</code> names + serial console to
+file (handy for debugging in <code>compute0N.console.log</code>).</li>
+<li><code>Resources[fstab]</code> uses <code>10.1.0.1:</code> literal IP rather than
+<code>head-data:</code> because Warewulf&#39;s <code>hosts</code> overlay doesn&#39;t
+include head&#39;s fabric aliases.</li>
+</ul>
+<ol start="7">
+<li><strong>Define both compute nodes (both fabrics upfront).</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code># hpc-mgmt fabric (PXE boots through this NIC)
+sudo wwctl node add compute01 --ipaddr=10.0.0.11 --netmask=255.255.255.0 \
+  --netdev=eth0 --hwaddr=52:54:00:C0:01:01 --type=ethernet --primarynet=default
+sudo wwctl node add compute02 --ipaddr=10.0.0.12 --netmask=255.255.255.0 \
+  --netdev=eth0 --hwaddr=52:54:00:C0:01:02 --type=ethernet --primarynet=default
+
+# hpc-data fabric (NFS + MPI)
+sudo wwctl node set --yes compute01 --netname=data --netdev=eth1 \
+  --hwaddr=52:54:00:D0:01:01 --ipaddr=10.1.0.11 --netmask=255.255.255.0 --type=ethernet
+sudo wwctl node set --yes compute02 --netname=data --netdev=eth1 \
+  --hwaddr=52:54:00:D0:01:02 --ipaddr=10.1.0.12 --netmask=255.255.255.0 --type=ethernet</code></pre></div>
+<p>MACs are pinned; <code>scripts/create-compute-vm.sh</code> assigns matching
+MACs to the VirtualBox VMs it creates.</p>
+<ol start="8">
+<li><strong>Enable DHCP + <code>always-broadcast</code>, start dhcpd.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code># Flip dhcp.enabled: false -&gt; true in warewulf.conf
+sudo sed -i '/^dhcp:/,/^[a-z]/{s|^    enabled: false|    enabled: true|}' /etc/warewulf/warewulf.conf
+
+# Regenerate dhcpd.conf, tftp, overlays
+sudo wwctl configure --all
+
+# Force DHCP replies to be broadcast. VirtualBox internal-network
+# driver drops unicast DHCP to unconfigured clients, which breaks
+# iPXE's DHCP handshake.
+sudo sed -i '/subnet 10.0.0.0 netmask 255.255.255.0 {/a\    always-broadcast on;' /etc/dhcp/dhcpd.conf
+
+sudo systemctl enable --now dhcpd
+sudo wwctl overlay build</code></pre></div>
+<p>Verify:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo ss -tulnp | awk '/:(9873|69|67) / || NR==1'</code></pre></div>
+<p>Expected: three listeners — warewulfd (tcp/9873), in.tftpd
+(udp/69), dhcpd (udp/67).</p>
+<ol start="9">
+<li><strong>Create the compute VMs from the Windows host.</strong></li>
+</ol>
+<p>Open <strong>Git Bash on the Windows host</strong> (not inside <code>vagrant ssh</code>
+— the compute VMs need <code>VBoxManage</code>, which is a host command)
+and run:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>./scripts/create-compute-vm.sh 1
+./scripts/create-compute-vm.sh 2</code></pre></div>
+<p>Each invocation creates a diskless VirtualBox VM with 4 GB RAM,
+2 vCPU, ich9/IOAPIC/HPET firmware, two NICs on the <code>hpc-mgmt</code> /
+<code>hpc-data</code> internal networks with pinned MACs, PXE boot from
+NIC 1, and a serial console redirected to <code>compute0N.console.log</code>
+in the project directory for boot debugging.</p>
+<ol start="10">
+<li><strong>Wait for both nodes to reach <code>idle</code>.</strong></li>
+</ol>
+<p>Back inside head:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sinfo</code></pre></div>
+<p>Expected within ~90 seconds per node:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST
+normal*      up   infinite      2   idle compute[01-02]</code></pre></div>
+<h3 id="what-just-happened">What just happened</h3>
+<p>Two compute nodes booted from nothing. They pulled their root
+filesystem over HTTP from head&#39;s warewulfd, extracted it into
+RAM (tmpfs), switched root, and came online as fully functional
+Linux hosts. The Warewulf overlay system gave each its own
+hostname, IP addresses on both fabrics, NFS mounts for <code>/home</code>
+and <code>/opt/ohpc</code>, and a Munge key shared with head. Their
+<code>slurmd</code> daemons fetched <code>slurm.conf</code> from <code>slurmctld</code> over port
+6817 and registered themselves in the <code>normal</code> partition.</p>
+<p>This is real HPC compute provisioning: stateless, image-driven,
+network-booted. A node is cattle — provisioned, used,
+decommissioned, re-provisioned with zero human ceremony. If
+compute01 dies, power a replacement with the same MAC on the
+same fabric and it rejoins in two minutes with no config
+change on head.</p>
+<h3 id="validation">Validation</h3>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sinfo
+sudo -u hpcadmin srun -N2 -n2 --export=ALL hostname</code></pre></div>
+<p>Expected: both <code>compute01</code> and <code>compute02</code> print (order varies).</p>
+<hr>
+<h2 id="section-09-run-a-real-job">Section 09 — Run a real job</h2>
+<h3 id="what-this-section-does">What this section does</h3>
+<p>Four demonstrations, escalating in weight:</p>
+<ol>
+<li><code>srun hostname</code> across both nodes — Slurm connectivity sanity.</li>
+<li>MPI hello world — proves MPI is wired and inter-node launching works.</li>
+<li>HPL across both compute nodes — produces a real GFLOPS number.</li>
+<li>OSU bandwidth + latency — characterizes the fabric between them.</li>
+</ol>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>Section 08 complete. Both compute nodes in <code>idle</code>. HPL and OSU
+Micro-Benchmarks installed under <code>/opt/ohpc/</code> (Section 07).</p>
+<h3 id="steps">Steps</h3>
+<ol>
+<li><strong>Log in as <code>hpcuser</code>.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo -iu hpcuser
+mkdir -p ~/section09 &amp;&amp; cd ~/section09</code></pre></div>
+<ol start="2">
+<li><strong>Sanity: <code>srun</code> across both nodes.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>srun -N2 -n2 --export=ALL hostname</code></pre></div>
+<p>Expected (order varies):</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>compute01
+compute02</code></pre></div>
+<p>If both come back, Slurm placement is working, Munge auth is
+holding, and slurmd on both computes is responding.</p>
+<ol start="3">
+<li><strong>MPI hello world.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>cat &gt; mpi_hello.c &lt;&lt;'EOF'
+#include &lt;mpi.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;unistd.h&gt;
+int main(int argc, char **argv) {
+    int rank, size;
+    char host[256];
+    MPI_Init(&amp;argc, &amp;argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &amp;size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &amp;rank);
+    gethostname(host, sizeof host);
+    printf("Hello from rank %d of %d on %s\n", rank, size, host);
+    MPI_Finalize();
+    return 0;
+}
+EOF
+
+source /etc/profile.d/lmod.sh
+module load gnu12 openmpi4
+mpicc -O2 mpi_hello.c -o mpi_hello
+srun -N2 -n4 --export=ALL ./mpi_hello | sort</code></pre></div>
+<p>Expected:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>Hello from rank 0 of 4 on compute01
+Hello from rank 1 of 4 on compute01
+Hello from rank 2 of 4 on compute02
+Hello from rank 3 of 4 on compute02</code></pre></div>
+<p><strong><code>--export=ALL</code> is load-bearing.</strong> Without it, <code>srun</code> scrubs
+the <code>LD_LIBRARY_PATH</code> that <code>module load</code> set on the submitting
+shell, and the binary fails to find OpenHPC shared libraries on
+compute. Use <code>--export=ALL</code> on every MPI <code>srun</code> invocation.</p>
+<ol start="4">
+<li><strong>HPL across both compute nodes.</strong></li>
+</ol>
+<p>Use the <em>full</em> HPL.dat below. HPL 2.3 is strict about input-file
+format; abbreviated variants fail with &quot;Illegal input in file
+HPL.dat&quot;.</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>mkdir -p ~/section09/hpl-run &amp;&amp; cd ~/section09/hpl-run
+
+cat &gt; HPL.dat &lt;&lt;'EOF'
+HPLinpack benchmark input file
+Innovative Computing Laboratory, University of Tennessee
+HPL.out      output file name (if any)
+6            device out (6=stdout,7=stderr,file)
+1            # of problems sizes (N)
+7000         Ns
+1            # of NBs
+128          NBs
+0            PMAP process mapping (0=Row-,1=Column-major)
+1            # of process grids (P x Q)
+2            Ps
+2            Qs
+16.0         threshold
+1            # of panel fact
+2            PFACTs (0=left, 1=Crout, 2=Right)
+1            # of recursive stopping criterium
+4            NBMINs (&gt;= 1)
+1            # of panels in recursion
+2            NDIVs
+1            # of recursive panel fact.
+2            RFACTs (0=left, 1=Crout, 2=Right)
+1            # of broadcast
+0            BCASTs (0=1rg,1=1rM,2=2rg,3=2rM,4=Lng,5=LnM)
+1            # of lookahead depth
+0            DEPTHs (&gt;=0)
+2            SWAP (0=bin-exch,1=long,2=mix)
+64           swapping threshold
+0            L1 in (0=transposed,1=no-transposed) form
+0            U  in (0=transposed,1=no-transposed) form
+1            Equilibration (0=no,1=yes)
+8            memory alignment in double (&gt; 0)
+EOF
+
+module load hpl
+time srun -N2 -n4 --export=ALL $(which xhpl) &gt; hpl.out 2&gt;&amp;1
+grep -A1 'T/V' hpl.out
+grep -E '(PASSED|FAILED)' hpl.out | head -1</code></pre></div>
+<p>Expected (numbers vary):</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>T/V                N    NB     P     Q               Time                 Gflops
+--------------------------------------------------------------------------------
+WR00R2R4        7000   128     2     2              16.80             1.3611e+01
+...
+||Ax-b||_oo/(eps*(||A||_oo*||x||_oo+||b||_oo)*N)=  2.97e-03 ...... PASSED</code></pre></div>
+<p><strong>~12-16 GFLOPS</strong> on this 2-node toy cluster. Frame the number:</p>
+<ul>
+<li>Modern workstation CPU (single socket): 50-200 GFLOPS.</li>
+<li>Top-500 leader (2026): ~1 exaflop = 10⁹ GFLOPS.</li>
+<li>This cluster: ~14 GFLOPS.</li>
+</ul>
+<p>Seven orders of magnitude below the world&#39;s biggest, but the
+<em>shape</em> is identical. Every Top-500 entry runs HPL the same
+way, over InfiniBand instead of Ethernet, at N ≈ 10⁷ instead of
+5 × 10³, across millions of cores instead of four.</p>
+<ol start="5">
+<li><strong>OSU bandwidth + latency.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>module load omb
+OMB=$(dirname $(which osu_latency))
+
+echo "=== osu_bw ==="
+srun -N2 -n2 --export=ALL $OMB/osu_bw | tail -25
+
+echo "=== osu_latency ==="
+srun -N2 -n2 --export=ALL $OMB/osu_latency | tail -25</code></pre></div>
+<p>Expected (shape, numbers vary):</p>
+<ul>
+<li>Peak bandwidth ~200-230 MB/s at 1-4 MB messages</li>
+<li>Small-message latency ~140 µs</li>
+<li>Latency grows to ~5 ms at 1 MB messages</li>
+</ul>
+<p>For comparison, a production InfiniBand fabric hits 12+ GB/s
+bandwidth and 1-2 µs latency — two orders of magnitude better
+on both axes. Seeing these numbers side by side is the moment
+the fabric choice in the Section 01 diagram (plain Ethernet vs.
+InfiniBand) stops being abstract.</p>
+<h3 id="what-just-happened">What just happened</h3>
+<p>The cluster ran four jobs escalating from trivial to meaningful:</p>
+<ul>
+<li><code>hostname</code> proves Slurm places work and returns results.</li>
+<li>MPI hello world proves the MPI runtime assembles correctly
+across nodes and the PMIx launcher works.</li>
+<li>HPL produces a real GFLOPS number, passing residual checks.</li>
+<li>OSU measures actual fabric capacity.</li>
+</ul>
+<p>Every job was tracked in <code>slurmdbd</code>&#39;s accounting DB. Every rank
+launched on a compute node authenticated back to the controller
+via Munge. Every binary ran off NFS from <code>/opt/ohpc/</code> on head&#39;s
+exported <code>/export/apps</code>. No file was ever copied to a compute
+node.</p>
+<h3 id="validation">Validation</h3>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sacct --format=JobID,JobName,Partition,NNodes,NodeList,State,Elapsed | tail -8</code></pre></div>
+<p>Expected: entries for <code>hostname</code>, <code>mpi_hello</code>, <code>xhpl</code>, <code>osu_bw</code>,
+<code>osu_latency</code>, all in <code>COMPLETED</code> state on <code>compute[01-02]</code> in
+the <code>normal</code> partition.</p>
+<hr>
+<h2 id="section-10-see-it-running">Section 10 — See it running</h2>
+<h3 id="what-this-section-does">What this section does</h3>
+<p>Install Prometheus on head, ensure <code>node_exporter</code> is active on
+head and both compute nodes, and install Grafana with a pre-loaded
+HPC dashboard. Port 3000 is NAT-forwarded by the Vagrantfile so
+Grafana opens at <code>http://localhost:3000</code> on the Windows host.
+Re-run HPL and watch CPU saturation spread across both compute
+nodes live.</p>
+<p>Observability without something to observe is a screensaver. The
+payoff here is watching an MPI job light up the dashboard —
+seeing HPL push compute01 and compute02 to 100% CPU busy at the
+same moment, memory climb as the matrix loads, then everything
+return to idle.</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>Sections 01-09 complete. Both compute nodes in <code>idle</code>.
+<code>node_exporter</code> was installed into the compute image in Section 08
+and enabled at boot — it&#39;s already scraping.</p>
+<h3 id="steps">Steps</h3>
+<ol>
+<li><strong>Install Prometheus + node-exporter on head.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo dnf install -y prometheus-3.11.2-1.el9 node-exporter-1.11.1-1.el9</code></pre></div>
+<ol start="2">
+<li><strong>Write <code>/etc/prometheus/prometheus.yml</code>.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo tee /etc/prometheus/prometheus.yml &gt;/dev/null &lt;&lt;'EOF'
+global:
+  scrape_interval: 5s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: head
+    static_configs:
+      - targets: ['localhost:9100']
+        labels: { role: head }
+  - job_name: compute
+    static_configs:
+      - targets: ['10.0.0.11:9100']
+        labels: { host: compute01, role: compute }
+      - targets: ['10.0.0.12:9100']
+        labels: { host: compute02, role: compute }
+EOF
+sudo chown prometheus:prometheus /etc/prometheus/prometheus.yml</code></pre></div>
+<p>5-second scrape interval is tighter than Prometheus&#39; default
+(15 s) — useful for a live HPL demo where a job runs for 5-10
+seconds. Three scrape targets: head plus the two compute nodes.</p>
+<ol start="3">
+<li><strong>Start Prometheus + node_exporter on head.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo systemctl enable --now node_exporter prometheus</code></pre></div>
+<p>Verify all three scrape targets are <code>up</code>:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>curl -s http://localhost:9090/api/v1/targets \
+  | python3 -c 'import json,sys; d=json.load(sys.stdin); [print(t["labels"].get("host") or t["labels"].get("role","head"), t["scrapeUrl"], t["health"]) for t in d["data"]["activeTargets"]]'</code></pre></div>
+<p>Expected:</p>
+<div class="code-block"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code"><code>head        http://localhost:9100/metrics  up
+compute01   http://10.0.0.11:9100/metrics  up
+compute02   http://10.0.0.12:9100/metrics  up</code></pre></div>
+<ol start="4">
+<li><strong>Install Grafana from the Grafana OSS repo.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo tee /etc/yum.repos.d/grafana.repo &gt;/dev/null &lt;&lt;'EOF'
+[grafana]
+name=grafana
+baseurl=https://rpm.grafana.com
+repo_gpgcheck=1
+enabled=1
+gpgcheck=1
+gpgkey=https://rpm.grafana.com/gpg.key
+sslverify=1
+sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+EOF
+sudo dnf install -y grafana-13.0.1-1</code></pre></div>
+<ol start="5">
+<li><strong>Provision the Prometheus data source and the HPC dashboard.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo tee /etc/grafana/provisioning/datasources/prometheus.yaml &gt;/dev/null &lt;&lt;'EOF'
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://localhost:9090
+    isDefault: true
+EOF
+
+sudo install -d -o grafana -g grafana /var/lib/grafana/dashboards
+sudo tee /etc/grafana/provisioning/dashboards/default.yaml &gt;/dev/null &lt;&lt;'EOF'
+apiVersion: 1
+providers:
+  - name: hpc-cluster
+    orgId: 1
+    folder: HPC
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards
+EOF
+
+sudo cp /vagrant/scripts/grafana-hpc-cluster.json /var/lib/grafana/dashboards/hpc-cluster.json
+sudo chown grafana:grafana /var/lib/grafana/dashboards/hpc-cluster.json</code></pre></div>
+<p>The <code>/vagrant/</code> path is Vagrant&#39;s rsync-mounted project
+directory inside head. The dashboard JSON lives in
+<code>scripts/grafana-hpc-cluster.json</code> (full JSON inlined in the <a href="#reference-scripts">Reference scripts</a> appendix)
+— CPU busy %, memory used %, load average, eth1 MPI-fabric
+bytes/s — across all nodes.</p>
+<ol start="6">
+<li><strong>Start Grafana.</strong></li>
+</ol>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>sudo systemctl enable --now grafana-server
+sleep 5
+curl -s http://localhost:3000/api/health</code></pre></div>
+<p>Expected:</p>
+<div class="code-block" data-lang="json"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-json"><code>{"database": "ok", "version": "13.0.1", "commit": "..."}</code></pre></div>
+<ol start="7">
+<li><strong>Open Grafana from the Windows host browser.</strong></li>
+</ol>
+<p>Grafana (3000) and Prometheus (9090) are NAT-forwarded through
+Vagrant&#39;s default adapter — the Vagrantfile has:</p>
+<div class="code-block" data-lang="ruby"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-ruby"><code>config.vm.network "forwarded_port", guest: 3000, host: 3000, id: "grafana"
+config.vm.network "forwarded_port", guest: 9090, host: 9090, id: "prometheus"</code></pre></div>
+<p>Open <code>http://localhost:3000</code> on the Windows host. Default login:
+<code>admin</code> / <code>admin</code>. Grafana prompts to change the password on
+first login. After login, navigate to <strong>Dashboards → HPC → HPC
+Cluster</strong>.</p>
+<p>Four panels are provisioned:</p>
+<ul>
+<li><strong>CPU Busy (%)</strong> — <code>100 * (1 - avg(rate(node_cpu_seconds_total{mode=&quot;idle&quot;}[30s])))</code> per host</li>
+<li><strong>Memory Used (%)</strong> — <code>1 - MemAvailable/MemTotal</code></li>
+<li><strong>Load Average (1m)</strong> — <code>node_load1</code></li>
+<li><strong>eth1 MPI-fabric bytes/s</strong> — RX+TX on each node&#39;s data-fabric NIC</li>
+</ul>
+<ol start="8">
+<li><strong>Re-run HPL and watch the dashboard light up.</strong></li>
+</ol>
+<p>Keep Grafana open. From head as <code>hpcuser</code>:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>cd ~/section09/hpl-run
+source /etc/profile.d/lmod.sh
+module load gnu12 openmpi4 hpl
+srun -N2 -n4 --export=ALL $(which xhpl) &gt; hpl-live.out 2&gt;&amp;1 &amp;</code></pre></div>
+<p>During the ~5-second HPL run:</p>
+<ul>
+<li><strong>CPU Busy</strong> jumps to ~100 % on both compute nodes
+simultaneously — matrix multiply saturating all cores.</li>
+<li><strong>Memory Used</strong> climbs ~200 MB on each compute as HPL
+allocates matrix pieces.</li>
+<li><strong>Load Average</strong> lags CPU by a few seconds (1-minute average).</li>
+<li><strong>eth1</strong> shows a modest spike as MPI moves panels between
+ranks.</li>
+</ul>
+<h3 id="what-just-happened">What just happened</h3>
+<p>A standard enterprise-facing observability stack (Prometheus +
+Grafana) is now watching the cluster. The pattern is identical
+to what an enterprise IT team already runs for their
+infrastructure; the only thing HPC-specific is which metrics
+matter (CPU saturation, job-queue depth, fabric bandwidth —
+rather than, say, HTTP request latency or database connection
+counts).</p>
+<p>Observability was boring in isolation; it became useful the
+moment a real job started generating real metrics. That&#39;s how
+operators learn to read a dashboard — not by staring at flat
+lines, but by watching an incident (or a scheduled HPL) make
+the metrics move.</p>
+<p>Production HPC sites extend this stack with Slurm-aware
+exporters (<code>prometheus-slurm-exporter</code> built from source — no
+EPEL package yet), job-level accounting panels, GPU metrics if
+applicable, fabric-aware exporters for InfiniBand counters, and
+alerting rules on things like &quot;node marked down for &gt;5m&quot; or
+&quot;scratch filesystem &gt;80% full.&quot;</p>
+<h3 id="validation">Validation</h3>
+<p>With HPL running, CPU Busy on both compute01 and compute02
+touches or exceeds 95 %. After HPL finishes:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>grep -A1 'WR' hpl-live.out</code></pre></div>
+<p>Produces a GFLOPS line similar to the earlier run.</p>
+<hr>
+<h2 id="section-11-what-we-skipped-and-whats-next">Section 11 — What we skipped and what&#39;s next</h2>
+<h3 id="what-this-section-does">What this section does</h3>
+<p>Close honestly. The bootcamp built a working 1+2 cluster and ran
+real jobs on it in four hours. That is a lot, and it is also a
+sliver of what production HPC is. This section names what we did
+not cover, then gives role-based next steps so you leave with a
+map rather than a destination.</p>
+<h3 id="the-promise-re-stated">The promise, re-stated</h3>
+<p>You saw diskless compute nodes PXE-boot from a provisioning
+server and come online authenticated and NFS-mounted. You
+watched Slurm place a job across both of them, HPL produce a
+GFLOPS number, OSU measure the fabric, and Grafana render the
+work in real time. The shape of the demonstration is identical
+at every scale — from this 4-hour toy to the Top-500. Different
+components, different vendors, different orders of magnitude;
+same pieces in the same places.</p>
+<h3 id="what-this-bootcamp-did-not-cover">What this bootcamp did not cover</h3>
+<p>A deliberately incomplete list, in roughly the order a growing
+site encounters each:</p>
+<ul>
+<li><strong>Parallel filesystems.</strong> We used NFS for <code>/home</code> and
+<code>/opt/ohpc</code>. Production sites run <strong>Lustre</strong>, <strong>IBM Storage
+Scale (GPFS)</strong>, or <strong>BeeGFS</strong> — filesystems that stripe data
+across many servers and scale out past NFS&#39;s hard limits.</li>
+<li><strong>High-performance fabric.</strong> Our <code>hpc-data</code> is plain 1 GbE.
+OSU measured ~140 µs latency. Real HPC fabrics are
+<strong>InfiniBand</strong> (HDR, NDR) or <strong>Slingshot</strong> at 1-5 µs latency,
+100-400 Gb/s. MPI over IB isn&#39;t just faster — the collective
+algorithms change.</li>
+<li><strong>Container workloads.</strong> Researchers increasingly ship
+scientific software as containers. <strong>Apptainer</strong> (formerly
+Singularity) is the HPC-native runtime — rootless, MPI-aware,
+works inside Slurm jobs.</li>
+<li><strong>User-facing software management.</strong> OpenHPC gives you a
+packaged stack. <strong>Spack</strong> is how sites build and deliver the
+long tail — hundreds of scientific libraries, thousands of
+compiler/MPI/variant combinations.</li>
+<li><strong>Identity at cluster scale.</strong> We used local users. Real sites
+run <strong>FreeIPA</strong> / <strong>LDAP+SSSD</strong> (academic) or hook into
+<strong>Active Directory</strong> (commercial).</li>
+<li><strong>Security hardening.</strong> SELinux permissive, firewalld disabled
+— our lab posture. Production enforces SELinux, segments
+fabrics, requires SSH certificates or MFA, and in regulated
+environments adds <strong>GxP</strong> (pharma) or <strong>ITAR/NIST 800-171</strong>
+(defense) compliance.</li>
+<li><strong>High-availability head.</strong> One head is a single point of
+failure. Production runs two head nodes in active/passive
+with shared storage for <code>/var/spool/slurmctld</code> and
+<code>/etc/slurm</code>, managed by Pacemaker/Corosync, with <code>slurmdbd</code>
+replicated to a MariaDB cluster.</li>
+<li><strong>GPUs.</strong> CUDA-capable accelerators are in a majority of new
+HPC deployments. The full story (GRES, NVLink, driver
+pinning, MIG, CUDA-aware MPI) is its own field.</li>
+<li><strong>Power and cooling.</strong> A real node draws 500-1500 W; a cabinet
+is 20-50 kW. HPC is as much an HVAC problem as a compute one.</li>
+<li><strong>Scheduler depth.</strong> We ran Slurm on default settings.
+Production Slurm has <strong>fairshare priority</strong>, <strong>QoS tiers</strong>,
+<strong>job arrays</strong>, <strong>heterogeneous jobs</strong>, <strong>reservations</strong>,
+<strong>preemption</strong>, <strong>TRES billing</strong>.</li>
+<li><strong>Backup and DR.</strong> <code>/home</code> and <code>/apps</code> should be backed up;
+<code>/scratch</code> is disposable. We set up no backups.</li>
+</ul>
+<h3 id="community-conferences-certifications">Community, conferences, certifications</h3>
+<ul>
+<li><strong>SC</strong> (ACM/IEEE Supercomputing, November, US) — the flagship
+conference.</li>
+<li><strong>ISC High Performance</strong> (June, Germany) — research-focused
+European counterpart.</li>
+<li><strong>PEARC</strong> (July, US) — campus-scale HPC operators.</li>
+<li><strong>CaRCC</strong> (Campus Research Computing Consortium) — active
+community for academic research computing.</li>
+<li><strong>HPC Certification Forum</strong> — structured skills framework and
+exams.</li>
+<li><strong>Beowulf mailing list</strong> — oldest HPC-sysadmin list, still
+active.</li>
+<li>Books: <em>High Performance Computing: Modern Systems and
+Practices</em> (Sterling, Anderson, Brodowicz).</li>
+</ul>
+<h3 id="closing">Closing</h3>
+<p>The cluster you watched boot this afternoon is a miniature of
+every HPC system in the world. The same pattern — diskless
+compute, job scheduling with accounting, parallel filesystems,
+message-passing libraries, observability — scales through every
+order of magnitude. When you see it at a vendor briefing next
+quarter, when a researcher asks why their job is queueing, when
+your procurement team asks whether cloud or on-prem, you now
+have a map. Follow the role that pulls you most.</p>
+<hr>
+<h2 id="post-bootcamp-self-study">Post-bootcamp self-study</h2>
+<p>You watched the cluster come up; now make it yours. The exercises
+below are deliberately <strong>hints, not solutions</strong>. You have everything
+you need in the runbook above and in <code>man</code>. Struggling through them
+is the point.</p>
+<h3 id="exercise-1-make-compute-boot-faster">Exercise 1 — Make compute boot faster</h3>
+<p><strong>Observation.</strong> During Section 08 you saw compute nodes spend ~90
+seconds at <code>A start job is running for Wait for Network to be Configured</code> before login. That&#39;s <code>NetworkManager-wait-online.service</code>
+waiting on interfaces that (for a diskless compute node with one
+active link) don&#39;t need that much hand-holding.</p>
+<p><strong>Goal.</strong> Shave that 90 s off the compute boot, rebuild the image,
+and re-provision the two compute nodes.</p>
+<p><strong>Hints, not recipes.</strong></p>
+<ul>
+<li>The service to disarm lives in the <strong>image</strong>, not on the head. Use
+<code>wwctl image exec &lt;imagename&gt; -- systemctl disable ...</code> to act
+inside the chroot, then <code>wwctl image build</code>.</li>
+<li>Compute nodes are diskless — the change only takes effect after
+they PXE-boot again. <code>wwctl node set --ipxe=reboot</code> + a
+<code>VBoxManage controlvm compute0N reset</code> is one way.</li>
+<li>Time the boot with <code>systemd-analyze</code> on the compute after it
+reconverges. Compare to your Section 08 timing.</li>
+</ul>
+<h3 id="exercise-2-bring-up-compute03">Exercise 2 — Bring up compute03</h3>
+<p><strong>Goal.</strong> Add a third compute node (<code>compute03</code>, MAC ending in <code>:03</code>,
+IP <code>10.10.0.103</code>) without touching anything that&#39;s already working.</p>
+<p><strong>Hints.</strong></p>
+<ul>
+<li>The head already knows how to provision an arbitrary compute — the
+DHCP/TFTP/image pipeline doesn&#39;t care whether there&#39;s one node or
+ten. What&#39;s missing is a <strong>node definition</strong> in Warewulf
+(<code>wwctl node add</code>) and a <strong>VirtualBox VM</strong> that matches.</li>
+<li><code>scripts/create-compute-vm.sh</code> is parameterized. Read it. Adapt it
+— or better, extend it to take the node number as an argument.</li>
+<li>Slurm needs to know about the new node too. <code>NodeName=compute03</code>
+in <code>slurm.conf</code>, then <code>scontrol reconfigure</code>. Check <code>sinfo</code> before
+and after.</li>
+<li>Don&#39;t forget to size the head: 16 GB host RAM with head 4 GB +
+two computes 4 GB each is already tight. A third 4 GB compute
+may force you to drop head or each compute to 2-3 GB. Measure
+before assuming.</li>
+</ul>
+<h3 id="exercise-3-add-a-slurm-aware-exporter">Exercise 3 — Add a Slurm-aware exporter</h3>
+<p><strong>Goal.</strong> Make <code>sinfo</code>-style cluster state visible in Grafana without
+running <code>sinfo</code> by hand.</p>
+<p><strong>Hints.</strong></p>
+<ul>
+<li><code>prometheus-slurm-exporter</code> (the vpenso/prometheus-slurm-exporter
+Go project) isn&#39;t in EPEL yet. Build it from source: <code>golang</code>
+is in Rocky 9 AppStream; <code>go install</code> or <code>make</code> in the repo
+produces a single static binary. A minimal systemd unit plus
+a scrape target in <code>prometheus.yml</code> wires it in.</li>
+<li>It exposes <code>slurm_nodes_idle</code>, <code>slurm_jobs_pending</code>,
+<code>slurm_queue_pending</code>, and friends. Build a Grafana panel that
+graphs them.</li>
+<li>Alternatively, add a <strong>simpler</strong> exporter — <code>process-exporter</code>
+scoped to <code>slurmd</code> and <code>munged</code> (available as a prebuilt RPM in
+some Copr repos). Point Prometheus at it, verify scrape targets
+go green, build a panel.</li>
+<li>The Grafana dashboard JSON you imported is editable. Right-click
+a panel → Edit → change the PromQL → Apply → Save.</li>
+</ul>
+<h3 id="what-done-looks-like">What &quot;done&quot; looks like</h3>
+<p>For each exercise, the finished state is: the cluster still passes
+the <a href="#section-09-run-a-real-job">Section 09</a> MPI job, and you can
+explain to someone else what changed and why. If you broke the
+cluster, <code>vagrant snapshot restore s07</code> (or whichever snapshot is
+pre-Section 08) gets you back to a known good — this is why the
+snapshots exist.</p>
+<hr>
+<h2 id="cleanup-start-over">Cleanup / start over</h2>
+<p>If anything goes sideways and you want to start fresh, run the
+provided cleanup script from the <strong>Windows host</strong> in Git Bash:</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>./scripts/cleanup.sh</code></pre></div>
+<p>The script is paste-safe (no heredocs, no complex loops) so a copy
+from the HTML and paste into Git Bash works without surprises. It
+powers off and deletes <code>compute01</code> + <code>compute02</code>, runs <code>vagrant destroy -f</code> on the head, clears console logs and <code>.vagrant/</code>, and
+prints the final state. Individual steps resume if earlier ones
+fail — safe to re-run.</p>
+<p>What&#39;s preserved:</p>
+<ul>
+<li>The Rocky 9 base box stays cached at
+<code>~/.vagrant.d/boxes/rockylinux-VAGRANTSLASH-9/9.7.0/</code>. Next
+<code>vagrant up</code> skips the ~1 GB box download.</li>
+<li>Git history is intact.</li>
+<li>All other repo files (RUNBOOK.md, scripts, etc.) are intact.</li>
+</ul>
+<p>What&#39;s gone:</p>
+<ul>
+<li>Both compute VMs and the head VM (their VirtualBox VM
+directories under <code>C:\Users\&lt;you&gt;\VirtualBox VMs\</code>).</li>
+<li>Any user data on <code>/home</code>, <code>/scratch</code>, or <code>/opt/ohpc</code> from the
+old run. The runbook rebuilds these from scratch.</li>
+</ul>
+<p>After cleanup, restart from <a href="#section-02-bring-up-the-head-node">Section 02</a>.</p>
+<hr>
+<h2 id="reference-scripts">Reference scripts</h2>
+<p>These scripts are referenced by the commands above. They live in the
+<code>scripts/</code> directory of the source repository; their content is
+inlined here so this HTML is self-contained.</p>
+<h3 id="scriptscreate-compute-vmsh">scripts/create-compute-vm.sh</h3>
+<p>Used in <a href="#section-08-compute-nodes-come-alive">Section 08</a> step 9 to
+create the diskless compute VMs from the Windows host. Save this to
+<code>scripts/create-compute-vm.sh</code>, <code>chmod +x</code> it, and run as
+documented.</p>
+<div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>#!/usr/bin/env bash
+# create-compute-vm.sh — create a diskless PXE-booting compute VM in VirtualBox.
+#
+# Runs on the Windows host (Git Bash / WSL), NOT inside the head VM.
+# VBoxManage must be on PATH; confirmed by HOST-PREP.md.
+#
+# Usage: ./create-compute-vm.sh &lt;node-number&gt;
+#   where &lt;node-number&gt; is 1 or 2 (matching compute01 / compute02).
+#
+# The VM is created with:
+#   - No disk (diskless — root filesystem comes from Warewulf PXE)
+#   - 4 GB RAM, 2 vCPU (the tmpfs root needs ~1.4 GB; default tmpfs size
+#     is half of RAM, so 2 GB isn't enough — compute would OOM during image
+#     extraction. See TRIALS.md.)
+#   - ich9 + ioapic + hpet firmware customizations (same rationale as head;
+#     see STACK-DECISIONS.md)
+#   - NIC1 on VirtualBox internal network "hpc-mgmt" with a pinned MAC that
+#     Warewulf's node definition references (nodes.conf hwaddr field)
+#   - NIC2 on VirtualBox internal network "hpc-data" (NFS + MPI fabric)
+#   - Boot order: network only (no disk, no CD)
+#   - Serial console redirected to compute0N.console.log for first-boot
+#     debugging (kernel args include console=ttyS0,115200 from the WW profile)
+
+set -euo pipefail
+
+NODE_NUM="${1:-}"
+if [[ -z "$NODE_NUM" || ! "$NODE_NUM" =~ ^[12]$ ]]; then
+  echo "Usage: $0 &lt;node-number: 1 or 2&gt;" &gt;&amp;2
+  exit 1
+fi
+
+VM_NAME="compute0${NODE_NUM}"
+MAC_MGMT="525400C0010${NODE_NUM}"   # hpc-mgmt NIC — matches wwctl node hwaddr
+MAC_DATA="525400D0010${NODE_NUM}"   # hpc-data NIC — MPI/NFS fabric
+
+if ! command -v VBoxManage &gt;/dev/null 2&gt;&amp;1; then
+  echo "VBoxManage not found on PATH." &gt;&amp;2
+  echo "Re-run HOST-PREP.md step 6 (install VirtualBox) and open a fresh shell." &gt;&amp;2
+  exit 2
+fi
+
+# Idempotent: if the VM already exists, shut it down and remove it.
+if VBoxManage list vms | grep -qE "\"${VM_NAME}\""; then
+  echo "==&gt; ${VM_NAME} already exists; unregistering"
+  VBoxManage controlvm "${VM_NAME}" poweroff 2&gt;/dev/null || true
+  sleep 1
+  VBoxManage unregistervm "${VM_NAME}" --delete
+fi
+
+echo "==&gt; Creating ${VM_NAME}"
+VBoxManage createvm --name "${VM_NAME}" --ostype RedHat_64 --register
+
+echo "==&gt; CPU, memory, firmware"
+VBoxManage modifyvm "${VM_NAME}" \
+  --cpus 2 \
+  --memory 4096 \
+  --chipset ich9 \
+  --ioapic on \
+  --hpet on \
+  --firmware bios
+
+echo "==&gt; NIC1 (hpc-mgmt, PXE boot)"
+VBoxManage modifyvm "${VM_NAME}" \
+  --nic1 intnet \
+  --intnet1 hpc-mgmt \
+  --macaddress1 "${MAC_MGMT}" \
+  --nictype1 82540EM \
+  --nicbootprio1 1
+
+echo "==&gt; NIC2 (hpc-data)"
+VBoxManage modifyvm "${VM_NAME}" \
+  --nic2 intnet \
+  --intnet2 hpc-data \
+  --macaddress2 "${MAC_DATA}" \
+  --nictype2 82540EM
+
+echo "==&gt; Boot order: network only (diskless)"
+VBoxManage modifyvm "${VM_NAME}" \
+  --boot1 net \
+  --boot2 none \
+  --boot3 none \
+  --boot4 none
+
+echo "==&gt; Serial console -&gt; ${VM_NAME}.console.log"
+VBoxManage modifyvm "${VM_NAME}" \
+  --uart1 0x3f8 4 \
+  --uartmode1 file "${VM_NAME}.console.log"
+
+echo "==&gt; Starting ${VM_NAME} (headless)"
+VBoxManage startvm "${VM_NAME}" --type headless
+
+cat &lt;&lt;EOF
+
+${VM_NAME} is booting. Watch its PXE + kernel boot with:
+
+    tail -f ${VM_NAME}.console.log
+
+From head (\`vagrant ssh\`), confirm it shows up:
+
+    sudo wwctl node status
+    sinfo
+EOF
+</code></pre></div>
+<h3 id="scriptsgrafana-hpc-clusterjson">scripts/grafana-hpc-cluster.json</h3>
+<p>Provisioned in <a href="#section-10-see-it-running">Section 10</a> step 5. Save
+to <code>scripts/grafana-hpc-cluster.json</code>, then <code>sudo cp</code> to
+<code>/var/lib/grafana/dashboards/hpc-cluster.json</code>.</p>
+<div class="code-block" data-lang="json"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-json"><code>{
+  "id": null,
+  "uid": "hpc-cluster",
+  "title": "HPC Cluster",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": {"from": "now-10m", "to": "now"},
+  "panels": [
+    {
+      "id": 1,
+      "title": "CPU Busy (%)",
+      "type": "timeseries",
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 0},
+      "targets": [{"expr": "100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[30s])))", "legendFormat": "{{instance}}"}],
+      "fieldConfig": {"defaults": {"unit": "percent", "min": 0, "max": 100}}
+    },
+    {
+      "id": 2,
+      "title": "Memory Used (%)",
+      "type": "timeseries",
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 0},
+      "targets": [{"expr": "100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))", "legendFormat": "{{instance}}"}],
+      "fieldConfig": {"defaults": {"unit": "percent", "min": 0, "max": 100}}
+    },
+    {
+      "id": 3,
+      "title": "Load Average (1m)",
+      "type": "timeseries",
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 9},
+      "targets": [{"expr": "node_load1", "legendFormat": "{{instance}}"}]
+    },
+    {
+      "id": 4,
+      "title": "Network RX+TX on eth1 (MPI fabric) — bytes/s",
+      "type": "timeseries",
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 9},
+      "targets": [
+        {"expr": "rate(node_network_receive_bytes_total{device=\"eth1\"}[30s])", "legendFormat": "rx {{instance}}"},
+        {"expr": "rate(node_network_transmit_bytes_total{device=\"eth1\"}[30s])", "legendFormat": "tx {{instance}}"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "Bps"}}
+    }
+  ]
+}</code></pre></div>
+
+  </main>
+</div>
+
+<div class="page-footer">
+  HPC Bootcamp Runbook · v2.0 · 2026-04-24
+  <span class="validated-pill">HPL 17.36 GFLOPS · PASS</span>
+  · git tag bootcamp-v2.0
+</div>
+
+<script>
+// Highlight active sidebar item on scroll
+(function() {
+  const items = document.querySelectorAll('.side-nav-item');
+  const targets = Array.from(items).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    return { item: a, target: document.getElementById(id) };
+  }).filter(x => x.target);
+  function update() {
+    const y = window.scrollY + 120;
+    let active = null;
+    for (const t of targets) {
+      if (t.target.offsetTop <= y) active = t;
+    }
+    items.forEach(i => i.classList.remove('is-active'));
+    if (active) active.item.classList.add('is-active');
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+})();
+
+// Copy-to-clipboard for code blocks
+(function() {
+  function flash(btn, text, cls) {
+    const original = btn.dataset.originalText || btn.textContent;
+    if (!btn.dataset.originalText) btn.dataset.originalText = original;
+    btn.textContent = text;
+    btn.classList.add(cls);
+    clearTimeout(btn._copyTimer);
+    btn._copyTimer = setTimeout(() => {
+      btn.textContent = btn.dataset.originalText;
+      btn.classList.remove(cls);
+    }, 1600);
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    // Fallback for older browsers / non-secure contexts
+    return new Promise((resolve, reject) => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy') ? resolve() : reject(new Error('execCommand failed'));
+      } catch (e) {
+        reject(e);
+      } finally {
+        document.body.removeChild(ta);
+      }
+    });
+  }
+
+  document.querySelectorAll('.code-block').forEach(block => {
+    const btn = block.querySelector('.copy-btn');
+    const code = block.querySelector('pre.code code');
+    if (!btn || !code) return;
+    btn.addEventListener('click', () => {
+      const text = code.textContent;
+      copyText(text)
+        .then(() => flash(btn, 'Copied', 'copied'))
+        .catch(() => flash(btn, 'Failed', 'copied'));
+    });
+  });
+})();
+</script>
 
 </body>
 </html>
