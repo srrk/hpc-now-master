@@ -408,8 +408,13 @@ assumed.</p>
 <p>To start over from any state, see the <a href="#cleanup-start-over">Cleanup / start over</a> appendix at the end.</p>
 <h3 id="required-files-check-before-you-start">Required files — check before you start</h3>
 <p>Every learner needs these six files on disk at the <strong>repository root</strong>
-before the demo starts. They&#39;re in the bootcamp starter zip (or
-<code>git clone</code>).</p>
+before the demo starts.</p>
+<blockquote>
+<p><strong>Download the starter bundle:</strong> <a href="hpc-bootcamp-v2.0.zip">hpc-bootcamp-v2.0.zip</a>
+Extract into an empty folder (e.g. <code>C:\hpc-bootcamp\</code>) and open a
+Git Bash shell there. All six files below land in the right layout
+automatically. Alternatively, <code>git clone</code> the source repository.</p>
+</blockquote>
 <table class="rb-table"><thead><tr><th>File</th><th>Purpose</th></tr></thead><tbody><tr><td><code>Vagrantfile</code></td><td>head-VM definition (4 GB / 2 vCPU / 40 GB disk, two internal networks, NAT port forwards for 3000/9090)</td></tr><tr><td><code>rockylinux-9.7-primary.json</code></td><td>local metadata override pointing Vagrant at the Rocky 9.7 <code>.box</code> artifact</td></tr><tr><td><code>scripts/create-compute-vm.sh</code></td><td>creates the diskless compute VMs via <code>VBoxManage</code> (used in §08)</td></tr><tr><td><code>scripts/grafana-hpc-cluster.json</code></td><td>Grafana dashboard definition (used in §10)</td></tr><tr><td><code>scripts/cleanup.sh</code></td><td>one-shot teardown script (used in the Cleanup appendix)</td></tr><tr><td><code>RUNBOOK.md</code> / <code>RUNBOOK.html</code></td><td>this document</td></tr></tbody></table>
 <p>Quick check from the project directory:</p>
 <div class="code-block" data-lang="bash"><button class="copy-btn" type="button" aria-label="Copy code to clipboard">Copy</button><pre class="code language-bash"><code>ls Vagrantfile rockylinux-9.7-primary.json \
