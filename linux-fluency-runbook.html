@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linux Fluency · Lab Runbook · master.hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #181817;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --teal:       #0f6e56;
+      --teal-dim:   #1d9e75;
+      --teal-bg:    #e8f5f0;
+      --amber:      #c47f1a;
+      --amber-bg:   #fdf4e3;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--paper); color: var(--ink); font-family: var(--mono); font-size: 15px; line-height: 1.75; }
+
+    /* COVER */
+    .cover { background: var(--cover); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E"); }
+    .nav-wrap { border-bottom: 1px solid var(--rule-cover); }
+    nav { max-width: 1200px; margin: 0 auto; padding: 20px 52px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: var(--mono); font-size: 12px; color: #f0e8e0; text-decoration: none; letter-spacing: .06em; }
+    .logo em { color: var(--terra-dim); font-style: normal; }
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-tag { font-size: 10px; color: #6a6460; letter-spacing: .12em; text-transform: uppercase; }
+    .nav-mod { font-size: 11px; color: var(--terra-dim); letter-spacing: .06em; }
+    .hero { max-width: 1200px; margin: 0 auto; padding: 72px 52px 80px; }
+    .hero-eyebrow { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #6a6460; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+    .hero-eyebrow::before { content: ''; width: 20px; height: 1px; background: #6a6460; }
+    .hero-title { font-family: var(--serif); font-size: clamp(32px, 4.5vw, 56px); font-weight: 400; color: #f0e8e0; line-height: 1.15; letter-spacing: -.02em; margin-bottom: 28px; }
+    .hero-title em { font-style: italic; color: var(--terra-dim); }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid #2e2820; width: fit-content; margin-top: 36px; }
+    .hero-meta-item { padding: 12px 24px; border-right: 1px solid #2e2820; display: flex; flex-direction: column; gap: 3px; }
+    .hero-meta-item:last-child { border-right: none; }
+    .hero-meta-k { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .hero-meta-v { font-size: 12px; color: #c8c0b4; }
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* LAYOUT */
+    .page-body { max-width: 1200px; margin: 0 auto; padding: 0 52px; display: grid; grid-template-columns: 200px 1fr; gap: 0 72px; align-items: start; }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 40px; padding: 64px 0 40px; align-self: start; }
+    .side-label { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink3); margin-bottom: 12px; padding-left: 14px; }
+    .side-nav { display: flex; flex-direction: column; gap: 1px; margin-bottom: 20px; }
+    .side-nav-item { font-size: 11px; color: var(--ink3); text-decoration: none; letter-spacing: .03em; padding: 5px 0 5px 14px; border-left: 2px solid transparent; transition: color .18s, border-color .18s; line-height: 1.4; }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+    .side-nav-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+    .side-nav-part { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); padding: 8px 0 4px 14px; }
+
+    /* MAIN */
+    .main-content { padding: 0; background: var(--paper); }
+    .section { padding: 64px 0 56px; border-top: 1px solid var(--rule); }
+    .section:first-child { border-top: none; padding-top: 72px; }
+    .label { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: var(--ink3); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
+    .label::after { content: ''; width: 36px; height: 1px; background: var(--rule); }
+    .prose { font-size: 14px; color: var(--ink2); line-height: 2.05; max-width: 600px; }
+    .prose + .prose { margin-top: 1.2em; }
+    .prose code { font-family: var(--mono); font-size: 12px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+
+    /* CALLOUTS */
+    .callout { border-left: 3px solid var(--terra); padding: 18px 22px; background: var(--terra-bg); margin: 24px 0; max-width: 640px; }
+    .callout p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout strong { color: var(--terra); font-weight: 500; }
+    .callout-teal { border-left: 3px solid var(--teal); padding: 18px 22px; background: var(--teal-bg); margin: 24px 0; max-width: 640px; }
+    .callout-teal p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-teal strong { color: var(--teal); font-weight: 500; }
+    .callout-amber { border-left: 3px solid var(--amber); padding: 18px 22px; background: var(--amber-bg); margin: 24px 0; max-width: 640px; }
+    .callout-amber p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-amber strong { color: var(--amber); font-weight: 500; }
+
+    /* ACCESS BLOCK */
+    .access-block { background: var(--dark); border: 1px solid #2e2820; max-width: 600px; margin: 20px 0; }
+    .access-header { background: #2e2820; padding: 10px 20px; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .access-row { display: grid; grid-template-columns: 140px 1fr; gap: 0; border-bottom: 1px solid #2e2820; }
+    .access-row:last-child { border-bottom: none; }
+    .access-k { font-size: 10px; letter-spacing: .1em; color: #6a6460; padding: 12px 20px; border-right: 1px solid #2e2820; display: flex; align-items: center; }
+    .access-v { font-family: var(--mono); font-size: 12px; color: #9fe1cb; padding: 12px 20px; display: flex; align-items: center; }
+
+    /* CODE BLOCKS */
+    .code-block { background: var(--dark); border: 1px solid #2e2820; padding: 20px 24px; margin: 20px 0; max-width: 640px; overflow-x: auto; position: relative; }
+    .code-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #2e2820; }
+    .code-block pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #c8c0b4; white-space: pre; }
+    .code-block pre .cmd  { color: #9fe1cb; }
+    .code-block pre .cmt  { color: #4a4438; font-style: italic; }
+    .code-block pre .out  { color: #8a8078; }
+    .copy-btn { position: absolute; top: 12px; right: 12px; background: #2e2820; border: 1px solid #3e3830; color: #6a6460; font-family: var(--mono); font-size: 10px; letter-spacing: .08em; padding: 4px 10px; cursor: pointer; transition: color .15s, border-color .15s; }
+    .copy-btn:hover { color: #9fe1cb; border-color: #9fe1cb; }
+    .copy-btn.copied { color: var(--teal-dim); border-color: var(--teal-dim); }
+
+    /* STEPS */
+    .steps { display: flex; flex-direction: column; gap: 0; max-width: 640px; margin: 24px 0; }
+    .step { display: grid; grid-template-columns: 48px 1fr; gap: 0 20px; padding: 28px 0; border-top: 1px solid var(--rule); align-items: start; }
+    .step:first-child { border-top: none; padding-top: 0; }
+    .step-num { font-size: 11px; color: var(--ink3); letter-spacing: .1em; padding-top: 4px; font-weight: 300; }
+    .step-title { font-family: var(--serif); font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 10px; line-height: 1.35; }
+    .step-desc { font-size: 13px; color: var(--ink2); line-height: 1.95; margin-bottom: 14px; max-width: 520px; }
+    .step-desc code { font-family: var(--mono); font-size: 11px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+    .step-notice { font-size: 12px; color: var(--terra); font-style: italic; line-height: 1.7; margin-top: 10px; display: flex; gap: 8px; align-items: flex-start; max-width: 520px; }
+    .step-notice::before { content: '→'; flex-shrink: 0; color: var(--terra-dim); }
+    .step-notice code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); font-style: normal; }
+
+    /* TABLES */
+    .creds-table { border: 1px solid var(--rule); width: 100%; max-width: 560px; margin: 20px 0; border-collapse: collapse; }
+    .creds-table thead th { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); background: var(--paper-mid); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--rule); font-weight: 400; }
+    .creds-table tbody td { font-size: 12px; color: var(--ink2); padding: 11px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.6; }
+    .creds-table tbody tr:last-child td { border-bottom: none; }
+    .creds-table .name-col { font-family: var(--serif); font-style: italic; color: var(--ink); font-size: 14px; }
+    .creds-table .mono-col { font-family: var(--mono); color: var(--teal); font-size: 12px; }
+    .creds-table .pass-col { font-family: var(--mono); color: var(--amber); font-size: 12px; }
+
+    .completion-table { border: 1px solid var(--rule); max-width: 640px; border-collapse: collapse; margin: 20px 0; width: 100%; }
+    .completion-table th { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); background: var(--paper-mid); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--rule); font-weight: 400; }
+    .completion-table td { font-size: 12px; color: var(--ink2); padding: 10px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.65; }
+    .completion-table tr:last-child td { border-bottom: none; }
+    .completion-table code { font-family: var(--mono); font-size: 11px; color: var(--teal); }
+
+    /* PART HEADER */
+    .part-header { background: var(--dark); padding: 32px 36px 28px; border-left: 4px solid var(--terra); margin-bottom: 28px; }
+    .part-num { font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: #6a6460; margin-bottom: 8px; }
+    .part-title { font-family: var(--serif); font-size: 22px; font-weight: 400; color: #f0e8e0; line-height: 1.3; margin-bottom: 10px; }
+    .part-intent { font-size: 13px; color: #8a8078; line-height: 1.8; max-width: 520px; font-style: italic; }
+
+    /* CHECKPOINT BLOCK */
+    .checkpoint-block { background: var(--dark); border: 1px solid var(--teal); max-width: 640px; margin: 28px 0; }
+    .checkpoint-header { background: var(--teal); padding: 10px 20px; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+    .checkpoint-header span { font-size: 11px; color: rgba(255,255,255,0.7); font-style: italic; letter-spacing: 0; text-transform: none; }
+    .checkpoint-body { padding: 20px 24px; }
+    .checkpoint-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #9fe1cb; white-space: pre-wrap; word-break: break-all; }
+    .checkpoint-note { font-size: 12px; color: #8a8078; font-style: italic; margin-top: 14px; line-height: 1.7; padding-top: 12px; border-top: 1px solid #2e2820; }
+
+    /* EXPECTED OUTPUT */
+    .expected-block { background: #141210; border: 1px solid #2e2820; border-left: 3px solid var(--teal); max-width: 640px; margin: 12px 0; }
+    .expected-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--teal-dim); padding: 8px 16px; border-bottom: 1px solid #2e2820; }
+    .expected-body { padding: 14px 16px; }
+    .expected-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #8a8078; white-space: pre-wrap; }
+
+    /* WRONG BLOCK */
+    .wrong-block { background: #140e0e; border: 1px solid #2e2820; border-left: 3px solid var(--terra); max-width: 640px; margin: 12px 0; }
+    .wrong-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--terra-dim); padding: 8px 16px; border-bottom: 1px solid #2e1818; }
+    .wrong-body { padding: 14px 16px; font-size: 13px; color: var(--ink2); line-height: 1.85; }
+    .wrong-body code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); background: rgba(123,75,51,0.1); padding: 1px 5px; }
+
+    /* QUICK REF */
+    .quickref-block { background: var(--dark); border: 1px solid #2e2820; max-width: 640px; margin: 20px 0; overflow: hidden; }
+    .quickref-header { background: #2e2820; padding: 10px 20px; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .quickref-row { display: grid; grid-template-columns: 100px 1fr; border-bottom: 1px solid #2e2820; }
+    .quickref-row:last-child { border-bottom: none; }
+    .quickref-k { font-size: 11px; color: #6a6460; padding: 12px 16px; border-right: 1px solid #2e2820; display: flex; align-items: center; letter-spacing: .04em; }
+    .quickref-v { font-family: var(--mono); font-size: 12px; color: #9fe1cb; padding: 12px 16px; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+
+    /* FOOTER */
+    .footer-wrap { background: var(--dark2); margin: 64px -52px 0; padding: 24px 52px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-top: 1px solid #2e2820; }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-badge { font-size: 10px; color: var(--teal-dim); letter-spacing: .08em; }
+    .footer-link { font-size: 11px; color: #6a6460; text-decoration: none; }
+
+    @media (max-width: 1024px) {
+      nav, .hero { padding-left: 32px; padding-right: 32px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 32px; }
+      .sidebar { display: none; }
+      .footer-wrap { margin: 64px -32px 0; padding: 24px 32px; }
+    }
+    @media (max-width: 640px) {
+      nav, .hero { padding-left: 20px; padding-right: 20px; }
+      .page-body { padding: 0 20px; }
+      .footer-wrap { margin: 64px -20px 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="https://master.hpc.now" class="logo">master<em>.hpc.now</em></a>
+      <div class="nav-right">
+        <span class="nav-tag">Lab Runbook</span>
+        <span class="nav-mod">Linux Fluency · Associate Stream</span>
+      </div>
+    </nav>
+  </div>
+  <div class="hero">
+    <p class="hero-eyebrow">Linux Fluency · Lab Runbook · HPC Operations</p>
+    <h1 class="hero-title">Linux Fluency<br><em>Lab Runbook</em></h1>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><span class="hero-meta-k">Labs</span><span class="hero-meta-v">7 sections · Pre-session included</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Host</span><span class="hero-meta-v">mylab.hpc.now</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Learners</span><span class="hero-meta-v">chandra · sujith · yogaraj</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Password</span><span class="hero-meta-v">hpcnow2026</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Stream</span><span class="hero-meta-v">Associate · Linux Fluency</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">URL</span><span class="hero-meta-v">master.hpc.now/linux-fluency</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- BODY -->
+<div class="page-body">
+
+  <aside class="sidebar">
+    <div class="side-label">Runbook</div>
+    <nav class="side-nav">
+      <a href="#how-to-use" class="side-nav-item">How to Use</a>
+      <a href="#pre-session" class="side-nav-item">Pre-Session Setup</a>
+      <div class="side-nav-divider"></div>
+      <div class="side-nav-part">Labs</div>
+      <a href="#section-1" class="side-nav-item">1 · System Model</a>
+      <a href="#section-2" class="side-nav-item">2 · Navigation</a>
+      <a href="#section-3" class="side-nav-item">3 · PATH</a>
+      <a href="#section-4" class="side-nav-item">4 · Permissions</a>
+      <a href="#section-5" class="side-nav-item">5 · vim</a>
+      <a href="#section-6" class="side-nav-item">6 · Text Processing</a>
+      <a href="#section-7" class="side-nav-item">7 · Pipelines</a>
+      <div class="side-nav-divider"></div>
+      <a href="#checkpoints" class="side-nav-item">All Checkpoints</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- HOW TO USE -->
+    <section class="section" id="how-to-use">
+      <p class="label">how to use this runbook</p>
+      <p class="prose">This runbook runs alongside the Linux Fluency slide decks. Each section corresponds to a lab card shown during the session. When Rajesh shows a lab card on screen, open the matching section here.</p>
+      <p class="prose" style="margin-top:1em">Every command in this runbook is copy-pasteable. Do not type commands from the video screen — copy them from here.</p>
+      <div class="callout-teal" style="margin-top:24px">
+        <p>After each command, compare your output to the <strong>Expected Output</strong> block. If your output does not match, read the <strong>If Something Goes Wrong</strong> block before asking for help. When you complete a section's checkpoint, type <strong>done</strong> in the session chat and wait for Rajesh to confirm the group is ready before moving on.</p>
+      </div>
+    </section>
+
+    <!-- PRE-SESSION -->
+    <section class="section" id="pre-session">
+      <p class="label">pre-session — connection setup</p>
+
+      <div class="callout-amber">
+        <p><strong>Complete this before the session starts.</strong> Rajesh will verify everyone is connected before beginning slide 1.</p>
+      </div>
+
+      <p class="prose" style="margin-top:20px">Your lab credentials. Use the row with your name. The host and password are the same for everyone.</p>
+
+      <table class="creds-table">
+        <thead><tr><th>Name</th><th>Username</th><th>Password</th><th>Host</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="name-col">Chandra</td>
+            <td class="mono-col">chandra</td>
+            <td class="pass-col">hpcnow2026</td>
+            <td class="mono-col">mylab.hpc.now</td>
+          </tr>
+          <tr>
+            <td class="name-col">Sujith</td>
+            <td class="mono-col">sujith</td>
+            <td class="pass-col">hpcnow2026</td>
+            <td class="mono-col">mylab.hpc.now</td>
+          </tr>
+          <tr>
+            <td class="name-col">Yogaraj</td>
+            <td class="mono-col">yogaraj</td>
+            <td class="pass-col">hpcnow2026</td>
+            <td class="mono-col">mylab.hpc.now</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Step 1</span>
+          <div>
+            <p class="step-title">Connect via Putty (Windows)</p>
+            <p class="step-desc">Open Putty. Fill in the following fields exactly.</p>
+            <div class="code-block">
+              <div class="code-label">Putty connection settings</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">Host Name: mylab.hpc.now
+Port: 22
+Connection type: SSH</span></pre>
+            </div>
+            <p class="step-desc">Click <strong>Open</strong>. When prompted <code>login as:</code> — type your username. When prompted for password — type <code>hpcnow2026</code>. The password will not appear on screen as you type. This is normal.</p>
+            <div class="expected-block">
+              <div class="expected-label">Expected output after login</div>
+              <div class="expected-body"><pre>[chandra@mylab ~]$</pre></div>
+            </div>
+            <p class="step-notice">Your username appears in place of <code>chandra</code>.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Step 2</span>
+          <div>
+            <p class="step-title">Connect via WSL (Windows Subsystem for Linux)</p>
+            <p class="step-desc">Open your WSL terminal and run the line that matches your name.</p>
+            <div class="code-block">
+              <div class="code-label">Chandra</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ssh chandra@mylab.hpc.now</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Sujith</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ssh sujith@mylab.hpc.now</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Yogaraj</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ssh yogaraj@mylab.hpc.now</span></pre>
+            </div>
+            <p class="step-notice">When prompted for password — type <code>hpcnow2026</code></p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Step 3</span>
+          <div>
+            <p class="step-title">Verify Connection</p>
+            <p class="step-desc">Run this immediately after connecting.</p>
+            <div class="code-block">
+              <div class="code-label">Verification command</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">whoami && hostname && uname -r</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — Chandra</div>
+              <div class="expected-body"><pre>chandra
+mylab
+5.14.0-362.8.1.el9_3.x86_64</pre></div>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — Sujith</div>
+              <div class="expected-body"><pre>sujith
+mylab
+5.14.0-362.8.1.el9_3.x86_64</pre></div>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — Yogaraj</div>
+              <div class="expected-body"><pre>yogaraj
+mylab
+5.14.0-362.8.1.el9_3.x86_64</pre></div>
+            </div>
+            <p class="step-notice">The kernel version string may differ. Username and hostname must match.</p>
+            <div class="wrong-block">
+              <div class="wrong-label">If something goes wrong</div>
+              <div class="wrong-body">
+                <p><code>Connection refused</code> — port 22 may be blocked on your network. Try a mobile hotspot or tell Rajesh.</p>
+                <p style="margin-top:8px"><code>Permission denied</code> — check the password. It is <code>hpcnow2026</code> — all lowercase, no spaces.</p>
+                <p style="margin-top:8px"><code>Could not resolve hostname mylab.hpc.now</code> — DNS issue. Tell Rajesh and ask for the IP address as a fallback.</p>
+                <p style="margin-top:8px"><code>Host key verification failed</code> — run <code>ssh-keygen -R mylab.hpc.now</code> then retry.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 1 -->
+    <section class="section" id="section-1">
+      <div class="part-header">
+        <p class="part-num">Lab 1 / 7 · 10 minutes</p>
+        <h2 class="part-title">The System Model — Orientation Fluency</h2>
+        <p class="part-intent">Confirming that the system model from the slides is visible and readable on a real running Linux host. Follows: stack, kernel boundary, boot chain, PID 1.</p>
+      </div>
+
+      <div class="callout-teal">
+        <p><strong>Setup.</strong> You should be logged into <code>mylab.hpc.now</code>. Your prompt should show one of: <code>[chandra@mylab ~]$</code> · <code>[sujith@mylab ~]$</code> · <code>[yogaraj@mylab ~]$</code>. If you are not connected, return to Pre-Session above.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Confirm your position</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">pwd</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Chandra:  /home/chandra
+Sujith:   /home/sujith
+Yogaraj:  /home/yogaraj</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Read live kernel state from /proc</p>
+            <p class="step-desc">This is the kernel exposing live memory state through /proc. No file on any disk contains this — it is generated on read.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat /proc/meminfo | head -10</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>MemTotal:       16106848 kB
+MemFree:         9845632 kB
+MemAvailable:   12043520 kB
+Buffers:          215168 kB
+Cached:          2847744 kB
+SwapCached:            0 kB
+Active:          1823744 kB
+Inactive:        2156032 kB
+Active(anon):     916480 kB
+Inactive(anon):    16384 kB</pre></div>
+            </div>
+            <p class="step-notice">Your numbers will differ. The field names must match.</p>
+            <div class="wrong-block">
+              <div class="wrong-label">If something goes wrong</div>
+              <div class="wrong-body"><p><code>No such file or directory</code> — /proc is not mounted. This should not happen on a running system. Tell Rajesh immediately.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Read CPU information</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat /proc/cpuinfo | grep "model name" | head -3</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>model name      : Intel(R) Xeon(R) Gold 6154 CPU @ 3.00GHz
+model name      : Intel(R) Xeon(R) Gold 6154 CPU @ 3.00GHz
+model name      : Intel(R) Xeon(R) Gold 6154 CPU @ 3.00GHz</pre></div>
+            </div>
+            <p class="step-notice">Your CPU model will differ. One line per logical CPU visible to the instance.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Find PID 1 and confirm it is systemd</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat /proc/1/cmdline && echo ""</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>/usr/lib/systemd/systemd--switched-root--system--deserialize31</pre></div>
+            </div>
+            <p class="step-notice">The output runs together without spaces — this is normal. cmdline uses null bytes as separators. The key content is <code>systemd</code>.</p>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ls -la /proc/1/</span></pre>
+            </div>
+            <p class="step-desc" style="margin-top:8px">Scroll through the output. Confirm you can see <code>cmdline</code>, <code>status</code>, <code>fd/</code>, and <code>maps</code>.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Read a process status file</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat /proc/1/status | head -15</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Name:   systemd
+Umask:  0000
+State:  S (sleeping)
+Tgid:   1
+Ngid:   0
+Pid:    1
+PPid:   0
+...</pre></div>
+            </div>
+            <p class="step-notice"><code>PPid: 0</code> confirms PID 1 has no parent — it is the root of the process tree.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Verify sshd is running as a systemd service</p>
+            <p class="step-desc">sshd is what you connected through. It is a systemd-managed service.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">systemctl is-active sshd</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>active</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">systemctl status sshd | head -10</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>● sshd.service - OpenSSH server daemon
+     Loaded: loaded (/usr/lib/systemd/system/sshd.service; enabled; ...
+     Active: active (running) since ...
+   Main PID: 847 (sshd)</pre></div>
+            </div>
+            <p class="step-notice">Your PID will differ.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 1 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <pre>systemctl is-active sshd && cat /proc/1/cmdline && echo "" && echo "Section 1 complete"</pre>
+          <div class="checkpoint-note">
+            Expected: <code>active</code> on first line · systemd cmdline on second · <code>Section 1 complete</code> on third.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2 -->
+    <section class="section" id="section-2">
+      <div class="part-header">
+        <p class="part-num">Lab 2 / 7 · 15 minutes</p>
+        <h2 class="part-title">Filesystem Navigation — Navigation Fluency</h2>
+        <p class="part-intent">Moving through the filesystem confidently using the FHS mental model from the slides. Follows: FHS, /proc, /sys, ls, absolute and relative paths, PATH.</p>
+      </div>
+
+      <div class="callout-teal">
+        <p><strong>Setup.</strong> <code>cd ~</code> and confirm <code>pwd</code> shows your home directory before starting.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Visit the major FHS directories in sequence</p>
+            <p class="step-desc">Run each line separately. Read the output before moving to the next. Confirm the directory contents match what the slides described.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cd /etc && pwd && ls | head -10</span></pre>
+            </div>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cd /var/log && pwd && ls | head -10</span></pre>
+            </div>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cd /usr && pwd && ls</span></pre>
+            </div>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cd /proc && pwd && ls | head -10</span></pre>
+            </div>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cd /tmp && pwd && ls -la</span></pre>
+            </div>
+            <p class="step-notice">/proc contains numbered directories — one per running process. <code>/proc/1</code> is systemd. You just read it in Section 1.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Use ls -lah and read the first column</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cd /etc/ssh && ls -lah</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>total 608K
+drwx------  2 root root  4.0K Mar 15  2023 .
+drwxr-xr-x 92 root root  4.0K Apr 25 06:12 ..
+-rw-r--r--  1 root root  3.8K Apr 24 09:01 sshd_config
+-rw-------  1 root root  492  Mar 15 2023  ssh_host_ed25519_key
+-rw-r--r--  1 root root  111  Mar 15 2023  ssh_host_ed25519_key.pub</pre></div>
+            </div>
+            <p class="step-notice"><code>ssh_host_ed25519_key</code> is 0600 — only root reads it. This is the server's private key. The <code>.pub</code> beside it is readable by everyone.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Find the most recently modified files in /var/log</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ls -lt /var/log | head -10</span></pre>
+            </div>
+            <p class="step-notice">Files sorted newest first. Filenames and sizes on mylab.hpc.now will vary.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Use man ls to find a flag, then use it</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">man ls</span></pre>
+            </div>
+            <p class="step-desc">Inside man, search for sort by file size: type <code>/sort by file size</code> then Enter. Press <code>n</code> to find the next match. Identify the flag. Press <code>q</code> to quit.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ls -lS /var/log | head -10</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Files sorted largest first.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Absolute paths, then relative paths</p>
+            <p class="step-desc">Navigate using only absolute paths for five commands.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cd /etc
+cd /var/log
+cd /usr/bin
+cd /tmp
+cd /home</span></pre>
+            </div>
+            <p class="step-desc" style="margin-top:12px">Now navigate using only relative paths from <code>/home</code>.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cd ..
+cd tmp
+cd ../var
+cd log
+cd ../../etc</span></pre>
+            </div>
+            <p class="step-notice">After each <code>cd</code>, confirm your location with <code>pwd</code>.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Use man -k to find a command</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">man -k "disk space"</span></pre>
+            </div>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">man df</span></pre>
+            </div>
+            <p class="step-notice">Read the SYNOPSIS section. Press <code>q</code> to quit.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 7</span>
+          <div>
+            <p class="step-title">Confirm your PATH</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">echo $PATH</span></pre>
+            </div>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">which ls</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>/usr/bin/ls</pre></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 2 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <pre>cd ~ && ls -lt /var/log | head -5 && which ls && echo "Section 2 complete"</pre>
+          <div class="checkpoint-note">Expected: five log files with timestamps · <code>/usr/bin/ls</code> · <code>Section 2 complete</code>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3 -->
+    <section class="section" id="section-3">
+      <div class="part-header">
+        <p class="part-num">Lab 3 / 7 · 5 minutes</p>
+        <h2 class="part-title">PATH — Environment Fluency</h2>
+        <p class="part-intent">Confirming PATH is understood as a mechanism, not just a variable. Follows: man pages, the system as a readable object. This is the shortest lab — five focused minutes.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Count directories in PATH</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">echo $PATH | tr ':' '\n' | wc -l</span></pre>
+            </div>
+            <p class="step-notice">Each number is one directory the shell searches when you type a command name. Your count may differ slightly.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">List each PATH directory</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">echo $PATH | tr ':' '\n'</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — Chandra</div>
+              <div class="expected-body"><pre>/home/chandra/.local/bin
+/home/chandra/bin
+/usr/local/bin
+/usr/bin
+/bin</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Confirm the current directory is not in PATH</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">echo '#!/bin/bash' > testscript.sh
+echo 'echo "script ran"' >> testscript.sh
+chmod +x testscript.sh</span></pre>
+            </div>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">testscript.sh</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>bash: testscript.sh: command not found</pre></div>
+            </div>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">./testscript.sh</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>script ran</pre></div>
+            </div>
+            <p class="step-notice">The file exists. The shell cannot find it by name alone because the current directory is deliberately not in PATH.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Add a directory to PATH temporarily</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">mkdir -p ~/bin
+export PATH=~/bin:$PATH
+echo $PATH | tr ':' '\n' | head -3</span></pre>
+            </div>
+            <p class="step-notice"><code>~/bin</code> now appears first — the shell searches it before anything else.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Confirm the change is session-only</p>
+            <p class="step-desc">Open a second SSH connection to <code>mylab.hpc.now</code> in a new window. In the new session, run the command below. The <code>~/bin</code> prepend from Exercise 4 is gone. PATH changes made with <code>export</code> in a session do not persist. Close the new session and return to the original.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">echo $PATH | tr ':' '\n' | head -3</span></pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 3 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <pre>echo $PATH | tr ':' '\n' | wc -l && echo "Section 3 complete"</pre>
+          <div class="checkpoint-note">Output is a number followed by <code>Section 3 complete</code>. The count will be 6 if you completed Exercise 4 in this session, 5 if in a fresh session. Both are correct.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4 -->
+    <section class="section" id="section-4">
+      <div class="part-header">
+        <p class="part-num">Lab 4 / 7 · 30 minutes</p>
+        <h2 class="part-title">Files and Permissions — Permissions Fluency</h2>
+        <p class="part-intent">Reading, setting, and understanding the operational meaning of Linux file permissions. Follows: file types, rwx semantics, numeric modes, chmod, chown, special bits, umask, hard links, symbolic links, ACLs.</p>
+      </div>
+
+      <div class="callout-teal">
+        <p><strong>Setup.</strong> Create your working directory first.</p>
+      </div>
+
+      <div class="code-block" style="max-width:640px;margin:0 0 24px">
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="cmd">mkdir -p ~/labdir/permissions
+cd ~/labdir/permissions
+pwd</span></pre>
+      </div>
+      <div class="expected-block" style="max-width:640px">
+        <div class="expected-label">Expected output</div>
+        <div class="expected-body"><pre>Chandra:  /home/chandra/labdir/permissions
+Sujith:   /home/sujith/labdir/permissions
+Yogaraj:  /home/yogaraj/labdir/permissions</pre></div>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Create a directory structure</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">mkdir -p project/{src,config,logs}
+ls -la project/</span></pre>
+            </div>
+            <p class="step-notice">Your username appears as owner and group. First character <code>d</code> — directory.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Create files of different types</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">echo "config content" > project/config/app.conf
+ln -s project/config/app.conf project/config/app.conf.link
+mkfifo project/logs/logpipe
+ls -la project/config/
+ls -la project/logs/</span></pre>
+            </div>
+            <p class="step-notice">First characters: <code>-</code> regular file · <code>l</code> symlink · <code>p</code> named pipe.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Set numeric permissions</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cp project/config/app.conf project/config/secret.conf
+chmod 0644 project/config/app.conf
+chmod 0600 project/config/secret.conf
+ls -la project/config/</span></pre>
+            </div>
+            <p class="step-notice"><code>app.conf</code> — readable by group and others. <code>secret.conf</code> — readable and writable by owner only.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Verify that 0400 prevents accidental overwrite</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">chmod 0400 project/config/secret.conf
+echo "overwrite attempt" > project/config/secret.conf</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>bash: project/config/secret.conf: Permission denied</pre></div>
+            </div>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">chmod u+w project/config/secret.conf
+echo "recovered" > project/config/secret.conf
+cat project/config/secret.conf</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>recovered</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Set setgid on a shared directory</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">mkdir project/shared
+chmod 2755 project/shared
+ls -la project/ | grep shared
+touch project/shared/teamfile.txt
+ls -la project/shared/</span></pre>
+            </div>
+            <p class="step-notice">The <code>s</code> in the group execute position confirms setgid is set.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Set sticky bit</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">mkdir project/scratch
+chmod 1777 project/scratch
+ls -la project/ | grep scratch</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>drwxrwxrwt 2 chandra chandra 6 Apr 25 10:06 scratch</pre></div>
+            </div>
+            <p class="step-notice">The <code>t</code> in the other execute position — same mechanism as <code>/tmp</code>.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 7</span>
+          <div>
+            <p class="step-title">Hard link vs symbolic link behaviour</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">echo "original content" > project/src/original.txt
+ln project/src/original.txt project/src/hardlink.txt
+ln -s project/src/original.txt project/src/symlink.txt
+ls -la project/src/</span></pre>
+            </div>
+            <p class="step-notice">Link count of <code>2</code> on both — they share the same inode.</p>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">rm project/src/original.txt
+cat project/src/hardlink.txt
+cat project/src/symlink.txt</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>original content
+cat: project/src/symlink.txt: No such file or directory</pre></div>
+            </div>
+            <p class="step-notice">Hard link survives. Symlink is now dangling.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 8</span>
+          <div>
+            <p class="step-title">Read an ACL</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">getfacl project/shared/</span></pre>
+            </div>
+            <p class="step-notice">No <code>+</code> at the end of the permission string in <code>ls -la</code> means no extended ACL entries — only the base owner/group/other model.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 4 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <pre>ls -la ~/labdir/permissions/project/src/ && \
+stat ~/labdir/permissions/project/config/secret.conf | grep "Access:" | head -1 && \
+echo "Section 4 complete"</pre>
+          <div class="checkpoint-note">Expected: <code>src/</code> listing showing hardlink.txt and dangling symlink.txt · Access line showing <code>0600</code> · <code>Section 4 complete</code>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5 -->
+    <section class="section" id="section-5">
+      <div class="part-header">
+        <p class="part-num">Lab 5 / 7 · 35 minutes</p>
+        <h2 class="part-title">vim — Editor Fluency</h2>
+        <p class="part-intent">vim at the level needed to edit any config file on any Linux system in any state. Follows: modal model, navigation, editing in normal mode, save/quit, search/replace, visual block, global commands. This is the longest lab — vim requires time in the hands.</p>
+      </div>
+
+      <div class="callout-teal">
+        <p><strong>Setup.</strong> Create the practice file first. Run the entire block as one copy-paste.</p>
+      </div>
+
+      <div class="code-block" style="max-width:640px;margin:0 0 24px">
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="cmd">cd ~/labdir
+cat > vimpractice.txt << 'EOF'
+# Linux Fluency vim Practice File
+# This file is for vim exercises only
+
+The kernel boundary is hardware-enforced.
+PID 1 is systemd on modern Linux systems.
+The FHS defines where files live predictably.
+
+/proc contains no files on any disk.
+/etc holds system-wide configuration files.
+/var holds variable runtime data including logs.
+
+Every file has a type, an owner, and permissions.
+Numeric modes: 0644 0755 0700 0600 0400.
+The umask subtracts from the default maximum.
+
+Symbolic links can point to things that do not exist.
+Hard links cannot span filesystems.
+The sticky bit protects files in shared directories.
+
+EOF
+ls -la vimpractice.txt</span></pre>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Open the file, confirm normal mode</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">vim vimpractice.txt</span></pre>
+            </div>
+            <p class="step-desc">You are in vim. File content is on screen. No mode indicator at the bottom means normal mode. Press <code>Escape</code> once — nothing changes. Escape from normal mode is safe.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Enter insert mode, type, return to normal mode</p>
+            <p class="step-desc">Press <code>G</code> to go to the last line. Press <code>o</code> to open a new line below and enter insert mode. Bottom shows: <code>-- INSERT --</code></p>
+            <p class="step-desc">Type exactly:</p>
+            <div class="code-block">
+              <div class="code-label">Text to type in insert mode</div>
+              <pre><span class="out">This line was added during the vim exercise.</span></pre>
+            </div>
+            <p class="step-notice">Press <code>Escape</code>. The <code>-- INSERT --</code> indicator disappears.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Navigate using h j k l only — no arrow keys</p>
+            <p class="step-desc">Practice: <code>gg</code> first line · <code>G</code> last line · <code>5j</code> down five · <code>3k</code> up three · <code>w</code> forward word · <code>b</code> backward word · <code>0</code> start of line · <code>$</code> end of line.</p>
+            <div class="code-block">
+              <div class="code-label">Show line numbers</div>
+              <pre><span class="cmd">:set number</span></pre>
+            </div>
+            <p class="step-notice">Navigate to line 4. Confirm with the line number display.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Delete, yank, and paste</p>
+            <p class="step-desc">Navigate to the line containing <code>PID 1 is systemd</code>.</p>
+            <div class="code-block">
+              <div class="code-label">In normal mode</div>
+              <pre><span class="cmd">dd</span></pre>
+            </div>
+            <p class="step-desc" style="margin-top:8px">Move to the line containing <code>The FHS defines</code>.</p>
+            <div class="code-block">
+              <pre><span class="cmd">p</span></pre>
+            </div>
+            <p class="step-desc" style="margin-top:8px">Yank the current line and paste at end of file.</p>
+            <div class="code-block">
+              <pre><span class="cmd">yy</span>
+<span class="cmt"># then G to go to end</span>
+<span class="cmd">p</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Search and cycle matches</p>
+            <div class="code-block">
+              <div class="code-label">In normal mode</div>
+              <pre><span class="cmd">/proc</span></pre>
+            </div>
+            <p class="step-desc">Press Enter. Press <code>n</code> — next match. Press <code>N</code> — previous match. Press <code>*</code> with cursor on the word <code>files</code> — searches for that word.</p>
+            <div class="code-block">
+              <pre><span class="cmd">:nohlsearch</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Search and replace with confirmation</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">:%s/files/objects/gc</span></pre>
+            </div>
+            <p class="step-desc">For each match: <code>y</code> replace · <code>n</code> skip · <code>q</code> stop. Replace the first three, skip the rest.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">:%s/Linux/GNU\/Linux/g</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 7</span>
+          <div>
+            <p class="step-title">Visual block — comment a block of lines</p>
+            <p class="step-desc">Navigate to line 4 (<code>The kernel boundary</code>). Enter visual block mode, select five lines, insert <code># </code> at the start of all selected lines.</p>
+            <div class="code-block">
+              <div class="code-label">Keystrokes in order</div>
+              <pre><span class="cmd">Ctrl-v</span>   <span class="cmt">← enter visual block — bottom shows: -- VISUAL BLOCK --</span>
+<span class="cmd">4j</span>       <span class="cmt">← extend selection down four lines (five total)</span>
+<span class="cmd">I</span>        <span class="cmt">← capital I for insert at block start</span>
+<span class="out"># </span>       <span class="cmt">← type: hash then space</span>
+<span class="cmd">Escape</span>   <span class="cmt">← all five lines now begin with # — wait for it</span></pre>
+            </div>
+            <p class="step-notice">The inserted text only appears on all lines after Escape is pressed. Wait for it.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 8</span>
+          <div>
+            <p class="step-title">Delete all blank lines using :g</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">:g/^$/d</span></pre>
+            </div>
+            <p class="step-notice">Verify with <code>:set number</code> that blank lines are gone.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 9</span>
+          <div>
+            <p class="step-title">Save, quit, reopen, verify</p>
+            <div class="code-block">
+              <div class="code-label">Save and quit</div>
+              <pre><span class="cmd">:wq</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">vim vimpractice.txt</span></pre>
+            </div>
+            <p class="step-desc">Confirm: the line from Exercise 2 is present · the <code># </code> characters from Exercise 7 are present · blank lines are absent.</p>
+            <div class="code-block">
+              <pre><span class="cmd">:q</span></pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 5 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <pre>grep "# The kernel boundary" ~/labdir/vimpractice.txt && \
+grep "This line was added" ~/labdir/vimpractice.txt && \
+grep -c "^$" ~/labdir/vimpractice.txt && \
+echo "Section 5 complete"</pre>
+          <div class="checkpoint-note">Expected: <code># The kernel boundary is hardware-enforced.</code> · <code>This line was added during the vim exercise.</code> · <code>0</code> (no blank lines) · <code>Section 5 complete</code>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6 -->
+    <section class="section" id="section-6">
+      <div class="part-header">
+        <p class="part-num">Lab 6 / 7 · 25 minutes</p>
+        <h2 class="part-title">Text Processing — Tool Fluency</h2>
+        <p class="part-intent">Each text processing tool used independently before pipeline composition in Section 7. Follows: grep, sed, awk, sort, uniq, wc, cut, head, tail, tr, find.</p>
+      </div>
+
+      <div class="callout-teal">
+        <p><strong>Setup.</strong> Create the working directory and sample files. Run the entire block as one copy-paste.</p>
+      </div>
+
+      <div class="code-block" style="max-width:640px;margin:0 0 24px">
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="cmd">mkdir -p ~/labdir/textprocessing
+cd ~/labdir/textprocessing
+
+cat > sample.log << 'EOF'
+Apr 25 09:01:15 mylab sshd[847]: Accepted publickey for chandra from 10.0.0.5
+Apr 25 09:03:22 mylab sshd[848]: Failed password for sujith from 10.0.0.8
+Apr 25 09:05:44 mylab sshd[849]: Accepted publickey for yogaraj from 10.0.0.12
+Apr 25 09:07:01 mylab sshd[850]: Failed password for chandra from 10.0.0.8
+Apr 25 09:09:33 mylab sshd[851]: Accepted publickey for chandra from 10.0.0.5
+Apr 25 09:11:55 mylab sshd[852]: Failed password for sujith from 10.0.0.99
+Apr 25 09:13:08 mylab sshd[853]: Accepted publickey for chandra from 10.0.0.5
+Apr 25 09:15:22 mylab sshd[854]: Failed password for yogaraj from 10.0.0.8
+Apr 25 09:17:41 mylab sshd[855]: Accepted publickey for sujith from 10.0.0.20
+Apr 25 09:19:55 mylab sshd[856]: Failed password for root from 10.0.0.99
+EOF
+
+cat > config.conf << 'EOF'
+# Application configuration file
+# Last updated: Apr 25 2024
+
+[server]
+host = mylab.hpc.now
+port = 8080
+timeout = 30
+
+# Database settings
+[database]
+host = 10.0.0.2
+port = 5432
+name = hpcdb
+
+[logging]
+level = INFO
+path = /var/log/app
+
+EOF
+
+pwd && ls -la</span></pre>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">grep: find authentication failures</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep "Failed" sample.log</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Apr 25 09:03:22 mylab sshd[848]: Failed password for sujith from 10.0.0.8
+Apr 25 09:07:01 mylab sshd[850]: Failed password for chandra from 10.0.0.8
+Apr 25 09:11:55 mylab sshd[852]: Failed password for sujith from 10.0.0.99
+Apr 25 09:15:22 mylab sshd[854]: Failed password for yogaraj from 10.0.0.8
+Apr 25 09:19:55 mylab sshd[856]: Failed password for root from 10.0.0.99</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep -c "Failed" sample.log</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>5</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">grep -v: exclude a pattern</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep -v "Failed" sample.log | wc -l</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>5</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep -v "Failed" sample.log</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">grep -C: context lines around a match</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep -C 2 "root" sample.log</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">sed: replace with backup</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cp config.conf config.conf.original
+sed -i.bak 's/port = 8080/port = 9090/g' config.conf
+ls -la config.conf*</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep "port" config.conf</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>port = 9090
+port = 5432</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">sed: delete comments and blank lines</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sed '/^#/d' config.conf | sed '/^$/d'</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>[server]
+host = mylab.hpc.now
+port = 9090
+timeout = 30
+[database]
+host = 10.0.0.2
+port = 5432
+name = hpcdb
+[logging]
+level = INFO
+path = /var/log/app</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">awk: extract fields</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">awk -F: '{print $1, $3}' /etc/passwd | head -10</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">awk '{print $11}' sample.log</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>10.0.0.5
+10.0.0.8
+10.0.0.12
+10.0.0.8
+10.0.0.5
+10.0.0.99
+10.0.0.5
+10.0.0.8
+10.0.0.20
+10.0.0.99</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 7</span>
+          <div>
+            <p class="step-title">find: files modified recently</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">find ~/labdir -type f -mmin -60</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">find ~/labdir -type f -newer config.conf.bak</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 8</span>
+          <div>
+            <p class="step-title">find: world-writable files</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">touch /tmp/testfile_normal
+touch /tmp/testfile_worldwrite
+chmod 0777 /tmp/testfile_worldwrite
+
+find /tmp -perm -0002 ! -type l 2>/dev/null</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>/tmp/testfile_worldwrite</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">rm /tmp/testfile_normal /tmp/testfile_worldwrite</span></pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 6 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <pre>grep -c "Failed" ~/labdir/textprocessing/sample.log && \
+ls ~/labdir/textprocessing/config.conf.bak && \
+find ~/labdir -type f -name "*.bak" | wc -l && \
+echo "Section 6 complete"</pre>
+          <div class="checkpoint-note">Expected: <code>5</code> · path to config.conf.bak · <code>1</code> · <code>Section 6 complete</code>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 7 -->
+    <section class="section" id="section-7">
+      <div class="part-header">
+        <p class="part-num">Lab 7 / 7 · 20 minutes</p>
+        <h2 class="part-title">Pipelines — Composition Fluency</h2>
+        <p class="part-intent">Assembling individual tools into pipelines that solve real operational questions. Follows: pipeline composition, annotated multi-stage pipelines, the extract → filter → count → sort → limit pattern.</p>
+      </div>
+
+      <div class="callout-teal">
+        <p><strong>Setup.</strong> The <code>sample.log</code> and <code>config.conf</code> files from Section 6 should be present.</p>
+      </div>
+      <div class="code-block" style="max-width:640px;margin:0 0 24px">
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="cmd">cd ~/labdir/textprocessing
+pwd && ls -la</span></pre>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Count the most common words in the log file</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat sample.log \
+  | tr ' ' '\n' \
+  | tr -d '[:punct:]' \
+  | sort \
+  | uniq -c \
+  | sort -rn \
+  | head -10</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>     10 mylab
+     10 sshd
+     10 Apr
+     10 25
+      5 Failed
+      5 password
+      5 for
+      5 Accepted
+      5 publickey
+      5 from</pre></div>
+            </div>
+            <p class="step-notice">Pipeline: split on spaces → remove punctuation → sort → count unique → rank by frequency → top ten.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Extract unique IPs and rank by frequency</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">awk '{print $11}' sample.log \
+  | sort \
+  | uniq -c \
+  | sort -rn</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>      3 10.0.0.5
+      3 10.0.0.8
+      2 10.0.0.99
+      1 10.0.0.12
+      1 10.0.0.20</pre></div>
+            </div>
+            <p class="step-notice"><code>10.0.0.5</code> — chandra logged in three times successfully. <code>10.0.0.8</code> — three attempts, all failures. <code>10.0.0.99</code> — two failures including a root attempt.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Find old files sorted by size</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">dd if=/dev/urandom of=~/labdir/bigfile.dat bs=1M count=2 2>/dev/null
+dd if=/dev/urandom of=~/labdir/smallfile.dat bs=1K count=100 2>/dev/null
+touch -t 202504180800 ~/labdir/bigfile.dat
+touch -t 202504180800 ~/labdir/smallfile.dat</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">find ~/labdir -type f -mtime +7 -exec ls -l {} + \
+  | awk '{print $5, $9}' \
+  | sort -rn \
+  | head -10</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — Chandra</div>
+              <div class="expected-body"><pre>2097152 /home/chandra/labdir/bigfile.dat
+102400 /home/chandra/labdir/smallfile.dat</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Strip noise from config in one pipeline</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep -vE '^\s*#|^\s*$' ~/labdir/textprocessing/config.conf \
+  | grep -n ""</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>1:[server]
+2:host = mylab.hpc.now
+3:port = 9090
+4:timeout = 30
+5:[database]
+6:host = 10.0.0.2
+7:port = 5432
+8:name = hpcdb
+9:[logging]
+10:level = INFO
+11:path = /var/log/app</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">wc -l ~/labdir/textprocessing/config.conf</span></pre>
+            </div>
+            <p class="step-notice">Confirm the original is unchanged — the pipeline only transforms output.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Extend a pipeline without rewriting it</p>
+            <p class="step-desc">Retrieve the pipeline from Exercise 2 with the up arrow. Add a stage to show only IPs with more than one attempt.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">awk '{print $11}' sample.log \
+  | sort \
+  | uniq -c \
+  | sort -rn \
+  | awk '$1 > 1 {print}'</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>      3 10.0.0.5
+      3 10.0.0.8
+      2 10.0.0.99</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Time a pipeline</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">time grep "Failed" sample.log \
+  | awk '{print $11}' \
+  | sort \
+  | uniq -c \
+  | sort -rn</span></pre>
+            </div>
+            <p class="step-notice"><code>real</code> is wall clock time. <code>user</code> is CPU in userspace. <code>sys</code> is CPU in kernel. The pipeline runs in milliseconds on a small file.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 7 <span>Build from memory · no runbook · type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <pre>grep -v '^#' /etc/passwd | awk -F: '{print $1}' | sort | head -8 && \
+echo "Section 7 complete"</pre>
+          <div class="checkpoint-note">
+            <strong>Build this pipeline from memory — without looking at the runbook.</strong> Close or scroll away from this page. Build a pipeline that reads <code>/etc/passwd</code>, removes comment lines, extracts the username field (field 1, colon-separated), and sorts the output. When it works, scroll back and run the checkpoint command above.<br><br>
+            Expected: <code>adm · bin · chandra · daemon · halt · lp · operator · root</code> (sorted) · <code>Section 7 complete</code>.<br><br>
+            Note: <code>chandra</code>, <code>sujith</code>, and <code>yogaraj</code> will appear in the sorted output — these are your accounts on <code>mylab.hpc.now</code>.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ALL CHECKPOINTS -->
+    <section class="section" id="checkpoints">
+      <p class="label">all checkpoints — quick reference</p>
+      <p class="prose">All seven checkpoint commands in sequence. Run each after completing the corresponding section.</p>
+
+      <div class="quickref-block" style="margin-top:24px">
+        <div class="quickref-header">Checkpoint Commands · Sections 1–7</div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 1</span>
+          <span class="quickref-v">systemctl is-active sshd && cat /proc/1/cmdline && echo "" && echo "Section 1 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 2</span>
+          <span class="quickref-v">cd ~ && ls -lt /var/log | head -5 && which ls && echo "Section 2 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 3</span>
+          <span class="quickref-v">echo $PATH | tr ':' '\n' | wc -l && echo "Section 3 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 4</span>
+          <span class="quickref-v">ls -la ~/labdir/permissions/project/src/ && stat ~/labdir/permissions/project/config/secret.conf | grep "Access:" | head -1 && echo "Section 4 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 5</span>
+          <span class="quickref-v">grep "# The kernel boundary" ~/labdir/vimpractice.txt && grep "This line was added" ~/labdir/vimpractice.txt && grep -c "^$" ~/labdir/vimpractice.txt && echo "Section 5 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 6</span>
+          <span class="quickref-v">grep -c "Failed" ~/labdir/textprocessing/sample.log && ls ~/labdir/textprocessing/config.conf.bak && find ~/labdir -type f -name "*.bak" | wc -l && echo "Section 6 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 7</span>
+          <span class="quickref-v">grep -v '^#' /etc/passwd | awk -F: '{print $1}' | sort | head -8 && echo "Section 7 complete"</span>
+        </div>
+      </div>
+
+      <div class="footer-wrap">
+        <span class="footer-copy">Linux Fluency · Lab Runbook · HPC Operations · Associate Stream · master.hpc.now/linux-fluency</span>
+        <span class="footer-badge">7 labs · mylab.hpc.now · chandra · sujith · yogaraj</span>
+        <a href="https://master.hpc.now" class="footer-link">master.hpc.now</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // Sidebar active state
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(i => i.classList.remove('is-active'));
+        const a = document.querySelector('.side-nav-item[href="#' + entry.target.id + '"]');
+        if (a) a.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  // Copy button
+  function copyCode(btn) {
+    const block = btn.closest('.code-block');
+    const pre = block.querySelector('pre');
+    const text = pre.innerText || pre.textContent;
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      btn.textContent = 'copied';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
