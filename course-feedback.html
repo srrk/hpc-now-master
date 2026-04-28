@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Course Feedback · hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #e4ddd0;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    /* ── NAV ── */
+    .nav-wrap {
+      background: var(--cover);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+      border-bottom: 1px solid var(--rule-cover);
+    }
+    nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 22px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: .06em;
+    }
+    .logo em { color: var(--terra); font-style: normal; }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .nav-link {
+      font-size: 11px;
+      color: var(--ink3);
+      text-decoration: none;
+      letter-spacing: .05em;
+      transition: color .18s;
+    }
+    .nav-link:hover { color: var(--terra); }
+    .nav-cta {
+      font-size: 11px;
+      letter-spacing: .08em;
+      color: var(--terra);
+      text-decoration: none;
+      border: 1px solid var(--terra-dim);
+      padding: 6px 14px;
+      transition: background .18s, color .18s;
+    }
+    .nav-cta:hover { background: var(--terra); color: var(--paper); }
+
+    /* ── COVER ── */
+    .page-cover {
+      background: var(--cover);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+      border-bottom: 1px solid var(--rule-cover);
+      padding: 56px 52px 64px;
+    }
+    .page-cover-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 480px;
+      gap: 80px;
+      align-items: start;
+    }
+
+    /* ── COVER META ── */
+    .cover-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 36px;
+      flex-wrap: wrap;
+    }
+    .cover-badge {
+      font-size: 9px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--paper);
+      background: var(--terra);
+      padding: 5px 12px;
+    }
+    .cover-meta-item {
+      font-size: 11px;
+      color: var(--ink3);
+      letter-spacing: .05em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cover-meta-item::before {
+      content: '';
+      width: 16px;
+      height: 1px;
+      background: var(--rule-cover);
+    }
+
+    .cover-title {
+      font-family: var(--serif);
+      font-size: clamp(28px, 3.5vw, 46px);
+      font-weight: 400;
+      line-height: 1.16;
+      color: var(--ink);
+      letter-spacing: -.02em;
+      margin-bottom: 28px;
+    }
+    .cover-title em {
+      font-style: italic;
+      color: var(--terra);
+    }
+
+    .cover-prose {
+      font-size: 15px;
+      color: var(--ink2);
+      line-height: 2.05;
+      max-width: 500px;
+      margin-bottom: 1.3em;
+    }
+
+    .anon-strip {
+      display: inline-flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: var(--terra-bg);
+      border-left: 3px solid var(--terra-dim);
+      padding: 12px 16px;
+      margin-top: 8px;
+      max-width: 500px;
+    }
+    .anon-strip p {
+      font-size: 12px;
+      color: var(--ink2);
+      line-height: 1.8;
+    }
+    .anon-strip strong { color: var(--terra); font-weight: 500; }
+
+    /* ── FORM PANEL ── */
+    .form-panel {
+      background: rgba(255,255,255,0.5);
+      border: 1px solid var(--rule-cover);
+    }
+    .form-panel-header {
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid var(--rule-cover);
+    }
+    .form-panel-title {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.35;
+      margin-bottom: 6px;
+    }
+    .form-panel-sub {
+      font-size: 11px;
+      color: var(--ink3);
+      letter-spacing: .03em;
+      line-height: 1.7;
+    }
+
+    .form-facts {
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid var(--rule-cover);
+    }
+    .form-fact {
+      padding: 11px 28px;
+      border-bottom: 1px solid var(--rule-cover);
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 12px;
+      align-items: baseline;
+    }
+    .form-fact:last-child { border-bottom: none; }
+    .form-fact-k {
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding-top: 2px;
+    }
+    .form-fact-v {
+      font-size: 12px;
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    .form-embed-area {
+      padding: 24px 28px 28px;
+    }
+    .form-embed-label {
+      font-size: 10px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .form-embed-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+    .tally-wrap {
+      width: 100%;
+      min-height: 1015px;
+      position: relative;
+    }
+    .tally-wrap iframe {
+      width: 100%;
+      border: none;
+      min-height: 1015px;
+    }
+
+    /* ── ZONE EDGE ── */
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* ── BODY SECTIONS ── */
+    .page-body {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 52px;
+    }
+
+    .section {
+      padding: 72px 0 64px;
+      border-top: 1px solid var(--rule);
+      max-width: 680px;
+    }
+    .section:first-child { border-top: none; padding-top: 80px; }
+
+    .label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .label::after {
+      content: '';
+      width: 36px;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    .prose {
+      font-size: 15px;
+      color: var(--ink2);
+      line-height: 2.05;
+      max-width: 580px;
+    }
+    .prose + .prose { margin-top: 1.3em; }
+
+    .promise-hl {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-style: italic;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.45;
+      margin-bottom: 24px;
+      max-width: 520px;
+    }
+
+    /* ── WHAT MATTERS ── */
+    .matters-items {
+      display: flex;
+      flex-direction: column;
+      margin-top: 8px;
+    }
+    .matter-item {
+      padding: 24px 0;
+      border-top: 1px solid var(--rule);
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .matter-item:first-child { border-top: none; padding-top: 0; }
+    .matter-k {
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding-top: 3px;
+      line-height: 1.6;
+    }
+    .matter-v {
+      font-size: 14px;
+      color: var(--ink2);
+      line-height: 2.0;
+    }
+
+    /* ── BOTTOM DARK BAND ── */
+    .close-band {
+      background: var(--dark);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+      padding: 72px 52px 80px;
+    }
+    .close-inner {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .close-label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: #6a6460;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .close-label::after {
+      content: '';
+      width: 36px;
+      height: 1px;
+      background: #3a3028;
+    }
+    .close-title {
+      font-family: var(--serif);
+      font-size: clamp(20px, 2.5vw, 28px);
+      font-weight: 400;
+      color: #f0e8e0;
+      line-height: 1.45;
+      margin-bottom: 20px;
+    }
+    .close-prose {
+      font-size: 13px;
+      color: #8a8078;
+      line-height: 2.1;
+      max-width: 500px;
+    }
+    .close-prose a {
+      color: var(--terra-dim);
+      text-decoration: none;
+    }
+    .close-prose a:hover { color: var(--terra); }
+
+    /* ── FOOTER ── */
+    .footer-wrap {
+      background: var(--dark2);
+      padding: 28px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-top: 1px solid #2e2820;
+    }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-link {
+      font-size: 11px;
+      color: #6a6460;
+      text-decoration: none;
+      transition: color .18s;
+    }
+    .footer-link:hover { color: var(--terra-dim); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      nav { padding: 20px 44px; }
+      .page-cover { padding: 48px 44px 56px; }
+      .page-cover-inner {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+      .form-panel { max-width: 480px; }
+      .page-body { padding: 0 44px; }
+      .close-band { padding: 64px 44px 72px; }
+      .footer-wrap { padding: 24px 44px; }
+    }
+
+    @media (max-width: 640px) {
+      nav { padding: 18px 24px; }
+      .nav-right .nav-link { display: none; }
+      .page-cover { padding: 40px 24px 48px; }
+      .page-body { padding: 0 24px; }
+      .close-band { padding: 48px 24px 56px; }
+      .footer-wrap { padding: 20px 24px; }
+      .matter-item { grid-template-columns: 1fr; gap: 6px; }
+      .form-fact { grid-template-columns: 1fr; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<div class="nav-wrap">
+  <nav>
+    <a href="https://hpc.now" class="logo">hpc<em>.now</em></a>
+    <div class="nav-right">
+      <a href="https://master.hpc.now" class="nav-link">Programme</a>
+      <a href="https://hpc.now/about" class="nav-link">Instructor</a>
+      <a href="mailto:rajesh@hpc.now" class="nav-link">Contact</a>
+      <a href="https://master.hpc.now/enroll" class="nav-cta">Enroll in Course</a>
+    </div>
+  </nav>
+</div>
+
+<!-- ══ COVER ══ -->
+<div class="page-cover">
+  <div class="page-cover-inner">
+
+    <!-- LEFT — COPY -->
+    <div>
+      <div class="cover-badge-row">
+        <span class="cover-badge">Batch 1 &amp; 2 · 2026</span>
+        <span class="cover-meta-item">HPC Infrastructure Operations for Senior Engineers</span>
+        <span class="cover-meta-item">Anonymous · 3 minutes</span>
+      </div>
+
+      <h1 class="cover-title">
+        Your feedback<br>
+        shapes the <em>next batch.</em>
+      </h1>
+
+      <p class="cover-prose">
+        You have spent the last several weeks working through things that most IT infrastructure engineers never get to see — scheduler internals, parallel filesystem behaviour, the operational contract that makes HPC different from everything you ran before.
+      </p>
+      <p class="cover-prose">
+        Three required questions. Four optional. The whole form takes under three minutes. Your responses are anonymous and go directly into shaping the next cohort.
+      </p>
+      <p class="cover-prose">
+        This is not a satisfaction survey. It is a calibration instrument. What landed, what did not, what was missing — all of it matters.
+      </p>
+
+      <div class="anon-strip">
+        <p><strong>Anonymous.</strong> No names, no emails collected. Rajesh sees responses in aggregate — not attributed to any individual.</p>
+      </div>
+    </div>
+
+    <!-- RIGHT — FORM PANEL -->
+    <div class="form-panel">
+      <div class="form-panel-header">
+        <p class="form-panel-title">Course Feedback Form</p>
+        <p class="form-panel-sub">3 required · 4 optional · closes in 7 days<br>Anonymous responses only.</p>
+      </div>
+
+      <div class="form-facts">
+        <div class="form-fact">
+          <span class="form-fact-k">Cohort</span>
+          <span class="form-fact-v">Batch 1 &amp; 2 · 2026</span>
+        </div>
+        <div class="form-fact">
+          <span class="form-fact-k">Module</span>
+          <span class="form-fact-v">HPC Infrastructure Operations for Senior Engineers</span>
+        </div>
+        <div class="form-fact">
+          <span class="form-fact-k">Privacy</span>
+          <span class="form-fact-v">Fully anonymous · no email collected</span>
+        </div>
+        <div class="form-fact">
+          <span class="form-fact-k">Time</span>
+          <span class="form-fact-v">Under 3 minutes</span>
+        </div>
+      </div>
+
+      <div class="form-embed-area">
+        <p class="form-embed-label">Your feedback</p>
+        <div class="tally-wrap">
+          <iframe
+            data-tally-src="https://tally.so/embed/EkBYZX?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
+            loading="lazy"
+            width="100%"
+            height="1015"
+            frameborder="0"
+            marginheight="0"
+            marginwidth="0"
+            title="HPC Now Course Feedback">
+          </iframe>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- ══ BODY ══ -->
+<div class="page-body">
+
+  <!-- WHAT MATTERS -->
+  <section class="section">
+    <p class="label">what we are trying to learn</p>
+    <p class="promise-hl">Not whether the course was enjoyable. Whether it moved the needle.</p>
+    <div class="matters-items">
+      <div class="matter-item">
+        <span class="matter-k">Operations readiness</span>
+        <span class="matter-v">The north star for this programme is 90-day ops readiness — not conceptual completeness. The feedback question that matters most is whether you can now handle HPC infrastructure tasks independently, or whether you are closer to that point than when you started.</span>
+      </div>
+      <div class="matter-item">
+        <span class="matter-k">What to cut</span>
+        <span class="matter-v">Every module that could be shorter is time that could go to something more useful. If something felt like it was running long for no reason, that is the most actionable thing you can tell the next cohort.</span>
+      </div>
+      <div class="matter-item">
+        <span class="matter-k">What was missing</span>
+        <span class="matter-v">The checklist has 42 items across 8 domains. If you hit a wall in a domain that was never covered — or that was covered too lightly — the next batch deserves better. Name it.</span>
+      </div>
+      <div class="matter-item">
+        <span class="matter-k">Would you refer a peer</span>
+        <span class="matter-v">A senior infrastructure engineer's time is valuable. Whether you would put your reputation behind a referral is a cleaner signal than any satisfaction score.</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ══ CLOSE BAND ══ -->
+<div class="close-band">
+  <div class="close-inner">
+    <p class="close-label">from rajesh</p>
+    <p class="close-title">Thank you for three months of serious work.</p>
+    <p class="close-prose">
+      Building this programme while running it — writing the runbooks, staging the labs, debugging the cluster, then walking you through it session by session — has been the most demanding thing I have built professionally.
+    </p>
+    <p class="close-prose" style="margin-top: 1.2em;">
+      What you put into this feedback goes directly into the next cohort's experience. The engineers in that batch do not know you, but they will benefit from what you write here.
+    </p>
+    <p class="close-prose" style="margin-top: 1.2em;">
+      Questions about what comes next — Track 2, references, or anything else — write to <a href="mailto:rajesh@hpc.now">rajesh@hpc.now</a>.
+    </p>
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<div class="footer-wrap">
+  <span class="footer-copy">hpc.now &nbsp;·&nbsp; Bengaluru &nbsp;·&nbsp; 2026</span>
+  <a href="mailto:rajesh@hpc.now" class="footer-link">rajesh@hpc.now</a>
+</div>
+
+<!-- ══ TALLY EMBED LOADER ══ -->
+<script>
+  var d = document,
+      w = "https://tally.so/widgets/embed.js",
+      v = function() {
+        "undefined" != typeof Tally
+          ? Tally.loadEmbeds()
+          : d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach(function(e) {
+              e.src = e.dataset.tallySrc;
+            });
+      };
+  if ("undefined" != typeof Tally) {
+    v();
+  } else if (d.querySelector('script[src="' + w + '"]') == null) {
+    var s = d.createElement("script");
+    s.src = w;
+    s.onload = v;
+    s.onerror = v;
+    d.body.appendChild(s);
+  }
+</script>
+
+</body>
+</html>
