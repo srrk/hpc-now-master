@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linux Fluency · Lab Runbook 2 · master.hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #181817;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --teal:       #0f6e56;
+      --teal-dim:   #1d9e75;
+      --teal-bg:    #e8f5f0;
+      --amber:      #c47f1a;
+      --amber-bg:   #fdf4e3;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--paper); color: var(--ink); font-family: var(--mono); font-size: 15px; line-height: 1.75; }
+
+    /* COVER */
+    .cover { background: var(--cover); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E"); }
+    .nav-wrap { border-bottom: 1px solid var(--rule-cover); }
+    nav { max-width: 1200px; margin: 0 auto; padding: 20px 52px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: var(--mono); font-size: 12px; color: #f0e8e0; text-decoration: none; letter-spacing: .06em; }
+    .logo em { color: var(--terra-dim); font-style: normal; }
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-tag { font-size: 10px; color: #6a6460; letter-spacing: .12em; text-transform: uppercase; }
+    .nav-mod { font-size: 11px; color: var(--terra-dim); letter-spacing: .06em; }
+    .hero { max-width: 1200px; margin: 0 auto; padding: 72px 52px 80px; }
+    .hero-eyebrow { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #6a6460; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+    .hero-eyebrow::before { content: ''; width: 20px; height: 1px; background: #6a6460; }
+    .hero-title { font-family: var(--serif); font-size: clamp(32px, 4.5vw, 56px); font-weight: 400; color: #f0e8e0; line-height: 1.15; letter-spacing: -.02em; margin-bottom: 28px; }
+    .hero-title em { font-style: italic; color: var(--terra-dim); }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid #2e2820; width: fit-content; margin-top: 36px; }
+    .hero-meta-item { padding: 12px 24px; border-right: 1px solid #2e2820; display: flex; flex-direction: column; gap: 3px; }
+    .hero-meta-item:last-child { border-right: none; }
+    .hero-meta-k { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .hero-meta-v { font-size: 12px; color: #c8c0b4; }
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* LAYOUT */
+    .page-body { max-width: 1200px; margin: 0 auto; padding: 0 52px; display: grid; grid-template-columns: 200px 1fr; gap: 0 72px; align-items: start; }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 40px; padding: 64px 0 40px; align-self: start; }
+    .side-label { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink3); margin-bottom: 12px; padding-left: 14px; }
+    .side-nav { display: flex; flex-direction: column; gap: 1px; margin-bottom: 20px; }
+    .side-nav-item { font-size: 11px; color: var(--ink3); text-decoration: none; letter-spacing: .03em; padding: 5px 0 5px 14px; border-left: 2px solid transparent; transition: color .18s, border-color .18s; line-height: 1.4; }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+    .side-nav-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+    .side-nav-part { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); padding: 8px 0 4px 14px; }
+
+    /* MAIN */
+    .main-content { padding: 0; background: var(--paper); }
+    .section { padding: 64px 0 56px; border-top: 1px solid var(--rule); }
+    .section:first-child { border-top: none; padding-top: 72px; }
+    .label { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: var(--ink3); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
+    .label::after { content: ''; width: 36px; height: 1px; background: var(--rule); }
+    .prose { font-size: 14px; color: var(--ink2); line-height: 2.05; max-width: 600px; }
+    .prose + .prose { margin-top: 1.2em; }
+    .prose code { font-family: var(--mono); font-size: 12px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+
+    /* CALLOUTS */
+    .callout { border-left: 3px solid var(--terra); padding: 18px 22px; background: var(--terra-bg); margin: 24px 0; max-width: 640px; }
+    .callout p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout strong { color: var(--terra); font-weight: 500; }
+    .callout-teal { border-left: 3px solid var(--teal); padding: 18px 22px; background: var(--teal-bg); margin: 24px 0; max-width: 640px; }
+    .callout-teal p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-teal strong { color: var(--teal); font-weight: 500; }
+    .callout-amber { border-left: 3px solid var(--amber); padding: 18px 22px; background: var(--amber-bg); margin: 24px 0; max-width: 640px; }
+    .callout-amber p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-amber strong { color: var(--amber); font-weight: 500; }
+
+    /* CODE BLOCKS */
+    .code-block { background: var(--dark); border: 1px solid #2e2820; padding: 20px 24px; margin: 20px 0; max-width: 640px; overflow-x: auto; position: relative; }
+    .code-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #2e2820; }
+    .code-block pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #c8c0b4; white-space: pre; }
+    .code-block pre .cmd  { color: #9fe1cb; }
+    .code-block pre .cmt  { color: #4a4438; font-style: italic; }
+    .code-block pre .out  { color: #8a8078; }
+    .copy-btn { position: absolute; top: 12px; right: 12px; background: #2e2820; border: 1px solid #3e3830; color: #6a6460; font-family: var(--mono); font-size: 10px; letter-spacing: .08em; padding: 4px 10px; cursor: pointer; transition: color .15s, border-color .15s; }
+    .copy-btn:hover { color: #9fe1cb; border-color: #9fe1cb; }
+    .copy-btn.copied { color: var(--teal-dim); border-color: var(--teal-dim); }
+
+    /* STEPS */
+    .steps { display: flex; flex-direction: column; gap: 0; max-width: 640px; margin: 24px 0; }
+    .step { display: grid; grid-template-columns: 48px 1fr; gap: 0 20px; padding: 28px 0; border-top: 1px solid var(--rule); align-items: start; }
+    .step:first-child { border-top: none; padding-top: 0; }
+    .step-num { font-size: 11px; color: var(--ink3); letter-spacing: .1em; padding-top: 4px; font-weight: 300; }
+    .step-title { font-family: var(--serif); font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 10px; line-height: 1.35; }
+    .step-desc { font-size: 13px; color: var(--ink2); line-height: 1.95; margin-bottom: 14px; max-width: 520px; }
+    .step-desc code { font-family: var(--mono); font-size: 11px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+    .step-notice { font-size: 12px; color: var(--terra); font-style: italic; line-height: 1.7; margin-top: 10px; display: flex; gap: 8px; align-items: flex-start; max-width: 520px; }
+    .step-notice::before { content: '→'; flex-shrink: 0; color: var(--terra-dim); }
+    .step-notice code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); font-style: normal; }
+
+    /* PART HEADER */
+    .part-header { background: var(--dark); padding: 32px 36px 28px; border-left: 4px solid var(--terra); margin-bottom: 28px; }
+    .part-num { font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: #6a6460; margin-bottom: 8px; }
+    .part-title { font-family: var(--serif); font-size: 22px; font-weight: 400; color: #f0e8e0; line-height: 1.3; margin-bottom: 10px; }
+    .part-intent { font-size: 13px; color: #8a8078; line-height: 1.8; max-width: 520px; font-style: italic; }
+
+    /* CHECKPOINT */
+    .checkpoint-block { background: var(--dark); border: 1px solid var(--teal); max-width: 640px; margin: 28px 0; }
+    .checkpoint-header { background: var(--teal); padding: 10px 20px; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+    .checkpoint-header span { font-size: 11px; color: rgba(255,255,255,0.7); font-style: italic; letter-spacing: 0; text-transform: none; }
+    .checkpoint-body { padding: 20px 24px; position: relative; }
+    .checkpoint-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #9fe1cb; white-space: pre-wrap; word-break: break-all; }
+    .checkpoint-note { font-size: 12px; color: #8a8078; font-style: italic; margin-top: 14px; line-height: 1.7; padding-top: 12px; border-top: 1px solid #2e2820; }
+
+    /* EXPECTED OUTPUT */
+    .expected-block { background: #141210; border: 1px solid #2e2820; border-left: 3px solid var(--teal); max-width: 640px; margin: 12px 0; }
+    .expected-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--teal-dim); padding: 8px 16px; border-bottom: 1px solid #2e2820; }
+    .expected-body { padding: 14px 16px; }
+    .expected-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #8a8078; white-space: pre-wrap; }
+
+    /* WRONG BLOCK */
+    .wrong-block { background: #140e0e; border: 1px solid #2e2820; border-left: 3px solid var(--terra); max-width: 640px; margin: 12px 0; }
+    .wrong-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--terra-dim); padding: 8px 16px; border-bottom: 1px solid #2e1818; }
+    .wrong-body { padding: 14px 16px; font-size: 13px; color: var(--ink2); line-height: 1.85; }
+    .wrong-body code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); background: rgba(123,75,51,0.1); padding: 1px 5px; }
+    .wrong-body p + p { margin-top: 8px; }
+
+    /* QUICK REF */
+    .quickref-block { background: var(--dark); border: 1px solid #2e2820; max-width: 640px; margin: 20px 0; overflow: hidden; }
+    .quickref-header { background: #2e2820; padding: 10px 20px; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .quickref-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid #2e2820; }
+    .quickref-row:last-child { border-bottom: none; }
+    .quickref-k { font-size: 11px; color: #6a6460; padding: 12px 16px; border-right: 1px solid #2e2820; display: flex; align-items: center; letter-spacing: .04em; }
+    .quickref-v { font-family: var(--mono); font-size: 12px; color: #9fe1cb; padding: 12px 16px; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+
+    /* CREDS TABLE */
+    .creds-table { border: 1px solid var(--rule); width: 100%; max-width: 560px; margin: 20px 0; border-collapse: collapse; }
+    .creds-table thead th { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); background: var(--paper-mid); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--rule); font-weight: 400; }
+    .creds-table tbody td { font-size: 12px; color: var(--ink2); padding: 11px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.6; }
+    .creds-table tbody tr:last-child td { border-bottom: none; }
+    .creds-table .name-col { font-family: var(--serif); font-style: italic; color: var(--ink); font-size: 14px; }
+    .creds-table .mono-col { font-family: var(--mono); color: var(--teal); font-size: 12px; }
+    .creds-table .pass-col { font-family: var(--mono); color: var(--amber); font-size: 12px; }
+
+    /* DOMAIN HEADER — section 8/9/10/11 part markers */
+    .domain-header { background: var(--dark); border-left: 4px solid var(--amber); padding: 20px 28px; margin-bottom: 28px; max-width: 640px; }
+    .domain-label { font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: #6a6460; margin-bottom: 6px; }
+    .domain-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: #f0e8e0; line-height: 1.3; margin-bottom: 6px; }
+    .domain-intent { font-size: 13px; color: #8a8078; font-style: italic; line-height: 1.7; }
+
+    /* FOOTER */
+    .footer-wrap { background: var(--dark2); margin: 64px -52px 0; padding: 24px 52px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-top: 1px solid #2e2820; }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-badge { font-size: 10px; color: var(--teal-dim); letter-spacing: .08em; }
+    .footer-link { font-size: 11px; color: #6a6460; text-decoration: none; }
+
+    @media (max-width: 1024px) {
+      nav, .hero { padding-left: 32px; padding-right: 32px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 32px; }
+      .sidebar { display: none; }
+      .footer-wrap { margin: 64px -32px 0; padding: 24px 32px; }
+    }
+    @media (max-width: 640px) {
+      nav, .hero { padding-left: 20px; padding-right: 20px; }
+      .page-body { padding: 0 20px; }
+      .footer-wrap { margin: 64px -20px 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="https://master.hpc.now" class="logo">master<em>.hpc.now</em></a>
+      <div class="nav-right">
+        <span class="nav-tag">Lab Runbook</span>
+        <span class="nav-mod">Linux Fluency · Processes · Services · Logs · Packages</span>
+      </div>
+    </nav>
+  </div>
+  <div class="hero">
+    <p class="hero-eyebrow">Linux Fluency · Lab Runbook 2 · HPC Operations · Associate Stream</p>
+    <h1 class="hero-title">Processes, Services,<br><em>Logs &amp; Packages</em></h1>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><span class="hero-meta-k">Labs</span><span class="hero-meta-v">4 sections · 8 / 11 through 11 / 11</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Host</span><span class="hero-meta-v">mylab.hpc.now</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Learners</span><span class="hero-meta-v">chandra · sujith · yogaraj</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Password</span><span class="hero-meta-v">hpcnow2026</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Total lab time</span><span class="hero-meta-v">~60 minutes</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">URL</span><span class="hero-meta-v">master.hpc.now/linux-fluency-2</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- BODY -->
+<div class="page-body">
+
+  <aside class="sidebar">
+    <div class="side-label">Runbook</div>
+    <nav class="side-nav">
+      <a href="#how-to-use" class="side-nav-item">How to Use</a>
+      <a href="#credentials" class="side-nav-item">Credentials</a>
+      <div class="side-nav-divider"></div>
+      <div class="side-nav-part">Labs</div>
+      <a href="#section-8" class="side-nav-item">8 · Processes</a>
+      <a href="#section-9" class="side-nav-item">9 · Services</a>
+      <a href="#section-10" class="side-nav-item">10 · Logs</a>
+      <a href="#section-11" class="side-nav-item">11 · Packages</a>
+      <div class="side-nav-divider"></div>
+      <a href="#checkpoints" class="side-nav-item">All Checkpoints</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- HOW TO USE -->
+    <section class="section" id="how-to-use">
+      <p class="label">how to use this runbook</p>
+      <p class="prose">This is the second lab runbook for Linux Fluency. It covers the four operational domains from the Processes, Services, Logs, and Packages session. Each section corresponds to a lab card shown during the session.</p>
+      <p class="prose" style="margin-top:1em">Every command is copy-pasteable. Do not type commands from the video screen. After each command, compare your output to the <strong>Expected Output</strong> block. When you complete a section's checkpoint, type <code>done</code> in the session chat and wait for Rajesh to confirm the group is ready.</p>
+      <div class="callout-teal" style="margin-top:24px">
+        <p><strong>Continuing from Runbook 1.</strong> Labs in this runbook are numbered 8 through 11 — continuing from where the previous runbook ended at Lab 7. The lab cards shown on screen will read LAB 8 / 11 through LAB 11 / 11.</p>
+      </div>
+    </section>
+
+    <!-- CREDENTIALS -->
+    <section class="section" id="credentials">
+      <p class="label">lab credentials</p>
+      <p class="prose">Same host and password as Runbook 1. Use the row with your name.</p>
+      <table class="creds-table">
+        <thead><tr><th>Name</th><th>Username</th><th>Password</th><th>Host</th></tr></thead>
+        <tbody>
+          <tr><td class="name-col">Chandra</td><td class="mono-col">chandra</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Sujith</td><td class="mono-col">sujith</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Yogaraj</td><td class="mono-col">yogaraj</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+        </tbody>
+      </table>
+      <div class="wrong-block">
+        <div class="wrong-label">If your connection has expired</div>
+        <div class="wrong-body">
+          <p>SSH sessions time out. Reconnect with <code>ssh chandra@mylab.hpc.now</code> (or your username). The password is <code>hpcnow2026</code>. If you see <code>Host key verification failed</code>, run <code>ssh-keygen -R mylab.hpc.now</code> and reconnect.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 8 — PROCESSES -->
+    <section class="section" id="section-8">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 8 / 11 · 15 minutes · Processes</p>
+        <h2 class="domain-title">Process Observation — Reading What Is Running</h2>
+        <p class="domain-intent">Follows: what a process is, ps, process states, signals, top, htop, pstree.</p>
+      </div>
+
+      <div class="callout-teal">
+        <p><strong>Setup.</strong> Log into <code>mylab.hpc.now</code> and confirm your prompt. No special directory needed — start from your home directory.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Read the process table and identify states</p>
+            <p class="step-desc">Run <code>ps aux</code> and read the STAT column. Identify at least one process in S state (sleeping — most processes). Look for any D or Z state entries and note them.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ps aux | head -20</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Find processes by state</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ps aux | awk '{print $8}' | sort | uniq -c | sort -rn</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Count of each STAT value on this system.
+S and Ss will dominate — most processes are sleeping.
+R or R+ may appear briefly for active processes.</pre></div>
+            </div>
+            <p class="step-notice">D state means waiting on kernel I/O — cannot be killed with any signal while in this state. If you see one, note its PID and COMMAND.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Trace the PPID chain from your shell back to PID 1</p>
+            <p class="step-desc">Find your current shell's PID, then trace its parent chain up to PID 1. Every step should show a recognisable process — sshd, systemd, or a session manager.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">echo "My shell PID: $$"
+ps -ef | awk -v pid=$$ 'BEGIN{p=pid} p!=0{for(i=1;i<=NF;i++) printf $i" "; print ""; if($2==p){p=$3}}'</span></pre>
+            </div>
+            <p class="step-desc" style="margin-top:8px">Or trace it manually step by step — simpler and clearer:</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ps -f -p $$</span>                 <span class="cmt"># your shell — note PPID</span>
+<span class="cmd">ps -f -p &lt;PPID from above&gt;</span>   <span class="cmt"># its parent — note PPID again</span>
+<span class="cmd">ps -f -p &lt;PPID from above&gt;</span>   <span class="cmt"># repeat until PPID is 1</span></pre>
+            </div>
+            <p class="step-notice">Replace &lt;PPID from above&gt; with the actual number from each step. The chain ends at PID 1 — systemd.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Find the top five memory consumers</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ps --sort=-rss -ef | head -6</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Header row then five processes sorted by RSS descending.
+On a small cloud instance systemd, sshd, and kernel threads
+typically lead. RSS is physical memory in use.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Locate your own shell in the process tree</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">pstree -p | grep -A 2 -B 2 "$$"</span></pre>
+            </div>
+            <p class="step-desc">Or view the full tree:</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">pstree -p $USER</span></pre>
+            </div>
+            <p class="step-notice">Your shell appears under sshd, which appears under systemd. This is the tree rooted at PID 1 that the slides described.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Send SIGTERM to a test process — verify clean exit</p>
+            <p class="step-desc">Create a background sleep process, send it SIGTERM, confirm it exits.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sleep 300 &amp;</span>                    <span class="cmt"># start background process</span>
+<span class="cmd">TESTPID=$!</span>                      <span class="cmt"># capture its PID</span>
+<span class="cmd">echo "Test PID: $TESTPID"</span>
+<span class="cmd">ps -f -p $TESTPID</span>               <span class="cmt"># confirm it is running</span>
+<span class="cmd">kill $TESTPID</span>                   <span class="cmt"># send SIGTERM (default)</span>
+<span class="cmd">sleep 1</span>
+<span class="cmd">ps -f -p $TESTPID 2>/dev/null || echo "Process is gone"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Process is gone</pre></div>
+            </div>
+            <p class="step-notice">SIGTERM gave the process the opportunity to clean up and exit. For sleep this is immediate. For a real daemon it might take a few seconds.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Send SIGHUP to sshd — confirm it reloads without dropping your session</p>
+            <p class="step-desc">SIGHUP is the conventional "reload configuration" signal for daemons. sshd interprets it as a reload — it re-reads sshd_config and closes no existing connections.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">SSHD_PID=$(systemctl show sshd --property=MainPID --value)
+echo "sshd main PID: $SSHD_PID"
+sudo kill -HUP $SSHD_PID</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">journalctl -u sshd -n 5 --no-pager</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Recent sshd journal entries including a "Received SIGHUP;
+restarting" or "Server listening" message.
+Your current session remains active throughout.</pre></div>
+            </div>
+            <p class="step-notice">Your session survived because SIGHUP reloads the listener — it does not terminate existing authenticated connections. This is why daemons repurpose SIGHUP for configuration reload rather than using it to exit.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 8 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>ps -ef | awk '{print $3}' | sort -n | head -5 && echo "Section 8 complete"</pre>
+          <div class="checkpoint-note">Expected: a list of PPIDs — PID 1 should appear multiple times as the parent of system processes. Followed by <code>Section 8 complete</code>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 9 — SERVICES -->
+    <section class="section" id="section-9">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 9 / 11 · 20 minutes · Services</p>
+        <h2 class="domain-title">Services — systemctl and Unit Files</h2>
+        <p class="domain-intent">Follows: systemd, systemctl verbs, is-active vs is-enabled, unit file anatomy.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Read the full status output for sshd — every line</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">systemctl status sshd</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — read each section</div>
+              <div class="expected-body"><pre>● sshd.service - OpenSSH server daemon
+     Loaded: loaded (/usr/lib/systemd/system/sshd.service; enabled; ...)
+     Active: active (running) since ...
+   Main PID: &lt;pid&gt; (sshd)
+      Tasks: ...
+     Memory: ...
+     CGroup: /system.slice/sshd.service
+             └─&lt;pid&gt; sshd: /usr/sbin/sshd -D [listener]
+Recent log lines follow...</pre></div>
+            </div>
+            <p class="step-notice">Loaded tells you where the unit file is. Active tells you the current runtime state. The CGroup line shows what processes systemd is tracking under this unit.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Confirm sshd is both active AND enabled — understand the difference</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">systemctl is-active sshd</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>active</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">systemctl is-enabled sshd</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>enabled</pre></div>
+            </div>
+            <p class="step-notice"><code>is-active</code> answers: running right now? <code>is-enabled</code> answers: will it start at the next boot? These are independent questions with independent answers.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Check for failed units</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">systemctl list-units --failed</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>On a healthy system: "0 loaded units listed."
+On a system with failures: one or more units listed with
+LOAD=loaded, ACTIVE=failed, SUB=failed.</pre></div>
+            </div>
+            <p class="step-notice">Run this as part of your morning routine on any production system. A failed unit that nobody noticed is a common source of slow-developing incidents.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Read the sshd unit file — identify Type, Restart, and WantedBy</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">systemctl cat sshd</span></pre>
+            </div>
+            <p class="step-desc">Find and note the answers to these three questions in the output:</p>
+            <div class="callout-amber">
+              <p><strong>What to find:</strong> What is the <code>Type=</code> value? What does that mean for how systemd tracks this service? Does a <code>Restart=</code> directive exist? What is <code>WantedBy=</code> — what does this tell you about when sshd starts at boot?</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Create a simple oneshot service unit file</p>
+            <p class="step-desc">Write a unit file that runs a single command and exits. This is the simplest possible service — it demonstrates the unit file structure without requiring a persistent daemon.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo tee /etc/systemd/system/hello-lab.service &lt;&lt; 'EOF'
+[Unit]
+Description=Hello Lab — oneshot test service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/echo "Hello from systemd on mylab.hpc.now"
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo systemctl daemon-reload</span>
+<span class="cmd">systemctl status hello-lab</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>● hello-lab.service - Hello Lab — oneshot test service
+     Loaded: loaded (/etc/systemd/system/hello-lab.service; disabled; ...)
+     Active: inactive (dead)</pre></div>
+            </div>
+            <p class="step-notice">Loaded confirms systemd found and parsed the unit file. Active shows it has not been started yet. daemon-reload is required after creating any new unit file — without it, systemd does not see the file.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Start the service and verify with status</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo systemctl start hello-lab
+systemctl status hello-lab</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>● hello-lab.service - Hello Lab — oneshot test service
+     Loaded: loaded (/etc/systemd/system/hello-lab.service; disabled; ...)
+     Active: active (exited)
+    Process: &lt;pid&gt; ExecStart=/bin/echo Hello from systemd on mylab.hpc.now (code=exited, status=0/SUCCESS)
+
+... echo[&lt;pid&gt;]: Hello from systemd on mylab.hpc.now</pre></div>
+            </div>
+            <p class="step-notice"><code>active (exited)</code> is the correct state for a oneshot service with <code>RemainAfterExit=yes</code> — it ran to completion and systemd considers it still "up." The echo output appears in the status log lines.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 7</span>
+          <div>
+            <p class="step-title">Enable the service — confirm the symlink appears</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo systemctl enable hello-lab</span>
+<span class="cmd">ls -la /etc/systemd/system/multi-user.target.wants/ | grep hello</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Created symlink /etc/systemd/system/multi-user.target.wants/hello-lab.service → /etc/systemd/system/hello-lab.service.
+
+lrwxrwxrwx 1 root root ... hello-lab.service -> /etc/systemd/system/hello-lab.service</pre></div>
+            </div>
+            <p class="step-notice">This symlink is how <code>enable</code> works. When <code>multi-user.target</code> activates at boot, systemd follows these symlinks and starts everything they point to.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 8</span>
+          <div>
+            <p class="step-title">Disable and stop — confirm both states change</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo systemctl disable --now hello-lab
+systemctl is-active hello-lab
+systemctl is-enabled hello-lab</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>inactive
+disabled</pre></div>
+            </div>
+            <p class="step-notice"><code>disable --now</code> stops the service AND removes the boot symlink in one command. Both <code>is-active</code> and <code>is-enabled</code> change independently — confirm both.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 9 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>systemctl is-active sshd && systemctl is-enabled sshd && echo "Section 9 complete"</pre>
+          <div class="checkpoint-note">Expected: <code>active</code> · <code>enabled</code> · <code>Section 9 complete</code> — three lines, each confirming a different fact about sshd.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 10 — LOGS -->
+    <section class="section" id="section-10">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 10 / 11 · 15 minutes · Logs</p>
+        <h2 class="domain-title">Logs — journalctl, /var/log, and dmesg</h2>
+        <p class="domain-intent">Follows: journald, journalctl flags, /var/log files, dmesg and the kernel ring buffer.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Read the last twenty sshd entries — identify each field</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">journalctl -u sshd -n 20 --no-pager</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — read each column</div>
+              <div class="expected-body"><pre>Apr 25 09:01:15 mylab sshd[847]: Accepted publickey for chandra from 10.0.0.5 port 52341 ssh2
+
+Timestamp · hostname · unit[PID] · message content
+Every line has the same structure. The PID in brackets
+identifies which sshd worker handled this event.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Filter to errors only — since today</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">journalctl -p err --since today --no-pager</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>On a healthy system: few or no entries.
+Any entries here are worth reading — priority 3 (err)
+and lower (crit, alert, emerg) are genuinely significant.</pre></div>
+            </div>
+            <p class="step-notice"><code>-p err</code> matches priority 3 and lower numbers — more severe. Priority 4 (warning) and above are excluded. This is the filter to run when something seems wrong.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Check the previous boot for errors</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">journalctl --list-boots --no-pager</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>-1  &lt;boot-id&gt;  Mon 2026-04-24 ... — Mon 2026-04-24 ...
+ 0  &lt;boot-id&gt;  Tue 2026-04-25 ... — Tue 2026-04-25 ...
+
+-1 = previous boot · 0 = current boot</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">journalctl -b -1 -p err --no-pager</span></pre>
+            </div>
+            <p class="step-notice">This is invaluable after a system crash or unexpected reboot. <code>-b -1</code> targets the boot that ended — <code>-p err</code> filters to the significant entries only.</p>
+            <div class="wrong-block">
+              <div class="wrong-label">If something goes wrong</div>
+              <div class="wrong-body"><p>If <code>--list-boots</code> shows only one boot entry, the journal may be volatile — not persisted to disk. Run <code>ls /var/log/journal/</code>. If the directory is empty or absent, only the current boot is stored.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Read /var/log/secure — identify recent SSH logins</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo tail -20 /var/log/secure</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Apr 25 09:01:15 mylab sshd[847]: Accepted publickey for chandra ...
+Apr 25 09:03:22 mylab sshd[848]: Accepted publickey for sujith ...
+
+Lines show: timestamp · host · service · event type · username · source IP</pre></div>
+            </div>
+            <p class="step-notice">Identify the last three successful logins by timestamp and username. <code>/var/log/secure</code> is the traditional auth log — the same information is also in the journal via <code>journalctl -u sshd</code>.</p>
+            <div class="wrong-block">
+              <div class="wrong-label">If /var/log/secure does not exist</div>
+              <div class="wrong-body"><p>On some systems rsyslog is not configured to write text files. Use <code>journalctl -u sshd -n 20 --no-pager</code> instead — same information, journal source.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Scan dmesg for hardware or driver complaints</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">dmesg -T | grep -i error | head -10</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">dmesg -T | grep -i oom | head -10</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>On a healthy cloud instance: few or no entries.
+Any OOM killer entries are significant — they show
+which process was killed and why.</pre></div>
+            </div>
+            <p class="step-notice"><code>dmesg -T</code> shows human-readable timestamps instead of seconds-since-boot. The raw format requires mental arithmetic nobody wants to do.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Check journal disk usage</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">journalctl --disk-usage</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Archived and active journals take up &lt;size&gt; in the filesystem.</pre></div>
+            </div>
+            <p class="step-notice">On a fresh lab instance this will be small. On production systems that have been running for months, journal storage can grow to several gigabytes. <code>journalctl --vacuum-time=30d</code> trims entries older than 30 days when needed.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 10 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>journalctl -u sshd --since "5 minutes ago" --no-pager | wc -l && echo "Section 10 complete"</pre>
+          <div class="checkpoint-note">Expected: a number (count of sshd entries in the last 5 minutes) followed by <code>Section 10 complete</code>. If the count is 0, open a second SSH session to generate entries, then re-run.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 11 — PACKAGES -->
+    <section class="section" id="section-11">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 11 / 11 · 10 minutes · Packages</p>
+        <h2 class="domain-title">Packages — dnf, Repositories, and Verification</h2>
+        <p class="domain-intent">Follows: dnf verbs, repository configuration, GPG verification, versionlock awareness.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Count installed packages</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">dnf list installed | wc -l</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>A number between 300 and 800 on a typical minimal cloud instance.
+The first line is a header — actual package count is this number minus 1.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Find which package owns /usr/bin/ss</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">dnf provides /usr/bin/ss</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>iproute-&lt;version&gt;.&lt;arch&gt; : IP routing utilities
+Repo        : @System
+Matched from:
+Filename    : /usr/bin/ss</pre></div>
+            </div>
+            <p class="step-notice"><code>dnf provides</code> is the search that answers "I need this file — which package do I install?" It works for files not yet on the system too — searching the repository metadata rather than only installed packages.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">List active repositories</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">dnf repolist</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>repo id                    repo name
+baseos                     Rocky Linux 9 - BaseOS
+appstream                  Rocky Linux 9 - AppStream
+extras                     Rocky Linux 9 - Extras
+
+Each enabled repository is listed with its ID and name.
+The ID is what you use with --enablerepo= and --disablerepo=.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Read the transaction history</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">dnf history</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>ID  | Command              | Date and time       | Action(s) | Altered
+------------------------------------------------------------------
+ 5  | install vim-enhanced | 2026-04-25 09:14    | Install   |       1
+ 4  | update               | 2026-04-25 08:01    | I, U      |      47
+...
+
+Each row is one transaction — install, remove, or update.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">dnf history info 1</span>               <span class="cmt"># detail of transaction 1</span></pre>
+            </div>
+            <p class="step-notice"><code>dnf history undo &lt;id&gt;</code> reverses any transaction in this list. This is how you roll back an update that broke something — without it you would reinstall from scratch.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Read the full info output for an installed package</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">dnf info openssh-server</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — read every field</div>
+              <div class="expected-body"><pre>Name         : openssh-server
+Epoch        : ...
+Version      : ...
+Release      : ...
+Architecture : x86_64
+Size         : ...
+Source       : ...
+Repository   : @System
+Summary      : An open source SSH server daemon
+URL          : ...
+License      : ...
+Description  : ...</pre></div>
+            </div>
+            <p class="step-notice">Repository shows <code>@System</code> for installed packages — meaning it came from a repository but is currently installed. The URL and License fields tell you where the upstream source lives.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Read a .repo file — identify gpgcheck and enabled</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ls /etc/yum.repos.d/</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat /etc/yum.repos.d/rocky.repo 2>/dev/null || \
+cat /etc/yum.repos.d/*.repo | head -30</span></pre>
+            </div>
+            <p class="step-desc">Find and confirm:</p>
+            <div class="callout-amber">
+              <p><strong>What to verify:</strong> Is <code>gpgcheck=1</code> set? Is <code>enabled=1</code> set? Where does the <code>gpgkey=</code> line point? These three settings control whether packages from this repository are trusted and whether dnf will use it.</p>
+            </div>
+            <p class="step-notice">Never set <code>gpgcheck=0</code> to work around a signature error. Find out why the signature failed — either import the correct key or verify the source of the package.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 11 <span>Build from memory · type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>dnf provides /usr/bin/ss && echo "Section 11 complete"</pre>
+          <div class="checkpoint-note">
+            Expected: the iproute package entry followed by <code>Section 11 complete</code>.<br><br>
+            <strong>This is the final lab of the Linux Fluency runbook series.</strong> Labs 8 through 11 covered the four operational instruments — processes, services, logs, and packages. The fluency established across all eleven labs is the substrate every HPC module builds on.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ALL CHECKPOINTS -->
+    <section class="section" id="checkpoints">
+      <p class="label">all checkpoints — quick reference</p>
+      <p class="prose">All four checkpoint commands for this runbook. Run each after completing the corresponding section.</p>
+
+      <div class="quickref-block" style="margin-top:24px">
+        <div class="quickref-header">Checkpoint Commands · Sections 8–11</div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 8</span>
+          <span class="quickref-v">ps -ef | awk '{print $3}' | sort -n | head -5 && echo "Section 8 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 9</span>
+          <span class="quickref-v">systemctl is-active sshd && systemctl is-enabled sshd && echo "Section 9 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 10</span>
+          <span class="quickref-v">journalctl -u sshd --since "5 minutes ago" --no-pager | wc -l && echo "Section 10 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 11</span>
+          <span class="quickref-v">dnf provides /usr/bin/ss && echo "Section 11 complete"</span>
+        </div>
+      </div>
+
+      <div class="callout-teal" style="margin-top:32px">
+        <p><strong>Linux Fluency complete.</strong> Sections 1 through 11 across both runbooks have established the operational substrate — filesystem navigation, permissions, vim, text processing, pipelines, process observation, service management, log reading, and package management. Every HPC module that follows builds on this foundation.</p>
+      </div>
+
+      <div class="footer-wrap">
+        <span class="footer-copy">Linux Fluency · Lab Runbook 2 · HPC Operations · Associate Stream · master.hpc.now/linux-fluency-2</span>
+        <span class="footer-badge">Labs 8–11 · mylab.hpc.now · chandra · sujith · yogaraj</span>
+        <a href="https://master.hpc.now" class="footer-link">master.hpc.now</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(i => i.classList.remove('is-active'));
+        const a = document.querySelector('.side-nav-item[href="#' + entry.target.id + '"]');
+        if (a) a.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  function copyCode(btn) {
+    const block = btn.closest('.code-block, .checkpoint-body');
+    const pre = block.querySelector('pre');
+    const text = pre.innerText || pre.textContent;
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      btn.textContent = 'copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>

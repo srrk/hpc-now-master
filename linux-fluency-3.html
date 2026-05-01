@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linux Fluency · Lab Runbook 3 · master.hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #181817;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --teal:       #0f6e56;
+      --teal-dim:   #1d9e75;
+      --teal-bg:    #e8f5f0;
+      --amber:      #c47f1a;
+      --amber-bg:   #fdf4e3;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--paper); color: var(--ink); font-family: var(--mono); font-size: 15px; line-height: 1.75; }
+
+    /* COVER */
+    .cover { background: var(--cover); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E"); }
+    .nav-wrap { border-bottom: 1px solid var(--rule-cover); }
+    nav { max-width: 1200px; margin: 0 auto; padding: 20px 52px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: var(--mono); font-size: 12px; color: #f0e8e0; text-decoration: none; letter-spacing: .06em; }
+    .logo em { color: var(--terra-dim); font-style: normal; }
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-tag { font-size: 10px; color: #6a6460; letter-spacing: .12em; text-transform: uppercase; }
+    .nav-mod { font-size: 11px; color: var(--terra-dim); letter-spacing: .06em; }
+    .hero { max-width: 1200px; margin: 0 auto; padding: 72px 52px 80px; }
+    .hero-eyebrow { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #6a6460; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+    .hero-eyebrow::before { content: ''; width: 20px; height: 1px; background: #6a6460; }
+    .hero-title { font-family: var(--serif); font-size: clamp(32px, 4.5vw, 56px); font-weight: 400; color: #f0e8e0; line-height: 1.15; letter-spacing: -.02em; margin-bottom: 28px; }
+    .hero-title em { font-style: italic; color: var(--terra-dim); }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid #2e2820; width: fit-content; margin-top: 36px; }
+    .hero-meta-item { padding: 12px 24px; border-right: 1px solid #2e2820; display: flex; flex-direction: column; gap: 3px; }
+    .hero-meta-item:last-child { border-right: none; }
+    .hero-meta-k { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .hero-meta-v { font-size: 12px; color: #c8c0b4; }
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* LAYOUT */
+    .page-body { max-width: 1200px; margin: 0 auto; padding: 0 52px; display: grid; grid-template-columns: 200px 1fr; gap: 0 72px; align-items: start; }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 40px; padding: 64px 0 40px; align-self: start; }
+    .side-label { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink3); margin-bottom: 12px; padding-left: 14px; }
+    .side-nav { display: flex; flex-direction: column; gap: 1px; margin-bottom: 20px; }
+    .side-nav-item { font-size: 11px; color: var(--ink3); text-decoration: none; letter-spacing: .03em; padding: 5px 0 5px 14px; border-left: 2px solid transparent; transition: color .18s, border-color .18s; line-height: 1.4; }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+    .side-nav-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+    .side-nav-part { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); padding: 8px 0 4px 14px; }
+
+    /* MAIN */
+    .main-content { padding: 0; background: var(--paper); }
+    .section { padding: 64px 0 56px; border-top: 1px solid var(--rule); }
+    .section:first-child { border-top: none; padding-top: 72px; }
+    .label { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: var(--ink3); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
+    .label::after { content: ''; width: 36px; height: 1px; background: var(--rule); }
+    .prose { font-size: 14px; color: var(--ink2); line-height: 2.05; max-width: 600px; }
+    .prose + .prose { margin-top: 1.2em; }
+    .prose code { font-family: var(--mono); font-size: 12px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+
+    /* CALLOUTS */
+    .callout { border-left: 3px solid var(--terra); padding: 18px 22px; background: var(--terra-bg); margin: 24px 0; max-width: 640px; }
+    .callout p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout p + p { margin-top: 8px; }
+    .callout strong { color: var(--terra); font-weight: 500; }
+    .callout-teal { border-left: 3px solid var(--teal); padding: 18px 22px; background: var(--teal-bg); margin: 24px 0; max-width: 640px; }
+    .callout-teal p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-teal p + p { margin-top: 8px; }
+    .callout-teal strong { color: var(--teal); font-weight: 500; }
+    .callout-amber { border-left: 3px solid var(--amber); padding: 18px 22px; background: var(--amber-bg); margin: 24px 0; max-width: 640px; }
+    .callout-amber p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-amber p + p { margin-top: 8px; }
+    .callout-amber strong { color: var(--amber); font-weight: 500; }
+
+    /* CODE BLOCKS */
+    .code-block { background: var(--dark); border: 1px solid #2e2820; padding: 20px 24px; margin: 20px 0; max-width: 640px; overflow-x: auto; position: relative; }
+    .code-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #2e2820; }
+    .code-block pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #c8c0b4; white-space: pre; overflow-x: auto; }
+    .code-block pre .cmd  { color: #9fe1cb; }
+    .code-block pre .cmt  { color: #4a4438; font-style: italic; }
+    .code-block pre .out  { color: #8a8078; }
+    .code-block pre .warn { color: #e8a87c; }
+    .copy-btn { position: absolute; top: 12px; right: 12px; background: #2e2820; border: 1px solid #3e3830; color: #6a6460; font-family: var(--mono); font-size: 10px; letter-spacing: .08em; padding: 4px 10px; cursor: pointer; transition: color .15s, border-color .15s; }
+    .copy-btn:hover { color: #9fe1cb; border-color: #9fe1cb; }
+    .copy-btn.copied { color: var(--teal-dim); border-color: var(--teal-dim); }
+
+    /* STEPS */
+    .steps { display: flex; flex-direction: column; gap: 0; max-width: 640px; margin: 24px 0; }
+    .step { display: grid; grid-template-columns: 48px 1fr; gap: 0 20px; padding: 28px 0; border-top: 1px solid var(--rule); align-items: start; }
+    .step:first-child { border-top: none; padding-top: 0; }
+    .step-num { font-size: 11px; color: var(--ink3); letter-spacing: .1em; padding-top: 4px; font-weight: 300; }
+    .step-title { font-family: var(--serif); font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 10px; line-height: 1.35; }
+    .step-desc { font-size: 13px; color: var(--ink2); line-height: 1.95; margin-bottom: 14px; max-width: 520px; }
+    .step-desc code { font-family: var(--mono); font-size: 11px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+    .step-notice { font-size: 12px; color: var(--terra); font-style: italic; line-height: 1.7; margin-top: 10px; display: flex; gap: 8px; align-items: flex-start; max-width: 520px; }
+    .step-notice::before { content: '→'; flex-shrink: 0; color: var(--terra-dim); }
+    .step-notice code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); font-style: normal; }
+
+    /* PART / DOMAIN HEADER */
+    .domain-header { background: var(--dark); border-left: 4px solid var(--amber); padding: 20px 28px; margin-bottom: 28px; max-width: 640px; }
+    .domain-label { font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: #6a6460; margin-bottom: 6px; }
+    .domain-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: #f0e8e0; line-height: 1.3; margin-bottom: 6px; }
+    .domain-intent { font-size: 13px; color: #8a8078; font-style: italic; line-height: 1.7; }
+
+    /* CHECKPOINT */
+    .checkpoint-block { background: var(--dark); border: 1px solid var(--teal); max-width: 640px; margin: 28px 0; }
+    .checkpoint-header { background: var(--teal); padding: 10px 20px; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+    .checkpoint-header span { font-size: 11px; color: rgba(255,255,255,0.7); font-style: italic; letter-spacing: 0; text-transform: none; }
+    .checkpoint-body { padding: 20px 24px; position: relative; }
+    .checkpoint-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #9fe1cb; white-space: pre-wrap; word-break: break-all; }
+    .checkpoint-note { font-size: 12px; color: #8a8078; font-style: italic; margin-top: 14px; line-height: 1.7; padding-top: 12px; border-top: 1px solid #2e2820; }
+
+    /* EXPECTED OUTPUT */
+    .expected-block { background: #141210; border: 1px solid #2e2820; border-left: 3px solid var(--teal); max-width: 640px; margin: 12px 0; }
+    .expected-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--teal-dim); padding: 8px 16px; border-bottom: 1px solid #2e2820; }
+    .expected-body { padding: 14px 16px; }
+    .expected-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #8a8078; white-space: pre-wrap; }
+
+    /* WRONG BLOCK */
+    .wrong-block { background: #140e0e; border: 1px solid #2e2820; border-left: 3px solid var(--terra); max-width: 640px; margin: 12px 0; }
+    .wrong-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--terra-dim); padding: 8px 16px; border-bottom: 1px solid #2e1818; }
+    .wrong-body { padding: 14px 16px; font-size: 13px; color: var(--ink2); line-height: 1.85; }
+    .wrong-body code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); background: rgba(123,75,51,0.1); padding: 1px 5px; }
+    .wrong-body p + p { margin-top: 8px; }
+
+    /* CREDS TABLE */
+    .creds-table { border: 1px solid var(--rule); width: 100%; max-width: 560px; margin: 20px 0; border-collapse: collapse; }
+    .creds-table thead th { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); background: var(--paper-mid); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--rule); font-weight: 400; }
+    .creds-table tbody td { font-size: 12px; color: var(--ink2); padding: 11px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.6; }
+    .creds-table tbody tr:last-child td { border-bottom: none; }
+    .creds-table .name-col { font-family: var(--serif); font-style: italic; color: var(--ink); font-size: 14px; }
+    .creds-table .mono-col { font-family: var(--mono); color: var(--teal); font-size: 12px; }
+    .creds-table .pass-col { font-family: var(--mono); color: var(--amber); font-size: 12px; }
+
+    /* QUICKREF */
+    .quickref-block { background: var(--dark); border: 1px solid #2e2820; max-width: 640px; margin: 20px 0; overflow: hidden; }
+    .quickref-header { background: #2e2820; padding: 10px 20px; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .quickref-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid #2e2820; }
+    .quickref-row:last-child { border-bottom: none; }
+    .quickref-k { font-size: 11px; color: #6a6460; padding: 12px 16px; border-right: 1px solid #2e2820; display: flex; align-items: center; letter-spacing: .04em; }
+    .quickref-v { font-family: var(--mono); font-size: 12px; color: #9fe1cb; padding: 12px 16px; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+
+    /* FOOTER */
+    .footer-wrap { background: var(--dark2); margin: 64px -52px 0; padding: 24px 52px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-top: 1px solid #2e2820; }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-badge { font-size: 10px; color: var(--teal-dim); letter-spacing: .08em; }
+    .footer-link { font-size: 11px; color: #6a6460; text-decoration: none; }
+
+    @media (max-width: 1024px) {
+      nav, .hero { padding-left: 32px; padding-right: 32px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 32px; }
+      .sidebar { display: none; }
+      .footer-wrap { margin: 64px -32px 0; padding: 24px 32px; }
+    }
+    @media (max-width: 640px) {
+      nav, .hero { padding-left: 20px; padding-right: 20px; }
+      .page-body { padding: 0 20px; }
+      .footer-wrap { margin: 64px -20px 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="https://master.hpc.now" class="logo">master<em>.hpc.now</em></a>
+      <div class="nav-right">
+        <span class="nav-tag">Lab Runbook</span>
+        <span class="nav-mod">Linux Fluency · Users · SSH · Networking</span>
+      </div>
+    </nav>
+  </div>
+  <div class="hero">
+    <p class="hero-eyebrow">Linux Fluency · Lab Runbook 3 · HPC Operations · Associate Stream</p>
+    <h1 class="hero-title">Users, SSH,<br><em>and Networking</em></h1>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><span class="hero-meta-k">Labs</span><span class="hero-meta-v">3 sections · 12 / 14 through 14 / 14</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Host</span><span class="hero-meta-v">mylab.hpc.now</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Learners</span><span class="hero-meta-v">chandra · sujith · yogaraj</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Password</span><span class="hero-meta-v">hpcnow2026</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Total lab time</span><span class="hero-meta-v">~55 minutes</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">URL</span><span class="hero-meta-v">master.hpc.now/linux-fluency-3</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- BODY -->
+<div class="page-body">
+
+  <aside class="sidebar">
+    <div class="side-label">Runbook</div>
+    <nav class="side-nav">
+      <a href="#how-to-use" class="side-nav-item">How to Use</a>
+      <a href="#credentials" class="side-nav-item">Credentials</a>
+      <div class="side-nav-divider"></div>
+      <div class="side-nav-part">Labs</div>
+      <a href="#section-12" class="side-nav-item">12 · Users</a>
+      <a href="#section-13" class="side-nav-item">13 · SSH</a>
+      <a href="#section-14" class="side-nav-item">14 · Networking</a>
+      <div class="side-nav-divider"></div>
+      <a href="#checkpoints" class="side-nav-item">All Checkpoints</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- HOW TO USE -->
+    <section class="section" id="how-to-use">
+      <p class="label">how to use this runbook</p>
+      <p class="prose">This is the third and final lab runbook for Linux Fluency. It covers the three subjects from the Users, SSH, and Networking session — completing the fourteen-lab series that runs across all four Linux Fluency sessions.</p>
+      <p class="prose" style="margin-top:1em">Every command is copy-pasteable. After each command, compare your output to the <strong>Expected Output</strong> block. When you complete a section's checkpoint, type <code>done</code> in the session chat and wait for Rajesh to confirm before moving on.</p>
+      <div class="callout-teal" style="margin-top:24px">
+        <p><strong>Final runbook — labs 12 through 14.</strong> This runbook continues from Runbook 2 which ended at Lab 11. The lab cards shown on screen read LAB 12 / 14, LAB 13 / 14, and LAB 14 / 14. Completing Lab 14 closes the Linux Fluency lab series.</p>
+      </div>
+    </section>
+
+    <!-- CREDENTIALS -->
+    <section class="section" id="credentials">
+      <p class="label">lab credentials</p>
+      <p class="prose">Same host and password as the previous runbooks.</p>
+      <table class="creds-table">
+        <thead><tr><th>Name</th><th>Username</th><th>Password</th><th>Host</th></tr></thead>
+        <tbody>
+          <tr><td class="name-col">Chandra</td><td class="mono-col">chandra</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Sujith</td><td class="mono-col">sujith</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Yogaraj</td><td class="mono-col">yogaraj</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+        </tbody>
+      </table>
+      <div class="wrong-block">
+        <div class="wrong-label">If your connection has expired</div>
+        <div class="wrong-body">
+          <p>SSH sessions time out between sessions. Reconnect: <code>ssh chandra@mylab.hpc.now</code> (use your username). Password is <code>hpcnow2026</code>. If you see <code>Host key verification failed</code>, run <code>ssh-keygen -R mylab.hpc.now</code> then reconnect.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 12 — USERS -->
+    <section class="section" id="section-12">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 12 / 14 · 15 minutes · Users</p>
+        <h2 class="domain-title">Identity Files, User Management, and Resolution</h2>
+        <p class="domain-intent">Follows: /etc/passwd, /etc/shadow, /etc/group, UIDs as integers, useradd, usermod, userdel, su, sudo, id, getent, NSS awareness.</p>
+      </div>
+
+      <div class="callout-teal">
+        <p><strong>Setup.</strong> Log into <code>mylab.hpc.now</code> and confirm your prompt. You will need <code>sudo</code> for several exercises in this section — your account is in the <code>wheel</code> group and has full sudo access.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Read /etc/passwd — count lines, find your entry, identify system accounts</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">wc -l /etc/passwd</span>                    <span class="cmt"># count all accounts</span>
+<span class="cmd">grep $(whoami) /etc/passwd</span>            <span class="cmt"># find your own entry</span>
+<span class="cmd">grep '/sbin/nologin' /etc/passwd | head -5</span>  <span class="cmt"># system accounts</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — your entry</div>
+              <div class="expected-body"><pre>chandra:x:1001:1001::/home/chandra:/bin/bash
+
+Seven colon-separated fields:
+username : x : UID : GID : GECOS : home : shell</pre></div>
+            </div>
+            <p class="step-desc">Find three system accounts with <code>/sbin/nologin</code> as their shell. Note that they have low UIDs — typically below 1000. These are service accounts that should never log in interactively.</p>
+            <p class="step-notice">The file is world-readable. <code>ls</code> and <code>ps</code> read it to translate UIDs to names. Every user on the system can see every account listed here.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Run id — read every field including all supplementary groups</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">id</span>
+<span class="cmd">id $(whoami)</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — Chandra</div>
+              <div class="expected-body"><pre>uid=1001(chandra) gid=1001(chandra) groups=1001(chandra),10(wheel)
+
+uid    — numeric UID and the name the system resolves it to
+gid    — primary group
+groups — all supplementary groups, numeric and named</pre></div>
+            </div>
+            <p class="step-notice">The <code>wheel</code> group gives sudo access on RHEL-family systems. If your account did not have this, the sudo exercises below would fail.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Use getent — confirm it matches /etc/passwd</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">getent passwd $(whoami)</span>
+<span class="cmd">getent group wheel</span>
+<span class="cmd">getent hosts mylab.hpc.now</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>chandra:x:1001:1001::/home/chandra:/bin/bash   ← matches /etc/passwd
+wheel:x:10:chandra,sujith,yogaraj              ← group members
+192.168.x.x     mylab.hpc.now                  ← hostname resolved</pre></div>
+            </div>
+            <p class="step-desc">On this lab instance, <code>getent</code> and <code>grep /etc/passwd</code> give the same answer because identity is local. On an HPC cluster with LDAP or SSSD, <code>grep</code> would miss accounts that only exist in the central directory. <code>getent</code> is always the correct tool.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Create a test user with an explicit UID</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo useradd -m -s /bin/bash -u 9001 testuser</span>
+<span class="cmd">grep testuser /etc/passwd</span>
+<span class="cmd">ls -la /home/testuser/</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>testuser:x:9001:9001::/home/testuser:/bin/bash
+
+/home/testuser/ exists with correct ownership
+drwx------ 2 testuser testuser 62 Apr 25 10:01 /home/testuser/</pre></div>
+            </div>
+            <p class="step-notice">The <code>-m</code> flag created the home directory. Without it the home path would be in <code>/etc/passwd</code> but would not physically exist — a common source of login failures.</p>
+            <div class="wrong-block">
+              <div class="wrong-label">If useradd fails</div>
+              <div class="wrong-body"><p>If UID 9001 is already in use, try 9002 or 9003. Check with <code>getent passwd 9001</code> — if it returns output, that UID is taken.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Add testuser to a supplementary group using usermod -aG</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo groupadd labgroup</span>
+<span class="cmd">sudo usermod -aG labgroup testuser</span>
+<span class="cmd">id testuser</span>
+<span class="cmd">grep testuser /etc/group</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>uid=9001(testuser) gid=9001(testuser) groups=9001(testuser),&lt;gid&gt;(labgroup)
+
+/etc/group shows testuser in the labgroup member list</pre></div>
+            </div>
+            <p class="step-notice">The <code>-a</code> in <code>-aG</code> is not optional. Run <code>sudo usermod -G labgroup testuser</code> without <code>-a</code> on a user with multiple groups — it replaces the entire supplementary group list with just <code>labgroup</code>. Always use <code>-aG</code> to append.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Use sudo to run a command as root — confirm the log entry</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo whoami</span>
+<span class="cmd">sudo -i whoami</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>root
+root</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo journalctl -u sudo --since "5 minutes ago" --no-pager 2>/dev/null || \
+  sudo grep $(whoami) /var/log/secure | tail -5</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Entry showing your username, the command run, and the TTY.
+Every sudo invocation is logged. This is how audit trails work.</pre></div>
+            </div>
+            <p class="step-notice">sudo authenticates with your own password and logs your identity. <code>su -</code> authenticates with root's password and leaves a less granular audit trail. This is why sudo is preferred in operational environments.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 12 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>getent passwd $(whoami) && id $(whoami) && echo "Section 12 complete"</pre>
+          <div class="checkpoint-note">Expected: your passwd entry · your full id output with UID, GID, and groups · <code>Section 12 complete</code>. Both commands should return your account — same UID, same groups.</div>
+        </div>
+      </div>
+
+      <div class="callout-amber" style="margin-top:24px">
+        <p><strong>Clean up.</strong> Remove the test user created in Exercise 4 before moving on.</p>
+      </div>
+      <div class="code-block" style="max-width:640px">
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="cmd">sudo userdel -r testuser</span>
+<span class="cmd">sudo groupdel labgroup</span>
+<span class="cmd">grep testuser /etc/passwd</span>        <span class="cmt"># should return nothing</span></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 13 — SSH -->
+    <section class="section" id="section-13">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 13 / 14 · 20 minutes · SSH</p>
+        <h2 class="domain-title">Keys, Config, and the Server Side</h2>
+        <p class="domain-intent">Follows: SSH client basics, known_hosts, key-based authentication, ssh-keygen, installing keys, server-side permissions, ssh-agent, ~/.ssh/config, sshd reading and validation.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Generate an Ed25519 key pair with a passphrase</p>
+            <p class="step-desc">Generate a new key pair specifically for this lab. Use a passphrase — you will use the agent in Exercise 5 so you only need to type it once.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ssh-keygen -t ed25519 -f ~/.ssh/id_lab -C "$(whoami)@lab-exercise"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Generating public/private ed25519 key pair.
+Enter passphrase (empty for no passphrase): &lt;type a passphrase&gt;
+Enter same passphrase again:
+Your identification has been saved in /home/chandra/.ssh/id_lab
+Your public key has been saved in /home/chandra/.ssh/id_lab.pub</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ls -la ~/.ssh/id_lab*</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>-rw------- 1 chandra chandra  411 Apr 25 10:15 /home/chandra/.ssh/id_lab
+-rw-r--r-- 1 chandra chandra   97 Apr 25 10:15 /home/chandra/.ssh/id_lab.pub</pre></div>
+            </div>
+            <p class="step-notice">Private key is <code>0600</code> — only you can read it. Public key is <code>0644</code> — world-readable, safe to share. The private key never leaves this machine.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Install the public key to your own account — verify passwordless connection</p>
+            <p class="step-desc">Install the lab key into your own <code>authorized_keys</code> on <code>mylab.hpc.now</code>. Since you are already on the host, do it directly rather than over the network.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat ~/.ssh/id_lab.pub >> ~/.ssh/authorized_keys</span>
+<span class="cmd">cat ~/.ssh/authorized_keys</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>ssh-ed25519 AAAA...longstring... chandra@lab-exercise
+
+One public key per line. Multiple keys are allowed — one per device or context.</pre></div>
+            </div>
+            <p class="step-desc" style="margin-top:12px">Now test that key-based connection works from your current session:</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ssh -i ~/.ssh/id_lab -o PasswordAuthentication=no $(whoami)@mylab.hpc.now whoami</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>chandra
+
+Connection succeeded using the key — no password prompt.</pre></div>
+            </div>
+            <div class="wrong-block">
+              <div class="wrong-label">If the connection asks for a password instead of using the key</div>
+              <div class="wrong-body">
+                <p>Check permissions first: <code>ls -la ~/.ssh/</code>. The <code>~/.ssh/</code> directory must be <code>0700</code> and <code>authorized_keys</code> must be <code>0600</code>. If either is group- or world-writable, sshd refuses to use the keys silently.</p>
+                <p>Fix: <code>chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys</code></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Verify ~/.ssh/ and ~/.ssh/authorized_keys permissions</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ls -la ~/.ssh/</span>
+<span class="cmd">stat ~/.ssh/ | grep Access</span>
+<span class="cmd">stat ~/.ssh/authorized_keys | grep Access</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>drwx------ 2 chandra chandra  ...  .ssh/         ← 0700
+-rw------- 1 chandra chandra  ...  authorized_keys ← 0600
+-rw------- 1 chandra chandra  ...  id_lab          ← 0600
+-rw-r--r-- 1 chandra chandra  ...  id_lab.pub      ← 0644</pre></div>
+            </div>
+            <p class="step-notice">If any of these are wrong, fix them now before proceeding. A group-writable <code>~/.ssh/</code> makes sshd refuse all key authentication with no error message to the user.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Add an entry to ~/.ssh/config — connect using only the alias</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat >> ~/.ssh/config << 'EOF'
+
+Host mylab
+    HostName mylab.hpc.now
+    User chandra
+    IdentityFile ~/.ssh/id_lab
+    ServerAliveInterval 60
+EOF</span></pre>
+            </div>
+            <p class="step-notice">Replace <code>User chandra</code> with your own username if you are Sujith or Yogaraj.</p>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">chmod 600 ~/.ssh/config</span>
+<span class="cmd">cat ~/.ssh/config</span>
+<span class="cmd">ssh mylab whoami</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>chandra
+
+ssh mylab expands to the full connection parameters.
+The alias saves typing and enforces consistent connection options.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Start ssh-agent, add your lab key, confirm it is loaded</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">eval "$(ssh-agent -s)"</span>
+<span class="cmd">ssh-add ~/.ssh/id_lab</span>       <span class="cmt"># prompts for passphrase once</span>
+<span class="cmd">ssh-add -l</span>                   <span class="cmt"># list loaded keys</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output after ssh-add -l</div>
+              <div class="expected-body"><pre>256 SHA256:... chandra@lab-exercise (ED25519)
+
+The key is in the agent. Subsequent connections use the agent —
+no passphrase prompt until the agent is cleared or the session ends.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ssh mylab whoami</span>             <span class="cmt"># no passphrase prompt this time</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Read /etc/ssh/sshd_config — identify key directives</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo grep -v '^#' /etc/ssh/sshd_config | grep -v '^$'</span></pre>
+            </div>
+            <p class="step-desc">Find and note the values for these directives:</p>
+            <div class="callout-amber">
+              <p><strong>What to find:</strong> <code>PermitRootLogin</code> — can root SSH in directly? <code>PasswordAuthentication</code> — are passwords accepted? <code>PubkeyAuthentication</code> — are keys enabled? <code>AuthorizedKeysFile</code> — where does sshd look for authorised keys?</p>
+            </div>
+            <p class="step-notice">The effective configuration is what matters — directives can be set in the main file or in drop-in files under <code>/etc/ssh/sshd_config.d/</code>. Check both.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 7</span>
+          <div>
+            <p class="step-title">Validate the sshd config — confirm it is error-free</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo sshd -t</span>
+<span class="cmd">echo "Exit code: $?"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Exit code: 0
+
+No output and exit code 0 means the config is valid.
+Any output means a syntax error — do not restart sshd until fixed.</pre></div>
+            </div>
+            <p class="step-notice">Always run <code>sshd -t</code> before restarting sshd. An invalid config means sshd will not start after the restart — the operator is locked out. This validation step prevents that outcome.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 8</span>
+          <div>
+            <p class="step-title">Check the last ten sshd journal entries — find your key-based login</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">journalctl -u sshd -n 20 --no-pager</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — look for this pattern</div>
+              <div class="expected-body"><pre>Apr 25 10:15:xx mylab sshd[pid]: Accepted publickey for chandra from ... ssh2: ED25519 SHA256:...
+
+"Accepted publickey" confirms key authentication succeeded.
+Compare to "Accepted password" — that would mean password auth.
+Your exercise 2 connection should appear in this log.</pre></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 13 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>ssh-add -l && cat ~/.ssh/authorized_keys | wc -l && echo "Section 13 complete"</pre>
+          <div class="checkpoint-note">Expected: at least one key listed in the agent · a non-zero count of installed public keys · <code>Section 13 complete</code>. Both must return non-zero output confirming the key infrastructure is in place.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 14 — NETWORKING -->
+    <section class="section" id="section-14">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 14 / 14 · 20 minutes · Networking</p>
+        <h2 class="domain-title">ip, ss, DNS, curl, and Firewall</h2>
+        <p class="domain-intent">Follows: CIDR notation, ip link/addr/route, ss listening and established, ports, DNS resolution path (/etc/hosts, /etc/resolv.conf, getent, dig), curl, openssl s_client, firewall-cmd, ping, traceroute.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Read the instance's IP address and determine the network size</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ip addr</span>
+<span class="cmd">ip addr show | grep 'inet ' | grep -v '127.0.0.1'</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>inet 10.x.x.x/20 brd 10.x.x.255 scope global dynamic eth0
+
+The /20 (or whatever mask appears) tells you the network size.
+/20 = 4096 addresses · /24 = 256 addresses · /16 = 65536 addresses</pre></div>
+            </div>
+            <p class="step-desc">Read the CIDR mask from the output. Determine how many addresses are in the network. Note whether the address is from a private range (<code>10.x.x.x</code>, <code>172.16-31.x.x</code>, or <code>192.168.x.x</code>).</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Read the routing table — identify the default gateway and simulate a lookup</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ip route</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>default via 10.x.x.1 dev eth0 proto dhcp metric 100
+10.x.x.0/20 dev eth0 proto kernel scope link src 10.x.x.x metric 100
+
+"default via" is the gateway — all non-local traffic goes here.
+The second line is the directly-attached network — no gateway needed.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ip route get 8.8.8.8</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>8.8.8.8 via 10.x.x.1 dev eth0 src 10.x.x.x uid &lt;uid&gt;
+
+The kernel answers: to reach 8.8.8.8 go via the default gateway,
+using source address 10.x.x.x out of interface eth0.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">List all listening services — identify which are reachable from outside</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ss -tlnp</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>State   Recv-Q  Send-Q  Local Address:Port  Peer Address:Port  Process
+LISTEN  0       128           0.0.0.0:22          0.0.0.0:*   users:(("sshd",...))
+LISTEN  0       128              [::]:22             [::]:*   users:(("sshd",...))
+
+0.0.0.0:22 and [::]:22 — sshd listens on all interfaces (IPv4 and IPv6)
+Reachable from outside. 127.0.0.1:port would be loopback only.</pre></div>
+            </div>
+            <p class="step-desc">For each listening service: is it bound to <code>0.0.0.0</code> (all interfaces — reachable from outside) or <code>127.0.0.1</code> (loopback only — not reachable from outside)? This distinction is the first question when investigating connectivity.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Test the full DNS resolution path</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat /etc/hosts</span>                      <span class="cmt"># static overrides — checked first</span>
+<span class="cmd">cat /etc/resolv.conf</span>                 <span class="cmt"># DNS server configuration</span>
+<span class="cmd">getent hosts mylab.hpc.now</span>           <span class="cmt"># full NSS chain lookup</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — getent hosts</div>
+              <div class="expected-body"><pre>10.x.x.x     mylab.hpc.now
+
+This matches the IP address from ip addr in Exercise 1.
+getent uses the full resolution chain — /etc/hosts first, then DNS.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">dig example.com</span>                      <span class="cmt"># bypass NSS, query DNS directly</span>
+<span class="cmd">dig @8.8.8.8 example.com</span>            <span class="cmt"># query a specific DNS server</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — dig example.com</div>
+              <div class="expected-body"><pre>;; ANSWER SECTION:
+example.com.    300    IN    A    93.184.216.34
+
+;; Query time: x msec
+;; SERVER: x.x.x.x#53
+
+dig shows which DNS server answered and how long it took.
+If getent works but dig fails — DNS is unreachable but /etc/hosts resolved it.</pre></div>
+            </div>
+            <div class="wrong-block">
+              <div class="wrong-label">If dig is not installed</div>
+              <div class="wrong-body"><p>Install it: <code>sudo dnf install -y bind-utils</code>. The <code>bind-utils</code> package provides <code>dig</code>, <code>host</code>, and <code>nslookup</code>.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Use curl to test HTTP connectivity and inspect TLS</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">curl -s -o /dev/null -w "%{http_code}\n" https://example.com</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>200
+
+HTTP status code only. 200 = success. 000 = connection failed entirely.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">curl -v https://example.com 2>&1 | head -30</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — first 30 lines</div>
+              <div class="expected-body"><pre>* Trying 93.184.216.34:443...
+* Connected to example.com
+* TLSv1.3 (OUT), TLS handshake ...
+* SSL certificate verify ok.
+* Server certificate:
+*   subject: CN=www.example.org
+...
+&gt; GET / HTTP/2
+
+-v shows DNS resolution, TCP connection, TLS handshake, and headers.
+This is the output to read when something is not working.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Check certificate expiry — the operational one-liner</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">openssl s_client -connect example.com:443 \
+  &lt;/dev/null 2>/dev/null \
+  | openssl x509 -noout -dates</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>notBefore=Jan 13 00:00:00 2024 GMT
+notAfter=Mar 13 23:59:59 2025 GMT
+
+notAfter is when the certificate expires.
+Certificates expire on weekends and during holidays — check early.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Read the firewall policy — confirm SSH is permitted</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo firewall-cmd --state</span>
+<span class="cmd">sudo firewall-cmd --get-active-zones</span>
+<span class="cmd">sudo firewall-cmd --list-all</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — list-all</div>
+              <div class="expected-body"><pre>public (active)
+  target: default
+  interfaces: eth0
+  services: cockpit dhcpv6-client ssh
+  ports:
+  ...
+
+"ssh" in the services list means TCP/22 is permitted inbound.
+This is why you can connect — the firewall allows it.</pre></div>
+            </div>
+            <p class="step-desc">Identify: which interface is in the active zone, which services are permitted, and whether any explicit ports are open. This is the read-level firewall verification that Associates are expected to perform.</p>
+            <p class="step-notice">The operator's job at this level is to read and verify — not to write rules. Confirming that expected ports are open and unexpected ports are closed is a security verification task that appears in every maintenance checklist.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 7</span>
+          <div>
+            <p class="step-title">Test basic connectivity with ping and traceroute</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ping -c 4 8.8.8.8</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>64 bytes from 8.8.8.8: icmp_seq=1 ttl=118 time=x ms
+...
+4 packets transmitted, 4 received, 0% packet loss
+
+A response confirms the host is reachable at the IP layer.
+No response does not confirm it is down — firewalls drop ICMP silently.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">traceroute -n 8.8.8.8 2>/dev/null || tracepath -n 8.8.8.8</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre> 1  10.x.x.1       x ms
+ 2  x.x.x.x        x ms
+ 3  * * *           (hop did not respond — firewall dropping probes)
+...
+ n  8.8.8.8        x ms
+
+Each line is a hop. Asterisks mean the hop is silent.
+traceroute shows where the path breaks when a destination is unreachable.</pre></div>
+            </div>
+            <div class="wrong-block">
+              <div class="wrong-label">If traceroute is not installed</div>
+              <div class="wrong-body"><p>Install it: <code>sudo dnf install -y traceroute</code>. Alternatively, <code>tracepath</code> is usually available and needs no installation.</p></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 14 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>ss -tlnp | grep ':22' && ip route | grep default && echo "Section 14 complete"</pre>
+          <div class="checkpoint-note">
+            Expected: a line confirming sshd is listening on port 22 · a line confirming a default route exists · <code>Section 14 complete</code>. Both must return output — the network substrate that makes SSH possible is in place and readable.<br><br>
+            <strong>LAB 14 / 14 complete — Linux Fluency networking established.</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ALL CHECKPOINTS -->
+    <section class="section" id="checkpoints">
+      <p class="label">all checkpoints — quick reference</p>
+      <p class="prose">All three checkpoint commands for this runbook. Run each after completing the corresponding section.</p>
+
+      <div class="quickref-block" style="margin-top:24px">
+        <div class="quickref-header">Checkpoint Commands · Sections 12–14</div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 12</span>
+          <span class="quickref-v">getent passwd $(whoami) && id $(whoami) && echo "Section 12 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 13</span>
+          <span class="quickref-v">ssh-add -l && cat ~/.ssh/authorized_keys | wc -l && echo "Section 13 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 14</span>
+          <span class="quickref-v">ss -tlnp | grep ':22' && ip route | grep default && echo "Section 14 complete"</span>
+        </div>
+      </div>
+
+      <div class="callout-teal" style="margin-top:32px">
+        <p><strong>Linux Fluency complete — all 14 labs across all four sessions.</strong></p>
+        <p>Runbook 1 (sections 1–7) established filesystem navigation, permissions, vim, text processing, and pipelines. Runbook 2 (sections 8–11) established processes, services, logs, and packages. This runbook (sections 12–14) established users, SSH, and networking.</p>
+        <p>The substrate is in place. Linux for HPC begins next.</p>
+      </div>
+
+      <div class="footer-wrap">
+        <span class="footer-copy">Linux Fluency · Lab Runbook 3 · HPC Operations · Associate Stream · master.hpc.now/linux-fluency-3</span>
+        <span class="footer-badge">Labs 12–14 · Series complete · 14 / 14</span>
+        <a href="https://master.hpc.now" class="footer-link">master.hpc.now</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(i => i.classList.remove('is-active'));
+        const a = document.querySelector('.side-nav-item[href="#' + entry.target.id + '"]');
+        if (a) a.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  function copyCode(btn) {
+    const block = btn.closest('.code-block, .checkpoint-body');
+    const pre = block.querySelector('pre');
+    const text = pre.innerText || pre.textContent;
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      btn.textContent = 'copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>

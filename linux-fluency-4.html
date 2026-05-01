@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linux Fluency · Lab Runbook 4 · master.hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #181817;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --teal:       #0f6e56;
+      --teal-dim:   #1d9e75;
+      --teal-bg:    #e8f5f0;
+      --amber:      #c47f1a;
+      --amber-bg:   #fdf4e3;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--paper); color: var(--ink); font-family: var(--mono); font-size: 15px; line-height: 1.75; }
+
+    /* COVER */
+    .cover { background: var(--cover); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E"); }
+    .nav-wrap { border-bottom: 1px solid var(--rule-cover); }
+    nav { max-width: 1200px; margin: 0 auto; padding: 20px 52px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: var(--mono); font-size: 12px; color: #f0e8e0; text-decoration: none; letter-spacing: .06em; }
+    .logo em { color: var(--terra-dim); font-style: normal; }
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-tag { font-size: 10px; color: #6a6460; letter-spacing: .12em; text-transform: uppercase; }
+    .nav-mod { font-size: 11px; color: var(--terra-dim); letter-spacing: .06em; }
+    .hero { max-width: 1200px; margin: 0 auto; padding: 72px 52px 80px; }
+    .hero-eyebrow { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #6a6460; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+    .hero-eyebrow::before { content: ''; width: 20px; height: 1px; background: #6a6460; }
+    .hero-title { font-family: var(--serif); font-size: clamp(32px, 4.5vw, 56px); font-weight: 400; color: #f0e8e0; line-height: 1.15; letter-spacing: -.02em; margin-bottom: 28px; }
+    .hero-title em { font-style: italic; color: var(--terra-dim); }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid #2e2820; width: fit-content; margin-top: 36px; }
+    .hero-meta-item { padding: 12px 24px; border-right: 1px solid #2e2820; display: flex; flex-direction: column; gap: 3px; }
+    .hero-meta-item:last-child { border-right: none; }
+    .hero-meta-k { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .hero-meta-v { font-size: 12px; color: #c8c0b4; }
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* LAYOUT */
+    .page-body { max-width: 1200px; margin: 0 auto; padding: 0 52px; display: grid; grid-template-columns: 200px 1fr; gap: 0 72px; align-items: start; }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 40px; padding: 64px 0 40px; align-self: start; }
+    .side-label { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink3); margin-bottom: 12px; padding-left: 14px; }
+    .side-nav { display: flex; flex-direction: column; gap: 1px; margin-bottom: 20px; }
+    .side-nav-item { font-size: 11px; color: var(--ink3); text-decoration: none; letter-spacing: .03em; padding: 5px 0 5px 14px; border-left: 2px solid transparent; transition: color .18s, border-color .18s; line-height: 1.4; }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+    .side-nav-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+    .side-nav-part { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); padding: 8px 0 4px 14px; }
+
+    /* MAIN */
+    .main-content { padding: 0; background: var(--paper); }
+    .section { padding: 64px 0 56px; border-top: 1px solid var(--rule); }
+    .section:first-child { border-top: none; padding-top: 72px; }
+    .label { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: var(--ink3); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
+    .label::after { content: ''; width: 36px; height: 1px; background: var(--rule); }
+    .prose { font-size: 14px; color: var(--ink2); line-height: 2.05; max-width: 600px; }
+    .prose + .prose { margin-top: 1.2em; }
+    .prose code { font-family: var(--mono); font-size: 12px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+
+    /* CALLOUTS */
+    .callout { border-left: 3px solid var(--terra); padding: 18px 22px; background: var(--terra-bg); margin: 24px 0; max-width: 640px; }
+    .callout p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout p + p { margin-top: 8px; }
+    .callout strong { color: var(--terra); font-weight: 500; }
+    .callout-teal { border-left: 3px solid var(--teal); padding: 18px 22px; background: var(--teal-bg); margin: 24px 0; max-width: 640px; }
+    .callout-teal p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-teal p + p { margin-top: 8px; }
+    .callout-teal strong { color: var(--teal); font-weight: 500; }
+    .callout-amber { border-left: 3px solid var(--amber); padding: 18px 22px; background: var(--amber-bg); margin: 24px 0; max-width: 640px; }
+    .callout-amber p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-amber p + p { margin-top: 8px; }
+    .callout-amber strong { color: var(--amber); font-weight: 500; }
+
+    /* CODE BLOCKS */
+    .code-block { background: var(--dark); border: 1px solid #2e2820; padding: 20px 24px; margin: 20px 0; max-width: 640px; overflow-x: auto; position: relative; }
+    .code-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #2e2820; }
+    .code-block pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #c8c0b4; white-space: pre; overflow-x: auto; }
+    .code-block pre .cmd  { color: #9fe1cb; }
+    .code-block pre .cmt  { color: #4a4438; font-style: italic; }
+    .code-block pre .out  { color: #8a8078; }
+    .code-block pre .warn { color: #e8a87c; }
+    .copy-btn { position: absolute; top: 12px; right: 12px; background: #2e2820; border: 1px solid #3e3830; color: #6a6460; font-family: var(--mono); font-size: 10px; letter-spacing: .08em; padding: 4px 10px; cursor: pointer; transition: color .15s, border-color .15s; }
+    .copy-btn:hover { color: #9fe1cb; border-color: #9fe1cb; }
+    .copy-btn.copied { color: var(--teal-dim); border-color: var(--teal-dim); }
+
+    /* STEPS */
+    .steps { display: flex; flex-direction: column; gap: 0; max-width: 640px; margin: 24px 0; }
+    .step { display: grid; grid-template-columns: 48px 1fr; gap: 0 20px; padding: 28px 0; border-top: 1px solid var(--rule); align-items: start; }
+    .step:first-child { border-top: none; padding-top: 0; }
+    .step-num { font-size: 11px; color: var(--ink3); letter-spacing: .1em; padding-top: 4px; font-weight: 300; }
+    .step-title { font-family: var(--serif); font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 10px; line-height: 1.35; }
+    .step-desc { font-size: 13px; color: var(--ink2); line-height: 1.95; margin-bottom: 14px; max-width: 520px; }
+    .step-desc code { font-family: var(--mono); font-size: 11px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+    .step-notice { font-size: 12px; color: var(--terra); font-style: italic; line-height: 1.7; margin-top: 10px; display: flex; gap: 8px; align-items: flex-start; max-width: 520px; }
+    .step-notice::before { content: '→'; flex-shrink: 0; color: var(--terra-dim); }
+    .step-notice code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); font-style: normal; }
+
+    /* DOMAIN HEADER */
+    .domain-header { background: var(--dark); border-left: 4px solid var(--amber); padding: 20px 28px; margin-bottom: 28px; max-width: 640px; }
+    .domain-label { font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: #6a6460; margin-bottom: 6px; }
+    .domain-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: #f0e8e0; line-height: 1.3; margin-bottom: 6px; }
+    .domain-intent { font-size: 13px; color: #8a8078; font-style: italic; line-height: 1.7; }
+
+    /* CHECKPOINT */
+    .checkpoint-block { background: var(--dark); border: 1px solid var(--teal); max-width: 640px; margin: 28px 0; }
+    .checkpoint-header { background: var(--teal); padding: 10px 20px; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+    .checkpoint-header span { font-size: 11px; color: rgba(255,255,255,0.7); font-style: italic; letter-spacing: 0; text-transform: none; }
+    .checkpoint-body { padding: 20px 24px; position: relative; }
+    .checkpoint-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #9fe1cb; white-space: pre-wrap; word-break: break-all; }
+    .checkpoint-note { font-size: 12px; color: #8a8078; font-style: italic; margin-top: 14px; line-height: 1.7; padding-top: 12px; border-top: 1px solid #2e2820; }
+
+    /* EXPECTED OUTPUT */
+    .expected-block { background: #141210; border: 1px solid #2e2820; border-left: 3px solid var(--teal); max-width: 640px; margin: 12px 0; }
+    .expected-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--teal-dim); padding: 8px 16px; border-bottom: 1px solid #2e2820; }
+    .expected-body { padding: 14px 16px; }
+    .expected-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #8a8078; white-space: pre-wrap; }
+
+    /* WRONG BLOCK */
+    .wrong-block { background: #140e0e; border: 1px solid #2e2820; border-left: 3px solid var(--terra); max-width: 640px; margin: 12px 0; }
+    .wrong-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--terra-dim); padding: 8px 16px; border-bottom: 1px solid #2e1818; }
+    .wrong-body { padding: 14px 16px; font-size: 13px; color: var(--ink2); line-height: 1.85; }
+    .wrong-body code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); background: rgba(123,75,51,0.1); padding: 1px 5px; }
+    .wrong-body p + p { margin-top: 8px; }
+
+    /* RULE BLOCK — config discipline rules */
+    .rule-block { border: 1px solid #2e2820; border-left: 4px solid var(--amber); background: var(--dark); max-width: 640px; margin: 20px 0; padding: 20px 24px; }
+    .rule-num { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--amber); margin-bottom: 6px; }
+    .rule-title { font-family: var(--serif); font-size: 18px; font-weight: 500; color: #f0e8e0; margin-bottom: 12px; }
+    .rule-body { font-size: 13px; color: #8a8078; line-height: 1.9; max-width: 520px; }
+    .rule-body code { font-family: var(--mono); font-size: 11px; color: #9fe1cb; }
+
+    /* QUICKREF */
+    .quickref-block { background: var(--dark); border: 1px solid #2e2820; max-width: 640px; margin: 20px 0; overflow: hidden; }
+    .quickref-header { background: #2e2820; padding: 10px 20px; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .quickref-row { display: grid; grid-template-columns: 90px 1fr; border-bottom: 1px solid #2e2820; }
+    .quickref-row:last-child { border-bottom: none; }
+    .quickref-k { font-size: 11px; color: var(--amber); padding: 12px 16px; border-right: 1px solid #2e2820; display: flex; align-items: center; letter-spacing: .04em; font-weight: 500; }
+    .quickref-v { font-family: var(--mono); font-size: 12px; color: #9fe1cb; padding: 12px 16px; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+
+    /* CREDS TABLE */
+    .creds-table { border: 1px solid var(--rule); width: 100%; max-width: 560px; margin: 20px 0; border-collapse: collapse; }
+    .creds-table thead th { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); background: var(--paper-mid); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--rule); font-weight: 400; }
+    .creds-table tbody td { font-size: 12px; color: var(--ink2); padding: 11px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.6; }
+    .creds-table tbody tr:last-child td { border-bottom: none; }
+    .creds-table .name-col { font-family: var(--serif); font-style: italic; color: var(--ink); font-size: 14px; }
+    .creds-table .mono-col { font-family: var(--mono); color: var(--teal); font-size: 12px; }
+    .creds-table .pass-col { font-family: var(--mono); color: var(--amber); font-size: 12px; }
+
+    /* FOOTER */
+    .footer-wrap { background: var(--dark2); margin: 64px -52px 0; padding: 24px 52px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-top: 1px solid #2e2820; }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-badge { font-size: 10px; color: var(--teal-dim); letter-spacing: .08em; }
+    .footer-link { font-size: 11px; color: #6a6460; text-decoration: none; }
+
+    @media (max-width: 1024px) {
+      nav, .hero { padding-left: 32px; padding-right: 32px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 32px; }
+      .sidebar { display: none; }
+      .footer-wrap { margin: 64px -32px 0; padding: 24px 32px; }
+    }
+    @media (max-width: 640px) {
+      nav, .hero { padding-left: 20px; padding-right: 20px; }
+      .page-body { padding: 0 20px; }
+      .footer-wrap { margin: 64px -20px 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="https://master.hpc.now" class="logo">master<em>.hpc.now</em></a>
+      <div class="nav-right">
+        <span class="nav-tag">Lab Runbook</span>
+        <span class="nav-mod">Linux Fluency · Scripting · Time · Configuration Discipline</span>
+      </div>
+    </nav>
+  </div>
+  <div class="hero">
+    <p class="hero-eyebrow">Linux Fluency · Lab Runbook 4 · HPC Operations · Associate Stream</p>
+    <h1 class="hero-title">Scripting, Time,<br><em>and Configuration Discipline</em></h1>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><span class="hero-meta-k">Labs</span><span class="hero-meta-v">3 sections · 15 / 17 through 17 / 17</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Host</span><span class="hero-meta-v">mylab.hpc.now</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Learners</span><span class="hero-meta-v">chandra · sujith · yogaraj</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Password</span><span class="hero-meta-v">hpcnow2026</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Total lab time</span><span class="hero-meta-v">~50 minutes</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">URL</span><span class="hero-meta-v">master.hpc.now/linux-fluency-4</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- BODY -->
+<div class="page-body">
+
+  <aside class="sidebar">
+    <div class="side-label">Runbook</div>
+    <nav class="side-nav">
+      <a href="#how-to-use" class="side-nav-item">How to Use</a>
+      <a href="#credentials" class="side-nav-item">Credentials</a>
+      <div class="side-nav-divider"></div>
+      <div class="side-nav-part">Labs</div>
+      <a href="#section-15" class="side-nav-item">15 · Scripting</a>
+      <a href="#section-16" class="side-nav-item">16 · Time Sync</a>
+      <a href="#section-17" class="side-nav-item">17 · Config Discipline</a>
+      <div class="side-nav-divider"></div>
+      <a href="#six-rules" class="side-nav-item">Six Rules</a>
+      <a href="#checkpoints" class="side-nav-item">All Checkpoints</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- HOW TO USE -->
+    <section class="section" id="how-to-use">
+      <p class="label">how to use this runbook</p>
+      <p class="prose">This is the fourth and final lab runbook for Linux Fluency. It covers the three subjects from the Scripting, Time Synchronization, and Configuration Discipline session — completing the seventeen-lab series that runs across all five Linux Fluency sessions.</p>
+      <p class="prose" style="margin-top:1em">Every command is copy-pasteable. After each command, compare your output to the <strong>Expected Output</strong> block. Section 17 is the most important lab in the entire Linux Fluency series — work through it carefully. When you complete each section's checkpoint, type <code>done</code> in the session chat.</p>
+      <div class="callout-amber" style="margin-top:24px">
+        <p><strong>Final runbook — labs 15 through 17.</strong> This runbook continues from Runbook 3 which ended at Lab 14. The lab cards on screen read LAB 15 / 17, LAB 16 / 17, and LAB 17 / 17. Completing Lab 17 closes the Linux Fluency lab series entirely. Linux for HPC begins after this session.</p>
+      </div>
+    </section>
+
+    <!-- CREDENTIALS -->
+    <section class="section" id="credentials">
+      <p class="label">lab credentials</p>
+      <p class="prose">Same host and password as all previous runbooks.</p>
+      <table class="creds-table">
+        <thead><tr><th>Name</th><th>Username</th><th>Password</th><th>Host</th></tr></thead>
+        <tbody>
+          <tr><td class="name-col">Chandra</td><td class="mono-col">chandra</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Sujith</td><td class="mono-col">sujith</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Yogaraj</td><td class="mono-col">yogaraj</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SECTION 15 — SHELL SCRIPTING -->
+    <section class="section" id="section-15">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 15 / 17 · 20 minutes · Shell Scripting</p>
+        <h2 class="domain-title">set -euo pipefail, Loops, Functions, Git</h2>
+        <p class="domain-intent">Follows: the minimum serious script, variables, conditionals, loops, functions, exit codes, trap, SSH patterns, jq, Git discipline.</p>
+      </div>
+
+      <div class="callout-teal">
+        <p><strong>Working directory.</strong> Create a dedicated directory for this session's scripts before starting.</p>
+      </div>
+
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="cmd">mkdir -p ~/lab-scripts && cd ~/lab-scripts</span></pre>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Write a script with set -euo pipefail that loops over hostnames</p>
+            <p class="step-desc">Create the script below. It loops over three hostnames and runs <code>ssh hostname</code> on each. One hostname is intentionally unreachable — observe what happens with and without <code>ConnectTimeout</code> and <code>|| echo FAILED</code>.</p>
+            <div class="code-block">
+              <div class="code-label">Create the script</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat > ~/lab-scripts/check-hosts.sh << 'EOF'
+#!/bin/bash
+set -euo pipefail
+
+HOSTS="mylab.hpc.now doesnotexist.hpc.now mylab.hpc.now"
+
+for host in $HOSTS; do
+    echo "=== ${host} ==="
+    ssh -o ConnectTimeout=5 \
+        -o StrictHostKeyChecking=no \
+        "${host}" "hostname" 2>/dev/null \
+        || echo "FAILED: ${host}"
+done
+
+echo "Loop complete"
+EOF
+chmod +x ~/lab-scripts/check-hosts.sh</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">bash ~/lab-scripts/check-hosts.sh</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>=== mylab.hpc.now ===
+mylab
+=== doesnotexist.hpc.now ===
+FAILED: doesnotexist.hpc.now
+=== mylab.hpc.now ===
+mylab
+Loop complete
+
+ConnectTimeout=5 prevents the loop hanging on the dead host.
+|| echo FAILED keeps the loop running despite set -e being active.</pre></div>
+            </div>
+            <p class="step-notice">Remove <code>|| echo FAILED</code> and re-run. The script exits at the unreachable host and never reaches the third. This is what <code>set -e</code> does — and why the <code>||</code> is necessary when failure is expected and must be handled rather than propagated.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Add a function that checks whether a host responds</p>
+            <div class="code-block">
+              <div class="code-label">Append the function to the script</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat > ~/lab-scripts/check-hosts-v2.sh << 'EOF'
+#!/bin/bash
+set -euo pipefail
+
+HOSTS="mylab.hpc.now doesnotexist.hpc.now mylab.hpc.now"
+
+check_host() {
+    local host="$1"
+    if ssh -o ConnectTimeout=5 \
+           -o StrictHostKeyChecking=no \
+           "${host}" "hostname" >/dev/null 2>&1; then
+        echo "OK: ${host}"
+        return 0
+    else
+        echo "FAIL: ${host}" >&2
+        return 1
+    fi
+}
+
+for host in $HOSTS; do
+    check_host "${host}" || true
+done
+
+echo "Check complete"
+EOF
+chmod +x ~/lab-scripts/check-hosts-v2.sh
+bash ~/lab-scripts/check-hosts-v2.sh</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>OK: mylab.hpc.now
+FAIL: doesnotexist.hpc.now
+OK: mylab.hpc.now
+Check complete
+
+OK lines go to stdout. FAIL lines go to stderr.
+Both appear in the terminal but can be separated in pipelines.</pre></div>
+            </div>
+            <p class="step-notice">Note <code>local host="$1"</code> inside the function. Without <code>local</code>, the variable <code>host</code> would be global — a name clash with the loop variable above it would produce silent, confusing bugs.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Add a trap EXIT handler</p>
+            <p class="step-desc">Add a trap that prints a completion message regardless of how the script exits — including on failure.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat > ~/lab-scripts/check-hosts-v3.sh << 'EOF'
+#!/bin/bash
+set -euo pipefail
+
+HOSTS="mylab.hpc.now doesnotexist.hpc.now mylab.hpc.now"
+
+cleanup() {
+    echo "--- Script exiting at $(date '+%H:%M:%S') ---" >&2
+}
+trap cleanup EXIT
+
+check_host() {
+    local host="$1"
+    if ssh -o ConnectTimeout=5 \
+           -o StrictHostKeyChecking=no \
+           "${host}" "hostname" >/dev/null 2>&1; then
+        echo "OK: ${host}"
+        return 0
+    else
+        echo "FAIL: ${host}" >&2
+        return 1
+    fi
+}
+
+for host in $HOSTS; do
+    check_host "${host}" || true
+done
+
+echo "Check complete"
+EOF
+chmod +x ~/lab-scripts/check-hosts-v3.sh
+bash ~/lab-scripts/check-hosts-v3.sh</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>OK: mylab.hpc.now
+FAIL: doesnotexist.hpc.now
+OK: mylab.hpc.now
+Check complete
+--- Script exiting at HH:MM:SS ---
+
+The cleanup handler fires on normal exit.
+It also fires if the script is killed or fails mid-run.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Pipe a response through jq to extract a single field</p>
+            <p class="step-desc">Use <code>curl</code> and <code>jq</code> to extract a field from a public JSON API. The example uses a simple public endpoint that requires no authentication.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">curl -s https://httpbin.org/json | jq '.slideshow.title'</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>"Sample Slide Show"</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Filter a list — select matching elements</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">curl -s https://httpbin.org/json | jq '.slideshow.slides[] | .title'</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Raw output for use in a pipeline</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">curl -s https://httpbin.org/json | jq -r '.slideshow.author'</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — -r flag</div>
+              <div class="expected-body"><pre>Yours Truly
+
+Without -r: "Yours Truly" — quoted JSON string.
+With -r: Yours Truly — raw string, pipeable to other commands.</pre></div>
+            </div>
+            <div class="wrong-block">
+              <div class="wrong-label">If jq is not installed</div>
+              <div class="wrong-body"><p>Install it: <code>sudo dnf install -y jq</code>. If httpbin.org is unreachable, use any local JSON file: <code>echo '{"key":"value"}' | jq '.key'</code></p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Initialise a Git repository and commit the script</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cd ~/lab-scripts
+git init
+git config user.email "$(whoami)@mylab.hpc.now"
+git config user.name "$(whoami)"</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">git add check-hosts-v3.sh
+git commit -m "add host check script with function, trap, and ConnectTimeout
+
+Loops over a list of hosts, checks SSH connectivity via a function,
+uses trap EXIT for cleanup logging. ConnectTimeout=5 prevents the
+loop hanging on unreachable hosts."</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>[main (root-commit) abc1234] add host check script with function, trap...
+ 1 file changed, 30 insertions(+)</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">git log --oneline</span></pre>
+            </div>
+            <p class="step-notice">The commit message has a subject line and a body — subject says what, body says why and how. <code>git log --oneline</code> shows only the subject line. The body is visible in <code>git show</code>. Six months from now, the body is what tells the next operator why the script is written this way.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Add .gitignore — exclude swap files and secrets</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat > ~/lab-scripts/.gitignore << 'EOF'
+*.swp
+*~
+*.secret
+*.key
+*.pem
+.env
+EOF</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">touch test.secret test.swp
+git status</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — git status</div>
+              <div class="expected-body"><pre>On branch main
+Untracked files:
+  (use "git add &lt;file&gt;..." to include in what will be committed)
+        .gitignore
+
+nothing added to commit but untracked files present
+
+test.secret and test.swp do not appear — gitignore is working.
+Only .gitignore itself is untracked and ready to commit.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">git add .gitignore
+git commit -m "add gitignore excluding swap files, keys, and secrets"
+rm test.secret test.swp</span></pre>
+            </div>
+            <p class="step-notice">A repository without <code>.gitignore</code> will accumulate editor swap files, temporary artefacts, and eventually something sensitive. Add it from the first commit — retrofitting it to an existing repository is tedious and does not remove what is already in history.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 15 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>bash -n ~/lab-scripts/check-hosts-v3.sh && git -C ~/lab-scripts log --oneline && echo "Section 15 complete"</pre>
+          <div class="checkpoint-note">Expected: no output from <code>bash -n</code> (syntax valid) · at least two commit lines from <code>git log</code> · <code>Section 15 complete</code>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 16 — TIME SYNCHRONIZATION -->
+    <section class="section" id="section-16">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 16 / 17 · 10 minutes · Time Synchronization</p>
+        <h2 class="domain-title">chrony, chronyc, and Scheduled Work</h2>
+        <p class="domain-intent">Follows: why clock sync matters, the chrony service, chronyc sources and tracking output, cron and systemd timers at awareness level.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Read chronyc sources — identify the best source and its Reach</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">chronyc sources</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — read every column</div>
+              <div class="expected-body"><pre>MS Name/IP address         Stratum Poll Reach LastRx Last sample
+===============================================================================
+^* time.example.com              2   6   377    42   -123us[ -145us] +/-  3ms
+^+ time2.example.com             2   6   377    38   +201us[ +180us] +/-  5ms
+^? time3.example.com             0  10     0   10y     +0ns[   +0ns] +/-    0s
+
+^* = current best source (there must be exactly one)
+377 in Reach = all 8 recent polls succeeded (octal all-ones)
+^? with Reach 0 = unreachable — this source is not contributing</pre></div>
+            </div>
+            <p class="step-desc">Find the line with <code>^*</code>. Note its <code>Reach</code> value and its <code>Last sample</code> offset. If no <code>^*</code> line exists, chrony is not synchronized — investigate with <code>systemctl status chronyd</code>.</p>
+            <p class="step-notice">Reach 377 means healthy. Any value below 377 means some recent polls failed. Reach 0 on every source means the host has no working time reference — a serious operational problem.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Read chronyc tracking — record System time offset and Stratum</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">chronyc tracking</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — the key fields</div>
+              <div class="expected-body"><pre>Reference ID    : C0A80A01 (time.example.com)
+Stratum         : 3
+System time     : 0.000023514 seconds slow of NTP time
+Last offset     : -0.000012ms
+Leap status     : Normal
+
+Stratum 3 = three hops from a GPS-disciplined clock — normal.
+Stratum 16 = not synchronized — this is a problem.
+Leap status Normal = correct. Anything else needs investigation.
+System time offset in microseconds = the host is well synchronized.</pre></div>
+            </div>
+            <p class="step-notice">Record the <code>System time</code> offset value. On a well-synchronized host this will be in the range of microseconds to a few milliseconds. An offset of seconds or minutes means the clock is drifting badly.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Check the chrony service — confirm active and enabled</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">systemctl status chronyd
+systemctl is-active chronyd
+systemctl is-enabled chronyd</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>active
+enabled
+
+Both must be true. active = running now. enabled = will start at boot.
+A host where chronyd is active but not enabled will lose time sync
+after the next reboot.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">List scheduled timers and decode three entries</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">systemctl list-timers --no-pager</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — read each column</div>
+              <div class="expected-body"><pre>NEXT                        LEFT    LAST                  PASSED UNIT
+Thu 2026-04-25 03:00:00 UTC 13h     Thu 2026-04-24 03:00  11h    logrotate.timer
+Thu 2026-04-25 00:00:00 UTC 10h     Wed 2026-04-23 00:00  1day   fstrim.timer
+Thu 2026-04-25 10:14:01 UTC 1min    Thu 2026-04-25 09:14  59min  systemd-tmpfiles-clean.timer
+
+NEXT = when will this timer next fire
+LAST/PASSED = when did it last fire and how long ago
+UNIT = the timer — and the .service it activates has the same base name</pre></div>
+            </div>
+            <p class="step-desc">Pick three timers from the output. For each one, answer: when does it next run? What service does it trigger? How often does it run based on NEXT and LAST?</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Locate and decode a crontab entry</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ls /etc/cron.d/</span>
+<span class="cmd">cat /etc/cron.d/* 2>/dev/null | grep -v '^#' | grep -v '^$' | head -10</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — a crontab line</div>
+              <div class="expected-body"><pre>30 2 * * *  root  /usr/local/sbin/some-cleanup-script.sh
+
+Decode left to right:
+30  = minute 30
+2   = hour 2 (2:30 AM)
+*   = any day of month
+*   = any month
+*   = any day of week
+root = run as root
+/usr/local/sbin/... = the command</pre></div>
+            </div>
+            <p class="step-desc">If <code>/etc/cron.d/</code> is empty, check <code>crontab -l</code> for your user's own crontab. Decode whichever entry you find — minute, hour, day-of-month, month, day-of-week, user (if present), command.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 16 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>chronyc tracking | grep 'Leap status' && systemctl is-active chronyd && echo "Section 16 complete"</pre>
+          <div class="checkpoint-note">Expected: <code>Leap status     : Normal</code> · <code>active</code> · <code>Section 16 complete</code>. Leap status must be Normal and chronyd must be running.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 17 — CONFIGURATION DISCIPLINE -->
+    <section class="section" id="section-17">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 17 / 17 · 20 minutes · Configuration Discipline</p>
+        <h2 class="domain-title">All Six Rules — Applied to a Real Config File</h2>
+        <p class="domain-intent">Follows: the six rules (backup, validate, diff, version-control, stage, rollback), YAML, INI, and env file formats.</p>
+      </div>
+
+      <div class="callout-amber">
+        <p><strong>This is the most important lab in the Linux Fluency series.</strong> Every subsequent module — A1 through A12 — assumes these six habits are already formed. Work through each exercise deliberately. The goal is not to complete the steps. The goal is to internalise the sequence so it runs automatically.</p>
+      </div>
+
+      <p class="prose" style="margin-top:28px">The working file for this lab is <code>/etc/chrony.conf</code>. You will make a real, valid change to it — raise the <code>makestep</code> threshold — applying all six rules in sequence.</p>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Rule 1</span>
+          <div>
+            <p class="step-title">Back up before editing — with a date-stamped filename</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo cp /etc/chrony.conf \
+  /etc/chrony.conf.bak-$(date +%Y%m%d-%H%M%S)</span>
+<span class="cmd">ls -la /etc/chrony.conf* </span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>-rw-r--r-- 1 root root  xxx Apr 25 10:00 /etc/chrony.conf
+-rw-r--r-- 1 root root  xxx Apr 25 10:15 /etc/chrony.conf.bak-20260425-101512
+
+The backup sits next to the live file with a precise timestamp.
+It is findable by anyone running ls in /etc/.</pre></div>
+            </div>
+            <p class="step-notice">The date-stamped suffix survives multiple edits in the same day. A suffix of <code>.bak</code> without a timestamp is overwritten on the second edit. Record the exact backup filename — you will use it in Rule 3 and Rule 6.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Rule 2</span>
+          <div>
+            <p class="step-title">Validate syntax — first confirm the current config is clean, then test a bad one</p>
+            <div class="code-block">
+              <div class="code-label">Confirm the current config validates</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo chronyd -Q 2>&1 | head -5
+echo "Exit code: $?"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>2026-04-25T10:15:12Z chronyd version 4.x starting (+CMDMON +NTP ...)
+2026-04-25T10:15:12Z Loaded 2 sources from file /etc/chrony.conf
+Exit code: 0
+
+Exit code 0 = config is valid. The validator reads the file without
+starting the daemon. Safe to run without affecting the running service.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:16px">
+              <div class="code-label">Demonstrate what a syntax error looks like — on a copy</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo cp /etc/chrony.conf /tmp/chrony-bad.conf
+echo "this is not valid chrony syntax" | sudo tee -a /tmp/chrony-bad.conf
+sudo chronyd -Q -f /tmp/chrony-bad.conf 2>&1 | tail -3
+echo "Exit code: $?"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Error: unknown directive 'this'
+Exit code: 1
+
+Non-zero exit code = bad config. If you had restarted chronyd with
+this file, the service would have failed to start.</pre></div>
+            </div>
+            <p class="step-notice">The validator shows exactly what is wrong and where. This is the difference between finding the mistake before the restart and finding it after production is down.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Edit</span>
+          <div>
+            <p class="step-title">Make the change — raise the makestep threshold</p>
+            <p class="step-desc">The current <code>makestep</code> line allows step corrections only in the first 3 clock updates. Raise the threshold to 60 seconds and allow it in the first 5 updates — useful for nodes that boot with badly drifted clocks.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep makestep /etc/chrony.conf</span>         <span class="cmt"># see the current value first</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo sed -i 's/^makestep.*/makestep 60 5/' /etc/chrony.conf
+grep makestep /etc/chrony.conf</span>         <span class="cmt"># confirm the change</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>makestep 60 5
+
+The line has changed. Now validate before touching the service.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Rule 2</span>
+          <div>
+            <p class="step-title">Validate the edited config before restarting anything</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo chronyd -Q 2>&1 | tail -3
+echo "Exit code: $?"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>... Loaded 2 sources from file /etc/chrony.conf
+Exit code: 0
+
+Valid. Safe to proceed. If the exit code were non-zero here,
+the service must not be restarted until the error is fixed.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Rule 3</span>
+          <div>
+            <p class="step-title">Diff to confirm exactly what changed — read every line</p>
+            <p class="step-desc">Replace <code>TIMESTAMP</code> with the actual timestamp from your backup filename.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">diff -u /etc/chrony.conf.bak-TIMESTAMP /etc/chrony.conf</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>--- /etc/chrony.conf.bak-20260425-101512  2026-04-25 10:15:12
++++ /etc/chrony.conf                      2026-04-25 10:18:34
+@@ -5,7 +5,7 @@
+ pool 2.rhel.pool.ntp.org iburst
+ driftfile /var/lib/chrony/drift
+ rtcsync
+-makestep 1.0 3
++makestep 60 5
+ leapsectz right/UTC
+ logdir /var/log/chrony
+
+Lines prefixed with - are what was removed.
+Lines prefixed with + are what was added.
+Only one line changed. This is what was intended.</pre></div>
+            </div>
+            <p class="step-notice">If the diff shows more than the one expected line changed — stop. Find out why before proceeding. A diff that shows unexpected changes is a signal that the edit did something unintended. The time to catch it is now, before the restart.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Rule 4</span>
+          <div>
+            <p class="step-title">Commit the change to the Git repository</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cd ~/lab-scripts
+cp /etc/chrony.conf chrony.conf
+git add chrony.conf
+git commit -m "raise makestep threshold to 60s, allow in first 5 updates
+
+Previous setting (makestep 1.0 3) caused nodes with drifted hardware
+clocks to reject small corrections on boot, leaving them out of sync
+until the fourth NTP poll. Raised to 60s threshold, 5 update window
+to allow step corrections on nodes that boot with significant drift."</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">git log --oneline</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>def5678 raise makestep threshold to 60s, allow in first 5 updates
+abc1234 add gitignore excluding swap files, keys, and secrets
+789abcd add host check script with function, trap, and ConnectTimeout</pre></div>
+            </div>
+            <p class="step-notice">In six months, when someone reads <code>git log</code> and asks why <code>makestep</code> is set to 60, the commit message body answers the question. "fix config" would not answer it. The body takes thirty seconds to write and saves an investigation.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Rule 5</span>
+          <div>
+            <p class="step-title">Stage before fleet-wide deployment — the written plan</p>
+            <p class="step-desc">This is a written exercise. In a real cluster, you would apply this change to one node first. Write the staging plan below as a one-paragraph handover note.</p>
+            <div class="code-block">
+              <div class="code-label">Write the staging plan to a file</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat > ~/lab-scripts/staging-plan.txt << 'EOF'
+Staging plan — chrony.conf makestep change
+
+1. Apply to cn01 only: scp chrony.conf cn01:/etc/chrony.conf
+2. Validate on cn01: ssh cn01 "chronyd -Q"
+3. Restart on cn01: ssh cn01 "systemctl restart chronyd"
+4. Verify on cn01: ssh cn01 "chronyc tracking | grep 'Leap status'"
+5. Watch for 5 minutes — confirm Leap status remains Normal
+   and System time offset does not grow.
+6. If step 5 passes, roll out to cn02-cn05 (five nodes).
+7. Verify all five. Wait 10 minutes.
+8. Roll out to remaining compute nodes.
+9. Document completion in the change ticket.
+
+Rollback at any stage: restore from backup and restart chronyd.
+EOF
+cat ~/lab-scripts/staging-plan.txt</span></pre>
+            </div>
+            <p class="step-notice">The staging plan exists before the change goes wider. If something goes wrong on cn01, the cluster keeps running because no other node was touched. This is the discipline that makes fleet-wide changes safe.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Rule 6</span>
+          <div>
+            <p class="step-title">Know your rollback — execute it from memory</p>
+            <p class="step-desc">State the rollback procedure. Then execute it — restore the original config and verify the service is healthy. Replace <code>TIMESTAMP</code> with your actual backup timestamp.</p>
+            <div class="callout-amber">
+              <p><strong>Before running the rollback:</strong> write down the two commands from memory. Close the runbook if needed. The rollback must be executable under time pressure without reference material.</p>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Execute the rollback</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo cp /etc/chrony.conf.bak-TIMESTAMP /etc/chrony.conf
+sudo systemctl restart chronyd</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep makestep /etc/chrony.conf</span>        <span class="cmt"># confirm original value is restored</span>
+<span class="cmd">systemctl is-active chronyd</span>           <span class="cmt"># confirm service is running</span>
+<span class="cmd">chronyc tracking | grep 'Leap status'</span> <span class="cmt"># confirm Normal</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>makestep 1.0 3      ← original value restored
+active
+Leap status     : Normal</pre></div>
+            </div>
+            <p class="step-notice">Two commands. Executed in under ten seconds. This is what rollback looks like when it is prepared in advance. When production is down and every second matters, this is the difference between a two-minute recovery and a twenty-minute one.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 17 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>ls /etc/chrony.conf.bak-* && git -C ~/lab-scripts log --oneline -3 && echo "Section 17 complete"</pre>
+          <div class="checkpoint-note">
+            Expected: at least one backup file listed · three commit lines from git log · <code>Section 17 complete</code>.<br><br>
+            <strong>LAB 17 / 17 complete. Linux Fluency is complete. Linux for HPC begins.</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIX RULES REFERENCE -->
+    <section class="section" id="six-rules">
+      <p class="label">the six rules — permanent reference</p>
+      <p class="prose">Every config file edit. Every service. Every time. Without exception.</p>
+
+      <div class="rule-block" style="margin-top:28px">
+        <p class="rule-num">Rule 1</p>
+        <p class="rule-title">Back up before editing</p>
+        <p class="rule-body">Every edit begins here. Date-stamped. Next to the file. <code>cp file file.bak-$(date +%Y%m%d-%H%M%S)</code></p>
+      </div>
+
+      <div class="rule-block">
+        <p class="rule-num">Rule 2</p>
+        <p class="rule-title">Validate syntax before restarting</p>
+        <p class="rule-body">Use the service's own validator. Zero exit code = valid. Restart only after validation passes. <code>sshd -t</code> · <code>nginx -t</code> · <code>visudo -c</code> · <code>chronyd -Q</code> · <code>systemctl daemon-reload</code></p>
+      </div>
+
+      <div class="rule-block">
+        <p class="rule-num">Rule 3</p>
+        <p class="rule-title">Diff to understand what changed</p>
+        <p class="rule-body">Read every line before restarting. The intended change should be there. Nothing else should be. <code>diff -u file.bak-TIMESTAMP file</code></p>
+      </div>
+
+      <div class="rule-block">
+        <p class="rule-num">Rule 4</p>
+        <p class="rule-title">Version-control where possible</p>
+        <p class="rule-body">Commit with a message that says what changed and why. The commit message is the audit trail. <code>git add · git commit -m 'what and why' · git push</code></p>
+      </div>
+
+      <div class="rule-block">
+        <p class="rule-num">Rule 5</p>
+        <p class="rule-title">Stage before fleet-wide deployment</p>
+        <p class="rule-body">One host first. Verify. Then a handful. Then the fleet. The discipline applies even when the change feels trivial.</p>
+      </div>
+
+      <div class="rule-block">
+        <p class="rule-num">Rule 6</p>
+        <p class="rule-title">Know your rollback</p>
+        <p class="rule-body">Know it before making the change — not during the incident. Two commands: restore the backup, restart the service. <code>cp file.bak-TIMESTAMP file && systemctl restart svc</code></p>
+      </div>
+    </section>
+
+    <!-- ALL CHECKPOINTS -->
+    <section class="section" id="checkpoints">
+      <p class="label">all checkpoints — quick reference</p>
+
+      <div class="quickref-block" style="margin-top:24px">
+        <div class="quickref-header">Checkpoint Commands · Sections 15–17</div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 15</span>
+          <span class="quickref-v">bash -n ~/lab-scripts/check-hosts-v3.sh && git -C ~/lab-scripts log --oneline && echo "Section 15 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 16</span>
+          <span class="quickref-v">chronyc tracking | grep 'Leap status' && systemctl is-active chronyd && echo "Section 16 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 17</span>
+          <span class="quickref-v">ls /etc/chrony.conf.bak-* && git -C ~/lab-scripts log --oneline -3 && echo "Section 17 complete"</span>
+        </div>
+      </div>
+
+      <div class="callout-teal" style="margin-top:32px">
+        <p><strong>Linux Fluency complete — all 17 labs across all five sessions.</strong></p>
+        <p>Runbook 1 (1–7): filesystem, permissions, vim, text processing, pipelines. Runbook 2 (8–11): processes, services, logs, packages. Runbook 3 (12–14): users, SSH, networking. Runbook 4 (15–17): scripting, time synchronization, configuration discipline.</p>
+        <p>The six rules from Section 17 are assumed by every module that follows. They will not be reminded. Linux for HPC begins next.</p>
+      </div>
+
+      <div class="footer-wrap">
+        <span class="footer-copy">Linux Fluency · Lab Runbook 4 · HPC Operations · Associate Stream · master.hpc.now/linux-fluency-4</span>
+        <span class="footer-badge">Labs 15–17 · Series complete · 17 / 17</span>
+        <a href="https://master.hpc.now" class="footer-link">master.hpc.now</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(i => i.classList.remove('is-active'));
+        const a = document.querySelector('.side-nav-item[href="#' + entry.target.id + '"]');
+        if (a) a.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  function copyCode(btn) {
+    const block = btn.closest('.code-block, .checkpoint-body');
+    const pre = block.querySelector('pre');
+    const text = pre.innerText || pre.textContent;
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      btn.textContent = 'copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
