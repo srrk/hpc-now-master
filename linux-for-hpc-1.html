@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linux for HPC · Day 1 · Lab Runbook · master.hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #181817;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --teal:       #0f6e56;
+      --teal-dim:   #1d9e75;
+      --teal-bg:    #e8f5f0;
+      --amber:      #c47f1a;
+      --amber-bg:   #fdf4e3;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--paper); color: var(--ink); font-family: var(--mono); font-size: 15px; line-height: 1.75; }
+
+    /* COVER */
+    .cover { background: var(--cover); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E"); }
+    .nav-wrap { border-bottom: 1px solid var(--rule-cover); }
+    nav { max-width: 1200px; margin: 0 auto; padding: 20px 52px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: var(--mono); font-size: 12px; color: #f0e8e0; text-decoration: none; letter-spacing: .06em; }
+    .logo em { color: var(--terra-dim); font-style: normal; }
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-tag { font-size: 10px; color: #6a6460; letter-spacing: .12em; text-transform: uppercase; }
+    .nav-mod { font-size: 11px; color: var(--terra-dim); letter-spacing: .06em; }
+    .hero { max-width: 1200px; margin: 0 auto; padding: 72px 52px 80px; }
+    .hero-eyebrow { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #6a6460; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+    .hero-eyebrow::before { content: ''; width: 20px; height: 1px; background: #6a6460; }
+    .hero-title { font-family: var(--serif); font-size: clamp(32px, 4.5vw, 56px); font-weight: 400; color: #f0e8e0; line-height: 1.15; letter-spacing: -.02em; margin-bottom: 28px; }
+    .hero-title em { font-style: italic; color: var(--terra-dim); }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid #2e2820; width: fit-content; margin-top: 36px; }
+    .hero-meta-item { padding: 12px 24px; border-right: 1px solid #2e2820; display: flex; flex-direction: column; gap: 3px; }
+    .hero-meta-item:last-child { border-right: none; }
+    .hero-meta-k { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .hero-meta-v { font-size: 12px; color: #c8c0b4; }
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* LAYOUT */
+    .page-body { max-width: 1200px; margin: 0 auto; padding: 0 52px; display: grid; grid-template-columns: 200px 1fr; gap: 0 72px; align-items: start; }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 40px; padding: 64px 0 40px; align-self: start; }
+    .side-label { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink3); margin-bottom: 12px; padding-left: 14px; }
+    .side-nav { display: flex; flex-direction: column; gap: 1px; margin-bottom: 20px; }
+    .side-nav-item { font-size: 11px; color: var(--ink3); text-decoration: none; letter-spacing: .03em; padding: 5px 0 5px 14px; border-left: 2px solid transparent; transition: color .18s, border-color .18s; line-height: 1.4; }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+    .side-nav-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+    .side-nav-part { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); padding: 8px 0 4px 14px; }
+
+    /* MAIN */
+    .main-content { padding: 0; background: var(--paper); }
+    .section { padding: 64px 0 56px; border-top: 1px solid var(--rule); }
+    .section:first-child { border-top: none; padding-top: 72px; }
+    .label { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: var(--ink3); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
+    .label::after { content: ''; width: 36px; height: 1px; background: var(--rule); }
+    .prose { font-size: 14px; color: var(--ink2); line-height: 2.05; max-width: 600px; }
+    .prose + .prose { margin-top: 1.2em; }
+    .prose code { font-family: var(--mono); font-size: 12px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+
+    /* CALLOUTS */
+    .callout { border-left: 3px solid var(--terra); padding: 18px 22px; background: var(--terra-bg); margin: 24px 0; max-width: 640px; }
+    .callout p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout p + p { margin-top: 8px; }
+    .callout strong { color: var(--terra); font-weight: 500; }
+    .callout-teal { border-left: 3px solid var(--teal); padding: 18px 22px; background: var(--teal-bg); margin: 24px 0; max-width: 640px; }
+    .callout-teal p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-teal p + p { margin-top: 8px; }
+    .callout-teal strong { color: var(--teal); font-weight: 500; }
+    .callout-amber { border-left: 3px solid var(--amber); padding: 18px 22px; background: var(--amber-bg); margin: 24px 0; max-width: 640px; }
+    .callout-amber p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-amber p + p { margin-top: 8px; }
+    .callout-amber strong { color: var(--amber); font-weight: 500; }
+
+    /* CODE BLOCKS */
+    .code-block { background: var(--dark); border: 1px solid #2e2820; padding: 20px 24px; margin: 20px 0; max-width: 640px; overflow-x: auto; position: relative; }
+    .code-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #2e2820; }
+    .code-block pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #c8c0b4; white-space: pre; overflow-x: auto; }
+    .code-block pre .cmd  { color: #9fe1cb; }
+    .code-block pre .cmt  { color: #4a4438; font-style: italic; }
+    .code-block pre .out  { color: #8a8078; }
+    .code-block pre .hi   { color: var(--amber); }
+    .copy-btn { position: absolute; top: 12px; right: 12px; background: #2e2820; border: 1px solid #3e3830; color: #6a6460; font-family: var(--mono); font-size: 10px; letter-spacing: .08em; padding: 4px 10px; cursor: pointer; transition: color .15s, border-color .15s; }
+    .copy-btn:hover { color: #9fe1cb; border-color: #9fe1cb; }
+    .copy-btn.copied { color: var(--teal-dim); border-color: var(--teal-dim); }
+
+    /* STEPS */
+    .steps { display: flex; flex-direction: column; gap: 0; max-width: 640px; margin: 24px 0; }
+    .step { display: grid; grid-template-columns: 48px 1fr; gap: 0 20px; padding: 28px 0; border-top: 1px solid var(--rule); align-items: start; }
+    .step:first-child { border-top: none; padding-top: 0; }
+    .step-num { font-size: 11px; color: var(--ink3); letter-spacing: .1em; padding-top: 4px; font-weight: 300; }
+    .step-title { font-family: var(--serif); font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 10px; line-height: 1.35; }
+    .step-desc { font-size: 13px; color: var(--ink2); line-height: 1.95; margin-bottom: 14px; max-width: 520px; }
+    .step-desc code { font-family: var(--mono); font-size: 11px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+    .step-notice { font-size: 12px; color: var(--terra); font-style: italic; line-height: 1.7; margin-top: 10px; display: flex; gap: 8px; align-items: flex-start; max-width: 520px; }
+    .step-notice::before { content: '→'; flex-shrink: 0; color: var(--terra-dim); }
+    .step-notice code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); font-style: normal; }
+
+    /* DOMAIN HEADER */
+    .domain-header { background: var(--dark); border-left: 4px solid var(--amber); padding: 20px 28px; margin-bottom: 28px; max-width: 640px; }
+    .domain-label { font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: #6a6460; margin-bottom: 6px; }
+    .domain-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: #f0e8e0; line-height: 1.3; margin-bottom: 6px; }
+    .domain-intent { font-size: 13px; color: #8a8078; font-style: italic; line-height: 1.7; }
+
+    /* CHECKPOINT */
+    .checkpoint-block { background: var(--dark); border: 1px solid var(--teal); max-width: 640px; margin: 28px 0; }
+    .checkpoint-header { background: var(--teal); padding: 10px 20px; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+    .checkpoint-header span { font-size: 11px; color: rgba(255,255,255,0.7); font-style: italic; letter-spacing: 0; text-transform: none; }
+    .checkpoint-body { padding: 20px 24px; position: relative; }
+    .checkpoint-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #9fe1cb; white-space: pre-wrap; word-break: break-all; }
+    .checkpoint-note { font-size: 12px; color: #8a8078; font-style: italic; margin-top: 14px; line-height: 1.7; padding-top: 12px; border-top: 1px solid #2e2820; }
+
+    /* EXPECTED OUTPUT */
+    .expected-block { background: #141210; border: 1px solid #2e2820; border-left: 3px solid var(--teal); max-width: 640px; margin: 12px 0; }
+    .expected-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--teal-dim); padding: 8px 16px; border-bottom: 1px solid #2e2820; }
+    .expected-body { padding: 14px 16px; }
+    .expected-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #8a8078; white-space: pre-wrap; }
+
+    /* WRONG BLOCK */
+    .wrong-block { background: #140e0e; border: 1px solid #2e2820; border-left: 3px solid var(--terra); max-width: 640px; margin: 12px 0; }
+    .wrong-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--terra-dim); padding: 8px 16px; border-bottom: 1px solid #2e1818; }
+    .wrong-body { padding: 14px 16px; font-size: 13px; color: var(--ink2); line-height: 1.85; }
+    .wrong-body code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); background: rgba(123,75,51,0.1); padding: 1px 5px; }
+    .wrong-body p + p { margin-top: 8px; }
+
+    /* CREDS TABLE */
+    .creds-table { border: 1px solid var(--rule); width: 100%; max-width: 560px; margin: 20px 0; border-collapse: collapse; }
+    .creds-table thead th { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); background: var(--paper-mid); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--rule); font-weight: 400; }
+    .creds-table tbody td { font-size: 12px; color: var(--ink2); padding: 11px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.6; }
+    .creds-table tbody tr:last-child td { border-bottom: none; }
+    .creds-table .name-col { font-family: var(--serif); font-style: italic; color: var(--ink); font-size: 14px; }
+    .creds-table .mono-col { font-family: var(--mono); color: var(--teal); font-size: 12px; }
+    .creds-table .pass-col { font-family: var(--mono); color: var(--amber); font-size: 12px; }
+
+    /* QUICKREF */
+    .quickref-block { background: var(--dark); border: 1px solid #2e2820; max-width: 640px; margin: 20px 0; overflow: hidden; }
+    .quickref-header { background: #2e2820; padding: 10px 20px; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .quickref-row { display: grid; grid-template-columns: 100px 1fr; border-bottom: 1px solid #2e2820; }
+    .quickref-row:last-child { border-bottom: none; }
+    .quickref-k { font-size: 11px; color: var(--amber); padding: 12px 16px; border-right: 1px solid #2e2820; display: flex; align-items: center; letter-spacing: .04em; font-weight: 500; }
+    .quickref-v { font-family: var(--mono); font-size: 12px; color: #9fe1cb; padding: 12px 16px; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+
+    /* FORWARD MAP TABLE */
+    .fwd-table { border: 1px solid var(--rule); width: 100%; max-width: 640px; margin: 20px 0; border-collapse: collapse; }
+    .fwd-table thead th { font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink3); background: var(--paper-mid); padding: 10px 16px; text-align: left; border-bottom: 2px solid var(--amber); font-weight: 400; }
+    .fwd-table tbody td { font-size: 12px; color: var(--ink2); padding: 12px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.7; }
+    .fwd-table tbody tr:last-child td { border-bottom: none; }
+    .fwd-table .concept-col { font-family: var(--mono); color: var(--amber); font-size: 11px; white-space: nowrap; }
+    .fwd-table .dest-col { font-family: var(--serif); font-style: italic; color: var(--ink); font-size: 13px; }
+    .fwd-table .task-col { font-size: 11px; color: var(--ink3); }
+
+    /* FOOTER */
+    .footer-wrap { background: var(--dark2); margin: 64px -52px 0; padding: 24px 52px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-top: 1px solid #2e2820; }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-badge { font-size: 10px; color: var(--teal-dim); letter-spacing: .08em; }
+    .footer-link { font-size: 11px; color: #6a6460; text-decoration: none; }
+
+    @media (max-width: 1024px) {
+      nav, .hero { padding-left: 32px; padding-right: 32px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 32px; }
+      .sidebar { display: none; }
+      .footer-wrap { margin: 64px -32px 0; padding: 24px 32px; }
+    }
+    @media (max-width: 640px) {
+      nav, .hero { padding-left: 20px; padding-right: 20px; }
+      .page-body { padding: 0 20px; }
+      .footer-wrap { margin: 64px -20px 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="https://master.hpc.now" class="logo">master<em>.hpc.now</em></a>
+      <div class="nav-right">
+        <span class="nav-tag">Lab Runbook</span>
+        <span class="nav-mod">Linux for HPC · Day 1 · Processes · Signals · Limits</span>
+      </div>
+    </nav>
+  </div>
+  <div class="hero">
+    <p class="hero-eyebrow">Linux for HPC · Day 1 · Lab Runbook · HPC Operations · Associate Stream</p>
+    <h1 class="hero-title">Processes in Depth,<br><em>Signals, and Resource Limits</em></h1>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><span class="hero-meta-k">Labs</span><span class="hero-meta-v">3 sections · 18 / 20 through 20 / 20</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Host</span><span class="hero-meta-v">mylab.hpc.now</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Learners</span><span class="hero-meta-v">chandra · sujith · yogaraj</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Password</span><span class="hero-meta-v">hpcnow2026</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Total lab time</span><span class="hero-meta-v">~45 minutes</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">URL</span><span class="hero-meta-v">master.hpc.now/lfh-runbook</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- BODY -->
+<div class="page-body">
+
+  <aside class="sidebar">
+    <div class="side-label">Runbook</div>
+    <nav class="side-nav">
+      <a href="#how-to-use" class="side-nav-item">How to Use</a>
+      <a href="#credentials" class="side-nav-item">Credentials</a>
+      <div class="side-nav-divider"></div>
+      <div class="side-nav-part">Labs</div>
+      <a href="#section-18" class="side-nav-item">18 · Processes &amp; /proc</a>
+      <a href="#section-19" class="side-nav-item">19 · Signals &amp; lsof</a>
+      <a href="#section-20" class="side-nav-item">20 · Resource Limits</a>
+      <div class="side-nav-divider"></div>
+      <a href="#forward-map" class="side-nav-item">Forward Map</a>
+      <a href="#checkpoints" class="side-nav-item">All Checkpoints</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- HOW TO USE -->
+    <section class="section" id="how-to-use">
+      <p class="label">how to use this runbook</p>
+      <p class="prose">This is the first lab runbook for Linux for HPC. The Linux Fluency series ended at Lab 17. This runbook opens at Lab 18 and runs through Lab 20 — the three labs for Day 1 of Linux for HPC.</p>
+      <p class="prose" style="margin-top:1em">The depth shifts here. Linux Fluency was operational fluency — enough to operate a Linux host. Linux for HPC is reading fluency at the depth HPC operations requires. The exercises involve reading <code>/proc</code> entries, observing process state at thread level, sending signals, and interrogating resource limits across both enforcement layers. Every command is copy-pasteable. Compare output to Expected Output blocks — the interpretation matters as much as the command.</p>
+      <div class="callout-amber" style="margin-top:24px">
+        <p><strong>D-state is the theme of Section 18.</strong> Most exercises involve reading live process state from <code>/proc</code>. On a healthy lab instance you will not encounter genuine D-state processes — the exercises build the reading habits so the technique is available when D-state does appear in production.</p>
+      </div>
+    </section>
+
+    <!-- CREDENTIALS -->
+    <section class="section" id="credentials">
+      <p class="label">lab credentials</p>
+      <p class="prose">Same host and password as all Linux Fluency runbooks.</p>
+      <table class="creds-table">
+        <thead><tr><th>Name</th><th>Username</th><th>Password</th><th>Host</th></tr></thead>
+        <tbody>
+          <tr><td class="name-col">Chandra</td><td class="mono-col">chandra</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Sujith</td><td class="mono-col">sujith</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Yogaraj</td><td class="mono-col">yogaraj</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SECTION 18 — PROCESSES AND /proc -->
+    <section class="section" id="section-18">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 18 / 20 · 20 minutes · Processes and /proc</p>
+        <h2 class="domain-title">Process States, Threads, Memory, File Descriptors</h2>
+        <p class="domain-intent">Follows: fork/exec/wait, process trees, R/S/D/T/Z states, ps -eLf threads, sessions, /proc as virtual filesystem, system-level entries, per-process entries including status, cmdline, environ, fd/, and stack.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Read the process table — identify states R, S, and Z</p>
+            <p class="step-desc">Run <code>ps aux</code> and read the STAT column. Find at least one process in S state (most processes) and at least one in R state (active). Check for Z state — any zombies on the system.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ps aux | awk '{print $8}' | sort | uniq -c | sort -rn</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Count of each STAT value. S and Ss dominate — sleeping daemons.
+R or R+ may appear briefly. Z should be zero on a healthy system.
+
+If Z appears: ps aux | awk '$8 == "Z" {print $1, $2, $11}'
+to identify which process is the zombie and who its parent is.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Find D-state processes — should be empty on a healthy system</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ps aux | awk '$8 == "D" {print $2, $11}'
+echo "D-state count: $(ps aux | awk '$8 == "D"' | wc -l)"</span></pre>
+            </div>
+            <p class="step-notice">On a healthy lab instance D-state count should be zero. If it is non-zero, read <code>/proc/&lt;pid&gt;/wchan</code> for each — this tells you what kernel subsystem the process is blocked in.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Read threads with ps -eLf — count threads in sshd</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">SSHD_PID=$(pgrep -o sshd)
+echo "sshd main PID: $SSHD_PID"
+ps -eLf | grep "^\S* \+${SSHD_PID} " | head -10</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — read each column</div>
+              <div class="expected-body"><pre>UID     PID   PPID   LWP  C NLWP STIME CMD
+root   1234      1  1234  0    1 Jan05 sshd: /usr/sbin/sshd -D
+
+PID = process ID (shared by all threads of the same process)
+LWP = Light Weight Process ID (thread ID — unique per thread)
+NLWP = total thread count for this process
+Multiple rows with the same PID = multiple threads</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Check thread state individually via /proc/pid/task/</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ls /proc/${SSHD_PID}/task/</span>          <span class="cmt"># one directory per thread</span>
+<span class="cmd">for tid in /proc/${SSHD_PID}/task/*/; do
+    state=$(awk '/^State:/{print $2, $3}' ${tid}/status 2>/dev/null)
+    tid_num=$(basename $tid)
+    echo "thread $tid_num: $state"
+done</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>thread 1234: S (sleeping)
+
+Each thread has its own kernel state. A multithreaded process
+can have some threads R, some S, some D simultaneously.
+A thread stuck in D while others continue = confusing daemon symptoms.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Read /proc/meminfo — record MemFree vs MemAvailable</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat /proc/meminfo | grep -E 'MemTotal|MemFree|MemAvailable|^Cached:|Buffers|HugePages'</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — read the distinction</div>
+              <div class="expected-body"><pre>MemTotal:       xxx kB   ← physical RAM installed
+MemFree:        xxx kB   ← genuinely unused — usually small, that is correct
+MemAvailable:   xxx kB   ← available for new allocations — includes reclaimable cache
+Buffers:        xxx kB   ← filesystem metadata cache
+Cached:         xxx kB   ← page cache — recently read/written file data
+HugePages_Total: xxx     ← for MPI/IB memory registration
+
+MemFree being small is NOT a problem.
+MemAvailable being near zero IS a problem.
+These are different questions about different things.</pre></div>
+            </div>
+            <p class="step-desc">Record the values. Calculate: <code>MemFree + Cached ≈ MemAvailable</code> (approximately). The Cached field is what A5/T37 reads before and after <code>dd</code> with and without <code>oflag=direct</code> to demonstrate the page cache effect.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Read /proc/&lt;pid&gt;/status for a running daemon</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">SSHD_PID=$(pgrep -o sshd)
+cat /proc/${SSHD_PID}/status</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — read each field</div>
+              <div class="expected-body"><pre>Name:   sshd
+State:  S (sleeping)       ← current kernel state
+Pid:    1234
+PPid:   1                  ← parent is systemd (PID 1)
+TracerPid: 0               ← non-zero means strace/gdb is attached
+Uid:    0 0 0 0            ← real, effective, saved, filesystem UIDs
+VmPeak: xxxx kB            ← peak virtual memory size
+VmRSS:   xxx kB            ← physical memory actually mapped NOW
+Threads: 1                 ← thread count
+voluntary_ctxt_switches: xxx    ← switched because it was done
+nonvoluntary_ctxt_switches: xx  ← switched because it was preempted</pre></div>
+            </div>
+            <p class="step-notice"><code>VmRSS</code> is the process's current physical memory footprint — what it has actually touched and had mapped to physical RAM. This is exactly what <code>sacct</code>'s <code>MaxRSS</code> field captures for a completed Slurm job. A job that requests 16 GB but has a <code>VmRSS</code> peak of 4 GB is over-allocated.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Read /proc/&lt;pid&gt;/cmdline — make it readable</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">SSHD_PID=$(pgrep -o sshd)
+tr '\0' ' ' < /proc/${SSHD_PID}/cmdline; echo</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>sshd: /usr/sbin/sshd -D [listener] 0 of 10-100 startups
+
+The cmdline entry is null-byte-delimited — tr converts to readable.
+This is the exact binary and arguments at exec time.
+Useful when ps truncates long command lines.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Compare to what systemctl cat shows</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">systemctl cat sshd | grep ExecStart</span></pre>
+            </div>
+            <p class="step-notice">The cmdline from <code>/proc</code> and the <code>ExecStart</code> from the unit file should correspond. If they differ, the daemon was started differently than its unit file specifies — useful when debugging why a daemon has unexpected behaviour.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">List /proc/&lt;pid&gt;/fd/ — count open file descriptors</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">SSHD_PID=$(pgrep -o sshd)
+sudo ls -la /proc/${SSHD_PID}/fd/</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>lrwxrwxrwx 1 root root 64 ... 0 -> /dev/null
+lrwxrwxrwx 1 root root 64 ... 1 -> /dev/null
+lrwxrwxrwx 1 root root 64 ... 2 -> /dev/null
+lrwxrwxrwx 1 root root 64 ... 3 -> socket:[xxxxx]
+lrwxrwxrwx 1 root root 64 ... 4 -> socket:[xxxxx]
+
+FD 0/1/2 = stdin/stdout/stderr — /dev/null means the daemon
+has no terminal attached, correct for a systemd-managed service.
+FD 3+ = open files, sockets, pipes.
+
+Count total open FDs:
+sudo ls /proc/${SSHD_PID}/fd/ | wc -l</pre></div>
+            </div>
+            <p class="step-notice">When a filesystem unmount fails with "device or resource busy," something has an open FD into it. <code>lsof +D /mountpoint</code> finds the holder. The FD entry in <code>/proc</code> is what lsof is reading.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 7</span>
+          <div>
+            <p class="step-title">Read /proc/&lt;pid&gt;/wchan for two different processes</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">for name in sshd chronyd; do
+    pid=$(pgrep -o $name 2>/dev/null) || continue
+    wchan=$(cat /proc/${pid}/wchan 2>/dev/null)
+    echo "${name} (PID ${pid}): ${wchan}"
+done</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>sshd (PID 1234): poll_schedule_timeout
+chronyd (PID 876): hrtimer_nanosleep
+
+Each name is the kernel function the process is currently blocked in.
+poll_schedule_timeout = waiting for network I/O (correct for sshd)
+hrtimer_nanosleep = sleeping on a timer (correct for chronyd)
+
+For a D-state process this would show the blocked subsystem:
+nfs_wait_bit_killable = blocked on NFS
+ldlm_lock_enqueue = blocked on Lustre</pre></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 18 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>awk '/^VmRSS/{print}' /proc/$(pgrep -o sshd)/status && echo "Section 18 complete"</pre>
+          <div class="checkpoint-note">Expected: <code>VmRSS: &lt;number&gt; kB</code> followed by <code>Section 18 complete</code>. This is the physical memory footprint of sshd — the same field <code>sacct</code> reports as <code>MaxRSS</code> for completed Slurm jobs.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 19 — SIGNALS AND lsof -->
+    <section class="section" id="section-19">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 19 / 20 · 15 minutes · Signals and lsof</p>
+        <h2 class="domain-title">Signal Delivery, Handlers, and File Descriptor Inspection</h2>
+        <p class="domain-intent">Follows: the signal table, SIGTERM/SIGKILL/SIGHUP/SIGCHLD operational use, why SIGKILL does not reach D-state processes, signal handlers at awareness level, lsof for open file inspection and unmount diagnosis.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Send SIGTERM to a test process — confirm clean exit. Send SIGHUP to sshd.</p>
+            <div class="code-block">
+              <div class="code-label">SIGTERM — polite termination</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sleep 300 &
+TESTPID=$!
+echo "Test PID: $TESTPID"
+ps -f -p $TESTPID</span>                         <span class="cmt"># confirm it is running</span>
+<span class="cmd">kill $TESTPID</span>                               <span class="cmt"># send SIGTERM (default)</span>
+<span class="cmd">sleep 1
+ps -f -p $TESTPID 2>/dev/null || echo "Process exited cleanly"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Process exited cleanly
+
+sleep has no SIGTERM handler — it takes the default action (terminate).
+A well-written daemon would complete in-flight work before exiting.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:16px">
+              <div class="code-label">SIGHUP — reload without restart</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">SSHD_PID=$(pgrep -o sshd)
+sudo kill -HUP $SSHD_PID</span>                   <span class="cmt"># send SIGHUP</span>
+<span class="cmd">journalctl -u sshd -n 5 --no-pager</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — sshd journal</div>
+              <div class="expected-body"><pre>... sshd[1234]: Received SIGHUP; restarting.
+... sshd[1234]: Server listening on 0.0.0.0 port 22.
+
+Your session remains active. SIGHUP reloaded the listener config
+without terminating existing authenticated connections.
+This is the daemon reload convention — not universal, verify per daemon.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Send SIGUSR1 to chronyd — observe how it interprets it</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo kill -USR1 $(pgrep chronyd)
+journalctl -u chronyd -n 10 --no-pager</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>chronyd logs its interpretation of SIGUSR1 — typically a statistics
+dump or a log level change depending on the version.
+
+SIGUSR1 and SIGUSR2 have no fixed meaning — each daemon assigns its own.
+This is why you verify what a daemon does with a signal before sending it.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">SIGSTOP and SIGCONT — pause and resume a process, observe T state</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sleep 300 &
+TESTPID=$!
+kill -STOP $TESTPID</span>                         <span class="cmt"># send SIGSTOP — cannot be caught</span>
+<span class="cmd">ps aux | awk -v p=$TESTPID '$2==p {print $8, $11}'</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>T sleep
+
+State T = stopped. The process is not running and will not run
+until it receives SIGCONT. SIGKILL does not resume it — only SIGCONT.
+Unexpected T state on a compute node can contribute to CG hangs.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">kill -CONT $TESTPID</span>                          <span class="cmt"># resume</span>
+<span class="cmd">ps aux | awk -v p=$TESTPID '$2==p {print $8, $11}'</span>
+<span class="cmd">kill $TESTPID</span>                               <span class="cmt"># clean up</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output after SIGCONT</div>
+              <div class="expected-body"><pre>S sleep
+
+Back to S (sleeping). The process resumed and returned to waiting.
+SIGSTOP/SIGCONT are uncatchable — unlike SIGTSTP (Ctrl-Z) which can be caught.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Use lsof -p to inspect a daemon's open files</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo lsof -p $(pgrep -o sshd) 2>/dev/null | head -20</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — read each column</div>
+              <div class="expected-body"><pre>COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+sshd    1234 root  cwd    DIR    8,1     4096    2 /
+sshd    1234 root  txt    REG    8,1   902736 xxx /usr/sbin/sshd
+sshd    1234 root  mem    REG    8,1  xxxxxx  xxx /lib64/libcrypto.so.x
+sshd    1234 root    0r   CHR    1,3      0t0   5 /dev/null
+sshd    1234 root    1w   CHR    1,3      0t0   5 /dev/null
+sshd    1234 root    3u  IPv4 xxxxx      0t0  TCP *:ssh (LISTEN)
+
+FD column: cwd=working dir · txt=executable · mem=memory-mapped lib
+           0r/1w/2w=stdin/stdout/stderr · numbers=open file descriptors
+TYPE: REG=file · DIR=directory · CHR=character device · IPv4=socket</pre></div>
+            </div>
+            <p class="step-notice">The <code>mem</code> entries are shared libraries mapped into the process — this is how you identify which library versions a running process is actually using, which matters for diagnosing library version conflicts in A2.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Use lsof +D on a mounted filesystem</p>
+            <p class="step-desc">This exercise identifies which processes have open file descriptors into a filesystem — the technique used when a filesystem unmount fails with "device or resource busy."</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">df -h | grep -v tmpfs | head -5</span>           <span class="cmt"># pick a real mounted filesystem</span>
+<span class="cmd">MOUNTPOINT=$(df --output=target / | tail -1)</span>
+<span class="cmd">sudo lsof +D $MOUNTPOINT 2>/dev/null | head -15</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>COMMAND    PID   USER   FD   TYPE DEVICE SIZE/OFF  NODE NAME
+systemd      1   root  cwd    DIR    8,1     4096     2 /
+systemd      1   root  txt    REG    8,1  xxxxxxx  xxxx /usr/lib/systemd/systemd
+sshd      1234   root  cwd    DIR    8,1     4096     2 /
+...
+
+Every process with an open FD into this filesystem is listed.
+This is why unmounting / always fails — everything uses it.
+lsof +D /mnt/specific_mount would show only users of that mount.</pre></div>
+            </div>
+            <p class="step-notice">In A6, Lustre client unmount failures are diagnosed with exactly this command — <code>lsof +D /lus/&lt;mountpoint&gt;</code>. The holders must either close their FDs or be terminated before the unmount will succeed.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Read /proc/&lt;pid&gt;/stack — identify the kernel wait channel</p>
+            <p class="step-desc">This is the definitive D-state diagnostic tool. On a healthy system all processes will show sleep-related kernel functions. Read the top frame and identify the subsystem.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">for name in sshd chronyd; do
+    pid=$(pgrep -o $name 2>/dev/null) || continue
+    echo "=== $name (PID $pid) ==="
+    sudo cat /proc/${pid}/stack 2>/dev/null | head -5
+    echo
+done</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>=== sshd (PID 1234) ===
+[&lt;0&gt;] poll_schedule_timeout+0x4e/0x80
+[&lt;0&gt;] do_select+0x6b1/0x790
+...
+
+=== chronyd (PID 876) ===
+[&lt;0&gt;] hrtimer_nanosleep+0xec/0x1d0
+...
+
+Top frame identifies the kernel subsystem:
+poll_schedule_timeout → waiting for I/O events (sshd listening)
+hrtimer_nanosleep → sleeping on a timer (chronyd between polls)
+nfs_wait_bit_killable → blocked on NFS (D-state diagnostic)
+lustre_* or ldlm_* → blocked on Lustre (D-state diagnostic)</pre></div>
+            </div>
+            <p class="step-notice">In A4 T36, when a Slurm node is stuck in CG state, <code>sudo cat /proc/&lt;pid&gt;/stack</code> on the stuck process is step three of the recovery procedure — after identifying the process with <code>ps -eLf</code> and reading <code>wchan</code>.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 19 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>kill -0 $(pgrep -o sshd) && echo "sshd is running" && echo "Section 19 complete"</pre>
+          <div class="checkpoint-note"><code>kill -0</code> sends no signal — it only checks whether the process exists and is signalable. Exit code 0 means the process exists. This is how scripts check whether a daemon is alive without affecting it.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 20 — RESOURCE LIMITS -->
+    <section class="section" id="section-20">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 20 / 20 · 10 minutes · Resource Limits</p>
+        <h2 class="domain-title">Reading Limits and the Two-Layer Model</h2>
+        <p class="domain-intent">Follows: soft and hard limits, nofile/memlock/nproc/stack and their HPC rationale, /etc/security/limits.conf enforced via PAM for login sessions, systemd unit file limits for daemons, why both must be configured independently.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Read your login session's current limits</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ulimit -a</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — read the four that matter</div>
+              <div class="expected-body"><pre>open files                      (-n) 1024
+max locked memory           (kbytes, -l) 64
+max user processes              (-u) xxxx
+stack size              (kbytes, -s) 8192
+
+nofile (open files): default 1024 — too low for MPI at scale
+memlock (locked memory): 64 kB — too low for InfiniBand RDMA
+nproc: varies — too low if many parallel jobs
+stack: 8192 kB (8 MB) — too low for some Fortran codes</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Check hard limits — the ceiling without root</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ulimit -Hn</span>                          <span class="cmt"># nofile hard limit</span>
+<span class="cmd">ulimit -Hl</span>                          <span class="cmt"># memlock hard limit</span>
+<span class="cmd">ulimit -Hu</span>                          <span class="cmt"># nproc hard limit</span></pre>
+            </div>
+            <p class="step-notice">The soft limit is what is currently enforced. The hard limit is the ceiling a non-root user can raise the soft limit to. On this lab instance both may be low — a properly configured HPC cluster has these set to 65536/unlimited in <code>/etc/security/limits.conf</code>.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Read the actual limits enforced on a running daemon via /proc</p>
+            <p class="step-desc">This is the definitive way to check what limits a daemon is actually running under — regardless of what <code>limits.conf</code> says.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">SSHD_PID=$(pgrep -o sshd)
+cat /proc/${SSHD_PID}/limits</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Limit                     Soft Limit   Hard Limit   Units
+Max cpu time              unlimited    unlimited    seconds
+Max file size             unlimited    unlimited    bytes
+Max data size             unlimited    unlimited    bytes
+Max stack size            8388608      unlimited    bytes
+Max core file size        0            unlimited    bytes
+Max resident set          unlimited    unlimited    bytes
+Max processes             xxx          xxx          processes
+Max open files            1024         4096         files
+Max locked memory         65536        65536        bytes
+...
+
+Max open files = 1024 — this is what sshd can actually open.
+This comes from sshd's systemd unit file, not from limits.conf.
+limits.conf does NOT apply to systemd-managed services.</pre></div>
+            </div>
+            <div class="callout-amber" style="margin-top:16px">
+              <p><strong>The two-layer model in action.</strong> Your login session's <code>ulimit -n</code> shows one number. <code>/proc/$(pgrep -o sshd)/limits</code> may show a different number for sshd. They are independent. <code>limits.conf</code> applies to login sessions via PAM. Systemd unit file <code>LimitNOFILE=</code> applies to the daemon. Both must be configured separately.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Read /etc/security/limits.conf and limits.d/</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep -v '^#' /etc/security/limits.conf | grep -v '^$'</span>
+<span class="cmd">ls /etc/security/limits.d/ 2>/dev/null && \
+  grep -v '^#' /etc/security/limits.d/*.conf 2>/dev/null | grep -v '^$'</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — may be empty on a minimal instance</div>
+              <div class="expected-body"><pre>On a minimal cloud instance: no entries (all defaults apply).
+On a configured HPC system:
+*  soft  nofile   65536
+*  hard  nofile   65536
+*  soft  memlock  unlimited
+*  hard  memlock  unlimited
+
+The * domain applies to all users.
+@groupname targets a specific group.
+These limits apply to SSH login sessions — not to systemd services.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Check for systemd drop-in limits on sshd or chronyd</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">systemctl cat sshd | grep -i 'Limit'</span>
+<span class="cmd">ls /etc/systemd/system/sshd.service.d/ 2>/dev/null || echo "No drop-ins"</span>
+<span class="cmd">systemctl show sshd --property=LimitNOFILE</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>LimitNOFILE=infinity
+
+Or if not set in the unit file:
+LimitNOFILE=1024:4096   ← soft:hard from systemd defaults
+
+systemctl show --property=LimitNOFILE shows the effective limit
+that systemd applied when starting the service.
+Compare this to /proc/$(pgrep -o sshd)/limits Max open files.</pre></div>
+            </div>
+            <p class="step-notice">To raise the limit for a daemon, create a drop-in: <code>/etc/systemd/system/sshd.service.d/limits.conf</code> with <code>[Service]</code> and <code>LimitNOFILE=65536</code>. Then <code>systemctl daemon-reload && systemctl restart sshd</code>. This is separate from and does not affect <code>/etc/security/limits.conf</code>.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Explain why the daemon's limit may differ from your session's limit</p>
+            <p class="step-desc">Read the two values and write a one-sentence explanation of why they can differ.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">echo "Login session nofile: $(ulimit -n)"
+echo "sshd daemon nofile:   $(awk '/Max open files/{print $4}' \
+  /proc/$(pgrep -o sshd)/limits)"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Login session nofile: 1024
+sshd daemon nofile:   1024
+
+Or with a configured system:
+Login session nofile: 65536
+sshd daemon nofile:   65536
+
+The values may be the same or different depending on whether
+limits.conf and the systemd unit file have both been configured.
+A site that only configures limits.conf will find its daemons
+still running at default limits — the two layers are independent.</pre></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 20 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>cat /proc/$(pgrep -o sshd)/limits | grep 'Max open files' && echo "Section 20 complete"</pre>
+          <div class="checkpoint-note">
+            Expected: a line showing the actual Max open files limit enforced on sshd, followed by <code>Section 20 complete</code>. Compare the number to your session's <code>ulimit -n</code> — they may differ because limits.conf and systemd unit files are independent enforcement layers.<br><br>
+            <strong>LAB 20 / 20 complete. Linux for HPC Day 1 is complete.</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORWARD MAP -->
+    <section class="section" id="forward-map">
+      <p class="label">where this shows up — forward connections</p>
+      <p class="prose">The concepts from this session surface in specific tasks with specific commands. This is not abstract background.</p>
+
+      <table class="fwd-table" style="margin-top:24px">
+        <thead>
+          <tr><th>Concept</th><th>Module · Task</th><th>Specific technique</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="concept-col">D-state processes</td>
+            <td class="dest-col">A4 · T36 — CG state recovery</td>
+            <td class="task-col"><code>ps -eLf</code> to find the stuck process · <code>/proc/&lt;pid&gt;/stack</code> to identify the I/O block · resolve at the I/O layer · node returns to idle</td>
+          </tr>
+          <tr>
+            <td class="concept-col">D-state + lsof</td>
+            <td class="dest-col">A6 · Lustre client eviction</td>
+            <td class="task-col"><code>lsof +D /lus/mountpoint</code> to find FD holders · D-state processes waiting on Lustre I/O · unmount cannot succeed until holders release</td>
+          </tr>
+          <tr>
+            <td class="concept-col">Zombies</td>
+            <td class="dest-col">A4 · scheduler accounting</td>
+            <td class="task-col">Zombie accumulation delays accounting records · signals a job launcher not reaping children · <code>awk '/^PPid:/' /proc/&lt;pid&gt;/status</code> to find the parent</td>
+          </tr>
+          <tr>
+            <td class="concept-col">/proc/meminfo Cached</td>
+            <td class="dest-col">A5 · T37 — page cache effect</td>
+            <td class="task-col"><code>dd</code> without <code>oflag=direct</code> populates Cached field · <code>dd</code> with <code>oflag=direct</code> does not · read <code>/proc/meminfo</code> before and after each run</td>
+          </tr>
+          <tr>
+            <td class="concept-col">nofile + memlock</td>
+            <td class="dest-col">A7 · InfiniBand MPI</td>
+            <td class="task-col">FDs for <code>/dev/infiniband/uverbs*</code> · <code>ibv_reg_mr()</code> requires memlock · MPI communication setup fails when either limit is too low</td>
+          </tr>
+          <tr>
+            <td class="concept-col">/proc/&lt;pid&gt;/environ</td>
+            <td class="dest-col">A2 · T13 — environment verification</td>
+            <td class="task-col"><code>tr '\0' '\n' &lt; /proc/&lt;pid&gt;/environ | grep MODULEPATH</code> · verify PATH and LD_LIBRARY_PATH on compute node match login node expectations</td>
+          </tr>
+          <tr>
+            <td class="concept-col">SIGTERM / SIGHUP</td>
+            <td class="dest-col">A4 + A12 · daemon management + MUNGE rotation</td>
+            <td class="task-col">systemctl stop sequence · slurmctld SIGHUP for config reload · T75 MUNGE key rotation involves coordinated SIGHUP to munged across all nodes</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ALL CHECKPOINTS -->
+    <section class="section" id="checkpoints">
+      <p class="label">all checkpoints — quick reference</p>
+
+      <div class="quickref-block" style="margin-top:24px">
+        <div class="quickref-header">Checkpoint Commands · Sections 18–20</div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 18</span>
+          <span class="quickref-v">awk '/^VmRSS/{print}' /proc/$(pgrep -o sshd)/status && echo "Section 18 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 19</span>
+          <span class="quickref-v">kill -0 $(pgrep -o sshd) && echo "sshd is running" && echo "Section 19 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 20</span>
+          <span class="quickref-v">cat /proc/$(pgrep -o sshd)/limits | grep 'Max open files' && echo "Section 20 complete"</span>
+        </div>
+      </div>
+
+      <div class="callout-teal" style="margin-top:32px">
+        <p><strong>Linux for HPC Day 1 complete — Labs 18 through 20.</strong></p>
+        <p>The process model is now readable at the depth HPC demands: process lifecycle, all five states with D-state at full depth, thread-level observation with <code>ps -eLf</code>, <code>/proc</code> as the live kernel window, signal delivery and the SIGKILL/D-state relationship, and the two-layer resource limit model.</p>
+        <p>Day 2 builds the memory model on top of this foundation: virtual vs physical memory, the page cache honestly, NUMA, and the OOM killer.</p>
+      </div>
+
+      <div class="footer-wrap">
+        <span class="footer-copy">Linux for HPC · Day 1 · Lab Runbook · HPC Operations · Associate Stream · master.hpc.now/lfh-runbook</span>
+        <span class="footer-badge">Labs 18–20 · Processes · Signals · Resource Limits</span>
+        <a href="https://master.hpc.now" class="footer-link">master.hpc.now</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(i => i.classList.remove('is-active'));
+        const a = document.querySelector('.side-nav-item[href="#' + entry.target.id + '"]');
+        if (a) a.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  function copyCode(btn) {
+    const block = btn.closest('.code-block, .checkpoint-body');
+    const pre = block.querySelector('pre');
+    const text = pre.innerText || pre.textContent;
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      btn.textContent = 'copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
