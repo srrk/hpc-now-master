@@ -1,1435 +1,1226 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HPC Infrastructure Operations for Senior Engineers · hpc.now</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap"
-    rel="stylesheet" />
-  <style>
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      --cover: #181817;
-      --paper: #faf8f4;
-      --paper-mid: #f2ede5;
-      --ink: #110f0c;
-      --ink2: #46423d;
-      --ink3: #96918b;
-      --rule: #dedad3;
-      --rule-cover: #c8c0b4;
-      --terra: #7b4b33;
-      --terra-dim: #b8907a;
-      --terra-bg: #f0e8e2;
-      --dark: #1e1a16;
-      --dark2: #2e2820;
-      --serif: "Lora", Georgia, serif;
-      --mono: "IBM Plex Mono", "Courier New", monospace;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      background: var(--paper);
-      color: var(--ink);
-      font-family: var(--mono);
-      font-size: 16px;
-      line-height: 1.75;
-    }
-
-    /* ── COVER / HERO ── */
-    .cover {
-      background: var(--cover);
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ── NAV ── */
-    .nav-wrap {
-      padding: 0;
-      border-bottom: 1px solid var(--rule-cover);
-    }
-
-    nav {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 22px 52px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .logo {
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--ink);
-      text-decoration: none;
-      letter-spacing: .06em;
-    }
-
-    .logo em {
-      color: var(--terra);
-      font-style: normal;
-    }
-
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 28px;
-    }
-
-    .nav-link {
-      font-size: 11px;
-      color: var(--ink3);
-      text-decoration: none;
-      letter-spacing: .05em;
-      transition: color .18s;
-    }
-
-    .nav-link:hover {
-      color: var(--terra);
-    }
-
-    .nav-cta {
-      font-size: 11px;
-      letter-spacing: .08em;
-      color: var(--terra);
-      text-decoration: none;
-      border: 1px solid var(--terra-dim);
-      padding: 6px 14px;
-      transition: background .18s, color .18s;
-    }
-
-    .nav-cta:hover {
-      background: var(--terra);
-      color: var(--paper);
-    }
-
-    /* ── HERO ── */
-    .hero {
-      flex: 1;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 88px 52px 96px;
-      width: 100%;
-      display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 80px;
-      align-items: end;
-    }
-
-    .hero-left {}
-
-    .hero-label {
-      font-size: 10px;
-      letter-spacing: .26em;
-      text-transform: uppercase;
-      color: var(--ink3);
-      margin-bottom: 28px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .hero-label::before {
-      content: '';
-      width: 24px;
-      height: 1px;
-      background: var(--ink3);
-    }
-
-    .hero-title {
-      font-family: var(--serif);
-      font-size: clamp(36px, 5vw, 68px);
-      font-weight: 400;
-      line-height: 1.12;
-      color: var(--ink);
-      letter-spacing: -.02em;
-      margin-bottom: 36px;
-    }
-
-    .hero-title em {
-      font-style: italic;
-      color: var(--terra);
-    }
-
-    .hero-sub {
-      font-size: 15px;
-      color: var(--ink2);
-      line-height: 1.85;
-      max-width: 520px;
-    }
-
-    .hero-right {
-      padding-bottom: 8px;
-    }
-
-    .hero-facts {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      border: 1px solid var(--rule-cover);
-      background: rgba(255, 255, 255, 0.35);
-    }
-
-    .hero-fact {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--rule-cover);
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .hero-fact:last-child {
-      border-bottom: none;
-    }
-
-    .hero-fact-k {
-      font-size: 9px;
-      letter-spacing: .22em;
-      text-transform: uppercase;
-      color: var(--ink3);
-    }
-
-    .hero-fact-v {
-      font-size: 13px;
-      color: var(--ink);
-      line-height: 1.5;
-    }
-
-    .hero-cta {
-      display: block;
-      margin-top: 20px;
-      background: var(--terra);
-      color: var(--paper);
-      text-align: center;
-      padding: 14px 20px;
-      font-size: 11px;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      text-decoration: none;
-      transition: opacity .2s;
-    }
-
-    .hero-cta:hover {
-      opacity: .85;
-    }
-
-    /* ── ZONE EDGE ── */
-    .zone-edge {
-      height: 1px;
-      background: var(--rule-cover);
-    }
-
-    /* ── TWO COLUMN LAYOUT ── */
-    .page-body {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 52px;
-      display: grid;
-      grid-template-columns: 200px 1fr;
-      gap: 0 72px;
-      align-items: start;
-    }
-
-    /* ── STICKY SIDEBAR NAV ── */
-    .sidebar {
-      position: sticky;
-      top: 40px;
-      padding: 64px 0 40px;
-      align-self: start;
-    }
-
-    .side-nav {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .side-nav-item {
-      font-size: 11px;
-      color: var(--ink3);
-      text-decoration: none;
-      letter-spacing: .04em;
-      padding: 6px 0 6px 12px;
-      border-left: 2px solid transparent;
-      transition: color .18s, border-color .18s;
-      line-height: 1.4;
-    }
-
-    .side-nav-item:hover {
-      color: var(--ink2);
-      border-color: var(--rule);
-    }
-
-    .side-nav-item.active {
-      color: var(--terra);
-      border-color: var(--terra);
-    }
-
-    .side-nav-divider {
-      height: 1px;
-      background: var(--rule);
-      margin: 10px 0;
-    }
-
-    /* ── MAIN CONTENT ── */
-    .main-content {
-      padding: 0;
-      background: var(--paper);
-    }
-
-    /* ── SECTIONS ── */
-    .section {
-      padding: 72px 0 64px;
-      border-top: 1px solid var(--rule);
-    }
-
-    .section:first-child {
-      border-top: none;
-      padding-top: 80px;
-    }
-
-    .label {
-      font-size: 10px;
-      letter-spacing: .26em;
-      text-transform: uppercase;
-      color: var(--ink3);
-      margin-bottom: 32px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .label::after {
-      content: '';
-      width: 36px;
-      height: 1px;
-      background: var(--rule);
-    }
-
-    /* ── PROSE ── */
-    .prose {
-      font-size: 15px;
-      color: var(--ink2);
-      line-height: 2.05;
-      max-width: 580px;
-    }
-
-    .prose+.prose {
-      margin-top: 1.3em;
-    }
-
-    /* ── PROMISE ── */
-    .promise-hl {
-      font-family: var(--serif);
-      font-size: 22px;
-      font-style: italic;
-      font-weight: 400;
-      color: var(--ink);
-      line-height: 1.45;
-      margin-bottom: 24px;
-      max-width: 500px;
-    }
-
-    /* ── FOR SECTION ── */
-    .for-highlight {
-      border-left: 3px solid var(--terra);
-      padding: 20px 24px;
-      background: var(--terra-bg);
-      margin-top: 28px;
-      max-width: 560px;
-    }
-
-    .for-highlight p {
-      font-size: 13px;
-      color: var(--ink2);
-      line-height: 2;
-    }
-
-    /* ── ARC ── */
-    .arc-statement {
-      font-family: var(--serif);
-      font-size: 20px;
-      font-weight: 400;
-      color: var(--ink);
-      line-height: 1.6;
-      max-width: 500px;
-      margin-bottom: 36px;
-    }
-
-    .arc-flow {
-      display: flex;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      scrollbar-width: none;
-      gap: 0;
-      padding: 24px 0;
-      border-top: 1px solid var(--rule);
-      border-bottom: 1px solid var(--rule);
-    }
-
-    .arc-flow::-webkit-scrollbar {
-      display: none;
-    }
-
-    .arc-node {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      white-space: nowrap;
-    }
-
-    .arc-node-label {
-      font-size: 11px;
-      letter-spacing: .06em;
-      color: var(--ink2);
-      padding: 4px 0;
-    }
-
-    .arc-node-label strong {
-      color: var(--ink);
-      font-weight: 500;
-    }
-
-    .arc-node-num {
-      font-size: 9px;
-      color: var(--ink3);
-      margin-right: 5px;
-    }
-
-    .arc-arrow {
-      color: var(--rule);
-      padding: 0 14px;
-      font-size: 13px;
-    }
-
-    /* ── MODULES ── */
-    .modules-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .module {
-      padding: 32px 0;
-      border-top: 1px solid var(--rule);
-    }
-
-    .module:first-child {
-      border-top: none;
-      padding-top: 0;
-    }
-
-    .module-head {
-      display: grid;
-      grid-template-columns: 64px 1fr;
-      gap: 0 20px;
-      margin-bottom: 4px;
-      align-items: baseline;
-    }
-
-    .module-num {
-      font-size: 10px;
-      letter-spacing: .12em;
-      color: var(--ink3);
-      padding-top: 3px;
-      font-weight: 300;
-    }
-
-    .module-title {
-      font-family: var(--serif);
-      font-size: 18px;
-      font-weight: 500;
-      color: var(--ink);
-      line-height: 1.3;
-    }
-
-    .module-tagline {
-      font-family: var(--serif);
-      font-size: 13px;
-      font-style: italic;
-      color: var(--ink3);
-      margin-bottom: 14px;
-      padding-left: 84px;
-    }
-
-    .module-body {
-      font-size: 15px;
-      color: var(--ink2);
-      line-height: 2.05;
-      max-width: 580px;
-      margin-bottom: 14px;
-      padding-left: 84px;
-    }
-
-    .module-outcome {
-      font-size: 12px;
-      color: var(--terra);
-      font-style: italic;
-      line-height: 1.75;
-      padding-left: 84px;
-      padding-right: 0;
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-    }
-
-    .module-outcome::before {
-      content: '→';
-      flex-shrink: 0;
-      color: var(--terra-dim);
-      margin-top: 1px;
-    }
-
-    /* ── MODULE 8 SPECIAL ── */
-    .module-8 {
-      background: var(--dark);
-      padding: 40px 40px 36px;
-      margin: 32px -40px;
-    }
-
-    .module-8 .module-num {
-      color: #6a6460;
-    }
-
-    .module-8 .module-title {
-      color: #e8c9b8;
-    }
-
-    .module-8 .module-tagline {
-      color: #8a8078;
-      font-style: italic;
-    }
-
-    .module-8 .module-body {
-      color: #b0a89e;
-    }
-
-    .module-8 .module-outcome {
-      color: #c4956e;
-    }
-
-    .module-8 .module-outcome::before {
-      color: #5a4a3a;
-    }
-
-    .module-8 .module-head {
-      margin-bottom: 4px;
-    }
-
-    .incidents {
-      padding-left: 84px;
-      margin: 16px 0 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .incident {
-      font-size: 12px;
-      color: #8a8078;
-      padding: 10px 16px;
-      border-left: 2px solid #3a3028;
-      line-height: 1.7;
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .incident strong {
-      color: #c4956e;
-      font-weight: 400;
-    }
-
-    .module-8-note {
-      padding-left: 84px;
-      font-size: 12px;
-      color: #6a6460;
-      font-style: italic;
-      margin-top: 12px;
-      line-height: 1.7;
-    }
-
-    /* ── CAPSTONE ── */
-    .capstone-wrap {
-      border: 1px solid var(--rule);
-      overflow: hidden;
-    }
-
-    .capstone-header {
-      background: var(--paper-mid);
-      padding: 28px 32px;
-      border-bottom: 1px solid var(--rule);
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .capstone-tag {
-      font-size: 10px;
-      letter-spacing: .2em;
-      text-transform: uppercase;
-      color: var(--terra);
-    }
-
-    .capstone-flag {
-      font-size: 10px;
-      letter-spacing: .1em;
-      color: var(--ink3);
-      border: 1px solid var(--rule);
-      padding: 3px 10px;
-    }
-
-    .capstone-body {
-      padding: 32px;
-    }
-
-    .capstone-title {
-      font-family: var(--serif);
-      font-size: 20px;
-      font-weight: 500;
-      color: var(--ink);
-      line-height: 1.35;
-      margin-bottom: 20px;
-      max-width: 480px;
-    }
-
-    .deliverables {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      margin: 24px 0;
-    }
-
-    .deliverable {
-      font-size: 12px;
-      color: var(--ink2);
-      padding: 11px 0;
-      border-top: 1px solid var(--rule);
-      line-height: 1.65;
-      display: grid;
-      grid-template-columns: 16px 1fr;
-      gap: 12px;
-      align-items: start;
-    }
-
-    .deliverable::before {
-      content: '—';
-      color: var(--terra-dim);
-      font-size: 11px;
-      padding-top: 1px;
-    }
-
-    /* ── CERTIFICATE ── */
-    .cert-quote {
-      font-family: var(--serif);
-      font-size: 26px;
-      font-style: italic;
-      color: var(--ink);
-      line-height: 1.4;
-      margin-bottom: 24px;
-      max-width: 460px;
-    }
-
-    .cert-quote::before {
-      content: '\201C';
-      color: var(--terra-dim);
-    }
-
-    .cert-quote::after {
-      content: '\201D';
-      color: var(--terra-dim);
-    }
-
-    /* ── FORMAT FACTS ── */
-    .facts {
-      display: flex;
-      flex-direction: column;
-      border-top: 1px solid var(--rule);
-    }
-
-    .fact {
-      display: grid;
-      grid-template-columns: 100px 1fr;
-      gap: 24px;
-      padding: 16px 0;
-      border-bottom: 1px solid var(--rule);
-      font-size: 13px;
-      align-items: start;
-    }
-
-    .fact-k {
-      font-size: 10px;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--ink3);
-      padding-top: 2px;
-    }
-
-    .fact-v {
-      color: var(--ink2);
-      line-height: 1.8;
-    }
-
-    /* ── ABOUT ── */
-    .about-name {
-      font-family: var(--serif);
-      font-size: 22px;
-      font-weight: 500;
-      color: var(--ink);
-      margin-bottom: 4px;
-    }
-
-    .about-role {
-      font-size: 11px;
-      color: var(--ink3);
-      letter-spacing: .04em;
-      margin-bottom: 28px;
-    }
-
-    .about-arc {
-      display: flex;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      scrollbar-width: none;
-      align-items: center;
-      padding-top: 24px;
-      border-top: 1px solid var(--rule);
-      margin-top: 28px;
-    }
-
-    .about-arc::-webkit-scrollbar {
-      display: none;
-    }
-
-    .arc-stop {
-      font-size: 11px;
-      color: var(--ink3);
-      white-space: nowrap;
-    }
-
-    .arc-stop strong {
-      color: var(--ink2);
-      font-weight: 400;
-    }
-
-    .arc-sep {
-      color: var(--rule);
-      padding: 0 12px;
-      font-size: 11px;
-      flex-shrink: 0;
-    }
-
-    /* ── ENROLLMENT ── */
-    .enroll-band {
-      background: var(--dark);
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
-      margin: 72px -52px 0;
-      padding: 72px 52px 80px;
-    }
-
-    .enroll-inner {
-      max-width: 600px;
-    }
-
-    .enroll-label {
-      font-size: 10px;
-      letter-spacing: .26em;
-      text-transform: uppercase;
-      color: #6a6460;
-      margin-bottom: 28px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .enroll-label::after {
-      content: '';
-      width: 36px;
-      height: 1px;
-      background: #3a3028;
-    }
-
-    .enroll-title {
-      font-family: var(--serif);
-      font-size: clamp(22px, 3vw, 32px);
-      font-weight: 400;
-      color: #f0e8e0;
-      line-height: 1.35;
-      margin-bottom: 24px;
-    }
-
-    .enroll-prose {
-      font-size: 13px;
-      color: #8a8078;
-      line-height: 2.05;
-      margin-bottom: 1.3em;
-      max-width: 520px;
-    }
-
-    .enroll-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 32px;
-      background: var(--terra);
-      color: var(--paper);
-      padding: 14px 28px;
-      font-size: 12px;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      text-decoration: none;
-      transition: opacity .2s;
-    }
-
-    .enroll-cta:hover {
-      opacity: .85;
-    }
-
-    .enroll-cta::after {
-      content: "→";
-    }
-
-    /* ── FOOTER ── */
-    .footer-wrap {
-      background: var(--dark2);
-      margin: 0 -52px;
-      padding: 28px 52px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-      border-top: 1px solid #2e2820;
-    }
-
-    .footer-copy {
-      font-size: 11px;
-      color: #4a4438;
-      letter-spacing: .04em;
-    }
-
-    .footer-link {
-      font-size: 11px;
-      color: #6a6460;
-      text-decoration: none;
-      transition: color .18s;
-    }
-
-    .footer-link:hover {
-      color: var(--terra-dim);
-    }
-
-    /* ── ACTIVE NAV TRACKING ── */
-    .side-nav-item.is-active {
-      color: var(--terra);
-      border-color: var(--terra);
-    }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 1024px) {
-      .hero {
-        grid-template-columns: 1fr;
-        gap: 48px;
-        padding: 72px 44px 80px;
-      }
-
-      nav {
-        padding: 20px 44px;
-      }
-
-      .hero-right {
-        max-width: 440px;
-      }
-
-      .page-body {
-        grid-template-columns: 1fr;
-        padding: 0 44px;
-      }
-
-      .sidebar {
-        display: none;
-      }
-
-      .module-8 {
-        margin: 32px -44px;
-      }
-
-      .enroll-band {
-        margin: 72px -44px 0;
-        padding: 64px 44px 72px;
-      }
-
-      .footer-wrap {
-        margin: 0 -44px;
-        padding: 24px 44px;
-      }
-    }
-
-    @media (max-width: 640px) {
-      nav {
-        padding: 18px 24px;
-      }
-
-      .nav-right .nav-link {
-        display: none;
-      }
-
-      .hero {
-        padding: 56px 24px 64px;
-      }
-
-      .page-body {
-        padding: 0 24px;
-      }
-
-      .module-tagline,
-      .module-body,
-      .module-outcome,
-      .incidents,
-      .module-8-note {
-        padding-left: 0;
-      }
-
-      .module-head {
-        grid-template-columns: 1fr;
-        gap: 2px;
-      }
-
-      .module-num {
-        display: none;
-      }
-
-      .module-8 {
-        padding: 28px 24px;
-        margin: 28px -24px;
-      }
-
-      .capstone-body {
-        padding: 24px 20px;
-      }
-
-      .enroll-band {
-        margin: 56px -24px 0;
-        padding: 48px 24px 56px;
-      }
-
-      .footer-wrap {
-        margin: 0 -24px;
-        padding: 20px 24px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>master.hpc.now — Professional HPC Infrastructure Training</title>
+<meta name="description" content="The professional training programme for HPC infrastructure engineers. From first principles to production ownership — structured, instructor-led, built on real clusters.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script type="text/javascript">
+  (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
+
+  Cal("init", "discovery-call-popup", {origin:"https://app.cal.com"});
+  Cal.ns["discovery-call-popup"]("ui", {"hideEventTypeDetails":false,"layout":"month_view"});
+
+  Cal("init", "discovery-call-inline", {origin:"https://app.cal.com"});
+  Cal.ns["discovery-call-inline"]("inline", {
+    elementOrSelector:"#my-cal-inline-discovery-call",
+    config: {"layout":"month_view","useSlotsViewOnSmallScreen":"true"},
+    calLink: "rajesh-sr-kumar/discovery-call",
+  });
+  Cal.ns["discovery-call-inline"]("ui", {"hideEventTypeDetails":false,"layout":"month_view"});
+</script>
+<script async src="https://tally.so/widgets/embed.js"></script>
+<script>
+  window.TallyConfig = { "transparentBackground": true };
+</script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,300;9..144,400&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy-deep: #111111;
+  --navy-mid: #1A1A1A;
+  --navy-light: #242424;
+  --blue-cta: #D97706;
+  --blue-accent: #F59E0B;
+  --blue-light: #FEF3C7;
+  --page-bg: #FAFAF9;
+  --card-bg: #FFFFFF;
+  --hero-bg: #0D0D0D;
+  --text-primary: #1A1A1A;
+  --text-secondary: #525252;
+  --text-muted: #737373;
+  --border: #E5E5E5;
+  --border-strong: #D4D4D4;
+
+  --c-gray-bg: #F5F5F4;
+  --c-gray-text: #57534E;
+  --c-teal-bg: #CCFBF1;
+  --c-teal-text: #0F766E;
+  --c-blue-bg: #FEF3C7;
+  --c-blue-text: #92400E;
+  --c-purple-bg: #FEF9EE;
+  --c-purple-text: #B45309;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --max-w: 1080px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--page-bg);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--navy-mid);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.nav-logo {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+.nav-logo span {
+  color: var(--blue-accent);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: 14px;
+  color: rgba(255,255,255,0.72);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: #fff; }
+
+.nav-cta {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 18px;
+  background: var(--blue-cta);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.nav-cta:hover { background: var(--blue-accent); }
+
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.nav-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 2px;
+  transition: all 0.25s;
+}
+
+.nav-mobile {
+  display: none;
+  background: var(--navy-deep);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 1.25rem 2rem 1.5rem;
+}
+
+.nav-mobile.open { display: block; }
+
+.nav-mobile a {
+  display: block;
+  font-size: 15px;
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.nav-mobile a:last-child { border-bottom: none; }
+
+/* ── HERO ── */
+#hero {
+  background: url('images/hero-bg.png') center center / cover no-repeat;
+  background-color: var(--hero-bg);
+  padding: 100px 0 90px;
+  position: relative;
+  overflow: hidden;
+}
+
+#hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, rgba(13,13,13,0.95) 0%, rgba(13,13,13,0.80) 60%, rgba(13,13,13,0.60) 100%),
+    radial-gradient(ellipse 50% 60% at 75% 50%, rgba(217,119,6,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  position: relative;
+  max-width: 780px;
+}
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--blue-accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+
+.hero-hl {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 300;
+  color: #fff;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+}
+
+.hero-hl em {
+  font-style: normal;
+  color: var(--blue-accent);
+}
+
+.hero-sub {
+  font-size: 17px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.65;
+  max-width: 600px;
+  margin-bottom: 2.5rem;
+}
+
+.hero-btns {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 12px 24px;
+  background: var(--blue-cta);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.btn-primary:hover { background: var(--blue-accent); transform: translateY(-1px); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 12px 24px;
+  background: transparent;
+  color: rgba(255,255,255,0.88);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.btn-secondary:hover {
+  border-color: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.05);
+}
+
+.trust-row {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.trust-item {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.trust-item::before {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--blue-accent);
+  flex-shrink: 0;
+}
+
+/* ── SECTION COMMON ── */
+section { padding: 88px 0; }
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--blue-cta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.section-hl {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3.5vw, 38px);
+  font-weight: 300;
+  color: var(--navy-deep);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+
+.section-sub {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  max-width: 620px;
+}
+
+/* ── PATHWAY ── */
+#pathway { background: #fff url('images/texture-pathway.png') center center / cover no-repeat; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+.pathway-header { margin-bottom: 3rem; }
+
+.pathway-diagram {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  position: relative;
+}
+
+.pathway-diagram::before {
+  content: '';
+  position: absolute;
+  top: 36px;
+  left: calc(12.5% + 12px);
+  right: calc(12.5% + 12px);
+  height: 2px;
+  background: linear-gradient(to right, #888780, #0F6E56, #185FA5, #3C3489);
+  z-index: 0;
+}
+
+.pathway-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.pathway-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid var(--page-bg);
+  margin-bottom: 1.25rem;
+  flex-shrink: 0;
+}
+
+.pathway-node:nth-child(1) .pathway-dot { background: #78716C; }
+.pathway-node:nth-child(2) .pathway-dot { background: #B45309; }
+.pathway-node:nth-child(3) .pathway-dot { background: #D97706; }
+.pathway-node:nth-child(4) .pathway-dot { background: #F59E0B; }
+
+.pathway-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--navy-deep);
+  margin-bottom: 4px;
+}
+
+.pathway-days {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.pathway-verb {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.pathway-node:nth-child(1) .pathway-verb { background: #F5F5F4; color: #78716C; }
+.pathway-node:nth-child(2) .pathway-verb { background: #FEF3C7; color: #92400E; }
+.pathway-node:nth-child(3) .pathway-verb { background: #FDE68A; color: #78350F; }
+.pathway-node:nth-child(4) .pathway-verb { background: #F59E0B; color: #1A1A1A; }
+
+.pathway-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-top: 10px;
+}
+
+/* ── COURSES ── */
+#courses { background: var(--page-bg); }
+
+.courses-header { margin-bottom: 3rem; }
+
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.course-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.course-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+.course-icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.course-name {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--navy-deep);
+  line-height: 1.2;
+}
+
+.course-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.course-card:nth-child(1) .course-badge { background: #F5F5F4; color: #78716C; }
+.course-card:nth-child(2) .course-badge { background: #FEF3C7; color: #92400E; }
+.course-card:nth-child(3) .course-badge { background: #FDE68A; color: #78350F; }
+.course-card:nth-child(4) .course-badge { background: #F59E0B; color: #1A1A1A; }
+
+.course-hl {
+  font-size: 15px;
+  color: var(--text-secondary);
+  font-style: italic;
+  line-height: 1.4;
+  margin-bottom: 1.25rem;
+  font-family: var(--font-display);
+  font-weight: 300;
+}
+
+.course-meta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.course-bullets {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 1.5rem;
+  flex: 1;
+}
+
+.course-bullets li {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  padding-left: 1.25rem;
+  position: relative;
+}
+
+.course-bullets li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--blue-cta);
+  font-size: 12px;
+  top: 2px;
+}
+
+.course-prereq {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.course-prereq strong {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.course-stack {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+/* ── LEARNING PATHS ── */
+#paths {
+  background: var(--navy-deep) url('images/texture-paths.png') repeat center center;
+  background-size: 800px 800px;
+}
+
+#paths .section-label { color: var(--blue-accent); }
+#paths .section-hl { color: #fff; }
+#paths .section-sub { color: rgba(255,255,255,0.55); }
+
+.paths-header { margin-bottom: 3rem; }
+
+.paths-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.path-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.path-card:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.15);
+}
+
+.path-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.path-who {
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.55;
+  margin-bottom: 1.5rem;
+}
+
+.path-flow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.path-step {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.path-step.gray  { background: #F5F5F4;   color: #78716C; }
+.path-step.teal  { background: #FEF3C7;   color: #92400E; }
+.path-step.blue  { background: #FDE68A;   color: #78350F; }
+.path-step.purple{ background: #F59E0B;   color: #1A1A1A; }
+
+.path-arrow {
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+}
+
+.path-standalone {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  font-style: italic;
+}
+
+.paths-cta {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.paths-cta p {
+  font-size: 15px;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 1.25rem;
+}
+
+/* ── TESTIMONIALS ── */
+#testimonials { background: #fff; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+.testi-header { margin-bottom: 3rem; }
+
+.testi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.testi-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin-bottom: 10px;
+}
+
+
+  background: var(--page-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.testi-quote {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--navy-deep);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  flex: 1;
+}
+
+.testi-quote::before {
+  content: '\201C';
+  font-size: 2em;
+  color: var(--blue-cta);
+  line-height: 0;
+  vertical-align: -0.4em;
+  margin-right: 2px;
+  font-family: var(--font-display);
+}
+
+.testi-author { border-top: 1px solid var(--border); padding-top: 1rem; }
+
+.testi-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--navy-deep);
+  margin-bottom: 2px;
+}
+
+.testi-role {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.testi-placeholder {
+  text-align: center;
+  padding: 3rem 2rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── BOOK A CALL ── */
+#book { background: var(--page-bg); }
+
+.book-inner {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.book-left .section-hl { margin-bottom: 1rem; }
+.book-left p {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin-bottom: 1.5rem;
+}
+
+.book-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.book-meta-item {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.book-meta-item::before {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--blue-accent);
+  flex-shrink: 0;
+}
+
+.embed-placeholder {
+  background: var(--card-bg);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.embed-placeholder p {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.embed-placeholder .embed-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-family: var(--font-body);
+}
+
+/* ── ENROL ── */
+#enrol { background: #fff; border-top: 1px solid var(--border); }
+
+.enrol-inner {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.enrol-left .section-hl { margin-bottom: 1rem; }
+.enrol-left p {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin-bottom: 1.5rem;
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--navy-deep);
+  padding: 3rem 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.footer-logo {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  text-decoration: none;
+}
+
+.footer-logo span { color: var(--blue-accent); }
+
+.footer-info {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.7;
+}
+
+.footer-info a {
+  color: rgba(255,255,255,0.55);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-info a:hover { color: #fff; }
+
+.footer-note {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  text-align: right;
+  line-height: 1.7;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .courses-grid { grid-template-columns: 1fr; }
+  .paths-grid { grid-template-columns: 1fr; }
+  .testi-grid { grid-template-columns: 1fr; }
+  .book-inner { grid-template-columns: 1fr; gap: 2rem; }
+  .enrol-inner { grid-template-columns: 1fr; gap: 2rem; }
+  .pathway-diagram { grid-template-columns: 1fr; gap: 2rem; }
+  .pathway-diagram::before { display: none; }
+  .pathway-node { flex-direction: row; text-align: left; gap: 1rem; align-items: center; }
+  .pathway-dot { margin-bottom: 0; }
+  .pathway-desc { display: none; }
+}
+
+@media (max-width: 680px) {
+  .container { padding: 0 1.25rem; }
+  section { padding: 60px 0; }
+  .nav-links, .nav-cta { display: none; }
+  .nav-hamburger { display: flex; }
+  #hero { padding: 64px 0 60px; }
+  .trust-row { gap: 1rem; }
+  .footer-inner { flex-direction: column; align-items: flex-start; }
+  .footer-note { text-align: left; }
+}
+</style>
 </head>
-
 <body>
 
-  <!-- ══ COVER ZONE ══ -->
-  <div class="cover">
-    <div class="nav-wrap">
-      <nav>
-        <a href="https://hpc.now" class="logo">hpc<em>.now</em></a>
-        <div class="nav-right">
-          <a href="#modules" class="nav-link">Modules</a>
-          <a href="#capstone" class="nav-link">Capstone</a>
-          <a href="#rajesh" class="nav-link">Instructor</a>
-          <a href="mailto:rajesh@hpc.now" class="nav-cta">Start a conversation</a>
-        </div>
-      </nav>
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">master<span>.hpc.now</span></a>
+    <ul class="nav-links">
+      <li><a href="#courses">Courses</a></li>
+      <li><a href="#paths">Learning paths</a></li>
+      <li><button data-cal-link="rajesh-sr-kumar/discovery-call" data-cal-namespace="discovery-call-popup" data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}' style="background:none;border:none;cursor:pointer;font-size:14px;color:rgba(255,255,255,0.72);font-family:var(--font-body);transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.72)'">Book a call</button></li>
+      <li><button data-tally-open="vGEJ7X" data-tally-layout="modal" data-tally-width="600" data-tally-overlay="1" data-tally-emoji-text="👋" data-tally-emoji-animation="wave" style="background:none;border:none;cursor:pointer;font-size:14px;color:rgba(255,255,255,0.72);font-family:var(--font-body);transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.72)'">Enrol</button></li>
+    </ul>
+    <button data-tally-open="vGEJ7X" data-tally-layout="modal" data-tally-width="600" data-tally-overlay="1" data-tally-emoji-text="👋" data-tally-emoji-animation="wave" class="nav-cta">Enrol now</button>
+    <button class="nav-hamburger" aria-label="Open menu" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav-mobile" id="navMobile">
+    <a href="#courses" onclick="toggleMenu()">Courses</a>
+    <a href="#paths" onclick="toggleMenu()">Learning paths</a>
+    <button data-cal-link="rajesh-sr-kumar/discovery-call" data-cal-namespace="discovery-call-popup" data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}' onclick="toggleMenu()" style="background:none;border:none;cursor:pointer;display:block;font-size:15px;color:rgba(255,255,255,0.8);padding:10px 0;width:100%;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06);">Book a call</button>
+    <button data-tally-open="vGEJ7X" data-tally-layout="modal" data-tally-width="600" data-tally-overlay="1" data-tally-emoji-text="👋" data-tally-emoji-animation="wave" onclick="toggleMenu()" style="background:none;border:none;cursor:pointer;display:block;font-size:15px;color:rgba(255,255,255,0.8);padding:10px 0;width:100%;text-align:left;">Enrol now</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <p class="hero-eyebrow">Professional HPC infrastructure training</p>
+      <h1 class="hero-hl">The professional training programme for <em>HPC infrastructure</em> engineers.</h1>
+      <p class="hero-sub">From first principles to production ownership — structured, instructor-led, built on real clusters. Four courses that take you from understanding what HPC is to investigating what broke and why.</p>
+      <div class="hero-btns">
+        <button
+          data-cal-link="rajesh-sr-kumar/discovery-call"
+          data-cal-namespace="discovery-call-popup"
+          data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
+          class="btn-primary">
+          Book a discovery call
+        </button>
+        <button data-tally-open="vGEJ7X" data-tally-layout="modal" data-tally-width="600" data-tally-overlay="1" data-tally-emoji-text="👋" data-tally-emoji-animation="wave" class="btn-secondary">Enrol now</button>
+      </div>
+      <div class="trust-row">
+        <span class="trust-item">Instructor-led, real infrastructure labs</span>
+        <span class="trust-item">No vendor lock-in — open stack throughout</span>
+        <span class="trust-item">Structured progression from concept to engineering</span>
+      </div>
     </div>
-
-    <section class="hero">
-      <div class="hero-left">
-        <p class="hero-label">Pilot Cohort · March 2026</p>
-        <h1 class="hero-title">
-          HPC Infrastructure<br>
-          Operations for<br>
-          <em>Senior Engineers</em>
-        </h1>
-        <p class="hero-sub">
-          When a compute cluster lands on your desk, nobody trains you to run it.<br><br>
-          You already understand infrastructure — servers, Linux systems, storage, networking.<br><br>
-          This course teaches you how HPC clusters actually work — on a live cluster, from day one.
-        </p>
-      </div>
-      <div class="hero-right">
-        <div class="hero-facts">
-          <div class="hero-fact">
-            <span class="hero-fact-k">Format</span>
-            <span class="hero-fact-v">Live cohort sessions · Live cluster throughout</span>
-          </div>
-          <div class="hero-fact">
-            <span class="hero-fact-k">Modules</span>
-            <span class="hero-fact-v">10 modules + optional capstone</span>
-          </div>
-          <div class="hero-fact">
-            <span class="hero-fact-k">Cohort</span>
-            <span class="hero-fact-v">4 – 6 engineers · Pilot Initiative</span>
-          </div>
-          <div class="hero-fact">
-            <span class="hero-fact-k">Baseline</span>
-            <span class="hero-fact-v">5+ years IT infrastructure experience</span>
-          </div>
-          <div class="hero-fact">
-            <span class="hero-fact-k">Enrollment</span>
-            <span class="hero-fact-v">15-minute conversation</span>
-          </div>
-        </div>
-        <a href="mailto:rajesh@hpc.now" class="hero-cta">Write to rajesh@hpc.now</a>
-      </div>
-    </section>
   </div>
+</section>
 
-  <div class="zone-edge"></div>
-
-  <!-- ══ TWO-COLUMN BODY ══ -->
-  <div class="page-body">
-
-    <!-- STICKY SIDEBAR -->
-    <aside class="sidebar">
-      <nav class="side-nav">
-        <a href="#promise" class="side-nav-item">The Promise</a>
-        <a href="#for" class="side-nav-item">Who This Is For</a>
-        <a href="#arc" class="side-nav-item">The Arc</a>
-        <div class="side-nav-divider"></div>
-        <a href="#modules" class="side-nav-item">The Modules</a>
-        <a href="#m0" class="side-nav-item">00 · Orientation</a>
-        <a href="#m1" class="side-nav-item">01 · Be a User</a>
-        <a href="#m2" class="side-nav-item">02 · Storage</a>
-        <a href="#m3" class="side-nav-item">03 · Networking</a>
-        <a href="#m4" class="side-nav-item">04 · Scheduler</a>
-        <a href="#m5" class="side-nav-item">05 · Packages</a>
-        <a href="#m6" class="side-nav-item">06 · Security</a>
-        <a href="#m7" class="side-nav-item">07 · Monitoring</a>
-        <a href="#m8" class="side-nav-item">08 · Practicum</a>
-        <a href="#m9" class="side-nav-item">09 · Bridge</a>
-        <div class="side-nav-divider"></div>
-        <a href="#capstone" class="side-nav-item">Capstone</a>
-        <a href="#certificate" class="side-nav-item">Certificate</a>
-        <a href="#format" class="side-nav-item">Format</a>
-        <a href="#rajesh" class="side-nav-item">Instructor</a>
-        <a href="#enroll" class="side-nav-item">Enrollment</a>
-      </nav>
-    </aside>
-
-    <!-- MAIN -->
-    <main class="main-content">
-
-      <!-- THE PROMISE -->
-      <section class="section" id="promise">
-        <p class="label">the promise</p>
-        <p class="promise-hl">Concept as scaffold. Hands-on as the deliverable.</p>
-        <p class="prose">Every topic in this course is introduced through the lens of what it means on the job — not
-          what it means in a textbook. If a concept doesn't directly unlock a lab exercise or an operational decision,
-          it isn't in this course.</p>
-        <p class="prose">You won't be taught how to think about systems. You already know that. You'll be given
-          HPC-specific muscle memory to layer onto instincts you've spent years building.</p>
-      </section>
-
-      <!-- WHO THIS IS FOR -->
-      <section class="section" id="for">
-        <p class="label">who this is for</p>
-        <p class="prose">You have five or more years of hands-on IT infrastructure experience. You've managed physical
-          servers, virtual machines, storage systems, and Linux environments. You understand how a datacenter works
-          because you've kept one running.</p>
-        <p class="prose">You have not worked inside an HPC environment before — and that's exactly the assumption this
-          course is built on. No HPC background required. No beginner basics taught.</p>
-        <p class="prose">If you've managed virtualisation platforms — VMware, KVM, OpenShift or similar — you already
-          speak most of the language. This course gives you the rest.</p>
-        <div class="for-highlight">
-          <p>The course will not make you immediately employable in HPC overnight — the field is niche and the pyramid
-            narrows at seniority. What it will do is build foundations that work in both directions: a complete shift
-            into HPC operations, or a solid floor to build an AI infrastructure career on top of. Those foundations —
-            scheduler operations, parallel storage, high-speed fabric, cluster observability — sit underneath every
-            serious large-scale compute environment running today.</p>
-        </div>
-      </section>
-
-      <!-- THE ARC -->
-      <section class="section" id="arc">
-        <p class="label">the arc</p>
-        <p class="arc-statement">Ten modules that mirror a new HPC administrator's first ninety days on the job.</p>
-        <p class="prose">Start as a user. Take ownership of each infrastructure layer. Prove competence under pressure.
-          Exit with a clear map of what comes next.</p>
-        <div class="arc-flow">
-          <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">00</span>
-              <strong>Orientation</strong></span><span class="arc-arrow">→</span></div>
-          <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">01</span>
-              <strong>User</strong></span><span class="arc-arrow">→</span></div>
-          <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">02</span>
-              <strong>Storage</strong></span><span class="arc-arrow">→</span></div>
-          <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">03</span>
-              <strong>Network</strong></span><span class="arc-arrow">→</span></div>
-          <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">04</span>
-              <strong>Scheduler</strong></span><span class="arc-arrow">→</span></div>
-          <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">05</span>
-              <strong>Packages</strong></span><span class="arc-arrow">→</span></div>
-          <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">06</span>
-              <strong>Security</strong></span><span class="arc-arrow">→</span></div>
-          <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">07</span>
-              <strong>Monitoring</strong></span><span class="arc-arrow">→</span></div>
-          <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">08</span>
-              <strong>Practicum</strong></span><span class="arc-arrow">→</span></div>
-          <div class="arc-node"><span class="arc-node-label"><span class="arc-node-num">09</span>
-              <strong>Bridge</strong></span></div>
-        </div>
-      </section>
-      </section>
-
-      <!-- RECOGNITION -->
-      <section class="section" id="recognition">
-        <p class="label">if this sounds familiar</p>
-
-        <p class="prose">A research team needs compute.</p>
-        <p class="prose">A cluster appears in the datacenter.</p>
-        <p class="prose">Or a GPU system arrives and someone asks if you can operate it.</p>
-
-        <p class="prose">
-          Suddenly you are responsible for infrastructure nobody ever formally trained you to run.
-        </p>
-
-        <p class="prose">
-          Schedulers. Parallel storage. High-speed fabric. MPI workloads. Cluster observability.
-        </p>
-
-        <p class="prose">
-          This course exists for engineers who already run infrastructure — but want to understand how large-scale
-          compute systems actually work.
-        </p>
-      </section>
-
-      <!-- MODULES -->
-      <section class="section" id="modules">
-        <!-- MODULES -->
-        <section class="section" id="modules">
-          <p class="label">the modules</p>
-          <div class="modules-list">
-
-            <div class="module" id="m0">
-              <div class="module-head"><span class="module-num">MODULE 00</span><span class="module-title">HPC
-                  Orientation</span></div>
-              <p class="module-tagline">Exploration before instruction.</p>
-              <p class="module-body">You SSH into a live cluster before you're told what you're looking at. Examine
-                running processes, read the scheduler configuration, inspect mounted filesystems, list network
-                interfaces. No instructions — guided exploration followed by a debrief.</p>
-              <p class="module-outcome">You leave this module able to read a cluster's topology and understand its
-                components without requiring documentation.</p>
-            </div>
-
-            <div class="module" id="m1">
-              <div class="module-head"><span class="module-num">MODULE 01</span><span class="module-title">Be an HPC
-                  User</span></div>
-              <p class="module-tagline">Build admin empathy by being the user first.</p>
-              <p class="module-body">Before you administer anything, you submit jobs. Serial jobs, multi-threaded jobs,
-                massively parallel MPI jobs. You deliberately submit a job requesting 32 cores that only uses 4 — and
-                read the output to identify the waste. Every operational decision later in the course will be informed
-                by this perspective.</p>
-              <p class="module-outcome">You leave this module able to submit, monitor, and interpret real HPC jobs — and
-                recognise what a poorly-specified job looks like from the scheduler's side.</p>
-            </div>
-
-            <div class="module" id="m2">
-              <div class="module-head"><span class="module-num">MODULE 02</span><span class="module-title">Storage in
-                  HPC</span></div>
-              <p class="module-tagline">The most transferable module for datacenter veterans — familiar concepts,
-                radically different implementation.</p>
-              <p class="module-body">You know enterprise NAS. This module starts by showing you precisely why it fails
-                at HPC — and what replaces it. Parallel filesystem architecture, stripe tuning, quota management,
-                scratch lifecycle. You'll benchmark storage under parallel write load, tune stripe counts, and simulate
-                a scratch-full failure — diagnosing and recovering a cluster where a job is failing because a disk has
-                silently filled.</p>
-              <p class="module-outcome">You leave this module able to choose the right storage tier for a workload,
-                configure parallel filesystem stripes, and diagnose I/O bottlenecks before they become incidents.</p>
-            </div>
-
-            <div class="module" id="m3">
-              <div class="module-head"><span class="module-num">MODULE 03</span><span class="module-title">Networking
-                  for HPC</span></div>
-              <p class="module-tagline">Understanding when the network is the bottleneck — and proving it with numbers.
-              </p>
-              <p class="module-body">Why standard Ethernet is insufficient for tightly-coupled parallel workloads.
-                High-speed fabric architecture — concepts, health monitoring, and verification. You'll benchmark
-                interconnect performance, verify your jobs are actually using the high-speed fabric and not silently
-                falling back to standard networking, and diagnose a job running ten times slower than expected because
-                of exactly that failure. The module closes with a direct mapping onto GPU collective communications in
-                large-scale compute workloads.</p>
-              <p class="module-outcome">You leave this module able to verify network fabric usage, benchmark
-                interconnect performance, and identify network-related job slowdowns.</p>
-            </div>
-
-            <div class="module" id="m4">
-              <div class="module-head"><span class="module-num">MODULE 04</span><span class="module-title">Scheduler and
-                  Queue Management</span></div>
-              <p class="module-tagline">The operational heart of HPC administration. Most of your working day lives
-                here.</p>
-              <p class="module-body">SLURM architecture, partition design, quality of service configuration, fair-share
-                accounting. Node states and what each means operationally. Job dependencies, job arrays, preemption,
-                checkpointing. Every topic is scenario-driven — a researcher reports their job has been pending for six
-                hours; you diagnose it using the scheduler's own tools. Root causes are intentionally varied across
-                participants.</p>
-              <p class="module-outcome">You leave this module able to diagnose pending jobs systematically, configure
-                fair-share policies, and perform node maintenance without disrupting running workloads.</p>
-            </div>
-
-            <div class="module" id="m5">
-              <div class="module-head"><span class="module-num">MODULE 05</span><span class="module-title">Package and
-                  Environment Management</span></div>
-              <p class="module-tagline">The invisible infrastructure that makes or breaks researcher productivity.</p>
-              <p class="module-body">Why environment modules exist. How to write them. SPACK for dependency-aware
-                package management. Singularity containers — why Docker doesn't run on HPC clusters, and how to convert
-                Docker images to run under the job scheduler. You'll pull a PyTorch image, convert it, and submit it as
-                a cluster job. Directly applicable to AI infrastructure container workflows.</p>
-              <p class="module-outcome">You leave this module able to maintain software stacks on a shared cluster,
-                support users with module issues, and run containerised workloads under a job scheduler.</p>
-            </div>
-
-            <div class="module" id="m6">
-              <div class="module-head"><span class="module-num">MODULE 06</span><span class="module-title">Security and
-                  Access Control</span></div>
-              <p class="module-tagline">Framed as a user lifecycle exercise — onboarding and offboarding drives every
-                topic naturally.</p>
-              <p class="module-body">Linux account management at scale, LDAP integration, SSH key policies, filesystem
-                security on shared parallel filesystems. The lab is a complete user lifecycle — onboard an account from
-                scratch, then offboard it in the correct sequence: suspend the account, handle running jobs, archive the
-                home directory, remove scheduler associations. Everything in the right order.</p>
-              <p class="module-outcome">You leave this module able to manage the complete user lifecycle on an HPC
-                cluster and understand the filesystem security model for shared environments.</p>
-            </div>
-
-            <div class="module" id="m7">
-              <div class="module-head"><span class="module-num">MODULE 07</span><span class="module-title">Monitoring
-                  and Observability</span></div>
-              <p class="module-tagline">Build a dashboard you would actually use — not a toy example.</p>
-              <p class="module-body">HPC monitoring philosophy: job-level metrics matter as much as node-level metrics.
-                You'll deploy a scheduler metrics exporter and node exporters on the shared cluster, build a working
-                Grafana dashboard covering cluster utilisation, queue depth, job wait time, and node health — and
-                configure two production-grade alerts: storage reaching capacity, and a node stuck in drain state. Then
-                generate real cluster load and watch the metrics respond.</p>
-              <p class="module-outcome">You leave this module able to build and maintain cluster observability and
-                configure proactive alerting before users have to complain.</p>
-            </div>
-
-            <!-- MODULE 8 — dark treatment -->
-            <div class="module module-8" id="m8">
-              <div class="module-head"><span class="module-num">MODULE 08</span><span
-                  class="module-title">Troubleshooting Practicum</span></div>
-              <p class="module-tagline">This is the module that converts knowledge into operational confidence.</p>
-              <p class="module-body">No new concepts. No lectures. Rajesh injects real failures into a live cluster. You
-                receive a symptom description only — no hints, no root cause disclosed. You diagnose.</p>
-              <div class="incidents">
-                <div class="incident"><strong>Incident 1 —</strong> Job submits successfully and never starts.</div>
-                <div class="incident"><strong>Incident 2 —</strong> Job fails immediately with exit code 1.</div>
-                <div class="incident"><strong>Incident 3 —</strong> All cluster nodes simultaneously enter drain state.
-                </div>
-                <div class="incident"><strong>Incident 4 —</strong> Job runs ten times slower than expected.</div>
-                <div class="incident"><strong>Incident 5 —</strong> Storage alert fires. Scratch filesystem silently
-                  full.</div>
-                <div class="incident"><strong>Incident 6 —</strong> Jobs complete. Output is wrong.</div>
-              </div>
-              <p class="module-body">Each diagnosis attempt is followed by a structured debrief: the correct diagnostic
-                path, the logs and tools that reveal the root cause, and the fix.</p>
-              <p class="module-8-note">This is not a simulation. This is operational pressure, controlled and
-                deliberate.</p>
-              <p class="module-outcome">You leave this module with a systematic troubleshooting methodology — read logs,
-                correlate symptoms, distinguish user error from infrastructure failure, fix and document.</p>
-            </div>
-
-            <div class="module" id="m9">
-              <div class="module-head"><span class="module-num">MODULE 09</span><span class="module-title">Bridge to
-                  Large-Scale Compute</span></div>
-              <p class="module-tagline">No new labs. A mapping session that makes everything you've learned immediately
-                portable.</p>
-              <p class="module-body">This module does not teach AI infrastructure. It shows you exactly where the HPC
-                knowledge from this course sits inside the large-scale compute stack — and names precisely what is new
-                territory from here. GPU collective communications, model checkpoint storage patterns, inference
-                infrastructure, orchestration for ML workloads. You'll know what you know, what you don't yet know, and
-                what to learn next.</p>
-              <p class="module-outcome">You leave this module able to walk into an AI infrastructure role or course
-                already understanding the infrastructure layer — with zero vocabulary confusion.</p>
-            </div>
-
-          </div>
-        </section>
-        <!-- WHAT YOU LEAVE WITH -->
-        <section class="section" id="outcomes">
-          <p class="label">what you leave with</p>
-
-          <p class="prose">
-            By the end of the course you will be able to:
-          </p>
-
-          <div class="facts" style="max-width:600px">
-
-            <div class="fact">
-              <span class="fact-k">Diagnose</span>
-              <span class="fact-v">why HPC jobs are pending, failing, or running slowly.</span>
-            </div>
-
-            <div class="fact">
-              <span class="fact-k">Understand</span>
-              <span class="fact-v">how schedulers, storage, and networking interact inside clusters.</span>
-            </div>
-
-            <div class="fact">
-              <span class="fact-k">Operate</span>
-              <span class="fact-v">a shared HPC environment supporting real workloads.</span>
-            </div>
-
-            <div class="fact">
-              <span class="fact-k">Support</span>
-              <span class="fact-v">researchers running parallel MPI workloads.</span>
-            </div>
-
-            <div class="fact">
-              <span class="fact-k">Recognise</span>
-              <span class="fact-v">how HPC infrastructure underpins modern AI compute systems.</span>
-            </div>
-
-          </div>
-
-          <p class="prose" style="margin-top:28px">
-            You will not know everything about HPC. But you will know enough to operate a cluster competently and
-            continue learning with confidence.
-          </p>
-        </section>
-
-        <!-- CAPSTONE -->
-        <section class="section" id="capstone">
-          <p class="label">the capstone</p>
-          <div class="capstone-wrap">
-            <div class="capstone-header">
-              <span class="capstone-tag">End-to-End Cluster Build</span>
-              <span class="capstone-flag">Optional · Required for Certificate of Capability</span>
-            </div>
-            <div class="capstone-body">
-              <p class="capstone-title">Deploy a complete, production-grade HPC cluster from a blank account over one
-                focused weekend.</p>
-              <p class="prose">Cluster up on Friday evening. All configuration and testing complete by Sunday. Cluster
-                torn down Sunday night. The GitHub repository is the persistent artifact — not the running
-                infrastructure.</p>
-              <p class="prose" style="margin-top:1.2em">The deliverable is a GitHub repository containing:</p>
-              <div class="deliverables">
-                <div class="deliverable">Fully commented cluster configuration — production-ready</div>
-                <div class="deliverable">Scheduler partition and QOS setup with fair-share accounting</div>
-                <div class="deliverable">Working modulefiles for a real HPC application</div>
-                <div class="deliverable">Containerised job submission script running a real workload</div>
-                <div class="deliverable">Grafana dashboard export — cluster utilisation, queue depth, node health</div>
-                <div class="deliverable">Operational runbook covering the five most common HPC admin scenarios</div>
-              </div>
-              <p class="prose">Rajesh reviews the repository and conducts one structured feedback session per
-                participant. Every configuration decision must be defensible.</p>
-              <p class="prose" style="margin-top:1.2em">This is the module that produces a portfolio artifact —
-                something you can show, not just describe.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- CERTIFICATE -->
-        <section class="section" id="certificate">
-          <p class="label">certificate of capability</p>
-          <p class="cert-quote">This is not a participation certificate.</p>
-          <p class="prose">It is awarded on demonstrated competency through the capstone. The certificate includes a
-            signed capability table listing each skill area demonstrated — making it substantively different from a
-            course completion badge. It documents what you can do, not that you showed up.</p>
-        </section>
-
-        <!-- FORMAT -->
-        <section class="section" id="format">
-          <p class="label">the format</p>
-          <p class="prose" style="margin-bottom:28px">Ten modules delivered as live cohort sessions. Every lab runs on a
-            live HPC cluster maintained and provisioned by Rajesh. You operate within it from the first session — SSHing
-            into a real cluster, submitting real jobs, working with real infrastructure.</p>
-          <div class="facts">
-            <div class="fact"><span class="fact-k">Cohort</span><span class="fact-v">Four to six engineers. The size at
-                which Rajesh can observe every participant in real time, and at which the group learns from each other's
-                diagnostic approaches.</span></div>
-            <div class="fact"><span class="fact-k">Labs</span><span class="fact-v">Live cluster throughout — not a
-                simulation, not a video walkthrough. Real infrastructure from the first session.</span></div>
-            <div class="fact"><span class="fact-k">Limits</span><span class="fact-v">The course will not run below three
-                participants or above eight.</span></div>
-            <div class="fact"><span class="fact-k">Capstone</span><span class="fact-v">Optional. Required only for the
-                Certificate of Capability. One focused weekend on your own account.</span></div>
-          </div>
-        </section>
-
-        <!-- ABOUT RAJESH -->
-        <section class="section" id="rajesh">
-          <p class="label">the instructor</p>
-          <p class="about-name">Rajesh Kumar</p>
-          <p class="about-role">HPC Infrastructure Architect · 16+ Years · Bengaluru, India</p>
-          <p class="prose">Rajesh has operated HPC infrastructure for sixteen years — across IISc, C-DAC Pune, GE India,
-            and Boeing India. Across scheduler, storage, network, compute, and automation simultaneously. Not as a layer
-            specialist. Across all of them, at scale, in production.</p>
-          <p class="prose" style="margin-top:1.2em">He has never been employed by a vendor. That independence is
-            structural — it shapes every comparative assessment, every configuration recommendation, and every opinion
-            in this course.</p>
-          <p class="prose" style="margin-top:1.2em">He built this course because the knowledge that takes years to
-            accumulate inside HPC environments has never been properly written down for the engineers who need it most.
-          </p>
-          <div class="about-arc">
-            <span class="arc-stop"><strong>IISc</strong></span><span class="arc-sep">—</span>
-            <span class="arc-stop"><strong>C-DAC</strong> Pune</span><span class="arc-sep">—</span>
-            <span class="arc-stop"><strong>GE</strong> India</span><span class="arc-sep">—</span>
-            <span class="arc-stop"><strong>Boeing</strong> India</span><span class="arc-sep">—</span>
-          </div>
-        </section>
-
-        <!-- ENROLLMENT -->
-        <section class="section" id="enroll" style="padding-bottom:0; border-bottom:none;">
-          <div class="enroll-band">
-            <div class="enroll-inner">
-              <p class="enroll-label">enrollment</p>
-              <p class="enroll-title">Enrollment starts with a 15-minute conversation</p>
-              <p class="enroll-prose">This is not a gatekeeping exercise. It is a fit check — to make sure you'll get
-                full value from the course rather than finding yourself covering foundations that are assumed knowledge
-                here.</p>
-              <p class="enroll-prose">Pilot efforts to the founding cohort in exchange for honest feedback. This is not
-                a discount — it is a fair exchange for helping sharpen a curriculum that will outlast this cohort.</p>
-              <a href="mailto:rajesh@hpc.now" class="enroll-cta">Write to rajesh@hpc.now</a>
-            </div>
-          </div>
-          <div class="footer-wrap">
-            <span class="footer-copy">hpc.now &nbsp;·&nbsp; Bengaluru &nbsp;·&nbsp; 2026</span>
-            <a href="mailto:rajesh@hpc.now" class="footer-link">rajesh@hpc.now</a>
-          </div>
-        </section>
-
-    </main>
+<!-- PATHWAY -->
+<section id="pathway">
+  <div class="container">
+    <div class="pathway-header">
+      <p class="section-label">Curriculum</p>
+      <h2 class="section-hl">A curriculum built on genuine skill progression</h2>
+      <p class="section-sub">Each course has a distinct capability outcome. This is not a sequence of increasingly advanced versions of the same thing — each level changes your relationship to the infrastructure.</p>
+    </div>
+    <div class="pathway-diagram">
+      <div class="pathway-node">
+        <div class="pathway-dot"></div>
+        <div class="pathway-name">HPC Essentials</div>
+        <div class="pathway-days">~10 days</div>
+        <div class="pathway-verb">Understand</div>
+        <div class="pathway-desc">Conceptual grounding — what HPC is and how it works</div>
+      </div>
+      <div class="pathway-node">
+        <div class="pathway-dot"></div>
+        <div class="pathway-name">HPC Fundamentals</div>
+        <div class="pathway-days">~30 days</div>
+        <div class="pathway-verb">Interpret</div>
+        <div class="pathway-desc">Read and reason about live infrastructure</div>
+      </div>
+      <div class="pathway-node">
+        <div class="pathway-dot"></div>
+        <div class="pathway-name">HPC Operations</div>
+        <div class="pathway-days">~42 days</div>
+        <div class="pathway-verb">Execute</div>
+        <div class="pathway-desc">Execute production workflows safely</div>
+      </div>
+      <div class="pathway-node">
+        <div class="pathway-dot"></div>
+        <div class="pathway-name">HPC Engineering</div>
+        <div class="pathway-days">~48 days</div>
+        <div class="pathway-verb">Investigate</div>
+        <div class="pathway-desc">Investigate what Associates escalate</div>
+      </div>
+    </div>
   </div>
+</section>
 
-  <script>
-    // Sticky sidebar active state tracking
-    const sections = document.querySelectorAll('section[id], div.module[id]');
-    const navItems = document.querySelectorAll('.side-nav-item');
+<!-- COURSES -->
+<section id="courses">
+  <div class="container">
+    <div class="courses-header">
+      <p class="section-label">Courses</p>
+      <h2 class="section-hl">Four courses. One clear progression.</h2>
+      <p class="section-sub">Each course is a standalone programme with a defined capability outcome — not a module in an undefined journey.</p>
+    </div>
+    <div class="courses-grid">
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          navItems.forEach(item => item.classList.remove('is-active'));
-          const active = document.querySelector(`.side-nav-item[href="#${entry.target.id}"]`);
-          if (active) active.classList.add('is-active');
-        }
-      });
-    }, { rootMargin: '-20% 0px -70% 0px' });
+      <div class="course-card">
+        <img src="images/icon-essentials.png" alt="" class="course-icon" aria-hidden="true">
+        <div class="course-top">
+          <div class="course-name">HPC Essentials</div>
+          <span class="course-badge">~10 days</span>
+        </div>
+        <p class="course-hl">Understand the infrastructure before you touch it.</p>
+        <div class="course-meta">
+          <span>No prerequisites</span>
+          <span>Instructor-led</span>
+          <span>Conceptual</span>
+        </div>
+        <ul class="course-bullets">
+          <li>What HPC is, why it exists, and how its major subsystems fit together</li>
+          <li>How compute, storage, networking, and scheduling interact as a system</li>
+          <li>Why GPU infrastructure and HPC are converging</li>
+          <li>The vocabulary and mental models to engage confidently in HPC discussions</li>
+          <li>Guided observation labs — no commands, no configuration</li>
+        </ul>
+        <div class="course-prereq">
+          <strong>Built for:</strong> Researchers, IT managers, architects, procurement professionals, and career-changers with no prior HPC background.
+        </div>
+      </div>
 
-    sections.forEach(s => observer.observe(s));
-  </script>
+      <div class="course-card">
+        <img src="images/icon-fundamentals.png" alt="" class="course-icon" aria-hidden="true">
+        <div class="course-top">
+          <div class="course-name">HPC Fundamentals</div>
+          <span class="course-badge">~30 days</span>
+        </div>
+        <p class="course-hl">Learn to read infrastructure before you're responsible for it.</p>
+        <div class="course-meta">
+          <span>No prerequisites</span>
+          <span>Instructor-led</span>
+          <span>Interpretive</span>
+        </div>
+        <ul class="course-bullets">
+          <li>Linux operational reading fluency — processes, services, logs, topology, sockets</li>
+          <li>Interpret scheduler queues, storage state, and GPU telemetry without owning them</li>
+          <li>NUMA, locality, and topology awareness — why workload placement matters</li>
+          <li>Observability mindset and blast-radius discipline for production environments</li>
+          <li>Integrated infrastructure reasoning across all major HPC subsystems</li>
+        </ul>
+        <div class="course-prereq">
+          <strong>Built for:</strong> Engineers transitioning into HPC from enterprise IT, cloud, or storage roles. HPC Essentials recommended for those with no infrastructure background.
+        </div>
+      </div>
 
+      <div class="course-card">
+        <img src="images/icon-operations.png" alt="" class="course-icon" aria-hidden="true">
+        <div class="course-top">
+          <div class="course-name">HPC Operations</div>
+          <span class="course-badge">~42 days</span>
+        </div>
+        <p class="course-hl">Execute production HPC workflows safely, from day one.</p>
+        <div class="course-meta">
+          <span>Fundamentals or Linux fluency</span>
+          <span>Instructor-led</span>
+          <span>Operational</span>
+        </div>
+        <ul class="course-bullets">
+          <li>Node provisioning, lifecycle management, and maintenance sequencing</li>
+          <li>Scheduler and workload operations — job submission, queue management, GPU allocation</li>
+          <li>Storage and parallel filesystem operations — Lustre client workflows, bounded recovery</li>
+          <li>GPU and containerised AI workload operations — ECC handling, MIG awareness</li>
+          <li>Observability-driven cluster validation — dashboards, alert triage, health verification</li>
+        </ul>
+        <div class="course-prereq">
+          <strong>Requires:</strong> HPC Fundamentals or demonstrated Linux operational fluency.
+        </div>
+        <div class="course-stack">Slurm · Lustre · InfiniBand · NVIDIA GPUs · Warewulf · Prometheus/Grafana · OpenOnDemand · FreeIPA</div>
+      </div>
+
+      <div class="course-card">
+        <img src="images/icon-engineering.png" alt="" class="course-icon" aria-hidden="true">
+        <div class="course-top">
+          <div class="course-name">HPC Engineering</div>
+          <span class="course-badge">~48 days</span>
+        </div>
+        <p class="course-hl">Investigate what your team escalates to you.</p>
+        <div class="course-meta">
+          <span>Operations required</span>
+          <span>Instructor-led</span>
+          <span>Investigative</span>
+        </div>
+        <ul class="course-bullets">
+          <li>Structured investigative methodology for infrastructure anomalies under real ambiguity</li>
+          <li>Cross-subsystem correlation — how a scheduler symptom connects to a storage root cause</li>
+          <li>GPU and distributed training investigation — NCCL failures, ECC anomalies, topology-sensitive degradation</li>
+          <li>Observability-driven timeline reconstruction across scheduler, storage, fabric, and GPU</li>
+          <li>Escalation coordination — evidence preservation, vendor packages, investigative reporting</li>
+        </ul>
+        <div class="course-prereq">
+          <strong>Requires:</strong> HPC Operations completion. Production experience strongly recommended.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- LEARNING PATHS -->
+<section id="paths">
+  <div class="container">
+    <div class="paths-header">
+      <p class="section-label">Learning paths</p>
+      <h2 class="section-hl">Find your starting point</h2>
+      <p class="section-sub">Not everyone starts from the same place. Three paths through the curriculum — pick the one that matches where you are today.</p>
+    </div>
+    <div class="paths-grid">
+      <div class="path-card">
+        <div class="path-name">Zero to operational</div>
+        <div class="path-who">You're new to HPC infrastructure — coming from enterprise IT, a research background, or a career change.</div>
+        <div class="path-flow">
+          <span class="path-step gray">Essentials</span>
+          <span class="path-arrow">→</span>
+          <span class="path-step teal">Fundamentals</span>
+          <span class="path-arrow">→</span>
+          <span class="path-step blue">Operations</span>
+          <span class="path-arrow">→</span>
+          <span class="path-step purple">Engineering</span>
+        </div>
+      </div>
+      <div class="path-card">
+        <div class="path-name">Infrastructure fast-track</div>
+        <div class="path-who">You're an experienced infrastructure engineer — Linux, cloud, storage, or VMware — and you need HPC-specific depth, not a conceptual introduction.</div>
+        <div class="path-flow">
+          <span class="path-step teal">Fundamentals</span>
+          <span class="path-arrow">→</span>
+          <span class="path-step blue">Operations</span>
+          <span class="path-arrow">→</span>
+          <span class="path-step purple">Engineering</span>
+        </div>
+      </div>
+      <div class="path-card">
+        <div class="path-name">Conceptual fluency</div>
+        <div class="path-who">You work with HPC infrastructure — as a researcher, manager, architect, or procurement professional — and need to understand it without operating it.</div>
+        <div class="path-flow">
+          <span class="path-step gray">Essentials</span>
+          <span class="path-arrow">→</span>
+          <span class="path-standalone">standalone</span>
+        </div>
+      </div>
+    </div>
+    <div class="paths-cta">
+      <p>Not sure where you fit? Book a 30-minute discovery call — we'll help you find the right starting point.</p>
+      <button
+        data-cal-link="rajesh-sr-kumar/discovery-call"
+        data-cal-namespace="discovery-call-popup"
+        data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
+        class="btn-primary">
+        Book a discovery call
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="container">
+    <div class="testi-header">
+      <p class="section-label">What engineers say</p>
+      <h2 class="section-hl">From the pilot cohort</h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-quote">Before this course I had very limited knowledge of HPC. The sessions gave me a strong foundation — the way the topics were explained made it easier to connect with the subject and develop a deeper interest in exploring HPC further.</div>
+        <div class="testi-author">
+          <div class="testi-name">Chandra Shekar</div>
+          <div class="testi-role">Enterprise IT Professional · Pilot cohort, April 2026</div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-quote">The course provided an excellent walkthrough of the key concepts and practical intricacies of the HPC world. I learned a great deal from both the lectures and the hands-on labs — particularly how the different components fit together in a real environment.</div>
+        <div class="testi-author">
+          <div class="testi-name">Pilot cohort participant</div>
+          <div class="testi-role">HPC Infrastructure · Pilot cohort, May 2026</div>
+        </div>
+      </div>
+      <div class="testi-card" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;border:1px dashed var(--border-strong);">
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-bottom:10px">Next cohort underway</div>
+        <div style="font-size:14px;color:var(--text-secondary);line-height:1.65;">More reviews will appear here as cohorts complete. All current ratings: <strong>5 / 5</strong>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOK A CALL -->
+<section id="book">
+  <div class="container">
+    <div class="book-inner">
+      <div class="book-left">
+        <p class="section-label">Discovery call</p>
+        <h2 class="section-hl">Talk to us before you enrol.</h2>
+        <p>30 minutes. No sales pitch. We'll help you work out whether this programme is the right fit, which course to start with, and what to expect from the labs.</p>
+        <div class="book-meta">
+          <div class="book-meta-item">30 min · Google Meet</div>
+          <div class="book-meta-item">Tue / Wed / Thu · 1pm – 7pm IST</div>
+          <div class="book-meta-item">India · UAE · Europe · US East</div>
+        </div>
+      </div>
+      <div id="my-cal-inline-discovery-call" style="width:100%;min-height:540px;overflow:scroll;border-radius:var(--radius-lg);border:1px solid var(--border);background:var(--card-bg);"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ENROL -->
+<section id="enrol">
+  <div class="container">
+    <div class="enrol-inner">
+      <div class="enrol-left">
+        <p class="section-label">Enrolment</p>
+        <h2 class="section-hl">Reserve your place.</h2>
+        <p>Cohorts are small by design. Fill in the form and we'll confirm your place and send everything you need ahead of the start date.</p>
+      </div>
+      <iframe
+        src="https://tally.so/embed/vGEJ7X?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
+        loading="lazy"
+        width="100%"
+        height="500"
+        frameborder="0"
+        marginheight="0"
+        marginwidth="0"
+        title="Course enrolment form">
+      </iframe>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div>
+        <a href="#hero" class="footer-logo">master<span>.hpc.now</span></a>
+        <div class="footer-info" style="margin-top:8px">
+          Professional HPC infrastructure training<br>
+          <a href="mailto:rajesh@hpc.now">rajesh@hpc.now</a>
+        </div>
+      </div>
+      <div class="footer-note">
+        No tracking.<br>No ads.<br>No nonsense.
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+function toggleMenu() {
+  var m = document.getElementById('navMobile');
+  m.classList.toggle('open');
+}
+document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+  a.addEventListener('click', function(e) {
+    var target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
 </body>
-
 </html>
