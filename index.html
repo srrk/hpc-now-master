@@ -1381,10 +1381,10 @@ footer {
 
       <div class="instructor-content">
         <p class="section-label">Your instructor</p>
-        <h2 class="section-hl">Built by someone who has designed, broken, and fixed HPC infrastructure for 16 years.</h2>
+        <h2 class="section-hl">Built by someone who has designed, scaled, and operated HPC infrastructure for 16 years.</h2>
         <div class="instructor-bio">
           <p>Rajesh Kumar is an HPC Architect based in Bengaluru, with over 16 years of hands-on experience designing and operating HPC infrastructure across research computing, life sciences, aerospace, and industrial engineering.</p>
-          <p>He started at IISc's Supercomputer Education and Research Centre — one of India's most demanding research computing environments — and spent a decade at C-DAC designing production clusters for institutions including IIT Hyderabad, NIBMG, Syngene, and Dr. Reddy's Laboratories. He later architected HPC platforms at GE India and Boeing India, where his work spanned CFD, FEA, digital twin workloads, and hybrid cloud HPC at global scale.</p>
+          <p>He started at IISc's Supercomputer Education and Research Centre — one of India's most demanding research computing environments — and spent a decade at C-DAC designing and operating production HPC clusters for institutions across genomics, bioinformatics, pharma, and academic research. He later architected HPC platforms at GE India and Boeing India, where his work spanned CFD, FEA, digital twin workloads, and hybrid cloud HPC at global scale.</p>
           <p>The curriculum at master.hpc.now is drawn directly from that experience — the operational mistakes engineers make when they're new to HPC, the investigative patterns that separate senior engineers from the rest, and the stack that most production clusters actually run on.</p>
         </div>
         <div class="instructor-creds">
@@ -1493,35 +1493,18 @@ document.querySelectorAll('a[href^="#"]').forEach(function(a) {
 var slides = document.querySelectorAll('.hero-slide');
 var dots   = document.querySelectorAll('.slider-dot');
 var current = 0;
-var timer;
-var heroSection = document.getElementById('hero');
 
 function showSlide(n) {
   slides[current].classList.remove('active');
   dots[current].classList.remove('active');
-  current = (n + slides.length) % slides.length;
+  current = ((n % slides.length) + slides.length) % slides.length;
   slides[current].classList.add('active');
   dots[current].classList.add('active');
 }
 
 function goToSlide(n) {
-  clearInterval(timer);
-  showSlide(((n % slides.length) + slides.length) % slides.length);
-  startTimer();
+  showSlide(n);
 }
-
-function nextSlide() { showSlide(current + 1); }
-
-function startTimer() {
-  timer = setInterval(nextSlide, 5000);
-}
-
-// Pause on hover
-heroSection.addEventListener('mouseenter', function() { clearInterval(timer); });
-heroSection.addEventListener('mouseleave', startTimer);
-
-// Kick off
-startTimer();
 </script>
 </body>
 </html>
