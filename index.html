@@ -204,6 +204,88 @@ nav {
   max-width: 780px;
 }
 
+/* ── HERO SLIDER ── */
+.hero-slider {
+  position: relative;
+  min-height: 180px;
+  margin-bottom: 2.5rem;
+  padding: 0 52px;
+}
+
+.hero-slide {
+  position: absolute;
+  top: 0;
+  left: 52px;
+  right: 52px;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  pointer-events: none;
+}
+
+.hero-slide.active {
+  opacity: 1;
+  position: relative;
+  left: 0;
+  right: 0;
+  pointer-events: auto;
+}
+
+.slider-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.slider-arrow.prev { left: 0; }
+.slider-arrow.next { right: 0; }
+
+.slider-arrow:hover {
+  background: rgba(245,158,11,0.2);
+  border-color: rgba(245,158,11,0.5);
+  color: #F59E0B;
+}
+
+.slider-dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 1.5rem;
+  align-items: center;
+}
+
+.slider-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.slider-dot.active {
+  background: #F59E0B;
+  transform: scale(1.25);
+}
+
+.slider-dot:hover {
+  background: rgba(255,255,255,0.5);
+}
+
 .hero-eyebrow {
   font-family: var(--font-mono);
   font-size: 12px;
@@ -240,7 +322,7 @@ nav {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .btn-primary {
@@ -281,26 +363,24 @@ nav {
 
 .trust-row {
   display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 2px;
 }
 
 .trust-item {
-  font-size: 13px;
+  font-size: 12px;
   color: rgba(255,255,255,0.45);
-  display: flex;
-  align-items: center;
-  gap: 7px;
+  white-space: nowrap;
+  padding: 0 14px;
+  border-left: 1px solid rgba(255,255,255,0.15);
 }
 
-.trust-item::before {
-  content: '';
-  display: block;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--blue-accent);
-  flex-shrink: 0;
+.trust-item:first-child {
+  padding-left: 0;
+  border-left: none;
 }
 
 /* ── SECTION COMMON ── */
@@ -832,7 +912,95 @@ footer {
   line-height: 1.7;
 }
 
-/* ── RESPONSIVE ── */
+/* ── INSTRUCTOR ── */
+#instructor { background: var(--page-bg); border-top: 1px solid var(--border); }
+
+.instructor-inner {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.instructor-photo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.instructor-photo {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center top;
+  border: 3px solid var(--border);
+  display: block;
+}
+
+.instructor-linkedin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--blue-cta);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  transition: color 0.2s;
+}
+
+.instructor-linkedin:hover { color: var(--blue-accent); }
+
+.instructor-content .section-label { margin-bottom: .75rem; }
+.instructor-content .section-hl { margin-bottom: 1.25rem; font-size: clamp(20px, 2.5vw, 28px); }
+
+.instructor-bio {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  margin-bottom: 2rem;
+}
+
+.instructor-bio p { margin-bottom: 1rem; }
+.instructor-bio p:last-child { margin-bottom: 0; }
+
+.instructor-creds {
+  display: flex;
+  gap: 0;
+  flex-wrap: wrap;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.instructor-cred {
+  flex: 1;
+  min-width: 140px;
+  padding: 14px 16px;
+  border-right: 1px solid var(--border);
+}
+
+.instructor-cred:last-child { border-right: none; }
+
+.instructor-cred-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+  line-height: 1.3;
+}
+
+.instructor-cred-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+
 @media (max-width: 900px) {
   .courses-grid { grid-template-columns: 1fr; }
   .paths-grid { grid-template-columns: 1fr; }
@@ -844,6 +1012,11 @@ footer {
   .pathway-node { flex-direction: row; text-align: left; gap: 1rem; align-items: center; }
   .pathway-dot { margin-bottom: 0; }
   .pathway-desc { display: none; }
+  .instructor-inner { grid-template-columns: 1fr; gap: 2rem; }
+  .instructor-photo-wrap { flex-direction: row; align-items: center; }
+  .instructor-creds { flex-direction: column; }
+  .instructor-cred { border-right: none; border-bottom: 1px solid var(--border); }
+  .instructor-cred:last-child { border-bottom: none; }
 }
 
 @media (max-width: 680px) {
@@ -855,6 +1028,9 @@ footer {
   .trust-row { gap: 1rem; }
   .footer-inner { flex-direction: column; align-items: flex-start; }
   .footer-note { text-align: left; }
+  .hero-slider { padding: 0; }
+  .hero-slide { left: 0; right: 0; }
+  .slider-arrow { display: none; }
 }
 </style>
 </head>
@@ -867,6 +1043,7 @@ footer {
     <ul class="nav-links">
       <li><a href="#courses">Courses</a></li>
       <li><a href="#paths">Learning paths</a></li>
+      <li><a href="#instructor">Instructor</a></li>
       <li><button data-cal-link="rajesh-sr-kumar/discovery-call" data-cal-namespace="discovery-call-popup" data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}' style="background:none;border:none;cursor:pointer;font-size:14px;color:rgba(255,255,255,0.72);font-family:var(--font-body);transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.72)'">Book a call</button></li>
       <li><button data-tally-open="vGEJ7X" data-tally-layout="modal" data-tally-width="600" data-tally-overlay="1" data-tally-emoji-text="👋" data-tally-emoji-animation="wave" style="background:none;border:none;cursor:pointer;font-size:14px;color:rgba(255,255,255,0.72);font-family:var(--font-body);transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.72)'">Enrol</button></li>
     </ul>
@@ -878,6 +1055,7 @@ footer {
   <div class="nav-mobile" id="navMobile">
     <a href="#courses" onclick="toggleMenu()">Courses</a>
     <a href="#paths" onclick="toggleMenu()">Learning paths</a>
+    <a href="#instructor" onclick="toggleMenu()">Instructor</a>
     <button data-cal-link="rajesh-sr-kumar/discovery-call" data-cal-namespace="discovery-call-popup" data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}' onclick="toggleMenu()" style="background:none;border:none;cursor:pointer;display:block;font-size:15px;color:rgba(255,255,255,0.8);padding:10px 0;width:100%;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06);">Book a call</button>
     <button data-tally-open="vGEJ7X" data-tally-layout="modal" data-tally-width="600" data-tally-overlay="1" data-tally-emoji-text="👋" data-tally-emoji-animation="wave" onclick="toggleMenu()" style="background:none;border:none;cursor:pointer;display:block;font-size:15px;color:rgba(255,255,255,0.8);padding:10px 0;width:100%;text-align:left;">Enrol now</button>
   </div>
@@ -887,9 +1065,40 @@ footer {
 <section id="hero">
   <div class="container">
     <div class="hero-inner">
-      <p class="hero-eyebrow">Professional HPC infrastructure training</p>
-      <h1 class="hero-hl">The professional training programme for <em>HPC infrastructure</em> engineers.</h1>
-      <p class="hero-sub">From first principles to production ownership — structured, instructor-led, built on real clusters. Four courses that take you from understanding what HPC is to investigating what broke and why.</p>
+
+      <!-- SLIDER SLIDES -->
+      <div class="hero-slider">
+
+        <button class="slider-arrow prev" onclick="goToSlide(current - 1)" aria-label="Previous slide">&#8592;</button>
+        <button class="slider-arrow next" onclick="goToSlide(current + 1)" aria-label="Next slide">&#8594;</button>
+
+        <div class="hero-slide active">
+          <p class="hero-eyebrow">Professional HPC infrastructure training</p>
+          <h1 class="hero-hl">The professional training programme for <em>HPC infrastructure</em> engineers.</h1>
+          <p class="hero-sub">From first principles to production ownership — structured, instructor-led, built on real clusters. Four courses that take you from understanding what HPC is to investigating what broke and why.</p>
+        </div>
+
+        <div class="hero-slide">
+          <p class="hero-eyebrow">HPC Essentials · ~10 days</p>
+          <h1 class="hero-hl">Understand the infrastructure <em>before</em> you're in the room discussing it.</h1>
+          <p class="hero-sub">Built for researchers, IT managers, and architects who need HPC fluency without operational depth. No prerequisites. No commands. Just the mental models that make everything else make sense.</p>
+        </div>
+
+        <div class="hero-slide">
+          <p class="hero-eyebrow">HPC Fundamentals + Operations</p>
+          <h1 class="hero-hl">Your infrastructure experience transfers. <em>Your HPC knowledge</em> is what's missing.</h1>
+          <p class="hero-sub">Built for Linux, VMware, cloud, and storage engineers making the move into HPC operations. Skip the conceptual intro — start where your background ends and HPC begins.</p>
+        </div>
+
+        <div class="hero-slide">
+          <p class="hero-eyebrow">HPC Professional · ~48 days</p>
+          <h1 class="hero-hl">You operate the cluster. <em>HPC Professional</em> teaches you to own it.</h1>
+          <p class="hero-sub">For engineers who have mastered the workflows and are ready for the next step — systematic cross-subsystem investigation, escalation reasoning, and the diagnostic capability that makes you the person the team calls.</p>
+        </div>
+
+      </div>
+
+      <!-- FIXED CTAS — same on all slides -->
       <div class="hero-btns">
         <button
           data-cal-link="rajesh-sr-kumar/discovery-call"
@@ -900,11 +1109,22 @@ footer {
         </button>
         <button data-tally-open="vGEJ7X" data-tally-layout="modal" data-tally-width="600" data-tally-overlay="1" data-tally-emoji-text="👋" data-tally-emoji-animation="wave" class="btn-secondary">Enrol now</button>
       </div>
+
+      <!-- TRUST SIGNALS -->
       <div class="trust-row">
         <span class="trust-item">Instructor-led, real infrastructure labs</span>
         <span class="trust-item">No vendor lock-in — open stack throughout</span>
         <span class="trust-item">Structured progression from concept to engineering</span>
       </div>
+
+      <!-- DOT INDICATORS -->
+      <div class="slider-dots">
+        <button class="slider-dot active" onclick="goToSlide(0)" aria-label="Slide 1"></button>
+        <button class="slider-dot" onclick="goToSlide(1)" aria-label="Slide 2"></button>
+        <button class="slider-dot" onclick="goToSlide(2)" aria-label="Slide 3"></button>
+        <button class="slider-dot" onclick="goToSlide(3)" aria-label="Slide 4"></button>
+      </div>
+
     </div>
   </div>
 </section>
@@ -1147,6 +1367,50 @@ footer {
   </div>
 </section>
 
+<!-- INSTRUCTOR -->
+<section id="instructor">
+  <div class="container">
+    <div class="instructor-inner">
+
+      <div class="instructor-photo-wrap">
+        <img src="images/rajesh.jpg" alt="Rajesh Kumar — HPC Architect" class="instructor-photo">
+        <a href="https://www.linkedin.com/in/srrajeshkumar/" target="_blank" rel="noopener" class="instructor-linkedin">
+          ↗ LinkedIn
+        </a>
+      </div>
+
+      <div class="instructor-content">
+        <p class="section-label">Your instructor</p>
+        <h2 class="section-hl">Built by someone who has designed, broken, and fixed HPC infrastructure for 16 years.</h2>
+        <div class="instructor-bio">
+          <p>Rajesh Kumar is an HPC Architect based in Bengaluru, with over 16 years of hands-on experience designing and operating HPC infrastructure across research computing, life sciences, aerospace, and industrial engineering.</p>
+          <p>He started at IISc's Supercomputer Education and Research Centre — one of India's most demanding research computing environments — and spent a decade at C-DAC designing production clusters for institutions including IIT Hyderabad, NIBMG, Syngene, and Dr. Reddy's Laboratories. He later architected HPC platforms at GE India and Boeing India, where his work spanned CFD, FEA, digital twin workloads, and hybrid cloud HPC at global scale.</p>
+          <p>The curriculum at master.hpc.now is drawn directly from that experience — the operational mistakes engineers make when they're new to HPC, the investigative patterns that separate senior engineers from the rest, and the stack that most production clusters actually run on.</p>
+        </div>
+        <div class="instructor-creds">
+          <div class="instructor-cred">
+            <div class="instructor-cred-value">16 years</div>
+            <div class="instructor-cred-label">HPC architecture</div>
+          </div>
+          <div class="instructor-cred">
+            <div class="instructor-cred-value">IISc · C-DAC · GE · Boeing</div>
+            <div class="instructor-cred-label">Where he's worked</div>
+          </div>
+          <div class="instructor-cred">
+            <div class="instructor-cred-value">Research · Pharma · Aerospace · Cloud</div>
+            <div class="instructor-cred-label">Domains</div>
+          </div>
+          <div class="instructor-cred">
+            <div class="instructor-cred-value">DG-R&amp;D Excellence Award</div>
+            <div class="instructor-cred-label">C-DAC, 2020</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <!-- BOOK A CALL -->
 <section id="book">
   <div class="container">
@@ -1208,10 +1472,13 @@ footer {
 </footer>
 
 <script>
+// ── NAV TOGGLE ──
 function toggleMenu() {
   var m = document.getElementById('navMobile');
   m.classList.toggle('open');
 }
+
+// ── SMOOTH SCROLL ──
 document.querySelectorAll('a[href^="#"]').forEach(function(a) {
   a.addEventListener('click', function(e) {
     var target = document.querySelector(this.getAttribute('href'));
@@ -1221,6 +1488,40 @@ document.querySelectorAll('a[href^="#"]').forEach(function(a) {
     }
   });
 });
+
+// ── HERO SLIDER ──
+var slides = document.querySelectorAll('.hero-slide');
+var dots   = document.querySelectorAll('.slider-dot');
+var current = 0;
+var timer;
+var heroSection = document.getElementById('hero');
+
+function showSlide(n) {
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = (n + slides.length) % slides.length;
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+}
+
+function goToSlide(n) {
+  clearInterval(timer);
+  showSlide(((n % slides.length) + slides.length) % slides.length);
+  startTimer();
+}
+
+function nextSlide() { showSlide(current + 1); }
+
+function startTimer() {
+  timer = setInterval(nextSlide, 5000);
+}
+
+// Pause on hover
+heroSection.addEventListener('mouseenter', function() { clearInterval(timer); });
+heroSection.addEventListener('mouseleave', startTimer);
+
+// Kick off
+startTimer();
 </script>
 </body>
 </html>
