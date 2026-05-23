@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linux for HPC · Sessions 1 & 2 · Lab Runbook · master.hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #181817;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --teal:       #0f6e56;
+      --teal-dim:   #1d9e75;
+      --teal-bg:    #e8f5f0;
+      --amber:      #c47f1a;
+      --amber-bg:   #fdf4e3;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--paper); color: var(--ink); font-family: var(--mono); font-size: 15px; line-height: 1.75; }
+
+    /* COVER */
+    .cover { background: var(--cover); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E"); }
+    .nav-wrap { border-bottom: 1px solid var(--rule-cover); }
+    nav { max-width: 1200px; margin: 0 auto; padding: 20px 52px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: var(--mono); font-size: 12px; color: #f0e8e0; text-decoration: none; letter-spacing: .06em; }
+    .logo em { color: var(--terra-dim); font-style: normal; }
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-tag { font-size: 10px; color: #6a6460; letter-spacing: .12em; text-transform: uppercase; }
+    .nav-mod { font-size: 11px; color: var(--terra-dim); letter-spacing: .06em; }
+    .hero { max-width: 1200px; margin: 0 auto; padding: 72px 52px 80px; }
+    .hero-eyebrow { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #6a6460; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+    .hero-eyebrow::before { content: ''; width: 20px; height: 1px; background: #6a6460; }
+    .hero-title { font-family: var(--serif); font-size: clamp(28px, 4vw, 52px); font-weight: 400; color: #f0e8e0; line-height: 1.15; letter-spacing: -.02em; margin-bottom: 28px; }
+    .hero-title em { font-style: italic; color: var(--terra-dim); }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid #2e2820; width: fit-content; margin-top: 36px; }
+    .hero-meta-item { padding: 12px 24px; border-right: 1px solid #2e2820; display: flex; flex-direction: column; gap: 3px; }
+    .hero-meta-item:last-child { border-right: none; }
+    .hero-meta-k { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .hero-meta-v { font-size: 12px; color: #c8c0b4; }
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* LAYOUT */
+    .page-body { max-width: 1200px; margin: 0 auto; padding: 0 52px; display: grid; grid-template-columns: 200px 1fr; gap: 0 72px; align-items: start; }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 40px; padding: 64px 0 40px; align-self: start; }
+    .side-label { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink3); margin-bottom: 12px; padding-left: 14px; }
+    .side-nav { display: flex; flex-direction: column; gap: 1px; margin-bottom: 20px; }
+    .side-nav-item { font-size: 11px; color: var(--ink3); text-decoration: none; letter-spacing: .03em; padding: 5px 0 5px 14px; border-left: 2px solid transparent; transition: color .18s, border-color .18s; line-height: 1.4; }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+    .side-nav-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+    .side-nav-part { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); padding: 8px 0 4px 14px; }
+
+    /* MAIN */
+    .main-content { padding: 0; background: var(--paper); }
+    .section { padding: 64px 0 56px; border-top: 1px solid var(--rule); }
+    .section:first-child { border-top: none; padding-top: 72px; }
+    .label { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: var(--ink3); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
+    .label::after { content: ''; width: 36px; height: 1px; background: var(--rule); }
+    .prose { font-size: 14px; color: var(--ink2); line-height: 2.05; max-width: 600px; }
+    .prose + .prose { margin-top: 1.2em; }
+    .prose code { font-family: var(--mono); font-size: 12px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+
+    /* CALLOUTS */
+    .callout { border-left: 3px solid var(--terra); padding: 18px 22px; background: var(--terra-bg); margin: 24px 0; max-width: 640px; }
+    .callout p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout p + p { margin-top: 8px; }
+    .callout strong { color: var(--terra); font-weight: 500; }
+    .callout-teal { border-left: 3px solid var(--teal); padding: 18px 22px; background: var(--teal-bg); margin: 24px 0; max-width: 640px; }
+    .callout-teal p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-teal p + p { margin-top: 8px; }
+    .callout-teal strong { color: var(--teal); font-weight: 500; }
+    .callout-amber { border-left: 3px solid var(--amber); padding: 18px 22px; background: var(--amber-bg); margin: 24px 0; max-width: 640px; }
+    .callout-amber p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-amber p + p { margin-top: 8px; }
+    .callout-amber strong { color: var(--amber); font-weight: 500; }
+
+    /* CODE BLOCKS */
+    .code-block { background: var(--dark); border: 1px solid #2e2820; padding: 20px 24px; margin: 20px 0; max-width: 640px; overflow-x: auto; position: relative; }
+    .code-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #2e2820; }
+    .code-block pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #c8c0b4; white-space: pre; overflow-x: auto; }
+    .code-block pre .cmd  { color: #9fe1cb; }
+    .code-block pre .cmt  { color: #4a4438; font-style: italic; }
+    .code-block pre .out  { color: #8a8078; }
+    .code-block pre .hi   { color: var(--amber); }
+    .copy-btn { position: absolute; top: 12px; right: 12px; background: #2e2820; border: 1px solid #3e3830; color: #6a6460; font-family: var(--mono); font-size: 10px; letter-spacing: .08em; padding: 4px 10px; cursor: pointer; transition: color .15s, border-color .15s; }
+    .copy-btn:hover { color: #9fe1cb; border-color: #9fe1cb; }
+    .copy-btn.copied { color: var(--teal-dim); border-color: var(--teal-dim); }
+
+    /* STEPS */
+    .steps { display: flex; flex-direction: column; gap: 0; max-width: 640px; margin: 24px 0; }
+    .step { display: grid; grid-template-columns: 48px 1fr; gap: 0 20px; padding: 28px 0; border-top: 1px solid var(--rule); align-items: start; }
+    .step:first-child { border-top: none; padding-top: 0; }
+    .step-num { font-size: 11px; color: var(--ink3); letter-spacing: .1em; padding-top: 4px; font-weight: 300; }
+    .step-title { font-family: var(--serif); font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 10px; line-height: 1.35; }
+    .step-desc { font-size: 13px; color: var(--ink2); line-height: 1.95; margin-bottom: 14px; max-width: 520px; }
+    .step-desc code { font-family: var(--mono); font-size: 11px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+    .step-notice { font-size: 12px; color: var(--terra); font-style: italic; line-height: 1.7; margin-top: 10px; display: flex; gap: 8px; align-items: flex-start; max-width: 520px; }
+    .step-notice::before { content: '→'; flex-shrink: 0; color: var(--terra-dim); }
+    .step-notice code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); font-style: normal; }
+
+    /* DOMAIN HEADER */
+    .domain-header { background: var(--dark); border-left: 4px solid var(--amber); padding: 20px 28px; margin-bottom: 28px; max-width: 640px; }
+    .domain-label { font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: #6a6460; margin-bottom: 6px; }
+    .domain-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: #f0e8e0; line-height: 1.3; margin-bottom: 6px; }
+    .domain-intent { font-size: 13px; color: #8a8078; font-style: italic; line-height: 1.7; }
+
+    /* CHECKPOINT */
+    .checkpoint-block { background: var(--dark); border: 1px solid var(--teal); max-width: 640px; margin: 28px 0; }
+    .checkpoint-header { background: var(--teal); padding: 10px 20px; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+    .checkpoint-header span { font-size: 11px; color: rgba(255,255,255,0.7); font-style: italic; letter-spacing: 0; text-transform: none; }
+    .checkpoint-body { padding: 20px 24px; position: relative; }
+    .checkpoint-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #9fe1cb; white-space: pre-wrap; word-break: break-all; }
+    .checkpoint-note { font-size: 12px; color: #8a8078; font-style: italic; margin-top: 14px; line-height: 1.7; padding-top: 12px; border-top: 1px solid #2e2820; }
+
+    /* EXPECTED OUTPUT */
+    .expected-block { background: #141210; border: 1px solid #2e2820; border-left: 3px solid var(--teal); max-width: 640px; margin: 12px 0; }
+    .expected-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--teal-dim); padding: 8px 16px; border-bottom: 1px solid #2e2820; }
+    .expected-body { padding: 14px 16px; }
+    .expected-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #8a8078; white-space: pre-wrap; }
+
+    /* CREDS TABLE */
+    .creds-table { border: 1px solid var(--rule); width: 100%; max-width: 560px; margin: 20px 0; border-collapse: collapse; }
+    .creds-table thead th { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); background: var(--paper-mid); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--rule); font-weight: 400; }
+    .creds-table tbody td { font-size: 12px; color: var(--ink2); padding: 11px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.6; }
+    .creds-table tbody tr:last-child td { border-bottom: none; }
+    .creds-table .name-col { font-family: var(--serif); font-style: italic; color: var(--ink); font-size: 14px; }
+    .creds-table .mono-col { font-family: var(--mono); color: var(--teal); font-size: 12px; }
+    .creds-table .pass-col { font-family: var(--mono); color: var(--amber); font-size: 12px; }
+
+    /* QUICKREF */
+    .quickref-block { background: var(--dark); border: 1px solid #2e2820; max-width: 640px; margin: 20px 0; overflow: hidden; }
+    .quickref-header { background: #2e2820; padding: 10px 20px; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .quickref-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid #2e2820; }
+    .quickref-row:last-child { border-bottom: none; }
+    .quickref-k { font-size: 11px; color: var(--amber); padding: 12px 16px; border-right: 1px solid #2e2820; display: flex; align-items: center; letter-spacing: .04em; font-weight: 500; }
+    .quickref-v { font-family: var(--mono); font-size: 12px; color: #9fe1cb; padding: 12px 16px; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+
+    /* FORWARD MAP TABLE */
+    .fwd-table { border: 1px solid var(--rule); width: 100%; max-width: 640px; margin: 20px 0; border-collapse: collapse; }
+    .fwd-table thead th { font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink3); background: var(--paper-mid); padding: 10px 16px; text-align: left; border-bottom: 2px solid var(--amber); font-weight: 400; }
+    .fwd-table tbody td { font-size: 12px; color: var(--ink2); padding: 12px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.7; }
+    .fwd-table tbody tr:last-child td { border-bottom: none; }
+    .fwd-table .concept-col { font-family: var(--mono); color: var(--amber); font-size: 11px; white-space: nowrap; }
+    .fwd-table .dest-col { font-family: var(--serif); font-style: italic; color: var(--ink); font-size: 13px; }
+    .fwd-table .task-col { font-size: 11px; color: var(--ink3); }
+
+    /* FOOTER */
+    .footer-wrap { background: var(--dark2); margin: 64px -52px 0; padding: 24px 52px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-top: 1px solid #2e2820; }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-badge { font-size: 10px; color: var(--teal-dim); letter-spacing: .08em; }
+    .footer-link { font-size: 11px; color: #6a6460; text-decoration: none; }
+
+    @media (max-width: 1024px) {
+      nav, .hero { padding-left: 32px; padding-right: 32px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 32px; }
+      .sidebar { display: none; }
+      .footer-wrap { margin: 64px -32px 0; padding: 24px 32px; }
+    }
+    @media (max-width: 640px) {
+      nav, .hero { padding-left: 20px; padding-right: 20px; }
+      .page-body { padding: 0 20px; }
+      .footer-wrap { margin: 64px -20px 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="https://master.hpc.now" class="logo">master<em>.hpc.now</em></a>
+      <div class="nav-right">
+        <span class="nav-tag">Lab Runbook</span>
+        <span class="nav-mod">Linux for HPC · Sessions 1 &amp; 2 · NUMA · cgroups</span>
+      </div>
+    </nav>
+  </div>
+  <div class="hero">
+    <p class="hero-eyebrow">Linux for HPC · Sessions 1 &amp; 2 · Lab Runbook · HPC Operations · Associate Stream</p>
+    <h1 class="hero-title">NUMA Topology and Process Binding,<br><em>cgroup Navigation and OOM Evidence</em></h1>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><span class="hero-meta-k">Instance</span><span class="hero-meta-v">mylab.hpc.now</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Type</span><span class="hero-meta-v">m5.16xlarge · us-east-1</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Users</span><span class="hero-meta-v">yogi · sujith · chandra · labguest</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Password</span><span class="hero-meta-v">hpcnow2026</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Cost</span><span class="hero-meta-v">~$3.07/hr · destroy when done</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- BODY -->
+<div class="page-body">
+
+  <aside class="sidebar">
+    <div class="side-label">Runbook</div>
+    <nav class="side-nav">
+      <a href="#before-you-start" class="side-nav-item">Before You Start</a>
+      <a href="#connect" class="side-nav-item">How to Connect</a>
+      <a href="#layout" class="side-nav-item">Directory Layout</a>
+      <div class="side-nav-divider"></div>
+      <div class="side-nav-part">Session 1 — NUMA</div>
+      <a href="#s1-overview" class="side-nav-item">Lab Overview</a>
+      <a href="#s1-ex1" class="side-nav-item">Ex 1 · lscpu topology</a>
+      <a href="#s1-ex2" class="side-nav-item">Ex 2 · SMT siblings</a>
+      <a href="#s1-ex3" class="side-nav-item">Ex 3 · numactl hardware</a>
+      <a href="#s1-ex4" class="side-nav-item">Ex 4 · Correct binding</a>
+      <a href="#s1-ex5" class="side-nav-item">Ex 5 · Page placement</a>
+      <a href="#s1-ex6" class="side-nav-item">Ex 6 · Cardinal rule</a>
+      <a href="#s1-ex7" class="side-nav-item">Ex 7 · taskset limit</a>
+      <a href="#s1-checkpoint" class="side-nav-item">Session 1 Checkpoint</a>
+      <div class="side-nav-divider"></div>
+      <div class="side-nav-part">Session 2 — cgroups</div>
+      <a href="#s2-overview" class="side-nav-item">Lab Overview</a>
+      <a href="#s2-preflight" class="side-nav-item">Pre-flight Checks</a>
+      <a href="#s2-ex1" class="side-nav-item">Ex 1 · Verify cgroup2fs</a>
+      <a href="#s2-ex2" class="side-nav-item">Ex 2 · Walk the tree</a>
+      <a href="#s2-ex3" class="side-nav-item">Ex 3 · sshd cgroup</a>
+      <a href="#s2-ex4" class="side-nav-item">Ex 4 · Memory files</a>
+      <a href="#s2-ex5" class="side-nav-item">Ex 5 · hello job</a>
+      <a href="#s2-ex6" class="side-nav-item">Ex 6 · cgroup_inspect</a>
+      <a href="#s2-ex7" class="side-nav-item">Ex 7 · OOM chain</a>
+      <a href="#s2-checkpoint" class="side-nav-item">Session 2 Checkpoint</a>
+      <div class="side-nav-divider"></div>
+      <a href="#forward" class="side-nav-item">Forward Connections</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- BEFORE YOU START -->
+    <section class="section" id="before-you-start">
+      <p class="label">before you start</p>
+      <p class="prose">This runbook covers two sessions on the same AWS EC2 instance. Session 1 runs entirely from the shell — no job scheduler. Session 2 requires a running Slurm stack; verify the pre-flight checklist before submitting any job.</p>
+      <p class="prose" style="margin-top:1em">Every exercise is self-contained. Expected Output blocks show the structure of correct output — actual numbers (PIDs, job IDs, memory values) will differ from what you see. The interpretation matters as much as the command.</p>
+
+      <div class="callout-amber" style="margin-top:28px">
+        <p><strong>Cost warning.</strong> The m5.16xlarge instance runs at approximately $3.07/hr. Run <code>./destroy.sh</code> at the end of the lab day. An idle instance left overnight costs roughly $75.</p>
+      </div>
+
+      <table class="creds-table" style="margin-top:28px">
+        <thead><tr><th>Name</th><th>Username</th><th>Password</th><th>Host</th></tr></thead>
+        <tbody>
+          <tr><td class="name-col">Yogi</td><td class="mono-col">yogi</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Sujith</td><td class="mono-col">sujith</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Chandra</td><td class="mono-col">chandra</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Guest</td><td class="mono-col">labguest</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- HOW TO CONNECT -->
+    <section class="section" id="connect">
+      <p class="label">how to connect</p>
+      <p class="prose">If deploy.sh completed successfully, an SSH config shortcut was written to your Mac's <code>~/.ssh/config</code>. Use either form:</p>
+      <div class="code-block" style="margin-top:20px">
+        <div class="code-label">SSH — shortcut (after deploy.sh)</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="cmd">ssh hpc-lab</span>                                    <span class="cmt"># uses ~/.ssh/config Host hpc-lab</span>
+<span class="cmt"># Once on the instance, switch to a lab user:</span>
+<span class="cmd">sudo su - yogi</span></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-label">SSH — manual form (replace IP from deploy.sh status output)</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="cmd">ssh -i ~/hpc-lab-key.pem rocky@&lt;instance-ip&gt;</span>
+<span class="cmd">sudo su - yogi</span></pre>
+      </div>
+    </section>
+
+    <!-- DIRECTORY LAYOUT -->
+    <section class="section" id="layout">
+      <p class="label">directory layout</p>
+      <p class="prose">All lab scripts are pre-staged under <code>/labdata/</code>. Each learner has a personal directory. Job scripts are under session subdirectories.</p>
+      <div class="code-block" style="margin-top:20px">
+        <div class="code-label">Lab filesystem layout</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="out">/labdata/
+├── yogi/              ← per-user scratch directory
+├── sujith/
+├── chandra/
+├── labguest/
+└── jobs/
+    ├── session1/      ← Session 1 NUMA exercises
+    │   ├── ex1_topology.sh
+    │   ├── ex2_smt.sh
+    │   ├── ex3_numa_hardware.sh
+    │   ├── ex4_bind_correct.sh
+    │   ├── ex5_numastat.sh
+    │   ├── ex6_bind_violation.sh
+    │   └── ex7_taskset.sh
+    └── session2/      ← Session 2 cgroup / Slurm exercises
+        ├── hello.sh
+        ├── cgroup_inspect.sh
+        └── oom_test.sh</span></pre>
+      </div>
+    </section>
+
+    <!-- ========================================
+         SESSION 1 — NUMA TOPOLOGY AND BINDING
+         ======================================== -->
+
+    <section class="section" id="s1-overview">
+      <div class="domain-header">
+        <p class="domain-label">Session 1 · NUMA Topology and Process Binding · ~35 minutes</p>
+        <h2 class="domain-title">Reading Topology, Binding Correctly, and Verifying the Result</h2>
+        <p class="domain-intent">Seven exercises using lscpu, lscpu -e, numactl, numastat, and taskset to establish the topology-reading and binding-verification habits that all subsequent HPC modules assume.</p>
+      </div>
+      <p class="prose">The m5.16xlarge instance spans two physical sockets — confirmed during lab setup. Every exercise in this session targets the topology that <code>lscpu</code> will report. Read the output fields carefully before moving to the next exercise.</p>
+    </section>
+
+    <!-- S1 EX 1 -->
+    <section class="section" id="s1-ex1">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Read lscpu — record the topology fields and derive physical core count</p>
+            <p class="step-desc">Run <code>lscpu</code> and read the four topology fields. Derive the physical core count from the arithmetic — do not use the logical CPU count for any capacity calculation.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">lscpu | grep -E 'Socket|Core|Thread|CPU\(s\)|NUMA'</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — m5.16xlarge</div>
+              <div class="expected-body"><pre>CPU(s):                  32
+Thread(s) per core:      2
+Core(s) per socket:      8
+Socket(s):               2
+NUMA node(s):            2
+NUMA node0 CPU(s):       0-7,16-23
+NUMA node1 CPU(s):       8-15,24-31
+
+Physical cores = Core(s)/socket × Socket(s) = 8 × 2 = 16
+Logical CPUs   = Physical cores × Thread(s)/core = 16 × 2 = 32
+The split range (0-7 and 16-23) is the SMT enumeration signature.
+CPU 0 and CPU 16 are SMT siblings on the same physical core.</pre></div>
+            </div>
+            <p class="step-desc" style="margin-top:14px">Record: physical core count, NUMA node count, and the CPU ranges for each node. These numbers are the inputs for the Session 2 Slurm job interpretation.</p>
+            <p class="step-notice">The number that matters for floating-point capacity is the physical core count. Logical CPU count includes SMT siblings that share one FPU.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S1 EX 2 -->
+    <section class="section" id="s1-ex2">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Use lscpu -e to identify SMT sibling pairs</p>
+            <p class="step-desc"><code>lscpu -e</code> prints one row per logical CPU showing its socket, physical core, and NUMA node membership. This removes all guesswork about which CPUs are siblings.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">lscpu -e=CPU,NODE,SOCKET,CORE | head -20</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — read the CORE column</div>
+              <div class="expected-body"><pre>CPU NODE SOCKET CORE
+  0    0      0    0
+  1    0      0    1
+  2    0      0    2
+  3    0      0    3
+  4    0      0    4
+  5    0      0    5
+  6    0      0    6
+  7    0      0    7
+  8    1      1    8
+  ...
+ 16    0      0    0   ← same CORE as CPU 0 → SMT sibling
+ 17    0      0    1   ← same CORE as CPU 1 → SMT sibling
+
+CORE column repeats when SMT siblings appear.
+CPU 0 and CPU 16 share CORE 0 on SOCKET 0 — one physical core, two threads.</pre></div>
+            </div>
+            <p class="step-notice">Identify: which CPU pairs share the same CORE value? Those pairs are SMT siblings. Binding both members of a sibling pair to the same job places two processes on one physical core and one FPU.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S1 EX 3 -->
+    <section class="section" id="s1-ex3">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Read the NUMA hardware topology with numactl --hardware</p>
+            <p class="step-desc">This produces the full NUMA picture: node count, CPU assignment per node, memory size and free per node, and the distance matrix. The distance matrix is the firmware's own statement of the NUMA penalty.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">numactl --hardware</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — two-node topology</div>
+              <div class="expected-body"><pre>available: 2 nodes (0-1)
+node 0 cpus: 0 1 2 3 4 5 6 7 16 17 18 19 20 21 22 23
+node 0 size: 64364 MB
+node 0 free: 62109 MB
+node 1 cpus: 8 9 10 11 12 13 14 15 24 25 26 27 28 29 30 31
+node 1 size: 64508 MB
+node 1 free: 62890 MB
+node distances:
+node   0   1
+  0:  10  21
+  1:  21  10
+
+Distance 10 = local (normalised to 10 by convention on all systems).
+Distance 21 = remote access costs 2.1× more than local.
+This penalty applies to latency and, more significantly, bandwidth.
+If node 0 free approaches zero, allocations spill to node 1 at 2.1× cost.</pre></div>
+            </div>
+            <p class="step-notice">Record: per-node free memory and the remote distance value. You will need these when evaluating whether a <code>--membind</code> constraint is safe on a loaded node.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout-teal" style="margin-top:8px">
+        <p><strong>What the distance matrix means operationally.</strong> A memory-bandwidth-bound code running with remote memory placement does not run slower by a tuning margin — it runs at approximately half the bandwidth of the local case. Correct NUMA placement and misplaced NUMA placement return numbers that differ by a factor of two.</p>
+      </div>
+    </section>
+
+    <!-- S1 EX 4 -->
+    <section class="section" id="s1-ex4">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Launch a correctly bound process and verify binding via /proc</p>
+            <p class="step-desc">A binding command expresses intent. The only authoritative record of what binding a process is actually running under is <code>/proc/&lt;pid&gt;/status</code>. Always verify after binding.</p>
+            <div class="code-block">
+              <div class="code-label">Run the pre-staged exercise script</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">bash /labdata/jobs/session1/ex4_bind_correct.sh</span></pre>
+            </div>
+            <p class="step-desc">Or run manually:</p>
+            <div class="code-block">
+              <div class="code-label">Manual — bind to NUMA node 0 CPUs and memory</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">numactl --cpunodebind=0 --membind=0 sleep 300 &amp;
+BOUND_PID=$!
+echo "Bound PID: $BOUND_PID"
+grep -E 'Cpus_allowed_list|Mems_allowed_list' /proc/${BOUND_PID}/status</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — both bindings on node 0</div>
+              <div class="expected-body"><pre>Cpus_allowed_list:   0-7,16-23
+Mems_allowed_list:   0
+
+Cpus_allowed_list shows which CPUs this process may run on.
+Mems_allowed_list shows which NUMA nodes it may allocate memory from.
+Both restricted to node 0 — cardinal rule satisfied.
+CPU: node 0 cores · Memory: node 0 DRAM · All local.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Clean up</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">kill $BOUND_PID 2>/dev/null; wait $BOUND_PID 2>/dev/null</span></pre>
+            </div>
+            <p class="step-notice"><code>Cpus_allowed_list</code> shows permission — it does not guarantee the scheduler will use all those cores. <code>Mems_allowed_list</code> shows which NUMA nodes the process may allocate from. Both must be correct.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S1 EX 5 -->
+    <section class="section" id="s1-ex5">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Verify page placement with numastat -p</p>
+            <p class="step-desc"><code>numastat -p &lt;pid&gt;</code> shows the per-node page count for a specific process — the ground truth of where physical memory pages actually live, not just where the process is permitted to allocate.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">numactl --cpunodebind=0 --membind=0 sleep 300 &amp;
+BOUND_PID=$!
+echo "PID: $BOUND_PID"
+sleep 1
+sudo numastat -p ${BOUND_PID}</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — pages local to node 0</div>
+              <div class="expected-body"><pre>Per-node process memory usage (in MBs) for PID XXXXX (sleep)
+                           Node 0          Node 1           Total
+                  --------  ------  ------
+Private              0.06        0.00           0.06
+Huge                 0.00        0.00           0.00
+---------          ------  ------  ------
+Total                0.06        0.00           0.06
+
+Node 0 column holds all pages. Node 1 = 0.00.
+Binding took effect. Memory is local.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">kill $BOUND_PID 2>/dev/null; wait $BOUND_PID 2>/dev/null</span></pre>
+            </div>
+            <p class="step-notice">In A10, when a benchmark result looks wrong, <code>sudo numastat -p &lt;pid&gt;</code> on the running benchmark process confirms or rules out NUMA locality as the cause before any other investigation begins.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S1 EX 6 -->
+    <section class="section" id="s1-ex6">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Violate the cardinal rule — CPU bound, memory unbound</p>
+            <p class="step-desc">This exercise deliberately misapplies binding to demonstrate the outcome: <code>--cpunodebind</code> without <code>--membind</code> restricts the CPU affinity but leaves memory allocation unrestricted. The kernel may satisfy allocations from either node.</p>
+            <div class="code-block">
+              <div class="code-label">Violation — CPU bound, memory NOT bound</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">numactl --cpunodebind=0 sleep 300 &amp;
+VIOLATED_PID=$!
+echo "PID: $VIOLATED_PID"
+grep -E 'Cpus_allowed_list|Mems_allowed_list' /proc/${VIOLATED_PID}/status</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — the cardinal rule violation</div>
+              <div class="expected-body"><pre>Cpus_allowed_list:   0-7,16-23
+Mems_allowed_list:   0-1
+
+Cpus_allowed_list: node 0 only  ✓
+Mems_allowed_list: BOTH nodes   ✗
+
+The CPU is bound. Memory is not.
+The kernel's automatic NUMA balancing is now disabled —
+  --cpunodebind switches it off.
+Memory pages may land on node 1 permanently via first-touch.
+The process is locked to node 0 CPUs but reading remotely.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">kill $VIOLATED_PID 2>/dev/null; wait $VIOLATED_PID 2>/dev/null</span></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout-amber" style="margin-top:8px">
+        <p><strong>The cardinal rule.</strong> Any <code>--cpunodebind</code> or <code>--physcpubind</code> must be paired with a matching <code>--membind</code> for the same node. CPU-only binding disables the kernel's automatic NUMA balancing while supplying no memory locality guarantee in its place. The result is worse than no binding at all: the process is locked to one set of CPUs but reading remotely, and the kernel cannot correct it.</p>
+      </div>
+    </section>
+
+    <!-- S1 EX 7 -->
+    <section class="section" id="s1-ex7">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 7</span>
+          <div>
+            <p class="step-title">Use taskset -cp — observe what it does and does not control</p>
+            <p class="step-desc"><code>taskset</code> sets CPU affinity. It has no memory binding capability. This exercise confirms the limit: after applying taskset, <code>Mems_allowed_list</code> remains unrestricted.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sleep 300 &amp;
+TEST_PID=$!
+echo "PID: $TEST_PID"
+
+taskset -cp 0-7 ${TEST_PID}          <span class="cmt"># bind CPUs to node 0 range</span>
+echo "--- After taskset ---"
+grep -E 'Cpus_allowed_list|Mems_allowed_list' /proc/${TEST_PID}/status</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — taskset sets CPU affinity only</div>
+              <div class="expected-body"><pre>pid 12345's current affinity list: 0-31
+pid 12345's new affinity list: 0-7
+
+--- After taskset ---
+Cpus_allowed_list:   0-7
+Mems_allowed_list:   0-1
+
+taskset controlled the CPU. Memory is still unrestricted.
+taskset has no --membind equivalent.
+To bind both CPU and memory: use numactl, not taskset.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">kill $TEST_PID 2>/dev/null; wait $TEST_PID 2>/dev/null</span></pre>
+            </div>
+            <p class="step-notice">Use <code>taskset</code> when CPU affinity is the only goal (e.g., pinning a monitoring process away from compute cores). Use <code>numactl</code> when both CPU and memory locality matter — which is the case for every HPC workload.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S1 CHECKPOINT -->
+    <section class="section" id="s1-checkpoint">
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Session 1 Checkpoint <span>Run this and confirm both fields are correct</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>numactl --cpunodebind=0 --membind=0 sleep 60 &amp; P=$!; sleep 1
+grep -E 'Cpus_allowed_list|Mems_allowed_list' /proc/$P/status
+kill $P 2>/dev/null
+echo "Session 1 checkpoint complete"</pre>
+          <div class="checkpoint-note">Expected: <code>Cpus_allowed_list</code> restricted to node 0 CPUs · <code>Mems_allowed_list: 0</code> (node 0 only) · <code>Session 1 checkpoint complete</code>. Both fields restricted to node 0 confirms the cardinal rule is satisfied.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================
+         SESSION 2 — cgroup NAVIGATION AND OOM
+         ======================================== -->
+
+    <section class="section" id="s2-overview">
+      <div class="domain-header">
+        <p class="domain-label">Session 2 · cgroup Navigation and OOM Evidence · ~40 minutes</p>
+        <h2 class="domain-title">Reading the Hierarchy, Navigating Job cgroups, and the Full OOM Evidence Chain</h2>
+        <p class="domain-intent">Seven exercises progressing from verifying the cgroup2 hierarchy and reading a service's cgroup, through live job cgroup inspection, to the OOM evidence chain — the payoff exercise of this session.</p>
+      </div>
+      <p class="prose">Session 2 requires Slurm to be running. The pre-flight checklist below must pass before submitting any job. The final exercise — oom_test.sh — was verified end-to-end during lab setup. You will reproduce that evidence chain from scratch.</p>
+    </section>
+
+    <!-- S2 PRE-FLIGHT -->
+    <section class="section" id="s2-preflight">
+      <p class="label">pre-flight checks</p>
+      <div class="code-block">
+        <div class="code-label">Verify Slurm daemons and cgroup hierarchy before any job submission</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="cmt"># Check all three Slurm daemons</span>
+<span class="cmd">for svc in slurmctld slurmd slurmdbd; do
+    systemctl is-active $svc && echo "$svc: running" || echo "$svc: FAILED"
+done</span>
+
+<span class="cmt"># Verify cgroup2 filesystem</span>
+<span class="cmd">stat -f --format="%T" /sys/fs/cgroup</span>
+
+<span class="cmt"># Verify the scheduler accepts jobs</span>
+<span class="cmd">squeue && echo "Slurm accepting commands"</span></pre>
+      </div>
+      <div class="expected-block">
+        <div class="expected-label">Expected — all green before proceeding</div>
+        <div class="expected-body"><pre>slurmctld: running
+slurmd: running
+slurmdbd: running
+cgroup2fs
+JOBID PARTITION  NAME  USER ST  TIME  NODES NODELIST
+Slurm accepting commands</pre></div>
+      </div>
+      <div class="callout-amber">
+        <p><strong>If any daemon shows FAILED:</strong> run <code>sudo systemctl restart &lt;daemon&gt;</code>, wait 10 seconds, and re-run the checks. If slurmdbd fails, check <code>journalctl -u slurmdbd -n 20 --no-pager</code> for the reason before restarting slurmctld.</p>
+      </div>
+    </section>
+
+    <!-- S2 EX 1 -->
+    <section class="section" id="s2-ex1">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Verify the cgroup hierarchy type</p>
+            <p class="step-desc">Confirm the instance runs a pure cgroups v2 unified hierarchy. All subsequent exercises assume <code>cgroup2fs</code>. The output from this command is the authoritative answer — not the kernel version or the distribution release.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">stat -f --format="%T" /sys/fs/cgroup</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — Rocky 9 / RHEL 9</div>
+              <div class="expected-body"><pre>cgroup2fs
+
+cgroup2fs = pure v2 unified hierarchy (RHEL 9 / Rocky 9 default).
+tmpfs = hybrid v1+v2 (RHEL 8 default — exercises below will not work as written).
+All subsequent exercises assume cgroup2fs.</pre></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S2 EX 2 -->
+    <section class="section" id="s2-ex2">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Walk the tree with systemd-cgls</p>
+            <p class="step-desc"><code>systemd-cgls</code> prints the full cgroup hierarchy as a tree. Every directory in this tree is a cgroup. Every process has exactly one position in the tree. This is the unified hierarchy in action.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">systemd-cgls --no-pager | head -40</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — read the structure</div>
+              <div class="expected-body"><pre>Control group /:
+-.slice
+  ├─system.slice
+  │ ├─sshd.service
+  │ │ └─1234 sshd: /usr/sbin/sshd -D [listener]
+  │ ├─slurmctld.service
+  │ │ └─2345 /usr/sbin/slurmctld -D
+  │ └─slurmd.service
+  │   └─2346 /usr/sbin/slurmd -D
+  ├─user.slice
+  │ └─user-1001.slice
+  │   └─session-1.scope
+  │       └─3456 -bash
+  └─init.scope
+      └─1 /usr/lib/systemd/systemd
+
+system.slice: systemd-managed services (sshd, slurmd, slurmctld)
+user.slice:   user login sessions
+init.scope:   PID 1 (systemd itself)
+
+One tree. Every process positioned exactly once.
+In cgroups v1, memory, CPU, and devices had separate trees.</pre></div>
+            </div>
+            <p class="step-notice">When a Slurm job is running, its cgroup appears under <code>system.slice/slurmstepd.scope/job_&lt;id&gt;/</code>. Exercise 5 walks into that directory while a job is alive.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S2 EX 3 -->
+    <section class="section" id="s2-ex3">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Find sshd's cgroup and navigate to it</p>
+            <p class="step-desc"><code>systemctl show --property=ControlGroup</code> returns the cgroup path for any systemd-managed service. The path is relative to <code>/sys/fs/cgroup</code>.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">systemctl show --property=ControlGroup sshd.service</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>ControlGroup=/system.slice/sshd.service
+
+Full filesystem path: /sys/fs/cgroup/system.slice/sshd.service</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Navigate and list interface files</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">CGROUP_PATH="/sys/fs/cgroup$(systemctl show --property=ControlGroup sshd.service --value)"
+echo "cgroup path: $CGROUP_PATH"
+ls $CGROUP_PATH</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — cgroup interface files</div>
+              <div class="expected-body"><pre>cgroup.controllers  cgroup.events  cgroup.procs  cgroup.threads
+cpu.pressure  cpu.stat  cpu.weight  io.pressure
+memory.current  memory.events  memory.high  memory.low
+memory.max  memory.min  memory.pressure  memory.stat
+pids.current  pids.events  pids.max
+
+Files starting with memory. → memory controller
+Files starting with cpu.   → CPU controller
+cgroup.procs → PIDs of processes directly in this cgroup</pre></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S2 EX 4 -->
+    <section class="section" id="s2-ex4">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Read memory.max, memory.current, and memory.events for sshd</p>
+            <p class="step-desc">These three files are the core of the OOM investigation workflow. <code>memory.events</code> is the forensic record — <code>oom_kill</code> is a cumulative counter that the kernel increments every time the OOM killer fires inside this cgroup.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">CGROUP_PATH="/sys/fs/cgroup$(systemctl show --property=ControlGroup sshd.service --value)"
+echo "=== memory.max ==="
+cat $CGROUP_PATH/memory.max
+echo "=== memory.current ==="
+cat $CGROUP_PATH/memory.current
+echo "=== memory.events ==="
+cat $CGROUP_PATH/memory.events</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — sshd has no memory limit</div>
+              <div class="expected-body"><pre>=== memory.max ===
+max
+
+=== memory.current ===
+5242880
+
+=== memory.events ===
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+
+memory.max = "max" (literal string): no limit set on sshd.
+memory.current: sshd is using ~5 MiB right now.
+oom_kill = 0: sshd has never been OOM-killed.
+
+For a Slurm job submitted with --mem=50M:
+  memory.max would show 52428800  (50 MiB in bytes)
+When oom_kill > 0: that job hit its --mem limit.</pre></div>
+            </div>
+            <p class="step-notice"><code>oom_kill</code> greater than zero is the kernel's own count of OOM kills in this cgroup. This is ground truth — not a log message, not an estimate. This is what Exercise 7 produces on the job cgroup.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S2 EX 5 -->
+    <section class="section" id="s2-ex5">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Submit hello.sh — find the job cgroup while it is running</p>
+            <p class="step-desc">hello.sh is a minimal batch job that prints its own cgroup path from <code>/proc/self/cgroup</code> and then sleeps for 60 seconds. This window lets you navigate the live job cgroup from another session.</p>
+            <div class="code-block">
+              <div class="code-label">Terminal 1 — submit the job</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cd /labdata/jobs/session2
+sbatch hello.sh</span>
+<span class="out">Submitted batch job 42</span>
+<span class="cmd">squeue</span>
+<span class="out">JOBID PARTITION  NAME      USER ST  TIME  NODES NODELIST
+   42    normal  hello.sh  yogi  R  0:03      1 mylab</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Terminal 2 — find and navigate the job cgroup</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmt"># Find the job cgroup by job ID (use your actual job ID)</span>
+<span class="cmd">find /sys/fs/cgroup -name "job_42" -type d 2>/dev/null</span>
+<span class="out">/sys/fs/cgroup/system.slice/slurmstepd.scope/job_42</span>
+
+<span class="cmd">JOB_CGROUP="/sys/fs/cgroup/system.slice/slurmstepd.scope/job_42"
+cat $JOB_CGROUP/memory.max
+cat $JOB_CGROUP/memory.current
+cat $JOB_CGROUP/cgroup.procs</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — live job cgroup</div>
+              <div class="expected-body"><pre>memory.max:     max       ← hello.sh has no --mem limit set
+memory.current: 2097152   ← ~2 MiB in use right now
+cgroup.procs:   7890      ← PID of the slurmstepd/job process
+
+Job ID numbers will differ from 42. Use your actual JOBID from squeue.
+The cgroup path pattern is always:
+  /sys/fs/cgroup/system.slice/slurmstepd.scope/job_&lt;JOBID&gt;/</pre></div>
+            </div>
+            <p class="step-notice">The job cgroup is created by Slurm at launch and destroyed when the job completes. The 60-second sleep gives you the window to inspect it. Exercise 6 extends this with a job that reads its own controller files.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S2 EX 6 -->
+    <section class="section" id="s2-ex6">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Submit cgroup_inspect.sh — read controller files from inside the job</p>
+            <p class="step-desc">cgroup_inspect.sh reads <code>memory.max</code>, <code>memory.current</code>, <code>memory.events</code>, <code>cpu.weight</code>, and <code>cpuset.cpus</code> from its own cgroup path and prints them to the job output file. This shows what the job sees from inside the cgroup.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cd /labdata/jobs/session2
+sbatch cgroup_inspect.sh</span>
+<span class="out">Submitted batch job 43</span>
+
+<span class="cmt"># Wait for completion</span>
+<span class="cmd">squeue
+cat slurm-43.out</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — from inside the job's cgroup</div>
+              <div class="expected-body"><pre>=== cgroup path ===
+0::/system.slice/slurmstepd.scope/job_43/step_batch/
+
+=== memory.max ===
+max
+
+=== memory.current ===
+3145728
+
+=== memory.events ===
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+
+=== cpu.weight ===
+100
+
+=== cpuset.cpus ===
+0-31
+
+All counters at zero: no memory pressure, no OOM events.
+cpu.weight = 100: default proportional share.
+cpuset.cpus: all cores available (no --cpus-per-task binding set).</pre></div>
+            </div>
+            <p class="step-desc" style="margin-top:12px">The output file name uses your actual job ID: <code>slurm-43.out</code>. Use whatever ID <code>sbatch</code> returned.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S2 EX 7 — THE PAYOFF -->
+    <section class="section" id="s2-ex7">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 7</span>
+          <div>
+            <p class="step-title">Submit oom_test.sh — assemble the full OOM evidence chain</p>
+            <p class="step-desc">oom_test.sh requests 50 MiB from Slurm (<code>#SBATCH --mem=50M</code>) but allocates 200 MiB at runtime. The memory controller enforces the limit: the process is OOM-killed, exits with code 137, and leaves behind a complete evidence chain across four sources. Your job is to assemble that chain.</p>
+
+            <div class="code-block">
+              <div class="code-label">Step 1 — submit the job</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cd /labdata/jobs/session2
+sbatch oom_test.sh</span>
+<span class="out">Submitted batch job 44</span>
+
+<span class="cmt"># Watch until the job disappears from the queue</span>
+<span class="cmd">watch -n2 squeue</span>
+<span class="cmt"># Job will appear briefly in R state, then vanish. Ctrl-C when gone.</span></pre>
+            </div>
+
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Step 2 — sacct: exit code 137 and MaxRSS</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sacct -j 44 --format=JobID,JobName,State,ExitCode,MaxRSS,Elapsed --noheader</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — the job's accounting record</div>
+              <div class="expected-body"><pre>44       oom_test.sh  FAILED      137:0   49152K   0:02
+44.batch oom_test.sh  FAILED      137:0   49152K   0:02
+
+ExitCode 137:0 = signal 9 (SIGKILL) — OOM kill.
+MaxRSS ≈ 49152K ≈ 48 MiB — near the 50 MiB limit.
+State FAILED confirms this was not a normal job exit.</pre></div>
+            </div>
+
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Step 3 — memory.events: oom_kill count</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmt"># The job cgroup persists briefly after completion.
+# If it is already gone, the evidence is in the sacct record and slurmd log.</span>
+<span class="cmd">find /sys/fs/cgroup -name "job_44" -type d 2>/dev/null</span>
+<span class="cmt"># If found:</span>
+<span class="cmd">cat /sys/fs/cgroup/system.slice/slurmstepd.scope/job_44/memory.events | grep oom_kill</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — while cgroup still exists</div>
+              <div class="expected-body"><pre>oom_kill 1
+
+oom_kill = 1: the kernel OOM-killed exactly one process in this cgroup.
+This is the kernel's own count — not a log message, not an inference.</pre></div>
+            </div>
+
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Step 4 — slurmd log: slurmstepd OOM detection</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo journalctl -u slurmd --no-pager | grep -i "oom\|44" | tail -10</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — slurmstepd evidence</div>
+              <div class="expected-body"><pre>... slurmstepd: error: Detected 1 oom_kill event in StepId=44.batch
+
+slurmstepd reads memory.events at job teardown.
+When oom_kill > 0, it logs this message.
+This is how Slurm knows to report the job as OOM-killed.</pre></div>
+            </div>
+
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Step 5 — dmesg: kernel OOM record</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo dmesg -T | grep -i "oom\|killed process" | tail -5</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — kernel OOM record</div>
+              <div class="expected-body"><pre>[timestamp] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),
+            cpuset=job_44,mems_allowed=0,
+            oom_memcg=/system.slice/slurmstepd.scope/job_44/step_batch,
+            task_memcg=/system.slice/slurmstepd.scope/job_44/step_batch,
+            task=python3,pid=XXXXX,uid=1001
+[timestamp] Out of memory: Killed process XXXXX (python3)
+
+constraint=CONSTRAINT_MEMCG: the job hit its --mem cgroup limit.
+This is a user issue (job needs more --mem), not a node issue.</pre></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout-teal" style="margin-top:8px">
+        <p><strong>The complete OOM evidence chain.</strong> Four sources, each answering a different question:</p>
+        <p><code>sacct</code> — exit code 137, MaxRSS near the limit (the user-facing view).</p>
+        <p><code>memory.events oom_kill</code> — the kernel's own count, ground truth that OOM occurred inside this job's cgroup.</p>
+        <p><code>slurmstepd log</code> — confirmation that Slurm saw and recorded the event at job teardown.</p>
+        <p><code>dmesg oom-kill</code> — the constraint type (<code>CONSTRAINT_MEMCG</code> vs <code>CONSTRAINT_NONE</code>) determines whether the resolution is "user increases --mem" or "operator investigates node-level exhaustion."</p>
+      </div>
+    </section>
+
+    <!-- S2 CHECKPOINT -->
+    <section class="section" id="s2-checkpoint">
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Session 2 Checkpoint <span>Run this after oom_test.sh has completed</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>sacct -j $(sacct --name=oom_test.sh --noheader --format=JobID | head -1 | awk '{print $1}') \
+  --format=JobID,ExitCode,MaxRSS --noheader
+echo "Session 2 checkpoint complete"</pre>
+          <div class="checkpoint-note">Expected: a row showing ExitCode <code>137:0</code> and MaxRSS near 50 MiB, followed by <code>Session 2 checkpoint complete</code>. ExitCode 137 confirms the OOM kill landed in the accounting record.</div>
+        </div>
+      </div>
+
+      <div class="callout-teal" style="margin-top:28px">
+        <p><strong>Both sessions complete.</strong> Session 1 established the topology-reading and binding-verification workflow: lscpu → lscpu -e → numactl --hardware → correct binding → /proc/pid/status verification → numastat -p page placement → cardinal rule violation → taskset limitation.</p>
+        <p>Session 2 built the cgroup navigation workflow from first principles — hierarchy verification, tree walk, service cgroup path, memory controller files — then connected it to live job inspection and the full OOM evidence chain across all four evidence sources.</p>
+      </div>
+    </section>
+
+    <!-- FORWARD CONNECTIONS -->
+    <section class="section" id="forward">
+      <p class="label">where this shows up — forward connections</p>
+      <p class="prose">The techniques from both sessions surface in specific tasks with specific commands. These are not background concepts.</p>
+
+      <table class="fwd-table" style="margin-top:24px">
+        <thead>
+          <tr><th>Session · Concept</th><th>Module · Task</th><th>Specific technique</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="concept-col">S2 · OOM evidence chain</td>
+            <td class="dest-col">A4 · T35 — Confirm OOM, report MaxRSS</td>
+            <td class="task-col"><code>sacct ExitCode</code> + <code>memory.events oom_kill</code> + <code>dmesg constraint=</code> · MaxRSS vs <code>--mem</code> determines the recommendation · constraint type determines the resolution path</td>
+          </tr>
+          <tr>
+            <td class="concept-col">S2 · cgroup.procs + job cgroup path</td>
+            <td class="dest-col">A4 · T36 — CG state recovery</td>
+            <td class="task-col"><code>cat cgroup.procs</code> in the job cgroup reveals which processes are still alive · <code>ps -eLf</code> on those PIDs shows state · <code>/proc/&lt;pid&gt;/stack</code> identifies the D-state block</td>
+          </tr>
+          <tr>
+            <td class="concept-col">S2 · cgroup job lifecycle</td>
+            <td class="dest-col">A4 · T43 — CG state mechanics</td>
+            <td class="task-col">Understanding that Slurm creates a job cgroup at launch and requires it to be empty before marking the node idle — this is why D-state processes in the cgroup hold the node in CG state indefinitely</td>
+          </tr>
+          <tr>
+            <td class="concept-col">S1 · numactl + Mems_allowed_list</td>
+            <td class="dest-col">A10 · T84 — MPI process placement</td>
+            <td class="task-col"><code>numactl --cpunodebind --membind</code> for NUMA-aware MPI rank placement · <code>grep Mems_allowed_list /proc/&lt;pid&gt;/status</code> verifies each rank's memory affinity after launch</td>
+          </tr>
+          <tr>
+            <td class="concept-col">S1 · numastat -p + NUMA topology</td>
+            <td class="dest-col">A10 · T100 / T103 — HPL / STREAM</td>
+            <td class="task-col"><code>sudo numastat -p &lt;pid&gt;</code> on the benchmark process confirms local page placement · remote pages during a benchmark run explain under-expected bandwidth results before any other investigation</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="footer-wrap">
+        <span class="footer-copy">Linux for HPC · Sessions 1 &amp; 2 · Lab Runbook · HPC Operations · Associate Stream</span>
+        <span class="footer-badge">NUMA · cgroups · OOM Evidence · master.hpc.now</span>
+        <a href="https://master.hpc.now" class="footer-link">master.hpc.now</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(i => i.classList.remove('is-active'));
+        const a = document.querySelector('.side-nav-item[href="#' + entry.target.id + '"]');
+        if (a) a.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  function copyCode(btn) {
+    const block = btn.closest('.code-block, .checkpoint-body');
+    const pre = block.querySelector('pre');
+    const text = pre.innerText || pre.textContent;
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      btn.textContent = 'copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>

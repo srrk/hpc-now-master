@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linux for HPC · Day 2 · Lab Runbook · master.hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #181817;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --teal:       #0f6e56;
+      --teal-dim:   #1d9e75;
+      --teal-bg:    #e8f5f0;
+      --amber:      #c47f1a;
+      --amber-bg:   #fdf4e3;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--paper); color: var(--ink); font-family: var(--mono); font-size: 15px; line-height: 1.75; }
+
+    /* COVER */
+    .cover { background: var(--cover); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E"); }
+    .nav-wrap { border-bottom: 1px solid var(--rule-cover); }
+    nav { max-width: 1200px; margin: 0 auto; padding: 20px 52px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: var(--mono); font-size: 12px; color: #f0e8e0; text-decoration: none; letter-spacing: .06em; }
+    .logo em { color: var(--terra-dim); font-style: normal; }
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-tag { font-size: 10px; color: #6a6460; letter-spacing: .12em; text-transform: uppercase; }
+    .nav-mod { font-size: 11px; color: var(--terra-dim); letter-spacing: .06em; }
+    .hero { max-width: 1200px; margin: 0 auto; padding: 72px 52px 80px; }
+    .hero-eyebrow { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #6a6460; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+    .hero-eyebrow::before { content: ''; width: 20px; height: 1px; background: #6a6460; }
+    .hero-title { font-family: var(--serif); font-size: clamp(32px, 4.5vw, 56px); font-weight: 400; color: #f0e8e0; line-height: 1.15; letter-spacing: -.02em; margin-bottom: 28px; }
+    .hero-title em { font-style: italic; color: var(--terra-dim); }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid #2e2820; width: fit-content; margin-top: 36px; }
+    .hero-meta-item { padding: 12px 24px; border-right: 1px solid #2e2820; display: flex; flex-direction: column; gap: 3px; }
+    .hero-meta-item:last-child { border-right: none; }
+    .hero-meta-k { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .hero-meta-v { font-size: 12px; color: #c8c0b4; }
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* LAYOUT */
+    .page-body { max-width: 1200px; margin: 0 auto; padding: 0 52px; display: grid; grid-template-columns: 200px 1fr; gap: 0 72px; align-items: start; }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 40px; padding: 64px 0 40px; align-self: start; }
+    .side-label { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink3); margin-bottom: 12px; padding-left: 14px; }
+    .side-nav { display: flex; flex-direction: column; gap: 1px; margin-bottom: 20px; }
+    .side-nav-item { font-size: 11px; color: var(--ink3); text-decoration: none; letter-spacing: .03em; padding: 5px 0 5px 14px; border-left: 2px solid transparent; transition: color .18s, border-color .18s; line-height: 1.4; }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+    .side-nav-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+    .side-nav-part { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); padding: 8px 0 4px 14px; }
+
+    /* MAIN */
+    .main-content { padding: 0; background: var(--paper); }
+    .section { padding: 64px 0 56px; border-top: 1px solid var(--rule); }
+    .section:first-child { border-top: none; padding-top: 72px; }
+    .label { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: var(--ink3); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
+    .label::after { content: ''; width: 36px; height: 1px; background: var(--rule); }
+    .prose { font-size: 14px; color: var(--ink2); line-height: 2.05; max-width: 600px; }
+    .prose + .prose { margin-top: 1.2em; }
+    .prose code { font-family: var(--mono); font-size: 12px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+
+    /* CALLOUTS */
+    .callout { border-left: 3px solid var(--terra); padding: 18px 22px; background: var(--terra-bg); margin: 24px 0; max-width: 640px; }
+    .callout p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout p + p { margin-top: 8px; }
+    .callout strong { color: var(--terra); font-weight: 500; }
+    .callout-teal { border-left: 3px solid var(--teal); padding: 18px 22px; background: var(--teal-bg); margin: 24px 0; max-width: 640px; }
+    .callout-teal p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-teal p + p { margin-top: 8px; }
+    .callout-teal strong { color: var(--teal); font-weight: 500; }
+    .callout-amber { border-left: 3px solid var(--amber); padding: 18px 22px; background: var(--amber-bg); margin: 24px 0; max-width: 640px; }
+    .callout-amber p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-amber p + p { margin-top: 8px; }
+    .callout-amber strong { color: var(--amber); font-weight: 500; }
+
+    /* CODE BLOCKS */
+    .code-block { background: var(--dark); border: 1px solid #2e2820; padding: 20px 24px; margin: 20px 0; max-width: 640px; overflow-x: auto; position: relative; }
+    .code-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #2e2820; }
+    .code-block pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #c8c0b4; white-space: pre; overflow-x: auto; }
+    .code-block pre .cmd  { color: #9fe1cb; }
+    .code-block pre .cmt  { color: #4a4438; font-style: italic; }
+    .code-block pre .out  { color: #8a8078; }
+    .code-block pre .hi   { color: var(--amber); }
+    .copy-btn { position: absolute; top: 12px; right: 12px; background: #2e2820; border: 1px solid #3e3830; color: #6a6460; font-family: var(--mono); font-size: 10px; letter-spacing: .08em; padding: 4px 10px; cursor: pointer; transition: color .15s, border-color .15s; }
+    .copy-btn:hover { color: #9fe1cb; border-color: #9fe1cb; }
+    .copy-btn.copied { color: var(--teal-dim); border-color: var(--teal-dim); }
+
+    /* STEPS */
+    .steps { display: flex; flex-direction: column; gap: 0; max-width: 640px; margin: 24px 0; }
+    .step { display: grid; grid-template-columns: 48px 1fr; gap: 0 20px; padding: 28px 0; border-top: 1px solid var(--rule); align-items: start; }
+    .step:first-child { border-top: none; padding-top: 0; }
+    .step-num { font-size: 11px; color: var(--ink3); letter-spacing: .1em; padding-top: 4px; font-weight: 300; }
+    .step-title { font-family: var(--serif); font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 10px; line-height: 1.35; }
+    .step-desc { font-size: 13px; color: var(--ink2); line-height: 1.95; margin-bottom: 14px; max-width: 520px; }
+    .step-desc code { font-family: var(--mono); font-size: 11px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+    .step-notice { font-size: 12px; color: var(--terra); font-style: italic; line-height: 1.7; margin-top: 10px; display: flex; gap: 8px; align-items: flex-start; max-width: 520px; }
+    .step-notice::before { content: '→'; flex-shrink: 0; color: var(--terra-dim); }
+    .step-notice code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); font-style: normal; }
+
+    /* DOMAIN HEADER */
+    .domain-header { background: var(--dark); border-left: 4px solid var(--amber); padding: 20px 28px; margin-bottom: 28px; max-width: 640px; }
+    .domain-label { font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: #6a6460; margin-bottom: 6px; }
+    .domain-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: #f0e8e0; line-height: 1.3; margin-bottom: 6px; }
+    .domain-intent { font-size: 13px; color: #8a8078; font-style: italic; line-height: 1.7; }
+
+    /* CHECKPOINT */
+    .checkpoint-block { background: var(--dark); border: 1px solid var(--teal); max-width: 640px; margin: 28px 0; }
+    .checkpoint-header { background: var(--teal); padding: 10px 20px; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+    .checkpoint-header span { font-size: 11px; color: rgba(255,255,255,0.7); font-style: italic; letter-spacing: 0; text-transform: none; }
+    .checkpoint-body { padding: 20px 24px; position: relative; }
+    .checkpoint-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #9fe1cb; white-space: pre-wrap; word-break: break-all; }
+    .checkpoint-note { font-size: 12px; color: #8a8078; font-style: italic; margin-top: 14px; line-height: 1.7; padding-top: 12px; border-top: 1px solid #2e2820; }
+
+    /* EXPECTED OUTPUT */
+    .expected-block { background: #141210; border: 1px solid #2e2820; border-left: 3px solid var(--teal); max-width: 640px; margin: 12px 0; }
+    .expected-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--teal-dim); padding: 8px 16px; border-bottom: 1px solid #2e2820; }
+    .expected-body { padding: 14px 16px; }
+    .expected-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #8a8078; white-space: pre-wrap; }
+
+    /* WRONG BLOCK */
+    .wrong-block { background: #140e0e; border: 1px solid #2e2820; border-left: 3px solid var(--terra); max-width: 640px; margin: 12px 0; }
+    .wrong-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--terra-dim); padding: 8px 16px; border-bottom: 1px solid #2e1818; }
+    .wrong-body { padding: 14px 16px; font-size: 13px; color: var(--ink2); line-height: 1.85; }
+    .wrong-body code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); background: rgba(123,75,51,0.1); padding: 1px 5px; }
+    .wrong-body p + p { margin-top: 8px; }
+
+    /* CREDS TABLE */
+    .creds-table { border: 1px solid var(--rule); width: 100%; max-width: 560px; margin: 20px 0; border-collapse: collapse; }
+    .creds-table thead th { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); background: var(--paper-mid); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--rule); font-weight: 400; }
+    .creds-table tbody td { font-size: 12px; color: var(--ink2); padding: 11px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.6; }
+    .creds-table tbody tr:last-child td { border-bottom: none; }
+    .creds-table .name-col { font-family: var(--serif); font-style: italic; color: var(--ink); font-size: 14px; }
+    .creds-table .mono-col { font-family: var(--mono); color: var(--teal); font-size: 12px; }
+    .creds-table .pass-col { font-family: var(--mono); color: var(--amber); font-size: 12px; }
+
+    /* QUICKREF */
+    .quickref-block { background: var(--dark); border: 1px solid #2e2820; max-width: 640px; margin: 20px 0; overflow: hidden; }
+    .quickref-header { background: #2e2820; padding: 10px 20px; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .quickref-row { display: grid; grid-template-columns: 100px 1fr; border-bottom: 1px solid #2e2820; }
+    .quickref-row:last-child { border-bottom: none; }
+    .quickref-k { font-size: 11px; color: var(--amber); padding: 12px 16px; border-right: 1px solid #2e2820; display: flex; align-items: center; letter-spacing: .04em; font-weight: 500; }
+    .quickref-v { font-family: var(--mono); font-size: 12px; color: #9fe1cb; padding: 12px 16px; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+
+    /* FORWARD MAP TABLE */
+    .fwd-table { border: 1px solid var(--rule); width: 100%; max-width: 640px; margin: 20px 0; border-collapse: collapse; }
+    .fwd-table thead th { font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink3); background: var(--paper-mid); padding: 10px 16px; text-align: left; border-bottom: 2px solid var(--amber); font-weight: 400; }
+    .fwd-table tbody td { font-size: 12px; color: var(--ink2); padding: 12px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.7; }
+    .fwd-table tbody tr:last-child td { border-bottom: none; }
+    .fwd-table .concept-col { font-family: var(--mono); color: var(--amber); font-size: 11px; white-space: nowrap; }
+    .fwd-table .dest-col { font-family: var(--serif); font-style: italic; color: var(--ink); font-size: 13px; }
+    .fwd-table .task-col { font-size: 11px; color: var(--ink3); }
+
+    /* FOOTER */
+    .footer-wrap { background: var(--dark2); margin: 64px -52px 0; padding: 24px 52px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-top: 1px solid #2e2820; }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-badge { font-size: 10px; color: var(--teal-dim); letter-spacing: .08em; }
+    .footer-link { font-size: 11px; color: #6a6460; text-decoration: none; }
+
+    @media (max-width: 1024px) {
+      nav, .hero { padding-left: 32px; padding-right: 32px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 32px; }
+      .sidebar { display: none; }
+      .footer-wrap { margin: 64px -32px 0; padding: 24px 32px; }
+    }
+    @media (max-width: 640px) {
+      nav, .hero { padding-left: 20px; padding-right: 20px; }
+      .page-body { padding: 0 20px; }
+      .footer-wrap { margin: 64px -20px 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="https://master.hpc.now" class="logo">master<em>.hpc.now</em></a>
+      <div class="nav-right">
+        <span class="nav-tag">Lab Runbook</span>
+        <span class="nav-mod">Linux for HPC · Day 2 · Memory · NUMA · OOM Killer</span>
+      </div>
+    </nav>
+  </div>
+  <div class="hero">
+    <p class="hero-eyebrow">Linux for HPC · Day 2 · Lab Runbook · HPC Operations · Associate Stream</p>
+    <h1 class="hero-title">Memory Honestly,<br><em>NUMA, and the OOM Killer</em></h1>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><span class="hero-meta-k">Labs</span><span class="hero-meta-v">2 sections · 21 / 22 and 22 / 22</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Host</span><span class="hero-meta-v">mylab.hpc.now</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Learners</span><span class="hero-meta-v">chandra · sujith · yogaraj</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Password</span><span class="hero-meta-v">hpcnow2026</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Total lab time</span><span class="hero-meta-v">~35 minutes</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">URL</span><span class="hero-meta-v">master.hpc.now/lfh-runbook-2</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- BODY -->
+<div class="page-body">
+
+  <aside class="sidebar">
+    <div class="side-label">Runbook</div>
+    <nav class="side-nav">
+      <a href="#how-to-use" class="side-nav-item">How to Use</a>
+      <a href="#credentials" class="side-nav-item">Credentials</a>
+      <div class="side-nav-divider"></div>
+      <div class="side-nav-part">Labs</div>
+      <a href="#section-21" class="side-nav-item">21 · Memory</a>
+      <a href="#section-22" class="side-nav-item">22 · NUMA</a>
+      <div class="side-nav-divider"></div>
+      <a href="#forward-map" class="side-nav-item">Forward Map</a>
+      <a href="#checkpoints" class="side-nav-item">All Checkpoints</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- HOW TO USE -->
+    <section class="section" id="how-to-use">
+      <p class="label">how to use this runbook</p>
+      <p class="prose">This is the second lab runbook for Linux for HPC. Day 1 covered processes, signals, and resource limits (Labs 18–20). This runbook opens at Lab 21 and closes at Lab 22 — the two labs for Day 2.</p>
+      <p class="prose" style="margin-top:1em">The goal of these exercises is reading fluency with the memory subsystem. Every exercise produces a number or a set of fields. The interpretation matters as much as the command. When an exercise asks you to explain something, write one sentence. That sentence is the evidence of comprehension.</p>
+      <div class="callout-amber" style="margin-top:24px">
+        <p><strong>The key shift for this session.</strong> Stop reading <code>used</code> in <code>free -h</code>. Start reading <code>available</code>. The exercises build this reflex deliberately — by the end of Section 21 it should be automatic.</p>
+      </div>
+    </section>
+
+    <!-- CREDENTIALS -->
+    <section class="section" id="credentials">
+      <p class="label">lab credentials</p>
+      <table class="creds-table">
+        <thead><tr><th>Name</th><th>Username</th><th>Password</th><th>Host</th></tr></thead>
+        <tbody>
+          <tr><td class="name-col">Chandra</td><td class="mono-col">chandra</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Sujith</td><td class="mono-col">sujith</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Yogaraj</td><td class="mono-col">yogaraj</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SECTION 21 — MEMORY -->
+    <section class="section" id="section-21">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 21 / 22 · 20 minutes · Memory</p>
+        <h2 class="domain-title">free, /proc/meminfo, OOM Scores, PSI</h2>
+        <p class="domain-intent">Follows: virtual memory, the page cache, free -h honestly, /proc/meminfo fields, swap, overcommit modes, OOM killer scoring, exit code 137, dmesg OOM anatomy, PSI pressure stall information.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Run free -h — read available, explain buff/cache</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">free -h</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — read each column</div>
+              <div class="expected-body"><pre>              total        used        free      shared  buff/cache   available
+Mem:          xxx Gi       xxx Gi      xxx Gi    xxx Mi      xxx Gi      xxx Gi
+Swap:           0B          0B          0B
+
+Read in this order:
+1. available — how much can new allocations use?
+2. buff/cache — the page cache — reclaimable, not permanently occupied
+3. used — process allocations only, excluding page cache
+4. free — genuinely unoccupied — small is correct on a loaded system
+
+The number that matters is available.
+If Swap shows 0B: swap is disabled on this node.</pre></div>
+            </div>
+            <p class="step-desc">Write one sentence explaining why a large <code>buff/cache</code> value is not alarming. This is the key comprehension check for the page cache model.</p>
+            <p class="step-notice">Large <code>buff/cache</code> means the kernel has used idle RAM as a page cache — which is correct behaviour. The kernel will reclaim those pages immediately when a process needs memory. They are not occupied; they are useful.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Read /proc/meminfo — record the fields beyond what free shows</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat /proc/meminfo</span></pre>
+            </div>
+            <p class="step-desc">Find and record these specific fields:</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep -E 'MemAvailable|^Cached:|Inactive\(file\)|Dirty:|Writeback:|SReclaimable:|AnonHugePages' /proc/meminfo</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — interpret each field</div>
+              <div class="expected-body"><pre>MemAvailable:   xxx kB    ← the number free -h "available" is derived from
+Cached:         xxx kB    ← page cache size — total
+Inactive(file): xxx kB    ← page cache pages not recently accessed — reclaim candidates
+Dirty:          xxx kB    ← modified in memory, not yet flushed to storage
+Writeback:        0 kB    ← actively being flushed right now (0 = idle)
+SReclaimable:   xxx kB    ← kernel slab that can be reclaimed under pressure
+AnonHugePages:  xxx kB    ← anonymous memory currently backed by transparent hugepages</pre></div>
+            </div>
+            <p class="step-notice">Large <code>Inactive(file)</code> means the page cache has cold pages that can be reclaimed at low cost — the kernel does not even need to write them to disk first, because the disk already has the data. This is the healthiest form of memory pressure absorption.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Read the overcommit policy and swap state</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat /proc/sys/vm/overcommit_memory</span>
+<span class="cmd">grep Swap /proc/meminfo</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>0                        ← overcommit mode (0=heuristic, 1=always, 2=strict)
+
+SwapTotal:        0 kB   ← swap disabled on this node
+SwapFree:         0 kB
+
+Mode 0 (heuristic): the kernel allows overcommit up to a heuristic
+threshold. Most allocations are granted. The OOM killer fires when
+the heuristics prove optimistic under real pressure.</pre></div>
+            </div>
+            <p class="step-desc">With swap disabled (<code>SwapTotal: 0</code>), the Slurm cgroup memory controller is the primary enforcement mechanism. When a job exceeds its <code>--mem</code> allocation, the OOM killer fires within the job's cgroup — not at the node level.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Read oom_score for three processes — compare their kill priority</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">for name in sshd chronyd; do
+    pid=$(pgrep -o $name 2>/dev/null) || continue
+    score=$(cat /proc/${pid}/oom_score 2>/dev/null)
+    adj=$(cat /proc/${pid}/oom_score_adj 2>/dev/null)
+    echo "${name} (PID ${pid}): oom_score=${score}  oom_score_adj=${adj}"
+done
+echo "My shell: oom_score=$(cat /proc/$$/oom_score)  oom_score_adj=$(cat /proc/$$/oom_score_adj)"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>sshd (PID 1234): oom_score=0    oom_score_adj=-1000
+chronyd (PID 876): oom_score=1  oom_score_adj=0
+My shell: oom_score=3            oom_score_adj=0
+
+oom_score: 0–1000. Higher = more likely to be killed.
+oom_score_adj: -1000 to +1000.
+-1000 = completely exempt from OOM killing.
+sshd with adj=-1000 will never be chosen as an OOM victim.</pre></div>
+            </div>
+            <p class="step-notice">A negative <code>oom_score_adj</code> is how system daemons protect themselves during job-induced memory crises. If the OOM killer has killed <code>sshd</code> on a compute node, the daemon protection was insufficient — the node was under extreme memory pressure beyond what the <code>adj</code> value could protect against.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Read oom_score_adj for sshd — confirm it is negative</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat /proc/$(pgrep -o sshd)/oom_score_adj</span>
+<span class="cmd">systemctl show sshd --property=OOMScoreAdjust</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>-1000
+OOMScoreAdjust=-1000
+
+The systemd unit file sets OOMScoreAdjust — this is how daemons
+configure their OOM kill priority. -1000 = completely exempt.
+The value in /proc and the systemd property should match.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Search dmesg for OOM events — read the constraint type</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">dmesg -T | grep -i "oom\|out of memory\|killed process" | tail -10</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — two possible outcomes</div>
+              <div class="expected-body"><pre>OUTCOME A — no events (healthy node):
+(no output)
+This is the expected result on a lab instance with no memory pressure.
+
+OUTCOME B — OOM event present:
+[timestamp] oom-kill:constraint=CONSTRAINT_MEMCG,...
+            task=python3,pid=xxxxx,uid=xxxxx
+[timestamp] Out of memory: Killed process xxxxx (python3)
+            total-vm:xxxxxkB, anon-rss:xxxxxkB
+
+CONSTRAINT_MEMCG = job's --mem limit was hit → user issue
+CONSTRAINT_NONE  = node ran out of RAM → operator issue</pre></div>
+            </div>
+            <p class="step-notice">On a healthy lab instance with no memory pressure, no OOM events should appear. In A4/T35, when a user submits a ticket about exit code 137, this is the first command you run on the compute node where the job ran. The constraint type determines whether the resolution is "ask the user to increase --mem" or "investigate node-level memory exhaustion."</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 7</span>
+          <div>
+            <p class="step-title">Read /proc/pressure/memory — record PSI averages</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat /proc/pressure/memory</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — idle node</div>
+              <div class="expected-body"><pre>some avg10=0.00 avg60=0.00 avg300=0.00 total=xxxxxxxx
+full avg10=0.00 avg60=0.00 avg300=0.00 total=xxxxxxxx
+
+some: at least one process was stalled waiting for memory
+full: ALL non-idle processes were simultaneously stalled
+
+All zeros = no memory pressure. This is correct for an idle lab instance.
+Nonzero full avg60 would mean the entire system stalled on memory
+for some fraction of the last minute — serious distress requiring
+immediate investigation on a production node.</pre></div>
+            </div>
+            <div class="wrong-block">
+              <div class="wrong-label">If /proc/pressure/memory does not exist</div>
+              <div class="wrong-body"><p>PSI requires kernel 4.20+ and CONFIG_PSI enabled. Run <code>uname -r</code> to check the kernel version and <code>grep PSI /boot/config-$(uname -r)</code> to check the config. RHEL 9 and Rocky 9 include PSI by default.</p></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 21 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>awk '/^MemAvailable/{print}' /proc/meminfo && cat /proc/$(pgrep -o sshd)/oom_score_adj && echo "Section 21 complete"</pre>
+          <div class="checkpoint-note">Expected: the MemAvailable line from /proc/meminfo · sshd's oom_score_adj (should be negative) · <code>Section 21 complete</code>. Both values confirm memory state is readable and sshd has OOM protection configured.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 22 — NUMA -->
+    <section class="section" id="section-22">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 22 / 22 · 15 minutes · NUMA</p>
+        <h2 class="domain-title">Topology, numastat, Memory Locality</h2>
+        <p class="domain-intent">Follows: NUMA topology and distance matrix, lscpu, numactl --hardware, numastat and numa_miss, /sys/devices/system/node/, /proc/pid/numa_maps, THP policy, memory bandwidth and STREAM connection.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Read NUMA node count and CPU-to-node mapping</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">lscpu | grep -i numa</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>NUMA node(s):               2
+NUMA node0 CPU(s):          0-47,96-143
+NUMA node1 CPU(s):          48-95,144-191
+
+Or on a single-socket instance:
+NUMA node(s):               1
+NUMA node0 CPU(s):          0-3
+
+A single NUMA node means uniform memory access — all CPUs are
+equidistant from all RAM. On dual-socket servers, two nodes means
+each CPU set has a local and a remote memory pool.</pre></div>
+            </div>
+            <p class="step-notice">On a cloud instance or a single-socket lab VM, you will likely see one NUMA node. The topology-reading skill applies regardless — you are building the habit of checking the topology before interpreting memory or performance data.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Read the full NUMA topology with numactl --hardware</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">numactl --hardware</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — dual-socket example</div>
+              <div class="expected-body"><pre>available: 2 nodes (0-1)
+node 0 cpus: 0 1 2 ... 47 96 97 ... 143
+node 0 size: 257857 MB
+node 0 free: 218432 MB
+node 1 cpus: 48 49 50 ... 95 144 145 ... 191
+node 1 size: 257985 MB
+node 1 free: 196608 MB
+node distances:
+node   0   1
+  0:  10  21
+  1:  21  10
+
+Distance 10 = local (always 10 by convention).
+Distance 21 = remote access costs 2.1x relative to local.
+Per-node free: if one node is exhausted, allocations spill
+across the link at the remote-access cost.</pre></div>
+            </div>
+            <p class="step-desc">Record: how many NUMA nodes, what the remote distance is, how much free memory each node has. On a single-node lab instance, the distance matrix will show only distance 10 — all local.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Read numastat — record numa_hit and numa_miss</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">numastat</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>                           node0      node1
+numa_hit               123456789  234567890   ← satisfied from local node
+numa_miss                    432         87   ← fell back to remote node
+numa_foreign                  87        432   ← remote allocated on this node
+interleave_hit              4321       3210   ← interleaved policy hits
+local_node             123451234  234561890   ← local process, local memory
+other_node                  5555       6000   ← local process, remote memory
+
+numa_miss is the diagnostic counter.
+High and growing numa_miss = locality is being violated.
+On a single-node instance, numa_miss should be zero.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Per-node numastat via /sys — same data, scriptable</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">for node in /sys/devices/system/node/node*/; do
+    echo "=== $(basename $node) ==="
+    cat ${node}/numastat
+done</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Read per-node memory from /sys/devices/system/node/</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">for node in /sys/devices/system/node/node*/; do
+    name=$(basename $node)
+    total=$(awk '/^Node.*MemTotal/{print $4, $5}' ${node}/meminfo 2>/dev/null)
+    free=$(awk '/^Node.*MemFree/{print $4, $5}' ${node}/meminfo 2>/dev/null)
+    echo "${name}: total=${total}  free=${free}"
+done</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>node0: total=257857 MB  free=218432 MB
+node1: total=257985 MB  free=196608 MB
+
+Or on a single-node instance:
+node0: total=xxxx MB  free=xxxx MB
+
+These per-node values are what numactl --hardware reads.
+If one node's free approaches zero, allocations spill to the
+other node at remote-access cost — even if the total node free
+memory looks adequate.</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Read /proc/&lt;pid&gt;/numa_maps for a running process</p>
+            <p class="step-desc">This shows which NUMA nodes back the mapped memory regions of a specific process — the ground truth of memory locality for that process.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">SSHD_PID=$(pgrep -o sshd)
+sudo cat /proc/${SSHD_PID}/numa_maps | head -10</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>7f9a20000000 default anon=12 dirty=12 N0=10 N1=2 kernelpagesize_kB=4
+7f9a21000000 default file=/usr/lib64/libssl.so anon=0 N0=8
+7f9a22000000 default anon=4 dirty=4 N0=4
+
+N0=10 N1=2 means: 10 pages on NUMA node 0, 2 pages on node 1.
+Mostly local (N0) with minor spillage to remote (N1).
+A process whose numa_maps shows mostly remote node numbers
+is running with poor NUMA locality.</pre></div>
+            </div>
+            <p class="step-notice">In A10 when investigating why a benchmark runs slower than expected, <code>/proc/&lt;pid&gt;/numa_maps</code> on the benchmark process is how you confirm whether its memory is locally allocated. High remote-node page counts confirm a NUMA locality problem.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Read the THP policy and AnonHugePages</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat /sys/kernel/mm/transparent_hugepage/enabled</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>always [madvise] never
+
+The value in brackets is the current policy.
+madvise = pages promoted to 2 MiB huge pages only when the
+          application explicitly requests it — RHEL 9 default.
+always  = kernel promotes all eligible pages automatically.
+never   = THP disabled — some sites set this to avoid
+          background compaction latency spikes.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep -E 'AnonHugePages|HugePages_Total|HugePages_Free|HugepageSize' /proc/meminfo</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>AnonHugePages:   xxxxx kB   ← anonymous memory on THP right now
+HugePages_Total:      0     ← explicit pre-allocated huge page pool
+HugePages_Free:       0     ← pool is empty (or not configured)
+HugepageSize:      2048 kB  ← page size for explicit pool (2 MiB)
+
+AnonHugePages > 0: THP is actively in use.
+HugePages_Total = 0: no explicit huge page pool configured.
+Both can coexist — THP for regular allocations, explicit pool
+for applications that specifically request MAP_HUGETLB.</pre></div>
+            </div>
+            <p class="step-notice">If the node's THP policy differs from what the site standard specifies — for example, <code>always</code> when the site expects <code>madvise</code> — note it. Configuring THP policy is a Professional-scope operation, but recognising when it is misconfigured is an Associate-scope skill.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Section 22 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>numactl --hardware | grep 'node distances' -A 4 && echo "Section 22 complete"</pre>
+          <div class="checkpoint-note">
+            Expected: the distance matrix from numactl --hardware · <code>Section 22 complete</code>. Confirm the local distance is 10. Note the remote distance — this is the NUMA penalty that affects MPI jobs with cross-socket communication.<br><br>
+            <strong>LAB 22 / 22 complete. Linux for HPC Day 2 is complete.</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORWARD MAP -->
+    <section class="section" id="forward-map">
+      <p class="label">where this shows up — forward connections</p>
+      <p class="prose">The memory model built today surfaces in three specific places in the HPC modules with specific commands and specific outputs.</p>
+
+      <table class="fwd-table" style="margin-top:24px">
+        <thead>
+          <tr><th>Concept</th><th>Module · Task</th><th>Specific technique</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="concept-col">Page cache / Cached field</td>
+            <td class="dest-col">A5 · T37 — page cache effect</td>
+            <td class="task-col"><code>grep '^Cached:' /proc/meminfo</code> before and after <code>dd</code> with and without <code>oflag=direct</code>. Buffered write populates Cached. Direct I/O does not. The difference is the page cache absorbing the write.</td>
+          </tr>
+          <tr>
+            <td class="concept-col">OOM killer / exit code 137</td>
+            <td class="dest-col">A4 · T35 — confirm OOM, report MaxRSS</td>
+            <td class="task-col"><code>dmesg -T | grep -i oom</code> on the compute node · read <code>constraint=</code> field · <code>sacct -j &lt;id&gt; --format=MaxRSS,ExitCode</code> · compare peak to <code>--mem</code> request · write result to file per task spec. Day 3's cgroup model completes the cgroup path in the dmesg line.</td>
+          </tr>
+          <tr>
+            <td class="concept-col">NUMA topology / numastat</td>
+            <td class="dest-col">A10 · T71 — STREAM interpretation</td>
+            <td class="task-col"><code>numactl --hardware</code> gives the topology map. STREAM Triad results are meaningful only against the hardware's expected bandwidth for the configured NUMA placement. <code>numastat | grep numa_miss</code> confirms whether locality was violated during the benchmark run.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ALL CHECKPOINTS -->
+    <section class="section" id="checkpoints">
+      <p class="label">all checkpoints — quick reference</p>
+
+      <div class="quickref-block" style="margin-top:24px">
+        <div class="quickref-header">Checkpoint Commands · Sections 21–22</div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 21</span>
+          <span class="quickref-v">awk '/^MemAvailable/{print}' /proc/meminfo && cat /proc/$(pgrep -o sshd)/oom_score_adj && echo "Section 21 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Section 22</span>
+          <span class="quickref-v">numactl --hardware | grep 'node distances' -A 4 && echo "Section 22 complete"</span>
+        </div>
+      </div>
+
+      <div class="callout-teal" style="margin-top:32px">
+        <p><strong>Linux for HPC Day 2 complete — Labs 21 and 22.</strong></p>
+        <p>The memory model is now readable at operational depth: virtual memory, the page cache, free -h honestly, /proc/meminfo fields beyond what free shows, swap and overcommit, OOM killer scoring and dmesg anatomy, PSI pressure stall information, NUMA topology and the distance matrix, numastat and per-node memory locality.</p>
+        <p>Day 3 adds the cgroup layer — the mechanism that connects Slurm's memory enforcement to the OOM events read today. The cgroup path in the dmesg <code>oom-kill:</code> line will become readable once the cgroup v2 filesystem is navigated in Day 3.</p>
+      </div>
+
+      <div class="footer-wrap">
+        <span class="footer-copy">Linux for HPC · Day 2 · Lab Runbook · HPC Operations · Associate Stream · master.hpc.now/lfh-runbook-2</span>
+        <span class="footer-badge">Labs 21–22 · Memory · NUMA · OOM Killer</span>
+        <a href="https://master.hpc.now" class="footer-link">master.hpc.now</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(i => i.classList.remove('is-active'));
+        const a = document.querySelector('.side-nav-item[href="#' + entry.target.id + '"]');
+        if (a) a.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  function copyCode(btn) {
+    const block = btn.closest('.code-block, .checkpoint-body');
+    const pre = block.querySelector('pre');
+    const text = pre.innerText || pre.textContent;
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      btn.textContent = 'copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
