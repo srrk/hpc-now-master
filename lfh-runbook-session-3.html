@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Linux for HPC · Session 3 · /proc · Page Cache · Direct I/O</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+
+<style>
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
+:root{
+  --cover:#181817;
+  --paper:#faf8f4;
+  --paper-mid:#f2ede5;
+  --ink:#110f0c;
+  --ink2:#46423d;
+  --ink3:#96918b;
+  --rule:#dedad3;
+  --rule-cover:#c8c0b4;
+  --terra:#7b4b33;
+  --terra-bg:#f0e8e2;
+  --dark:#1e1a16;
+  --dark2:#2e2820;
+  --teal:#0f6e56;
+  --teal-bg:#e8f5f0;
+  --amber:#c47f1a;
+  --amber-bg:#fdf4e3;
+  --serif:"Lora", Georgia, serif;
+  --mono:"IBM Plex Mono", monospace;
+}
+
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--mono);
+  line-height:1.8;
+}
+
+.cover{
+  background:var(--cover);
+  color:white;
+}
+
+nav{
+  max-width:1200px;
+  margin:auto;
+  padding:20px 52px;
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid #333;
+}
+
+.logo{
+  color:#f0e8e0;
+  text-decoration:none;
+}
+
+.hero{
+  max-width:1200px;
+  margin:auto;
+  padding:72px 52px 90px;
+}
+
+.hero-eyebrow{
+  font-size:10px;
+  letter-spacing:.25em;
+  text-transform:uppercase;
+  color:#7d7770;
+  margin-bottom:24px;
+}
+
+.hero-title{
+  font-family:var(--serif);
+  font-size:54px;
+  line-height:1.15;
+  font-weight:400;
+  margin-bottom:28px;
+}
+
+.hero-title em{
+  color:#b8907a;
+  font-style:italic;
+}
+
+.hero-meta{
+  display:flex;
+  flex-wrap:wrap;
+  border:1px solid #333;
+  width:fit-content;
+}
+
+.hero-meta-item{
+  padding:14px 22px;
+  border-right:1px solid #333;
+}
+
+.hero-meta-item:last-child{
+  border-right:none;
+}
+
+.hero-meta-k{
+  display:block;
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.18em;
+  color:#8a8078;
+}
+
+.hero-meta-v{
+  font-size:12px;
+  color:#d8d0c5;
+}
+
+.page{
+  max-width:1200px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:220px 1fr;
+  gap:72px;
+  padding:0 52px;
+}
+
+.sidebar{
+  position:sticky;
+  top:30px;
+  align-self:start;
+  padding:60px 0;
+}
+
+.side-title{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.2em;
+  color:var(--ink3);
+  margin-bottom:16px;
+}
+
+.sidebar a{
+  display:block;
+  text-decoration:none;
+  color:var(--ink3);
+  font-size:12px;
+  padding:6px 0 6px 14px;
+  border-left:2px solid transparent;
+}
+
+.sidebar a:hover{
+  color:var(--terra);
+  border-color:var(--terra);
+}
+
+.content{
+  padding:60px 0;
+}
+
+.section{
+  border-top:1px solid var(--rule);
+  padding:60px 0;
+}
+
+.label{
+  font-size:10px;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:var(--ink3);
+  margin-bottom:24px;
+}
+
+.domain-header{
+  background:var(--dark);
+  border-left:4px solid var(--amber);
+  padding:22px 28px;
+  color:white;
+  margin-bottom:32px;
+  max-width:700px;
+}
+
+.domain-label{
+  font-size:9px;
+  letter-spacing:.25em;
+  text-transform:uppercase;
+  color:#7f766d;
+}
+
+.domain-title{
+  font-family:var(--serif);
+  font-size:28px;
+  margin:10px 0;
+  font-weight:400;
+}
+
+.domain-intent{
+  color:#9b9087;
+  font-size:13px;
+}
+
+.prose{
+  max-width:700px;
+  color:var(--ink2);
+  margin-bottom:18px;
+}
+
+.callout{
+  background:var(--terra-bg);
+  border-left:4px solid var(--terra);
+  padding:18px 22px;
+  max-width:700px;
+  margin:24px 0;
+}
+
+.callout-teal{
+  background:var(--teal-bg);
+  border-left:4px solid var(--teal);
+  padding:18px 22px;
+  max-width:700px;
+  margin:24px 0;
+}
+
+.callout-amber{
+  background:var(--amber-bg);
+  border-left:4px solid var(--amber);
+  padding:18px 22px;
+  max-width:700px;
+  margin:24px 0;
+}
+
+.code-block{
+  background:var(--dark);
+  color:#ddd;
+  padding:20px 24px;
+  max-width:700px;
+  margin:22px 0;
+  position:relative;
+  border:1px solid #333;
+}
+
+.code-label{
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.2em;
+  color:#7d7770;
+  margin-bottom:12px;
+}
+
+.code-block pre{
+  overflow:auto;
+  font-size:12px;
+  line-height:1.8;
+}
+
+.cmd{ color:#9fe1cb; }
+.cmt{ color:#71685f; }
+.out{ color:#b7ada5; }
+
+.copy-btn{
+  position:absolute;
+  top:12px;
+  right:12px;
+  background:#2e2820;
+  border:1px solid #444;
+  color:#999;
+  padding:4px 10px;
+  cursor:pointer;
+  font-size:10px;
+}
+
+.expected{
+  background:#151311;
+  border-left:4px solid var(--teal);
+  max-width:700px;
+  margin:18px 0;
+}
+
+.expected-header{
+  padding:10px 16px;
+  border-bottom:1px solid #333;
+  color:#1d9e75;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.18em;
+}
+
+.expected pre{
+  padding:16px;
+  color:#9c9288;
+  font-size:12px;
+  line-height:1.8;
+}
+
+.checkpoint{
+  background:var(--dark);
+  border:1px solid var(--teal);
+  max-width:700px;
+  margin-top:32px;
+}
+
+.checkpoint-header{
+  background:var(--teal);
+  color:white;
+  padding:12px 18px;
+  font-size:10px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+}
+
+.checkpoint pre{
+  padding:20px;
+  color:#9fe1cb;
+  overflow:auto;
+  font-size:12px;
+}
+
+.footer{
+  margin-top:80px;
+  background:var(--dark2);
+  padding:28px 52px;
+  color:#8a8078;
+  font-size:12px;
+}
+
+@media(max-width:1024px){
+  .page{
+    grid-template-columns:1fr;
+  }
+  .sidebar{
+    display:none;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="cover">
+  <nav>
+    <a class="logo" href="#">master.hpc.now</a>
+    <div>Linux for HPC · Session III</div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-eyebrow">
+      Linux for HPC · Session III · Lab Runbook
+    </div>
+
+    <h1 class="hero-title">
+      /proc, Page Cache,<br>
+      <em>and Direct I/O</em>
+    </h1>
+
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Module</span>
+        <span class="hero-meta-v">Linux Internals</span>
+      </div>
+
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Focus</span>
+        <span class="hero-meta-v">Memory + Storage Diagnostics</span>
+      </div>
+
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Duration</span>
+        <span class="hero-meta-v">~55 Minutes</span>
+      </div>
+
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Tools</span>
+        <span class="hero-meta-v">/proc · dd · watch · grep</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <aside class="sidebar">
+    <div class="side-title">Runbook</div>
+
+    <a href="#overview">Overview</a>
+    <a href="#ex1">Ex 1 · Verify /proc</a>
+    <a href="#ex2">Ex 2 · meminfo</a>
+    <a href="#ex3">Ex 3 · MemFree vs Available</a>
+    <a href="#ex4">Ex 4 · Process inspection</a>
+    <a href="#ex5">Ex 5 · fd + maps</a>
+    <a href="#ex6">Ex 6 · D-state</a>
+    <a href="#ex7">Ex 7 · stack + wchan</a>
+    <a href="#ex8">Ex 8 · Buffered I/O</a>
+    <a href="#ex9">Ex 9 · Watch cache live</a>
+    <a href="#ex10">Ex 10 · O_DIRECT</a>
+    <a href="#ex11">Ex 11 · Drop caches</a>
+    <a href="#checkpoint">Checkpoint</a>
+  </aside>
+
+  <main class="content">
+
+    <section class="section" id="overview">
+      <div class="domain-header">
+        <div class="domain-label">Session III · Linux Memory and Storage Internals</div>
+        <div class="domain-title">Observing Kernel State and Measuring Real Storage Throughput</div>
+        <div class="domain-intent">
+          This session establishes the operational difference between memory-backed I/O and real storage performance using live kernel observability.
+        </div>
+      </div>
+
+      <p class="prose">
+        Every Linux HPC administrator eventually encounters impossible benchmark numbers:
+        10 GB/s writes on storage capable of only 4 GB/s.
+      </p>
+
+      <p class="prose">
+        This session explains why that happens and how to prove the real behavior using only native Linux interfaces.
+      </p>
+
+      <div class="callout-teal">
+        <strong>Central operational rule.</strong><br><br>
+        If a benchmark exceeds hardware capability,
+        you measured cache — not storage.
+      </div>
+    </section>
+
+    <section class="section" id="ex1">
+      <div class="label">exercise 1</div>
+
+      <h2>Verify that /proc is a virtual filesystem</h2>
+
+      <div class="code-block">
+        <div class="code-label">Kernel virtual filesystem</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">mount | grep '/proc'</span>
+
+<span class="cmd">ls -l /proc/meminfo</span>
+
+<span class="cmd">cat /proc/meminfo | head</span></pre>
+      </div>
+
+      <div class="expected">
+        <div class="expected-header">Expected interpretation</div>
+<pre>/proc is generated dynamically by the kernel.
+Files report zero size because they are not disk-backed.
+Content is synthesized when read.</pre>
+      </div>
+    </section>
+
+    <section class="section" id="ex2">
+      <div class="label">exercise 2</div>
+
+      <h2>Read important fields from /proc/meminfo</h2>
+
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">grep -E 'MemFree|MemAvailable|Cached|Dirty|Writeback' /proc/meminfo</span></pre>
+      </div>
+
+      <div class="expected">
+        <div class="expected-header">Field meanings</div>
+<pre>MemFree:
+Completely unused RAM.
+
+MemAvailable:
+RAM available for new allocations.
+
+Cached:
+Filesystem data stored in RAM.
+
+Dirty:
+Modified pages waiting to flush.
+
+Writeback:
+Pages actively flushing to storage.</pre>
+      </div>
+    </section>
+
+    <section class="section" id="ex3">
+      <div class="label">exercise 3</div>
+
+      <h2>Compare MemFree and MemAvailable</h2>
+
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">free -h</span>
+
+<span class="cmd">grep -E 'MemFree|MemAvailable|Cached' /proc/meminfo</span></pre>
+      </div>
+
+      <div class="callout-amber">
+        <strong>Interpretation.</strong><br><br>
+        Linux intentionally fills RAM with reclaimable cache.
+        Low MemFree alone does not indicate memory exhaustion.
+      </div>
+    </section>
+
+    <section class="section" id="ex4">
+      <div class="label">exercise 4</div>
+
+      <h2>Inspect a live process using /proc/&lt;pid&gt;</h2>
+
+      <div class="code-block">
+        <div class="code-label">Create a process</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">sleep 300 &amp;
+P=$!</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">Inspect process status</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">cat /proc/$P/status</span></pre>
+      </div>
+
+      <div class="expected">
+        <div class="expected-header">Fields to identify</div>
+<pre>State
+VmRSS
+VmSize
+VmHWM
+Threads</pre>
+      </div>
+    </section>
+
+    <section class="section" id="ex5">
+      <div class="label">exercise 5</div>
+
+      <h2>Inspect fd, environ, cmdline, and maps</h2>
+
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">tr '\0' ' ' &lt; /proc/$P/cmdline</span>
+
+<span class="cmd">tr '\0' '\n' &lt; /proc/$P/environ | head</span>
+
+<span class="cmd">ls -l /proc/$P/fd</span>
+
+<span class="cmd">head /proc/$P/maps</span></pre>
+      </div>
+
+      <div class="callout">
+        The kernel's view of a process is authoritative.
+        /proc exposes command line, environment, file descriptors,
+        and virtual memory layout directly from kernel state.
+      </div>
+    </section>
+
+    <section class="section" id="ex6">
+      <div class="label">exercise 6</div>
+
+      <h2>Observe a D-state process</h2>
+
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">ps aux | grep ' D '</span>
+
+<span class="cmd">cat /proc/&lt;pid&gt;/status | grep State</span></pre>
+      </div>
+
+      <div class="expected">
+        <div class="expected-header">Expected output</div>
+<pre>State: D (disk sleep)</pre>
+      </div>
+
+      <div class="callout-amber">
+        D-state means the process is blocked inside kernel I/O
+        and cannot be interrupted until the operation completes.
+      </div>
+    </section>
+
+    <section class="section" id="ex7">
+      <div class="label">exercise 7</div>
+
+      <h2>Diagnose blocked processes with stack and wchan</h2>
+
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">cat /proc/&lt;pid&gt;/wchan</span>
+
+<span class="cmd">sudo cat /proc/&lt;pid&gt;/stack</span></pre>
+      </div>
+
+      <div class="callout-teal">
+        The kernel stack identifies the exact subsystem:
+        NFS,
+        Lustre,
+        local disk,
+        block layer,
+        RPC,
+        or filesystem code paths.
+      </div>
+    </section>
+
+    <section class="section" id="ex8">
+      <div class="label">exercise 8</div>
+
+      <h2>Run a buffered write benchmark</h2>
+
+      <div class="code-block">
+        <div class="code-label">Observe cache before write</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">grep -E 'Cached|Dirty|Writeback' /proc/meminfo</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">Buffered write</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">dd if=/dev/zero of=io_test bs=1M count=20480</span></pre>
+      </div>
+
+      <div class="callout-teal">
+        Buffered writes enter page cache first.
+        The reported throughput primarily measures RAM speed.
+      </div>
+    </section>
+
+    <section class="section" id="ex9">
+      <div class="label">exercise 9</div>
+
+      <h2>Watch cache activity live</h2>
+
+      <div class="code-block">
+        <div class="code-label">Terminal 1</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">watch -n 1 'grep -E "Cached|Dirty|Writeback" /proc/meminfo'</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">Terminal 2</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">dd if=/dev/zero of=io_test bs=1M count=20480</span></pre>
+      </div>
+
+      <div class="expected">
+        <div class="expected-header">Observe the transition</div>
+<pre>Dirty rises first.
+Writeback rises while flushing.
+Cached remains high after write completion.</pre>
+      </div>
+    </section>
+
+    <section class="section" id="ex10">
+      <div class="label">exercise 10</div>
+
+      <h2>Run Direct I/O with O_DIRECT</h2>
+
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">dd if=/dev/zero of=io_test_direct bs=1M count=20480 oflag=direct</span>
+
+<span class="cmd">dd if=io_test_direct of=/dev/null bs=1M iflag=direct</span></pre>
+      </div>
+
+      <div class="callout-teal">
+        O_DIRECT bypasses the kernel page cache
+        and more closely measures actual storage throughput.
+      </div>
+    </section>
+
+    <section class="section" id="ex11">
+      <div class="label">exercise 11</div>
+
+      <h2>Drop caches correctly</h2>
+
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">sync</span>
+
+<span class="cmd">echo 3 | sudo tee /proc/sys/vm/drop_caches</span>
+
+<span class="cmd">grep -E 'Cached|Dirty|Writeback' /proc/meminfo</span></pre>
+      </div>
+
+      <div class="callout-amber">
+        drop_caches is a debugging and benchmarking tool —
+        not a fix for memory pressure.
+      </div>
+    </section>
+
+    <section class="section" id="checkpoint">
+      <div class="checkpoint">
+        <div class="checkpoint-header">
+          Session III Checkpoint
+        </div>
+
+<pre>echo "=== BEFORE ==="
+grep -E 'Cached|Dirty|Writeback' /proc/meminfo
+
+dd if=/dev/zero of=testfile bs=1M count=4096
+
+echo "=== AFTER BUFFERED WRITE ==="
+grep -E 'Cached|Dirty|Writeback' /proc/meminfo
+
+sync
+
+dd if=/dev/zero of=testfile2 bs=1M count=4096 oflag=direct
+
+echo "=== AFTER DIRECT WRITE ==="
+grep -E 'Cached|Dirty|Writeback' /proc/meminfo</pre>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="footer">
+Linux for HPC · Session III · /proc · Page Cache · Direct I/O
+</div>
+
+<script>
+function copyCode(button){
+  const code = button.parentElement.querySelector("pre").innerText;
+  navigator.clipboard.writeText(code);
+
+  button.innerText = "copied";
+  setTimeout(() => {
+    button.innerText = "copy";
+  }, 1200);
+}
+</script>
+
+</body>
+</html>

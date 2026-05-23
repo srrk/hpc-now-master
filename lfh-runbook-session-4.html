@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux for HPC · Session 4 · iostat and Storage Saturation Diagnosis</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+*,*::before,*::after{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+:root{
+  --bg:#faf8f4;
+  --paper:#ffffff;
+  --ink:#161311;
+  --muted:#6d655e;
+  --line:#ddd7cf;
+  --dark:#1d1a17;
+  --dark2:#2b2622;
+  --teal:#0f6e56;
+  --tealbg:#e8f5f0;
+  --amber:#c7861f;
+  --amberbg:#fcf2df;
+  --terra:#7c4d35;
+  --terrabg:#f2e8e1;
+  --mono:"IBM Plex Mono", monospace;
+  --serif:"Lora", serif;
+}
+
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--mono);
+  line-height:1.8;
+}
+
+.cover{
+  background:var(--dark);
+  color:white;
+}
+
+.topbar{
+  max-width:1200px;
+  margin:auto;
+  padding:20px 52px;
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid #3a332e;
+}
+
+.hero{
+  max-width:1200px;
+  margin:auto;
+  padding:70px 52px 90px;
+}
+
+.eyebrow{
+  text-transform:uppercase;
+  letter-spacing:.22em;
+  font-size:10px;
+  color:#8d847b;
+  margin-bottom:26px;
+}
+
+.hero h1{
+  font-family:var(--serif);
+  font-size:60px;
+  line-height:1.08;
+  font-weight:400;
+  margin-bottom:24px;
+}
+
+.hero h1 em{
+  color:#b79a86;
+  font-style:italic;
+}
+
+.meta{
+  display:flex;
+  flex-wrap:wrap;
+  border:1px solid #3a332e;
+  width:fit-content;
+}
+
+.meta div{
+  padding:14px 20px;
+  border-right:1px solid #3a332e;
+}
+
+.meta div:last-child{
+  border-right:none;
+}
+
+.meta small{
+  display:block;
+  color:#90857b;
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  font-size:9px;
+}
+
+.meta span{
+  color:#ddd2c7;
+  font-size:12px;
+}
+
+.page{
+  max-width:1200px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:220px 1fr;
+  gap:72px;
+  padding:0 52px;
+}
+
+.sidebar{
+  position:sticky;
+  top:20px;
+  align-self:start;
+  padding:60px 0;
+}
+
+.sidebar-title{
+  text-transform:uppercase;
+  font-size:10px;
+  letter-spacing:.2em;
+  color:#948d84;
+  margin-bottom:18px;
+}
+
+.sidebar a{
+  display:block;
+  text-decoration:none;
+  color:#867e76;
+  padding:6px 0 6px 14px;
+  border-left:2px solid transparent;
+  font-size:12px;
+}
+
+.sidebar a:hover{
+  color:var(--terra);
+  border-color:var(--terra);
+}
+
+.content{
+  padding:60px 0;
+}
+
+.section{
+  border-top:1px solid var(--line);
+  padding:58px 0;
+}
+
+.label{
+  text-transform:uppercase;
+  letter-spacing:.22em;
+  color:#938a81;
+  font-size:10px;
+  margin-bottom:22px;
+}
+
+.section h2{
+  font-family:var(--serif);
+  font-size:36px;
+  line-height:1.2;
+  font-weight:400;
+  margin-bottom:18px;
+}
+
+.prose{
+  max-width:720px;
+  color:#4b4540;
+  margin-bottom:18px;
+}
+
+.domain{
+  background:var(--dark);
+  color:white;
+  padding:24px 28px;
+  border-left:4px solid var(--amber);
+  max-width:760px;
+  margin-bottom:30px;
+}
+
+.domain small{
+  text-transform:uppercase;
+  letter-spacing:.2em;
+  color:#867d75;
+  font-size:9px;
+}
+
+.domain h2{
+  margin-top:10px;
+  margin-bottom:10px;
+  font-size:30px;
+}
+
+.domain p{
+  color:#b2a69a;
+  font-size:13px;
+}
+
+.code{
+  background:var(--dark);
+  border:1px solid #3b342f;
+  max-width:760px;
+  margin:24px 0;
+  position:relative;
+}
+
+.code-label{
+  padding:12px 18px;
+  border-bottom:1px solid #342e2a;
+  color:#82796f;
+  text-transform:uppercase;
+  letter-spacing:.18em;
+  font-size:9px;
+}
+
+.code pre{
+  padding:18px 22px;
+  overflow:auto;
+  color:#d8d0c7;
+  font-size:12px;
+  line-height:1.8;
+}
+
+.cmd{color:#9de3cb;}
+.out{color:#c8bdb4;}
+
+.copy{
+  position:absolute;
+  right:12px;
+  top:12px;
+  border:1px solid #47403a;
+  background:#2a2521;
+  color:#a39a92;
+  padding:4px 10px;
+  cursor:pointer;
+  font-size:10px;
+}
+
+.callout{
+  max-width:760px;
+  padding:18px 22px;
+  margin:24px 0;
+}
+
+.teal{
+  background:var(--tealbg);
+  border-left:4px solid var(--teal);
+}
+
+.amber{
+  background:var(--amberbg);
+  border-left:4px solid var(--amber);
+}
+
+.terra{
+  background:var(--terrabg);
+  border-left:4px solid var(--terra);
+}
+
+.expect{
+  background:#151311;
+  border-left:4px solid var(--teal);
+  max-width:760px;
+  margin:22px 0;
+}
+
+.expect-head{
+  padding:10px 16px;
+  border-bottom:1px solid #2f2925;
+  color:#24a37c;
+  text-transform:uppercase;
+  letter-spacing:.18em;
+  font-size:10px;
+}
+
+.expect pre{
+  padding:16px;
+  color:#b2a79d;
+  font-size:12px;
+  overflow:auto;
+}
+
+.checkpoint{
+  background:var(--dark);
+  border:1px solid var(--teal);
+  max-width:760px;
+  margin-top:24px;
+}
+
+.checkpoint-head{
+  background:var(--teal);
+  color:white;
+  padding:12px 18px;
+  text-transform:uppercase;
+  letter-spacing:.2em;
+  font-size:10px;
+}
+
+.checkpoint pre{
+  padding:20px;
+  color:#a7e8d1;
+  overflow:auto;
+  font-size:12px;
+}
+
+.footer{
+  margin-top:80px;
+  background:var(--dark2);
+  color:#8d8379;
+  padding:26px 52px;
+  font-size:12px;
+}
+
+table{
+  border-collapse:collapse;
+  width:760px;
+  margin-top:20px;
+}
+
+th{
+  background:#0f6e56;
+  color:white;
+  text-align:left;
+  padding:12px;
+  font-size:12px;
+}
+
+td{
+  border:1px solid var(--line);
+  padding:12px;
+  font-size:12px;
+}
+
+@media(max-width:1024px){
+  .page{
+    grid-template-columns:1fr;
+  }
+
+  .sidebar{
+    display:none;
+  }
+
+  .hero h1{
+    font-size:42px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="cover">
+  <div class="topbar">
+    <div>master.hpc.now</div>
+    <div>Linux for HPC · Session IV</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow">
+      Linux for HPC · Session IV · Lab Runbook
+    </div>
+
+    <h1>
+      iostat and Storage<br>
+      <em>Saturation Diagnosis</em>
+    </h1>
+
+    <div class="meta">
+      <div>
+        <small>Focus</small>
+        <span>Storage Telemetry</span>
+      </div>
+
+      <div>
+        <small>Topics</small>
+        <span>Latency · Queue Depth · Saturation</span>
+      </div>
+
+      <div>
+        <small>Tools</small>
+        <span>iostat · fio · /proc/diskstats</span>
+      </div>
+
+      <div>
+        <small>Duration</small>
+        <span>~60 Minutes</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <aside class="sidebar">
+    <div class="sidebar-title">Runbook</div>
+
+    <a href="#overview">Overview</a>
+    <a href="#ex1">Ex 1 · /proc/diskstats</a>
+    <a href="#ex2">Ex 2 · iostat basics</a>
+    <a href="#ex3">Ex 3 · First-block rule</a>
+    <a href="#ex4">Ex 4 · Extended fields</a>
+    <a href="#ex5">Ex 5 · Sequential workload</a>
+    <a href="#ex6">Ex 6 · Random workload</a>
+    <a href="#ex7">Ex 7 · Merge rate</a>
+    <a href="#ex8">Ex 8 · r_await + aqu-sz</a>
+    <a href="#ex9">Ex 9 · %util on NVMe</a>
+    <a href="#ex10">Ex 10 · Busy vs Saturated</a>
+    <a href="#ex11">Ex 11 · Saturation progression</a>
+    <a href="#ex12">Ex 12 · Diagnosis matrix</a>
+    <a href="#ex13">Ex 13 · Live monitoring</a>
+    <a href="#ex14">Ex 14 · Lustre boundary</a>
+    <a href="#checkpoint">Checkpoint</a>
+  </aside>
+
+  <main class="content">
+
+    <section class="section" id="overview">
+      <div class="domain">
+        <small>Session IV · Storage Saturation Diagnosis</small>
+        <h2>Distinguishing Busy Devices from Saturated Devices</h2>
+        <p>
+          This session establishes why %util alone is misleading on NVMe systems
+          and why latency plus queue depth form the real saturation signal.
+        </p>
+      </div>
+
+      <p class="prose">
+        Modern NVMe devices can report 100% utilization while still operating comfortably within capacity.
+        This session teaches how to recognize the difference between healthy heavy load and genuine overload.
+      </p>
+
+      <div class="callout teal">
+        <strong>Central operational rule.</strong><br><br>
+        Busy is not saturated.
+        Rising latency and growing queue depth are the real saturation indicators.
+      </div>
+    </section>
+
+    <section class="section" id="ex1">
+      <div class="label">exercise 1</div>
+      <h2>Verify the source of iostat metrics</h2>
+
+      <div class="code">
+        <div class="code-label">Kernel disk telemetry counters</div>
+        <button class="copy" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">cat /proc/diskstats | head</span>
+
+<span class="cmd">grep nvme /proc/diskstats</span></pre>
+      </div>
+
+      <div class="expect">
+        <div class="expect-head">Expected interpretation</div>
+<pre>iostat samples counters from /proc/diskstats.
+The kernel maintains cumulative request and queue statistics continuously.</pre>
+      </div>
+    </section>
+
+    <section class="section" id="ex2">
+      <div class="label">exercise 2</div>
+      <h2>Run iostat with extended statistics</h2>
+
+      <div class="code">
+        <button class="copy" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">iostat -xh 2</span>
+
+<span class="cmd">iostat -xh 2 nvme0n1</span></pre>
+      </div>
+
+      <div class="callout terra">
+        -x enables extended statistics.<br>
+        -h enables human-readable units.<br>
+        2 specifies a two-second sampling interval.
+      </div>
+    </section>
+
+    <section class="section" id="ex3">
+      <div class="label">exercise 3</div>
+      <h2>The first-block rule</h2>
+
+      <div class="code">
+        <button class="copy" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">iostat -xh 2 3</span></pre>
+      </div>
+
+      <div class="expect">
+        <div class="expect-head">Observe carefully</div>
+<pre>Block 1:
+Since-boot averages → discard.
+
+Blocks 2 and 3:
+Current interval telemetry.</pre>
+      </div>
+
+      <div class="callout amber">
+        The first block may summarize hours or days of historical activity.
+        Always discard it during diagnosis.
+      </div>
+    </section>
+
+    <section class="section" id="ex4">
+      <div class="label">exercise 4</div>
+      <h2>Interpret extended iostat fields</h2>
+
+      <div class="code">
+        <button class="copy" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">iostat -xh 2 nvme0n1</span></pre>
+      </div>
+
+      <table>
+        <tr>
+          <th>Field</th>
+          <th>Meaning</th>
+        </tr>
+
+        <tr>
+          <td>r/s, w/s</td>
+          <td>IOPS</td>
+        </tr>
+
+        <tr>
+          <td>rkB/s, wkB/s</td>
+          <td>Throughput</td>
+        </tr>
+
+        <tr>
+          <td>rareq-sz</td>
+          <td>Average request size</td>
+        </tr>
+
+        <tr>
+          <td>rrqm/s</td>
+          <td>Merge rate</td>
+        </tr>
+
+        <tr>
+          <td>r_await</td>
+          <td>Completion latency</td>
+        </tr>
+
+        <tr>
+          <td>aqu-sz</td>
+          <td>Queue depth</td>
+        </tr>
+
+        <tr>
+          <td>%util</td>
+          <td>Busy-time percentage</td>
+        </tr>
+      </table>
+    </section>
+
+    <section class="section" id="ex5">
+      <div class="label">exercise 5</div>
+      <h2>Generate sequential I/O</h2>
+
+      <div class="code">
+        <div class="code-label">Sequential streaming write</div>
+        <button class="copy" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">dd if=/dev/zero of=seq_test bs=1M count=8192</span></pre>
+      </div>
+
+      <div class="code">
+        <div class="code-label">Monitor simultaneously</div>
+        <button class="copy" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">iostat -xh 2 nvme0n1</span></pre>
+      </div>
+
+      <div class="callout teal">
+        Sequential workloads typically show:
+        high throughput,
+        larger request sizes,
+        and elevated merge rates.
+      </div>
+    </section>
+
+    <section class="section" id="ex6">
+      <div class="label">exercise 6</div>
+      <h2>Generate random I/O</h2>
+
+      <div class="code">
+        <div class="code-label">Random 4K reads</div>
+        <button class="copy" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">fio --name=randread \
+    --filename=rand_test \
+    --size=2G \
+    --bs=4k \
+    --rw=randread \
+    --iodepth=32</span></pre>
+      </div>
+
+      <div class="callout terra">
+        Random workloads typically produce:
+        small request sizes,
+        low merge rates,
+        and very high IOPS.
+      </div>
+    </section>
+
+    <section class="section" id="ex7">
+      <div class="label">exercise 7</div>
+      <h2>Interpret merge-rate metrics</h2>
+
+      <div class="code">
+        <button class="copy" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">iostat -xh 2 nvme0n1</span></pre>
+      </div>
+
+      <div class="expect">
+        <div class="expect-head">Fields to observe</div>
+<pre>rrqm/s
+wrqm/s</pre>
+      </div>
+
+      <div class="callout amber">
+        High merge rates suggest adjacent requests being combined by the block layer,
+        usually indicating sequential access.
+      </div>
+    </section>
+
+    <section class="section" id="ex8">
+      <div class="label">exercise 8</div>
+      <h2>Observe r_await and aqu-sz</h2>
+
+      <div class="code">
+        <div class="code-label">Generate heavy read load</div>
+        <button class="copy" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">fio --name=load \
+    --filename=loadfile \
+    --size=8G \
+    --bs=128k \
+    --rw=read \
+    --iodepth=64</span></pre>
+      </div>
+
+      <div class="code">
+        <div class="code-label">Monitor queue growth</div>
+        <button class="copy" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">iostat -xh 2 nvme0n1</span></pre>
+      </div>
+
+      <div class="callout teal">
+        Rising r_await and aqu-sz together indicate accumulating backlog and developing saturation.
+      </div>
+    </section>
+
+    <section class="section" id="ex9">
+      <div class="label">exercise 9</div>
+      <h2>Why %util fails on NVMe</h2>
+
+      <div class="code">
+        <button class="copy" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">fio --name=nvmebusy \
+    --filename=busyfile \
+    --size=4G \
+    --bs=128k \
+    --rw=read \
+    --iodepth=16</span></pre>
+      </div>
+
+      <div class="expect">
+        <div class="expect-head">Observe carefully</div>
+<pre>%util may remain near 100%
+while r_await remains healthy.</pre>
+      </div>
+
+      <div class="callout amber">
+        A non-empty NVMe queue does not imply saturation.
+        NVMe devices process many requests concurrently.
+      </div>
+    </section>
+
+    <section class="section" id="ex10">
+      <div class="label">exercise 10</div>
+      <h2>Busy vs saturated</h2>
+
+      <table>
+        <tr>
+          <th>Condition</th>
+          <th>%util</th>
+          <th>r_await</th>
+          <th>Meaning</th>
+        </tr>
+
+        <tr>
+          <td>Busy</td>
+          <td>High</td>
+          <td>Stable</td>
+          <td>Healthy heavy load</td>
+        </tr>
+
+        <tr>
+          <td>Saturated</td>
+          <td>High</td>
+          <td>Climbing</td>
+          <td>Queue buildup</td>
+        </tr>
+      </table>
+
+      <div class="callout teal">
+        Saturation means arrivals exceed drain capacity.
+        Latency reveals the transition.
+      </div>
+    </section>
+
+    <section class="section" id="ex11">
+      <div class="label">exercise 11</div>
+      <h2>Observe saturation progression</h2>
+
+      <div class="code">
+        <button class="copy" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">iostat -xh 2 nvme0n1</span></pre>
+      </div>
+
+      <div class="expect">
+        <div class="expect-head">Typical progression</div>
+<pre>Early:
+%util high, latency stable.
+
+Middle:
+Latency rising slowly.
+
+Late:
+Latency climbing sharply,
+queue depth exploding.</pre>
+      </div>
+
+      <div class="callout amber">
+        The transition from busy to saturated occurs entirely inside the pinned 100% util region.
+      </div>
+    </section>
+
+    <section class="section" id="ex12">
+      <div class="label">exercise 12</div>
+      <h2>The four-combination diagnosis model</h2>
+
+      <table>
+        <tr>
+          <th>%util</th>
+          <th>r_await</th>
+          <th>Diagnosis</th>
+        </tr>
+
+        <tr>
+          <td>Low</td>
+          <td>Low</td>
+          <td>Idle</td>
+        </tr>
+
+        <tr>
+          <td>High</td>
+          <td>Low</td>
+          <td>Busy</td>
+        </tr>
+
+        <tr>
+          <td>High</td>
+          <td>High</td>
+          <td>Saturated</td>
+        </tr>
+
+        <tr>
+          <td>Low</td>
+          <td>High</td>
+          <td>Anomalous</td>
+        </tr>
+      </table>
+
+      <div class="callout teal">
+        Neither %util nor latency alone is sufficient.
+        Read them together.
+      </div>
+    </section>
+
+    <section class="section" id="ex13">
+      <div class="label">exercise 13</div>
+      <h2>Monitor a live workload</h2>
+
+      <div class="code">
+        <div class="code-label">Terminal 1</div>
+        <button class="copy" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">iostat -xh 2 nvme0n1</span></pre>
+      </div>
+
+      <div class="code">
+        <div class="code-label">Terminal 2</div>
+        <button class="copy" onclick="copyCode(this)">copy</button>
+<pre><span class="cmd">fio --name=stream \
+    --filename=streamfile \
+    --size=10G \
+    --rw=read \
+    --bs=256k \
+    --iodepth=64</span></pre>
+      </div>
+
+      <div class="callout terra">
+        Trends across intervals matter more than any individual sample.
+      </div>
+    </section>
+
+    <section class="section" id="ex14">
+      <div class="label">exercise 14</div>
+      <h2>The Lustre interpretation boundary</h2>
+
+      <div class="callout amber">
+        iostat sees only local block devices.
+        It cannot see OSS internal queues or backend storage internals.
+      </div>
+
+      <div class="callout teal">
+        The tools change across the storage stack.
+        The latency and queue-depth interpretation does not.
+      </div>
+    </section>
+
+    <section class="section" id="checkpoint">
+      <div class="label">checkpoint</div>
+
+      <div class="checkpoint">
+        <div class="checkpoint-head">
+          Session IV Checkpoint
+        </div>
+
+<pre>echo "=== START MONITORING ==="
+
+iostat -xh 2 nvme0n1 &
+
+fio --name=checkpoint \
+    --filename=testfile \
+    --size=6G \
+    --rw=randread \
+    --bs=4k \
+    --iodepth=64
+
+echo "=== OBSERVE ==="
+
+echo "r_await climbing?"
+echo "aqu-sz growing?"
+echo "%util pinned?"</pre>
+      </div>
+
+      <div class="callout teal">
+        Pinned %util alone does not prove saturation.
+        Rising latency and queue depth do.
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="footer">
+Linux for HPC · Session IV · iostat and Storage Saturation Diagnosis
+</div>
+
+<script>
+function copyCode(button){
+  const code = button.parentElement.querySelector("pre").innerText;
+  navigator.clipboard.writeText(code);
+
+  button.innerText = "copied";
+
+  setTimeout(() => {
+    button.innerText = "copy";
+  }, 1200);
+}
+</script>
+
+</body>
+</html>
