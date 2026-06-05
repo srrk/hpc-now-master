@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linux for HPC · Sessions 3 & 4 · Lab Runbook · master.hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #181817;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --teal:       #0f6e56;
+      --teal-dim:   #1d9e75;
+      --teal-bg:    #e8f5f0;
+      --amber:      #c47f1a;
+      --amber-bg:   #fdf4e3;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--paper); color: var(--ink); font-family: var(--mono); font-size: 15px; line-height: 1.75; }
+
+    /* COVER */
+    .cover { background: var(--cover); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E"); }
+    .nav-wrap { border-bottom: 1px solid var(--rule-cover); }
+    nav { max-width: 1200px; margin: 0 auto; padding: 20px 52px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: var(--mono); font-size: 12px; color: #f0e8e0; text-decoration: none; letter-spacing: .06em; }
+    .logo em { color: var(--terra-dim); font-style: normal; }
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-tag { font-size: 10px; color: #6a6460; letter-spacing: .12em; text-transform: uppercase; }
+    .nav-mod { font-size: 11px; color: var(--terra-dim); letter-spacing: .06em; }
+    .hero { max-width: 1200px; margin: 0 auto; padding: 72px 52px 80px; }
+    .hero-eyebrow { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #6a6460; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+    .hero-eyebrow::before { content: ''; width: 20px; height: 1px; background: #6a6460; }
+    .hero-title { font-family: var(--serif); font-size: clamp(28px, 4vw, 52px); font-weight: 400; color: #f0e8e0; line-height: 1.15; letter-spacing: -.02em; margin-bottom: 28px; }
+    .hero-title em { font-style: italic; color: var(--terra-dim); }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid #2e2820; width: fit-content; margin-top: 36px; }
+    .hero-meta-item { padding: 12px 24px; border-right: 1px solid #2e2820; display: flex; flex-direction: column; gap: 3px; }
+    .hero-meta-item:last-child { border-right: none; }
+    .hero-meta-k { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .hero-meta-v { font-size: 12px; color: #c8c0b4; }
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* LAYOUT */
+    .page-body { max-width: 1200px; margin: 0 auto; padding: 0 52px; display: grid; grid-template-columns: 200px 1fr; gap: 0 72px; align-items: start; }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 40px; padding: 64px 0 40px; align-self: start; }
+    .side-label { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink3); margin-bottom: 12px; padding-left: 14px; }
+    .side-nav { display: flex; flex-direction: column; gap: 1px; margin-bottom: 20px; }
+    .side-nav-item { font-size: 11px; color: var(--ink3); text-decoration: none; letter-spacing: .03em; padding: 5px 0 5px 14px; border-left: 2px solid transparent; transition: color .18s, border-color .18s; line-height: 1.4; }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+    .side-nav-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+    .side-nav-part { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); padding: 8px 0 4px 14px; }
+
+    /* MAIN */
+    .main-content { padding: 0; background: var(--paper); }
+    .section { padding: 64px 0 56px; border-top: 1px solid var(--rule); }
+    .section:first-child { border-top: none; padding-top: 72px; }
+    .label { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: var(--ink3); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
+    .label::after { content: ''; width: 36px; height: 1px; background: var(--rule); }
+    .prose { font-size: 14px; color: var(--ink2); line-height: 2.05; max-width: 600px; }
+    .prose + .prose { margin-top: 1.2em; }
+    .prose code { font-family: var(--mono); font-size: 12px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+
+    /* CALLOUTS */
+    .callout { border-left: 3px solid var(--terra); padding: 18px 22px; background: var(--terra-bg); margin: 24px 0; max-width: 640px; }
+    .callout p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout p + p { margin-top: 8px; }
+    .callout strong { color: var(--terra); font-weight: 500; }
+    .callout-teal { border-left: 3px solid var(--teal); padding: 18px 22px; background: var(--teal-bg); margin: 24px 0; max-width: 640px; }
+    .callout-teal p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-teal p + p { margin-top: 8px; }
+    .callout-teal strong { color: var(--teal); font-weight: 500; }
+    .callout-amber { border-left: 3px solid var(--amber); padding: 18px 22px; background: var(--amber-bg); margin: 24px 0; max-width: 640px; }
+    .callout-amber p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-amber p + p { margin-top: 8px; }
+    .callout-amber strong { color: var(--amber); font-weight: 500; }
+
+    /* CODE BLOCKS */
+    .code-block { background: var(--dark); border: 1px solid #2e2820; padding: 20px 24px; margin: 20px 0; max-width: 640px; overflow-x: auto; position: relative; }
+    .code-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #2e2820; }
+    .code-block pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #c8c0b4; white-space: pre; overflow-x: auto; }
+    .code-block pre .cmd  { color: #9fe1cb; }
+    .code-block pre .cmt  { color: #4a4438; font-style: italic; }
+    .code-block pre .out  { color: #8a8078; }
+    .code-block pre .hi   { color: var(--amber); }
+    .copy-btn { position: absolute; top: 12px; right: 12px; background: #2e2820; border: 1px solid #3e3830; color: #6a6460; font-family: var(--mono); font-size: 10px; letter-spacing: .08em; padding: 4px 10px; cursor: pointer; transition: color .15s, border-color .15s; }
+    .copy-btn:hover { color: #9fe1cb; border-color: #9fe1cb; }
+    .copy-btn.copied { color: var(--teal-dim); border-color: var(--teal-dim); }
+
+    /* STEPS */
+    .steps { display: flex; flex-direction: column; gap: 0; max-width: 640px; margin: 24px 0; }
+    .step { display: grid; grid-template-columns: 48px 1fr; gap: 0 20px; padding: 28px 0; border-top: 1px solid var(--rule); align-items: start; }
+    .step:first-child { border-top: none; padding-top: 0; }
+    .step-num { font-size: 11px; color: var(--ink3); letter-spacing: .1em; padding-top: 4px; font-weight: 300; }
+    .step-title { font-family: var(--serif); font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 10px; line-height: 1.35; }
+    .step-desc { font-size: 13px; color: var(--ink2); line-height: 1.95; margin-bottom: 14px; max-width: 520px; }
+    .step-desc code { font-family: var(--mono); font-size: 11px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+    .step-notice { font-size: 12px; color: var(--terra); font-style: italic; line-height: 1.7; margin-top: 10px; display: flex; gap: 8px; align-items: flex-start; max-width: 520px; }
+    .step-notice::before { content: '→'; flex-shrink: 0; color: var(--terra-dim); }
+    .step-notice code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); font-style: normal; }
+
+    /* DOMAIN HEADER */
+    .domain-header { background: var(--dark); border-left: 4px solid var(--amber); padding: 20px 28px; margin-bottom: 28px; max-width: 640px; }
+    .domain-label { font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: #6a6460; margin-bottom: 6px; }
+    .domain-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: #f0e8e0; line-height: 1.3; margin-bottom: 6px; }
+    .domain-intent { font-size: 13px; color: #8a8078; font-style: italic; line-height: 1.7; }
+
+    /* CHECKPOINT */
+    .checkpoint-block { background: var(--dark); border: 1px solid var(--teal); max-width: 640px; margin: 28px 0; }
+    .checkpoint-header { background: var(--teal); padding: 10px 20px; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+    .checkpoint-header span { font-size: 11px; color: rgba(255,255,255,0.7); font-style: italic; letter-spacing: 0; text-transform: none; }
+    .checkpoint-body { padding: 20px 24px; position: relative; }
+    .checkpoint-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #9fe1cb; white-space: pre-wrap; word-break: break-all; }
+    .checkpoint-note { font-size: 12px; color: #8a8078; font-style: italic; margin-top: 14px; line-height: 1.7; padding-top: 12px; border-top: 1px solid #2e2820; }
+
+    /* EXPECTED OUTPUT */
+    .expected-block { background: #141210; border: 1px solid #2e2820; border-left: 3px solid var(--teal); max-width: 640px; margin: 12px 0; }
+    .expected-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--teal-dim); padding: 8px 16px; border-bottom: 1px solid #2e2820; }
+    .expected-body { padding: 14px 16px; }
+    .expected-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #8a8078; white-space: pre-wrap; }
+
+    /* CREDS TABLE */
+    .creds-table { border: 1px solid var(--rule); width: 100%; max-width: 560px; margin: 20px 0; border-collapse: collapse; }
+    .creds-table thead th { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); background: var(--paper-mid); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--rule); font-weight: 400; }
+    .creds-table tbody td { font-size: 12px; color: var(--ink2); padding: 11px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.6; }
+    .creds-table tbody tr:last-child td { border-bottom: none; }
+    .creds-table .name-col { font-family: var(--serif); font-style: italic; color: var(--ink); font-size: 14px; }
+    .creds-table .mono-col { font-family: var(--mono); color: var(--teal); font-size: 12px; }
+    .creds-table .pass-col { font-family: var(--mono); color: var(--amber); font-size: 12px; }
+
+    /* QUICKREF */
+    .quickref-block { background: var(--dark); border: 1px solid #2e2820; max-width: 640px; margin: 20px 0; overflow: hidden; }
+    .quickref-header { background: #2e2820; padding: 10px 20px; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .quickref-row { display: grid; grid-template-columns: 140px 1fr; border-bottom: 1px solid #2e2820; }
+    .quickref-row:last-child { border-bottom: none; }
+    .quickref-k { font-size: 11px; color: var(--amber); padding: 12px 16px; border-right: 1px solid #2e2820; display: flex; align-items: center; letter-spacing: .04em; font-weight: 500; }
+    .quickref-v { font-family: var(--mono); font-size: 12px; color: #9fe1cb; padding: 12px 16px; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+
+    /* FORWARD MAP TABLE */
+    .fwd-table { border: 1px solid var(--rule); width: 100%; max-width: 640px; margin: 20px 0; border-collapse: collapse; }
+    .fwd-table thead th { font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink3); background: var(--paper-mid); padding: 10px 16px; text-align: left; border-bottom: 2px solid var(--amber); font-weight: 400; }
+    .fwd-table tbody td { font-size: 12px; color: var(--ink2); padding: 12px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.7; }
+    .fwd-table tbody tr:last-child td { border-bottom: none; }
+    .fwd-table .concept-col { font-family: var(--mono); color: var(--amber); font-size: 11px; white-space: nowrap; }
+    .fwd-table .dest-col { font-family: var(--serif); font-style: italic; color: var(--ink); font-size: 13px; }
+    .fwd-table .task-col { font-size: 11px; color: var(--ink3); }
+
+    /* DIAGNOSIS TABLE */
+    .diag-table { border: 1px solid #2e2820; width: 100%; max-width: 640px; margin: 20px 0; border-collapse: collapse; background: var(--dark); }
+    .diag-table thead th { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: #6a6460; background: #2e2820; padding: 10px 16px; text-align: left; border-bottom: 1px solid #3e3830; font-weight: 400; }
+    .diag-table tbody td { font-size: 12px; color: #c8c0b4; padding: 12px 16px; border-bottom: 1px solid #2e2820; vertical-align: top; line-height: 1.7; font-family: var(--mono); }
+    .diag-table tbody tr:last-child td { border-bottom: none; }
+    .diag-table .state-idle   { color: #6a6460; }
+    .diag-table .state-busy   { color: var(--amber); }
+    .diag-table .state-sat    { color: #e06060; }
+    .diag-table .state-anom   { color: var(--teal-dim); }
+
+    /* FOOTER */
+    .footer-wrap { background: var(--dark2); margin: 64px -52px 0; padding: 24px 52px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-top: 1px solid #2e2820; }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-badge { font-size: 10px; color: var(--teal-dim); letter-spacing: .08em; }
+    .footer-link { font-size: 11px; color: #6a6460; text-decoration: none; }
+
+    @media (max-width: 1024px) {
+      nav, .hero { padding-left: 32px; padding-right: 32px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 32px; }
+      .sidebar { display: none; }
+      .footer-wrap { margin: 64px -32px 0; padding: 24px 32px; }
+    }
+    @media (max-width: 640px) {
+      nav, .hero { padding-left: 20px; padding-right: 20px; }
+      .page-body { padding: 0 20px; }
+      .footer-wrap { margin: 64px -20px 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="https://master.hpc.now" class="logo">master<em>.hpc.now</em></a>
+      <div class="nav-right">
+        <span class="nav-tag">Lab Runbook</span>
+        <span class="nav-mod">Linux for HPC · Sessions 3 &amp; 4 · /proc · iostat</span>
+      </div>
+    </nav>
+  </div>
+  <div class="hero">
+    <p class="hero-eyebrow">Linux for HPC · Sessions 3 &amp; 4 · Lab Runbook · HPC Operations · Associate Stream</p>
+    <h1 class="hero-title">/proc, Page Cache, and Direct I/O,<br><em>iostat and Storage Saturation Diagnosis</em></h1>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><span class="hero-meta-k">Instance</span><span class="hero-meta-v">mylab.hpc.now</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Type</span><span class="hero-meta-v">t3.medium · us-east-1</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Users</span><span class="hero-meta-v">yogi · sujith · chandra · labguest</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Password</span><span class="hero-meta-v">hpcnow2026</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Cost</span><span class="hero-meta-v">~$0.033/hr · destroy when done</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- BODY -->
+<div class="page-body">
+
+  <aside class="sidebar">
+    <div class="side-label">Runbook</div>
+    <nav class="side-nav">
+      <a href="#before-you-start" class="side-nav-item">Before You Start</a>
+      <a href="#connect" class="side-nav-item">How to Connect</a>
+      <a href="#layout" class="side-nav-item">Directory Layout</a>
+      <a href="#preflight" class="side-nav-item">Pre-flight Checks</a>
+      <div class="side-nav-divider"></div>
+      <div class="side-nav-part">Session 3 — /proc &amp; Page Cache</div>
+      <a href="#s3-overview" class="side-nav-item">Lab Overview</a>
+      <a href="#s3-ex1" class="side-nav-item">Ex 1 · /proc is virtual</a>
+      <a href="#s3-ex2" class="side-nav-item">Ex 2 · meminfo fields</a>
+      <a href="#s3-ex3" class="side-nav-item">Ex 3 · PID status</a>
+      <a href="#s3-ex4" class="side-nav-item">Ex 4 · fd, environ, cmdline</a>
+      <a href="#s3-ex5" class="side-nav-item">Ex 5 · D-state &amp; stack</a>
+      <a href="#s3-ex6" class="side-nav-item">Ex 6 · Buffered write proof</a>
+      <a href="#s3-ex7" class="side-nav-item">Ex 7 · Direct I/O proof</a>
+      <a href="#s3-ex8" class="side-nav-item">Ex 8 · Drop caches</a>
+      <a href="#s3-checkpoint" class="side-nav-item">Session 3 Checkpoint</a>
+      <div class="side-nav-divider"></div>
+      <div class="side-nav-part">Session 4 — iostat</div>
+      <a href="#s4-overview" class="side-nav-item">Lab Overview</a>
+      <a href="#s4-ex1" class="side-nav-item">Ex 1 · iostat invocation</a>
+      <a href="#s4-ex2" class="side-nav-item">Ex 2 · First-block rule</a>
+      <a href="#s4-ex3" class="side-nav-item">Ex 3 · Merge rate</a>
+      <a href="#s4-ex4" class="side-nav-item">Ex 4 · r_await &amp; aqu-sz</a>
+      <a href="#s4-ex5" class="side-nav-item">Ex 5 · %util ceiling</a>
+      <a href="#s4-ex6" class="side-nav-item">Ex 6 · Four-state diagnosis</a>
+      <a href="#s4-ex7" class="side-nav-item">Ex 7 · Live monitoring</a>
+      <a href="#s4-checkpoint" class="side-nav-item">Session 4 Checkpoint</a>
+      <div class="side-nav-divider"></div>
+      <a href="#forward" class="side-nav-item">Forward Connections</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- BEFORE YOU START -->
+    <section class="section" id="before-you-start">
+      <p class="label">before you start</p>
+      <p class="prose">This runbook covers Sessions 3 and 4 on a single AWS EC2 instance. Session 3 runs entirely from the shell and requires no job scheduler — it uses only standard Linux tools already present on the instance. Session 4 requires the <code>sysstat</code> package for <code>iostat</code>; verify the pre-flight checklist before beginning any Session 4 exercise.</p>
+      <p class="prose">Every exercise is self-contained. Expected Output blocks show the structure of correct output — actual numbers (throughput, memory sizes, PIDs, await values) will differ from what you see on your instance. The interpretation logic matters as much as the command.</p>
+
+      <div class="callout-amber" style="margin-top:28px">
+        <p><strong>Instance cost.</strong> The t3.medium runs at approximately $0.033/hr. Run <code>./destroy.sh</code> at the end of the lab day. An idle instance left overnight costs roughly $0.80 — cheap, but the habit of destroying lab resources is the one that matters in production.</p>
+      </div>
+
+      <div class="callout-teal" style="margin-top:0">
+        <p><strong>Why t3.medium for these sessions.</strong> All Session 3 exercises use <code>/proc</code>, <code>dd</code>, <code>sync</code>, and <code>drop_caches</code> — zero compute intensity. Session 4 uses <code>iostat</code> against the local EBS gp3 volume. The learning objective is reading and interpreting fields correctly, not saturating real NVMe hardware. The t3.medium's EBS-backed storage behaves consistently enough to demonstrate all diagnostic patterns clearly. Throughput numbers will differ from the slide examples; the Cached delta and the oflag=direct comparison will be clearly visible, which is what the exercises teach.</p>
+      </div>
+
+      <table class="creds-table" style="margin-top:28px">
+        <thead><tr><th>Name</th><th>Username</th><th>Password</th><th>Host</th></tr></thead>
+        <tbody>
+          <tr><td class="name-col">Yogi</td><td class="mono-col">yogi</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Sujith</td><td class="mono-col">sujith</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Chandra</td><td class="mono-col">chandra</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Guest</td><td class="mono-col">labguest</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- HOW TO CONNECT -->
+    <section class="section" id="connect">
+      <p class="label">how to connect</p>
+      <p class="prose">If <code>deploy.sh</code> completed successfully, an SSH config shortcut was written to your Mac's <code>~/.ssh/config</code>. Use either form:</p>
+      <div class="code-block" style="margin-top:20px">
+        <div class="code-label">SSH — shortcut (after deploy.sh)</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="cmd">ssh hpc-lab</span>                                    <span class="cmt"># uses ~/.ssh/config Host hpc-lab</span>
+<span class="cmt"># Once on the instance, switch to a lab user:</span>
+<span class="cmd">sudo su - yogi</span></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-label">SSH — manual form (replace IP from deploy.sh status output)</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="cmd">ssh -i ~/hpc-lab-key.pem ec2-user@&lt;instance-ip&gt;</span>
+<span class="cmd">sudo su - yogi</span></pre>
+      </div>
+    </section>
+
+    <!-- DIRECTORY LAYOUT -->
+    <section class="section" id="layout">
+      <p class="label">directory layout</p>
+      <p class="prose">All lab scripts are pre-staged under <code>/labdata/</code>. Each learner has a personal directory used for I/O test files — these can grow to several gigabytes during Session 3 page cache exercises. Clean up with <code>rm -f ~/testfile*</code> between exercises if disk space is a concern.</p>
+      <div class="code-block" style="margin-top:20px">
+        <div class="code-label">Lab filesystem layout</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="out">/labdata/
+├── yogi/              ← per-user scratch (I/O test files go here)
+├── sujith/
+├── chandra/
+├── labguest/
+└── jobs/
+    ├── session3/      ← Session 3 /proc and page cache exercises
+    │   ├── ex1_proc_virtual.sh
+    │   ├── ex2_meminfo_fields.sh
+    │   ├── ex3_pid_status.sh
+    │   ├── ex4_fd_environ.sh
+    │   ├── ex5_dstate_stack.sh
+    │   ├── ex6_buffered_write.sh
+    │   ├── ex7_direct_io.sh
+    │   └── ex8_drop_caches.sh
+    └── session4/      ← Session 4 iostat exercises
+        ├── ex1_iostat_basic.sh
+        ├── ex2_first_block.sh
+        ├── ex3_merge_rate.sh
+        ├── ex4_await_aqu.sh
+        ├── ex5_util_ceiling.sh
+        ├── ex6_four_state.sh
+        ├── ex7_live_monitor.sh
+        └── iostat_scenarios.txt   ← pre-baked diagnosis scenarios</span></pre>
+      </div>
+    </section>
+
+    <!-- PRE-FLIGHT -->
+    <section class="section" id="preflight">
+      <p class="label">pre-flight checks</p>
+      <p class="prose">Session 3 uses only tools built into Linux — no installation required. Session 4 requires the <code>sysstat</code> package which provides <code>iostat</code>. Run the checks below before starting any exercise.</p>
+      <div class="code-block" style="margin-top:20px">
+        <div class="code-label">Verify all required tools are present</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="cmt"># Session 3 — all built-in, should pass immediately</span>
+<span class="cmd">for cmd in cat grep watch dd sync; do
+    which $cmd &amp;&amp; echo "$cmd: OK" || echo "$cmd: MISSING"
+done</span>
+
+<span class="cmt"># Session 4 — requires sysstat package</span>
+<span class="cmd">which iostat &amp;&amp; echo "iostat: OK" || echo "iostat: MISSING — install sysstat"</span>
+
+<span class="cmt"># If iostat is missing, install it:</span>
+<span class="cmd">sudo dnf install -y sysstat        </span><span class="cmt"># Amazon Linux 2023 / RHEL / Rocky</span>
+<span class="cmd">sudo apt install -y sysstat        </span><span class="cmt"># Ubuntu / Debian</span>
+
+<span class="cmt"># Verify the block device name for Session 4 exercises</span>
+<span class="cmd">lsblk | grep -v loop</span></pre>
+      </div>
+      <div class="expected-block">
+        <div class="expected-label">Expected output — all tools present</div>
+        <div class="expected-body"><pre>/usr/bin/cat: OK
+/usr/bin/grep: OK
+/usr/bin/watch: OK
+/usr/bin/dd: OK
+/usr/bin/sync: OK
+iostat: OK
+
+NAME    MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+xvda    202:0    0    8G  0 disk
+└─xvda1 202:1    0    8G  0 part /
+
+Block device is xvda on Amazon Linux 2023 (or nvme0n1 on Nitro-based t3 instances).
+Note your device name — substitute it in all Session 4 iostat commands.
+Nitro t3 instances: device will appear as nvme0n1.</pre></div>
+      </div>
+      <div class="callout-amber">
+        <p><strong>Device name varies by instance generation.</strong> Older t3 instances using Xen hypervisor show <code>xvda</code>. Newer Nitro-based instances show <code>nvme0n1</code>. Run <code>lsblk</code> and note your device name before starting Session 4. All Session 4 exercises use <code>DEVICE</code> as a variable — set it once and all commands work unchanged.</p>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         SESSION 3 — /proc, PAGE CACHE, DIRECT I/O
+         ============================================== -->
+
+    <section class="section" id="s3-overview">
+      <div class="domain-header">
+        <p class="domain-label">Session 3 · /proc, Page Cache, and Direct I/O · ~40 minutes</p>
+        <h2 class="domain-title">Reading Kernel State, Proving the Cache, and Measuring Real Storage</h2>
+        <p class="domain-intent">Eight exercises progressing from /proc filesystem fundamentals through per-process diagnosis, to the page cache proof and the direct I/O benchmark discipline that all subsequent HPC storage work assumes.</p>
+      </div>
+      <p class="prose">Every number that comes out of a storage benchmark needs to be verified against <code>/proc/meminfo</code> before it can be trusted. The exercises in this session build that verification habit from first principles: what <code>/proc</code> is, what it exposes, how to read a process's actual memory footprint, and how to tell whether a dd result is measuring RAM or storage.</p>
+    </section>
+
+    <!-- S3 EX 1 -->
+    <section class="section" id="s3-ex1">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Verify that /proc is a virtual filesystem — no disk, no daemon</p>
+            <p class="step-desc">Run three commands that together prove <code>/proc</code> is generated entirely in kernel memory: check the mount type, observe a zero-byte file, then read data from that zero-byte file. These three facts together define what a virtual filesystem is.</p>
+            <div class="code-block">
+              <div class="code-label">Step 1 — confirm filesystem type</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">mount | grep /proc</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — filesystem type proc</div>
+              <div class="expected-body"><pre>proc on /proc type proc (rw,nosuid,nodev,noexec,relatime)
+
+"type proc" is the key field.
+This is not ext4, xfs, or any on-disk filesystem.
+No disk blocks are read when you access /proc.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Step 2 — observe the zero-byte paradox</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ls -l /proc/meminfo</span>
+<span class="cmd">wc -c /proc/meminfo</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — size 0, yet content exists</div>
+              <div class="expected-body"><pre>-r--r--r-- 1 root root 0 Jun  5 10:22 /proc/meminfo
+
+1365 /proc/meminfo
+
+ls reports 0 bytes. wc -c reports real content.
+The file size metadata is meaningless — the kernel generates
+content at read time, not at write time. There is nothing to stat.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Step 3 — read from the zero-byte file</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat /proc/meminfo | head -5</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — live kernel data</div>
+              <div class="expected-body"><pre>MemTotal:        3886588 kB
+MemFree:          312744 kB
+MemAvailable:    3102456 kB
+Buffers:           18932 kB
+Cached:          2891204 kB
+
+Content appears instantly. No stale cache. No daemon update.
+The kernel computed these numbers at the moment read() was called.</pre></div>
+            </div>
+            <p class="step-notice">Run <code>cat /proc/meminfo</code> twice in rapid succession. The numbers will differ slightly — because they are always current. A file on disk would return identical bytes both times.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S3 EX 2 -->
+    <section class="section" id="s3-ex2">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Read /proc/meminfo — identify the fields that matter and the one to ignore</p>
+            <p class="step-desc">Not all fields in <code>/proc/meminfo</code> are equally useful. This exercise reads the six most important fields and establishes the rule: judge memory pressure from <code>MemAvailable</code>, not from <code>MemFree</code>. Low <code>MemFree</code> on a healthy, busy system is expected.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep -E '^(MemTotal|MemFree|MemAvailable|Buffers|Cached:|Dirty|Writeback):' \
+    /proc/meminfo</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — t3.medium (4 GB RAM)</div>
+              <div class="expected-body"><pre>MemTotal:        3886588 kB    ← physical RAM Linux sees. Fixed.
+MemFree:          312744 kB    ← RAM with NO assignment. LOW = NORMAL.
+MemAvailable:    3102456 kB    ← what new allocations can actually use.
+Buffers:           18932 kB    ← filesystem metadata cache. Usually small.
+Cached:          2891204 kB    ← file data in page cache. Large = GOOD.
+Dirty:             14208 kB    ← modified pages not yet written to storage.
+Writeback:             0 kB    ← dirty pages being flushed right now.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Watch these fields live during the page cache exercises</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">watch -n1 "grep -E '^(MemFree|MemAvailable|Cached:|Dirty|Writeback):' \
+    /proc/meminfo"</span></pre>
+            </div>
+            <p class="step-desc">Run this in a second terminal and leave it open throughout Exercises 6, 7, and 8. You will observe Cached growing during Exercise 6, Dirty accumulating during the write, Writeback appearing during flush, and Cached collapsing during Exercise 8.</p>
+
+            <div class="quickref-block" style="margin-top:20px">
+              <div class="quickref-header">meminfo field interpretation — what each field is actually telling you</div>
+              <div class="quickref-row"><span class="quickref-k">MemFree</span><span class="quickref-v">Completely unassigned RAM. Low is normal and healthy on a busy system. Do not use to judge pressure.</span></div>
+              <div class="quickref-row"><span class="quickref-k">MemAvailable</span><span class="quickref-v">Estimated RAM available for new allocations, including reclaimable cache. Use this to judge pressure.</span></div>
+              <div class="quickref-row"><span class="quickref-k">Cached</span><span class="quickref-v">File data in page cache. Large values mean Linux is doing its job — filling unused RAM with useful cache.</span></div>
+              <div class="quickref-row"><span class="quickref-k">Dirty</span><span class="quickref-v">Pages modified but not yet written to storage. Growing Dirty = writes accumulating in RAM.</span></div>
+              <div class="quickref-row"><span class="quickref-k">Writeback</span><span class="quickref-v">Dirty pages currently being flushed to storage. Writeback > 0 means the kernel is writing right now.</span></div>
+            </div>
+
+            <p class="step-notice"><code>MemFree</code> is the most commonly misread field in <code>/proc/meminfo</code>. A node showing 300 MB MemFree and 3 GB MemAvailable is in excellent health. A node showing 3 GB MemFree may be underutilised. Always use MemAvailable for capacity decisions.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S3 EX 3 -->
+    <section class="section" id="s3-ex3">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Read /proc/PID/status — distinguish actual RAM usage from virtual address space</p>
+            <p class="step-desc">Launch a background process, then read its <code>status</code> file. Compare the four memory fields: two describe virtual address space reservation (large but meaningless for pressure), two describe actual physical RAM consumption (small but meaningful).</p>
+            <div class="code-block">
+              <div class="code-label">Launch a test process and capture its PID</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sleep 300 &amp;
+TEST_PID=$!
+echo "Test PID: $TEST_PID"</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Read the memory fields from status</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep -E '^(State|Threads|VmPeak|VmSize|VmHWM|VmRSS):' \
+    /proc/${TEST_PID}/status</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — sleep process</div>
+              <div class="expected-body"><pre>State:     S (sleeping)
+Threads:   1
+VmPeak:    2232 kB     ← largest virtual space ever reserved. NOT actual RAM.
+VmSize:    2232 kB     ← current virtual address space. NOT actual RAM.
+VmHWM:      636 kB     ← peak resident memory. Actual physical RAM high-water mark.
+VmRSS:      636 kB     ← current resident memory. Actual physical RAM right now.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Clean up</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">kill $TEST_PID 2>/dev/null; wait $TEST_PID 2>/dev/null</span></pre>
+            </div>
+            <div class="callout" style="margin-top:16px">
+              <p><strong>The rule for memory diagnosis.</strong> Use <code>VmRSS</code> and <code>VmHWM</code> — resident set size and its high-water mark. These report actual physical RAM. Use <code>VmSize</code> and <code>VmPeak</code> only for understanding virtual address space layout, never for judging memory pressure. A process with VmSize of 40 GB and VmRSS of 800 MB is using 800 MB of RAM.</p>
+            </div>
+            <p class="step-notice">The <code>State</code> field is the first thing to read when a process appears hung. <code>S</code> is sleeping (interruptible), <code>D</code> is uninterruptible sleep (disk wait — cannot be killed), <code>R</code> is running. Exercise 5 covers the D-state investigation workflow.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S3 EX 4 -->
+    <section class="section" id="s3-ex4">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Read fd/, environ, cmdline, and maps from /proc/PID</p>
+            <p class="step-desc">These four subdirectories answer the diagnostic questions that come up most frequently during job debugging: what files is the process reading, what environment variables did it inherit, what exact command launched it, and what libraries is it using.</p>
+            <div class="code-block">
+              <div class="code-label">Launch a process that opens a file, capture PID</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmt"># Create a test file and open it with tail -f to hold the fd open</span>
+<span class="cmd">echo "lab test data" > /tmp/lab_testfile.txt
+tail -f /tmp/lab_testfile.txt &amp;
+TAIL_PID=$!
+echo "PID: $TAIL_PID"
+sleep 1</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Read open file descriptors from fd/</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ls -la /proc/${TAIL_PID}/fd</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — open file descriptors</div>
+              <div class="expected-body"><pre>lrwxrwxrwx 1 yogi yogi 64 Jun  5 10:30 0 -> /dev/pts/0
+lrwxrwxrwx 1 yogi yogi 64 Jun  5 10:30 1 -> /dev/pts/0
+lrwxrwxrwx 1 yogi yogi 64 Jun  5 10:30 2 -> /dev/pts/0
+lrwxrwxrwx 1 yogi yogi 64 Jun  5 10:30 3 -> /tmp/lab_testfile.txt
+
+fd 0 = stdin, fd 1 = stdout, fd 2 = stderr (all terminal here).
+fd 3 = the file we opened. The path is the actual filesystem path.
+In HPC job debugging: fd/ reveals which filesystem a job is reading,
+whether it is using /scratch or /home or /tmp, and whether it has
+an unexpected file handle open (e.g. a stale NFS mount).</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Read environment variables</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">tr '\0' '\n' &lt; /proc/${TAIL_PID}/environ | grep -E 'HOME|PATH|USER|TERM'</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — inherited environment</div>
+              <div class="expected-body"><pre>HOME=/home/yogi
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin
+TERM=xterm-256color
+USER=yogi
+
+environ is NUL-separated — tr '\0' '\n' converts it to readable lines.
+In HPC: use this to verify SLURM_JOB_ID, CUDA_VISIBLE_DEVICES,
+OMP_NUM_THREADS, and library paths are what the scheduler set them to.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Read the exact invocation from cmdline</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">tr '\0' ' ' &lt; /proc/${TAIL_PID}/cmdline; echo</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — full argument list</div>
+              <div class="expected-body"><pre>tail -f /tmp/lab_testfile.txt
+
+cmdline is also NUL-separated between arguments.
+tr '\0' ' ' and a trailing echo produce a clean readable line.
+In HPC: use this to confirm the binary and flags a running job was
+launched with — useful when the submission script has been modified
+after the job started.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Inspect memory maps</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat /proc/${TAIL_PID}/maps | head -10</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — virtual memory layout</div>
+              <div class="expected-body"><pre>55a3c2e00000-55a3c2e04000 r--p 00000000 103:01 1234567  /usr/bin/tail
+55a3c2e04000-55a3c2e0a000 r-xp 00004000 103:01 1234567  /usr/bin/tail
+7f8b2a000000-7f8b2a028000 r--p 00000000 103:01 9876543  /usr/lib64/libc.so.6
+...
+
+maps shows: address range, permissions, offset, device, inode, path.
+In HPC: confirm a job is using the expected MPI library, not an older
+system version pulled from a stale LD_LIBRARY_PATH entry.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Clean up</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">kill $TAIL_PID 2>/dev/null; wait $TAIL_PID 2>/dev/null
+rm -f /tmp/lab_testfile.txt</span></pre>
+            </div>
+            <p class="step-notice">These four files — <code>fd/</code>, <code>environ</code>, <code>cmdline</code>, <code>maps</code> — are readable by the process owner without <code>sudo</code>. For other users' processes, <code>sudo</code> is required. In a Slurm context, these are accessible while the job is running, before the process exits and the <code>/proc/PID</code> directory disappears.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S3 EX 5 -->
+    <section class="section" id="s3-ex5">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Diagnose D-state processes using wchan and stack</p>
+            <p class="step-desc">A process in D state (uninterruptible sleep) cannot be killed. It is blocked inside the kernel waiting for something — usually I/O. The kernel stack tells you exactly where. This exercise simulates the workflow, then demonstrates how to read the evidence on a real blocked process if one appears during the lab.</p>
+            <div class="code-block">
+              <div class="code-label">Check for D-state processes on the instance</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ps aux | awk '$8 ~ /^D/ {print $0}'</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — healthy instance (no D-state)</div>
+              <div class="expected-body"><pre>(no output)
+
+No output means no processes are in D-state right now.
+On a healthy instance with local EBS, D-state processes are rare.
+On a cluster node with NFS or Lustre issues, this command will return
+lines — each one a process blocked waiting for filesystem response.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Full D-state investigation workflow (apply to any PID showing D state)</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmt"># Step 1 — confirm the state from status</span>
+<span class="cmd">cat /proc/&lt;PID&gt;/status | grep '^State'</span>
+
+<span class="cmt"># Step 2 — quick summary: what kernel function is it waiting in?</span>
+<span class="cmd">cat /proc/&lt;PID&gt;/wchan</span>
+
+<span class="cmt"># Step 3 — full kernel stack (requires root)</span>
+<span class="cmd">sudo cat /proc/&lt;PID&gt;/stack</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">What the stack output looks like and how to read it</div>
+              <div class="expected-body"><pre>State: D (disk sleep)
+
+nfs_wait_bit_killable                ← wchan: currently waiting here
+
+[&lt;0&gt;] rpc_wait_bit_killable+0x...   ← stack entry 0 (deepest wait)
+[&lt;0&gt;] __rpc_wait_for_completion+...
+[&lt;0&gt;] rpc_run_task+0x...
+[&lt;0&gt;] nfs_read_rpc_prepare+0x...
+[&lt;0&gt;] nfs_initiate_read+0x...
+[&lt;0&gt;] nfs_readpage+0x...            ← NFS page fault triggered this
+[&lt;0&gt;] filemap_fault+0x...
+
+Read the stack top-down: the top frames are deepest in the kernel.
+This stack says: process tried to read a page → NFS triggered →
+RPC call sent to server → waiting for response.
+The subsystem is [nfs]. Resolution: check NFS server health, not the node.
+
+Other subsystem signatures:
+[jbd2]    → journal commit on local ext4 — usually transient
+[lustre]  → Lustre OST or MGS connectivity issue
+[ib_core] → InfiniBand fabric issue
+[xfs]     → local XFS journal or I/O issue</pre></div>
+            </div>
+            <p class="step-notice">The kernel stack identifies the <em>subsystem</em> responsible for the D-state. That subsystem determines the investigation path — a Lustre stack means checking the OSS, an NFS stack means checking the NFS server, a local journal stack may resolve itself. This is the starting point for Task T58 and T61 in the associate curriculum.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout-teal" style="margin-top:8px">
+        <p><strong>Why D-state matters in HPC.</strong> Slurm will not release a node back to the pool while any process from the job's cgroup is still alive. A D-state process blocked on a hung NFS mount will hold the node in CG state indefinitely — the scheduler cannot drain it, other jobs cannot use it, and killing the process has no effect. The <code>/proc/PID/stack</code> workflow is the only way to determine whether the wait will eventually resolve (transient I/O) or requires operator intervention (dead NFS server, dropped Lustre connection).</p>
+      </div>
+    </section>
+
+    <!-- S3 EX 6 -->
+    <section class="section" id="s3-ex6">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Prove the page cache — buffered write fills RAM, not storage</p>
+            <p class="step-desc">Write a file with <code>dd</code> using default (buffered) I/O. Observe the Cached field in <code>/proc/meminfo</code> before and after. Then immediately re-read the file and observe that the throughput is impossible for any storage device — it is memory speed. This is the central demonstration of the session.</p>
+
+            <div class="callout-amber" style="margin-top:0; margin-bottom:20px">
+              <p><strong>Run the watch command first.</strong> Open a second terminal, SSH in as the same user, and run <code>watch -n1 "grep -E '^(MemFree|Cached:|Dirty|Writeback):' /proc/meminfo"</code> before running any command below. The live view makes the cache fill visible in real time.</p>
+            </div>
+
+            <div class="code-block">
+              <div class="code-label">Step 1 — record the Cached baseline before writing</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep '^Cached:' /proc/meminfo</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected — baseline before write</div>
+              <div class="expected-body"><pre>Cached:   1243648 kB     ← record this number (will be ~1.2 GB or similar)</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Step 2 — write 2 GB with buffered I/O (default dd, no flags)</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">dd if=/dev/zero of=/labdata/${USER}/io_test bs=1M count=2048 2>&amp;1</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — suspiciously fast write</div>
+              <div class="expected-body"><pre>2048+0 records in
+2048+0 records out
+2147483648 bytes (2.1 GB, 2.0 GiB) copied, 0.83 s, 2.6 GB/s
+
+This number (~2+ GB/s) is RAM speed — not EBS storage speed.
+The data went into the page cache, not to disk.
+dd returned before the storage write completed.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Step 3 — check how much Cached grew</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep '^Cached:' /proc/meminfo</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected — Cached grew by ~2 GB</div>
+              <div class="expected-body"><pre>Cached:   3291136 kB     ← increased by ~2 GB since Step 1
+
+The 2 GB we "wrote" is now sitting in RAM as page cache.
+Storage barely started the actual write yet.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Step 4 — immediately read the file back (cache hot)</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">dd if=/labdata/${USER}/io_test of=/dev/null bs=1M 2>&amp;1</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — memory speed read</div>
+              <div class="expected-body"><pre>2048+0 records in
+2048+0 records out
+2147483648 bytes (2.1 GB, 2.0 GiB) copied, 0.41 s, 5.2 GB/s
+
+5 GB/s from EBS? Impossible — EBS gp3 max throughput is 125–1000 MB/s.
+This read came entirely from the page cache in RAM. Storage was not touched.
+Any benchmark result that exceeds your storage hardware rating is measuring
+page cache, not storage. The Cached field in /proc/meminfo is the proof.</pre></div>
+            </div>
+            <p class="step-notice">The Cached field is the evidence that proves a benchmark number is measuring RAM. If Cached grew by roughly the size of the write, the benchmark is not measuring storage. Keep the test file — Exercise 7 uses it for the Direct I/O comparison.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S3 EX 7 -->
+    <section class="section" id="s3-ex7">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 7</span>
+          <div>
+            <p class="step-title">Measure real storage with Direct I/O — oflag=direct and iflag=direct</p>
+            <p class="step-desc">Direct I/O bypasses the page cache entirely. The process waits for actual storage completion before <code>dd</code> returns. The Cached field does not move. The throughput number is real storage speed. This is the correct way to benchmark storage in any HPC environment.</p>
+            <div class="code-block">
+              <div class="code-label">Step 1 — write with Direct I/O (bypasses cache)</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep '^Cached:' /proc/meminfo   </span><span class="cmt"># record baseline</span>
+<span class="cmd">dd if=/dev/zero \
+   of=/labdata/${USER}/io_test_direct \
+   bs=1M count=512 \
+   oflag=direct 2>&amp;1</span>
+<span class="cmd">grep '^Cached:' /proc/meminfo   </span><span class="cmt"># compare to baseline</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — real storage speed, Cached unchanged</div>
+              <div class="expected-body"><pre>Cached:   3291136 kB     ← baseline
+
+512+0 records in
+512+0 records out
+536870912 bytes (537 MB, 512 MiB) copied, 4.21 s, 127 MB/s
+
+Cached:   3291136 kB     ← UNCHANGED — cache was not used
+
+127 MB/s is the actual EBS gp3 write throughput for this instance.
+Cached did not grow. Storage did the work. The number is trustworthy.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Step 2 — read with Direct I/O (must read same file written directly)</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">dd if=/labdata/${USER}/io_test_direct \
+   of=/dev/null \
+   bs=1M \
+   iflag=direct 2>&amp;1</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — real storage read speed</div>
+              <div class="expected-body"><pre>512+0 records in
+512+0 records out
+536870912 bytes (537 MB, 512 MiB) copied, 4.06 s, 132 MB/s
+
+~132 MB/s — consistent with EBS gp3 baseline throughput.
+Compare to Exercise 6's 5.2 GB/s: that was cache. This is storage.</pre></div>
+            </div>
+            <div class="callout-teal" style="margin-top:16px">
+              <p><strong>The alignment requirement.</strong> Direct I/O requires that transfer sizes be aligned to the storage block size (typically 512 bytes to 4096 bytes). Using <code>bs=1M</code> satisfies this automatically — 1 MiB is divisible by any block size in common use. If you use a non-aligned block size (e.g. <code>bs=513</code>) with <code>oflag=direct</code>, dd will return an error: <code>Invalid argument</code>. This is not a kernel bug; it is the O_DIRECT contract.</p>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Step 3 — side-by-side comparison summary</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">echo "=== Buffered write result (Exercise 6) ==="
+echo "Write: ~2.6 GB/s  (RAM speed — cache filled)"
+echo "Read:  ~5.2 GB/s  (RAM speed — cache served it)"
+echo ""
+echo "=== Direct I/O result (Exercise 7) ==="
+echo "Write: ~127 MB/s  (storage speed — cache bypassed)"
+echo "Read:  ~132 MB/s  (storage speed — cache bypassed)"
+echo ""
+echo "=== Which number is real? ==="
+echo "The Direct I/O number. Every other benchmark needs this verification."</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Clean up test files</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">rm -f /labdata/${USER}/io_test /labdata/${USER}/io_test_direct</span></pre>
+            </div>
+            <p class="step-notice">The three valid ways to get a trustworthy storage benchmark are: (1) <code>oflag=direct</code> / <code>iflag=direct</code>; (2) drop caches between write and read; (3) use a file larger than physical RAM so it cannot fit in cache. Exercise 8 covers option 2.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S3 EX 8 -->
+    <section class="section" id="s3-ex8">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 8</span>
+          <div>
+            <p class="step-title">Drop caches safely — the correct procedure and when to use it</p>
+            <p class="step-desc">Dropping caches forces subsequent reads to go to storage rather than RAM. This is a measurement tool — useful before running a read benchmark. It is not a fix for low memory, and it is not a routine operation on production nodes.</p>
+            <div class="code-block">
+              <div class="code-label">Step 1 — flush dirty pages to storage before dropping</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sync</span>
+<span class="cmd">grep -E '^(Dirty|Writeback):' /proc/meminfo</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected — Dirty near zero after sync</div>
+              <div class="expected-body"><pre>Dirty:          0 kB
+Writeback:      0 kB
+
+sync flushes all dirty pages to storage before we drop the cache.
+Dropping cache without sync first could discard unflushed writes —
+though in practice the kernel protects against this, sync is required
+practice because it makes the sequence explicit and auditable.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Step 2 — record Cached baseline, then drop</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">echo "=== Before drop ==="
+grep -E '^(MemFree|Cached:):' /proc/meminfo
+
+echo 3 | sudo tee /proc/sys/vm/drop_caches
+
+echo "=== After drop ==="
+grep -E '^(MemFree|Cached:):' /proc/meminfo</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — Cached collapses, MemFree rises</div>
+              <div class="expected-body"><pre>=== Before drop ===
+MemFree:    312744 kB
+Cached:    3291136 kB
+
+3
+
+=== After drop ===
+MemFree:   3287056 kB    ← rose by ~3 GB
+Cached:      24576 kB    ← collapsed from 3.2 GB to ~24 MB
+
+The echo 3 value drops both page cache (1) and reclaimable slab (2).
+echo 1 drops page cache only.
+echo 2 drops reclaimable slab only.
+echo 3 drops both — use this for benchmark preparation.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Step 3 — now run a read benchmark with cold cache</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmt"># Write a fresh test file (buffered write is fine here — we only care about the read)</span>
+<span class="cmd">dd if=/dev/zero of=/labdata/${USER}/cold_read_test bs=1M count=512 2>&amp;1
+sync
+
+echo "=== Dropping cache before read benchmark ==="
+echo 3 | sudo tee /proc/sys/vm/drop_caches
+
+echo "=== Cold cache read ==="
+dd if=/labdata/${USER}/cold_read_test of=/dev/null bs=1M 2>&amp;1
+
+rm -f /labdata/${USER}/cold_read_test</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — cold cache read hits real storage</div>
+              <div class="expected-body"><pre>=== Cold cache read ===
+512+0 records in
+512+0 records out
+536870912 bytes (537 MB, 512 MiB) copied, 4.10 s, 131 MB/s
+
+~131 MB/s — consistent with the Direct I/O read result from Exercise 7.
+This confirms both methods (direct I/O and drop-cache) measure the same thing.</pre></div>
+            </div>
+
+            <div class="quickref-block" style="margin-top:20px">
+              <div class="quickref-header">drop_caches values — what each number actually does</div>
+              <div class="quickref-row"><span class="quickref-k">echo 1</span><span class="quickref-v">Drop page cache only (file data). Slab cache (dentries, inodes) retained.</span></div>
+              <div class="quickref-row"><span class="quickref-k">echo 2</span><span class="quickref-v">Drop reclaimable slab cache (dentries, inodes). Page cache retained.</span></div>
+              <div class="quickref-row"><span class="quickref-k">echo 3</span><span class="quickref-v">Drop both. Use for benchmark preparation — clean slate for read tests.</span></div>
+            </div>
+
+            <div class="callout" style="margin-top:16px">
+              <p><strong>When NOT to drop caches.</strong> Never drop caches on a production HPC node as a memory management technique. Dropping cache does not free memory for new allocations — MemAvailable already accounts for reclaimable cache. Dropping cache on a busy login node or active compute node evicts useful data that will immediately need to be re-read from storage, causing a transient I/O spike. Use <code>drop_caches</code> only before intentional benchmark runs, never as a routine maintenance action.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S3 CHECKPOINT -->
+    <section class="section" id="s3-checkpoint">
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Session 3 Checkpoint <span>Run this full sequence and verify all three results</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>echo "=== /proc virtual filesystem ==="
+mount | grep "type proc" | awk '{print "OK: /proc is type", $5}'
+
+echo ""
+echo "=== MemAvailable (the field that matters) ==="
+grep '^MemAvailable:' /proc/meminfo
+
+echo ""
+echo "=== Buffered vs Direct I/O comparison ==="
+echo "Writing 256M buffered..."
+BEFORE=$(grep '^Cached:' /proc/meminfo | awk '{print $2}')
+dd if=/dev/zero of=/tmp/s3_chk bs=1M count=256 2>/dev/null
+AFTER=$(grep '^Cached:' /proc/meminfo | awk '{print $2}')
+echo "Cached grew by $(( (AFTER - BEFORE) / 1024 )) MiB during buffered write"
+sync; echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
+echo "Writing 256M direct..."
+BEFORE2=$(grep '^Cached:' /proc/meminfo | awk '{print $2}')
+dd if=/dev/zero of=/tmp/s3_chk_direct bs=1M count=256 oflag=direct 2>/dev/null
+AFTER2=$(grep '^Cached:' /proc/meminfo | awk '{print $2}')
+echo "Cached grew by $(( (AFTER2 - BEFORE2) / 1024 )) MiB during direct write"
+rm -f /tmp/s3_chk /tmp/s3_chk_direct
+echo ""
+echo "Session 3 checkpoint complete"</pre>
+          <div class="checkpoint-note">Expected: /proc confirmed as type proc · MemAvailable shows a large value (not MemFree) · Cached grew significantly during buffered write, grew by ~0 MiB during direct write. The cache delta contrast is the proof the session builds toward.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         SESSION 4 — iostat AND STORAGE SATURATION
+         ============================================== -->
+
+    <section class="section" id="s4-overview">
+      <div class="domain-header">
+        <p class="domain-label">Session 4 · iostat and Storage Saturation Diagnosis · ~35 minutes</p>
+        <h2 class="domain-title">Reading iostat Correctly, Understanding %util, and Diagnosing Saturation from r_await</h2>
+        <p class="domain-intent">Seven exercises building from iostat invocation fundamentals through the first-block rule, workload shape identification from merge rate, and the central diagnostic skill: using r_await and aqu-sz to distinguish a busy device from a saturated one.</p>
+      </div>
+      <p class="prose">The central lesson of this session is that <code>%util = 100%</code> is the beginning of an investigation, not the end. A device can be at 100% utilisation and still have headroom. A device can be genuinely saturated while <code>%util</code> stays constant at 100%. Only <code>r_await</code> and <code>aqu-sz</code> reveal which state the device is in. Every exercise builds toward that diagnosis pattern.</p>
+
+      <div class="callout-amber" style="margin-top:24px">
+        <p><strong>Set your device name before starting.</strong> Run <code>lsblk | grep -v loop</code> and note the root block device name. Set it as a shell variable at the start of your session and all Exercise commands will work unchanged.</p>
+        <p><code>export DEVICE=$(lsblk -d -o NAME,TYPE | awk '$2=="disk"{print $1; exit}')</code><br>Then verify: <code>echo $DEVICE</code> — should print <code>nvme0n1</code> or <code>xvda</code>.</p>
+      </div>
+    </section>
+
+    <!-- S4 EX 1 -->
+    <section class="section" id="s4-ex1">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Run iostat -xh and read the field layout</p>
+            <p class="step-desc"><code>iostat -xh</code> is the standard invocation for storage diagnosis. The <code>-x</code> flag adds extended statistics (r_await, aqu-sz, %util). The <code>-h</code> flag makes throughput human-readable. Run it and identify each column group before moving to interpretation.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmt"># Set device variable first (from pre-flight)</span>
+<span class="cmd">export DEVICE=$(lsblk -d -o NAME,TYPE | awk '$2=="disk"{print $1; exit}')
+echo "Using device: $DEVICE"
+
+iostat -xh 2 3 $DEVICE</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — three intervals (discard the first block)</div>
+              <div class="expected-body"><pre>Linux 6.1.x  (mylab.hpc.now)    06/05/2026  _x86_64_   (2 CPU)
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.25    0.00    0.20    0.05    0.00   99.50
+
+Device     r/s     w/s     rkB/s    wkB/s   rrqm/s  wrqm/s %rrqm %wrqm r_await w_await aqu-sz rareq-sz wareq-sz  svctm  %util
+nvme0n1   0.12    0.45     4.8k    82.4k     0.00    0.02   0.0%   4.6%    0.32    1.24   0.00     4.0k     4.0k   0.00   0.0%
+
+← BLOCK 1 — since-boot average. Discard this block.
+
+Device     r/s     w/s     rkB/s    wkB/s ...  r_await  aqu-sz  %util
+nvme0n1   0.00    1.50     0.0k   192.0k  ...     0.00    0.02    0.2%
+
+← BLOCK 2 — first useful interval. Start reading here.</pre></div>
+            </div>
+
+            <div class="quickref-block" style="margin-top:20px">
+              <div class="quickref-header">iostat field groups — what each column is measuring</div>
+              <div class="quickref-row"><span class="quickref-k">r/s · w/s</span><span class="quickref-v">Read / write IOPS. High = many small operations (random). Low = few large ops (sequential).</span></div>
+              <div class="quickref-row"><span class="quickref-k">rkB/s · wkB/s</span><span class="quickref-v">Read / write throughput. High throughput + low IOPS = large sequential transfers.</span></div>
+              <div class="quickref-row"><span class="quickref-k">rrqm/s · %rrqm</span><span class="quickref-v">Read requests merged per second / merge rate. High % = sequential. Low % = random.</span></div>
+              <div class="quickref-row"><span class="quickref-k">r_await</span><span class="quickref-v">Read latency in ms = queue time + service time. PRIMARY saturation signal.</span></div>
+              <div class="quickref-row"><span class="quickref-k">aqu-sz</span><span class="quickref-v">Average queue depth. Rising queue alongside rising r_await = saturation developing.</span></div>
+              <div class="quickref-row"><span class="quickref-k">%util</span><span class="quickref-v">Fraction of time queue was non-empty. NOT a capacity metric. Misleading on NVMe.</span></div>
+            </div>
+
+            <p class="step-notice">The data source for all iostat output is <code>/proc/diskstats</code>. You can read that file directly with <code>cat /proc/diskstats</code> — iostat simply computes rates between samples from those raw counters. Understanding the source makes the first-block rule intuitive: block 1 divides the raw counter by total uptime, not by a 2-second interval.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S4 EX 2 -->
+    <section class="section" id="s4-ex2">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Demonstrate the first-block rule — since-boot average vs interval rate</p>
+            <p class="step-desc">Generate a burst of I/O, then run <code>iostat</code> and compare block 1 (since-boot) to blocks 2 and 3 (interval rates). The contrast proves why block 1 must always be discarded.</p>
+            <div class="code-block">
+              <div class="code-label">Step 1 — generate a brief I/O burst, then immediately capture iostat</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmt"># Write 256 MB with direct I/O to generate real device activity</span>
+<span class="cmd">dd if=/dev/zero of=/labdata/${USER}/burst_test bs=1M count=256 \
+   oflag=direct 2>/dev/null &amp;
+DD_PID=$!
+
+iostat -xh 2 4 $DEVICE 2>/dev/null | \
+    grep -E "(Device|$DEVICE|^$)" | head -20
+
+wait $DD_PID
+rm -f /labdata/${USER}/burst_test</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — block 1 vs burst interval</div>
+              <div class="expected-body"><pre>Device    r/s    w/s   rkB/s    wkB/s  r_await  aqu-sz  %util
+nvme0n1  0.11   0.42    4.6k    78.2k     0.28    0.00    0.0%
+← BLOCK 1: since-boot averages. Low wkB/s because the burst is diluted
+  across the entire uptime of the instance.
+
+Device    r/s    w/s   rkB/s    wkB/s  r_await  aqu-sz  %util
+nvme0n1  0.00  62.50    0.0k   125.0M     1.24    0.08   64.0%
+← BLOCK 2: interval during the burst. wkB/s now shows real throughput.
+
+Device    r/s    w/s   rkB/s    wkB/s  r_await  aqu-sz  %util
+nvme0n1  0.00   0.00    0.0k     0.0k     0.00    0.00    0.0%
+← BLOCK 3: burst finished. Back to idle.
+
+If you had only read block 1, you would have concluded "nothing is happening".
+The burst that caused an alert is invisible in block 1.
+Always discard block 1. Start reading at block 2.</pre></div>
+            </div>
+            <p class="step-notice">The recommended workflow for live troubleshooting: start <code>iostat -xh 2</code> before the workload begins. Discard the first output block. Watch subsequent intervals. For capture: <code>iostat -xh 2 60 > iostat_capture.txt</code> captures 60 two-second intervals — two minutes of ground truth.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S4 EX 3 -->
+    <section class="section" id="s4-ex3">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Read merge rate to identify workload shape — sequential vs random</p>
+            <p class="step-desc">The kernel I/O scheduler merges adjacent requests before sending them to the device. High merge rate indicates sequential access (adjacent requests can be merged). Low merge rate indicates random access (no adjacency, nothing to merge). The <code>%rrqm</code> and <code>%wrqm</code> columns reveal the pattern directly.</p>
+            <div class="code-block">
+              <div class="code-label">Sequential write — watch for high wrqm/s and %wrqm</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmt"># Sequential write: large block size, single stream</span>
+<span class="cmd">dd if=/dev/zero of=/labdata/${USER}/seq_test bs=1M count=512 \
+   oflag=direct 2>/dev/null &amp;
+SEQ_PID=$!
+sleep 1
+
+iostat -xh 2 4 $DEVICE | grep -v "^$" | grep -E "(Device|$DEVICE)"
+
+wait $SEQ_PID
+rm -f /labdata/${USER}/seq_test</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected — sequential: high throughput, significant merge rate</div>
+              <div class="expected-body"><pre>Device  r/s   w/s    rkB/s   wkB/s  rrqm/s  wrqm/s  %rrqm  %wrqm  r_await  aqu-sz  %util
+nvme0n1 0.00  32.50   0.0k  128.0M    0.00   48.00   0.0%  59.6%    0.00    0.08   54.0%
+
+High wkB/s (128 MB/s) + high %wrqm (~60%) = sequential write pattern.
+Requests are adjacent — the scheduler is merging them before dispatch.
+Low w/s (32) with high wkB/s means large requests after merging.</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Install fio if needed, then random read — low merge rate</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmt"># Install fio for random I/O workload generation</span>
+<span class="cmd">sudo dnf install -y fio 2>/dev/null || sudo apt install -y fio 2>/dev/null
+
+fio --name=randread_test \
+    --filename=/labdata/${USER}/fio_random \
+    --rw=randread \
+    --bs=4k \
+    --size=256M \
+    --numjobs=4 \
+    --runtime=20 \
+    --time_based \
+    --direct=1 \
+    --output=/dev/null &amp;
+FIO_PID=$!
+sleep 2
+
+iostat -xh 2 4 $DEVICE | grep -v "^$" | grep -E "(Device|$DEVICE)"
+
+wait $FIO_PID
+rm -f /labdata/${USER}/fio_random*</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected — random: high IOPS, low throughput, low merge rate</div>
+              <div class="expected-body"><pre>Device   r/s    w/s   rkB/s  wkB/s  rrqm/s  wrqm/s  %rrqm  %wrqm  r_await  aqu-sz  %util
+nvme0n1 3420.00  0.00  13.4M  0.0k    1.00    0.00   0.0%   0.0%    1.12    3.82   98.0%
+
+High r/s (3420) + low %rrqm (~0%) = random read pattern.
+Requests target non-adjacent locations — nothing to merge.
+Low rkB/s per IOPS (4 kB each) confirms small 4k random reads.
+
+Note: on NVMe, low merge rate is also normal even for sequential I/O,
+because NVMe schedulers perform less aggressive merging than SCSI schedulers.
+Low %rrqm on NVMe alone is not proof of random access.</pre></div>
+            </div>
+            <p class="step-notice">The merge rate is a <em>signal</em>, not a definitive classifier. Combine it with <code>rareq-sz</code> (average request size after merging): large request size + high merge rate = sequential. Small request size + low merge rate = random. On NVMe devices, use request size as the primary signal.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S4 EX 4 -->
+    <section class="section" id="s4-ex4">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Read r_await and aqu-sz — understand what they measure and their baseline values</p>
+            <p class="step-desc"><code>r_await</code> is read completion latency: queue time plus service time. On a healthy, lightly loaded device, it reflects only service time because requests are not waiting. As load increases and the queue builds, queue time grows and <code>r_await</code> rises. The queue size (<code>aqu-sz</code>) rising alongside <code>r_await</code> is the saturation signature.</p>
+            <div class="code-block">
+              <div class="code-label">Capture baseline r_await and aqu-sz at idle</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">echo "=== Idle baseline (skip block 1, read block 2) ==="
+iostat -xh 2 3 $DEVICE | grep -E "(r_await|aqu-sz|$DEVICE)" | tail -4</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected — idle baseline values</div>
+              <div class="expected-body"><pre>Device  ... r_await  w_await  aqu-sz  %util
+nvme0n1 ...    0.28     1.14    0.00   0.0%
+
+r_await at idle: 0.28 ms — this is service time alone (no queue).
+aqu-sz at idle:  0.00 — no requests in flight between samples.
+
+Reference baselines by device type:
+  EBS gp3 (NVMe):       0.1 – 0.5 ms healthy
+  EBS io2 (provisioned): 0.05 – 0.3 ms healthy
+  Local NVMe SSD:        0.05 – 0.3 ms healthy
+  SATA/SAS SSD:          0.1 – 1.0 ms healthy
+  Spinning HDD (seq):    1 – 5 ms healthy
+  Spinning HDD (rand):   8 – 15 ms healthy</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Generate moderate load and observe r_await and aqu-sz together</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">fio --name=moderate_load \
+    --filename=/labdata/${USER}/fio_await \
+    --rw=randread \
+    --bs=4k \
+    --size=256M \
+    --numjobs=2 \
+    --runtime=30 \
+    --time_based \
+    --direct=1 \
+    --output=/dev/null &amp;
+FIO_PID=$!
+sleep 2
+
+echo "=== Under moderate load ==="
+iostat -xh 2 5 $DEVICE | grep -E "($DEVICE)" | tail -4
+
+wait $FIO_PID
+rm -f /labdata/${USER}/fio_await*</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected — moderate load, r_await rising but not alarming</div>
+              <div class="expected-body"><pre>nvme0n1  1820.00  0.00  7.1M  0.0k  ...  0.62  0.00  1.12  2.40  92.0%
+
+r_await: 1.12 ms  — rose from 0.28 ms idle baseline. Queue time is adding ~0.8 ms.
+aqu-sz:  2.40     — average of 2.4 requests in flight. Modest.
+%util:   92%      — device is busy but r_await is still low. Busy, not saturated.
+
+Saturation is when r_await climbs sharply, not when %util is high.
+This device still has headroom — adding more load would increase throughput,
+not just accumulate latency.</pre></div>
+            </div>
+            <p class="step-notice"><code>aqu-sz</code> has no fixed "normal" value — it depends on the device's queue depth and the workload. What matters is the trend: a steadily rising <code>aqu-sz</code> alongside steadily rising <code>r_await</code>, while throughput stops growing, is the saturation signature. A stable <code>aqu-sz</code> alongside stable <code>r_await</code>, even at a high value, means the device has found equilibrium.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S4 EX 5 -->
+    <section class="section" id="s4-ex5">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Prove the %util ceiling — why %util = 100% is not a saturation finding</p>
+            <p class="step-desc"><code>%util</code> measures the fraction of the interval during which at least one request was in flight. On a device with parallel queues (any NVMe, any EBS), this counter saturates at 100% long before the device's actual capacity is exhausted. This exercise demonstrates the ceiling: <code>%util</code> reaches 100%, then stops providing information, while <code>r_await</code> continues to reveal the actual device state.</p>
+            <div class="code-block">
+              <div class="code-label">Push load until %util reaches 100%, observe r_await while it does</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">fio --name=util_ceiling \
+    --filename=/labdata/${USER}/fio_util \
+    --rw=randread \
+    --bs=4k \
+    --size=256M \
+    --numjobs=8 \
+    --iodepth=32 \
+    --runtime=30 \
+    --time_based \
+    --direct=1 \
+    --output=/dev/null &amp;
+FIO_PID=$!
+sleep 2
+
+echo "=== %util pinned at 100% — watch r_await ==="
+iostat -xh 2 8 $DEVICE | grep -E "($DEVICE)"
+
+wait $FIO_PID
+rm -f /labdata/${USER}/fio_util*</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — %util ceiling demonstration</div>
+              <div class="expected-body"><pre>nvme0n1  3100.00  0.00  12.1M  ...  r_await  1.04  aqu-sz  3.22  %util 100.0%
+nvme0n1  3250.00  0.00  12.7M  ...  r_await  1.18  aqu-sz  3.84  %util 100.0%
+nvme0n1  3180.00  0.00  12.4M  ...  r_await  1.22  aqu-sz  3.91  %util 100.0%
+nvme0n1  3220.00  0.00  12.6M  ...  r_await  1.19  aqu-sz  3.88  %util 100.0%
+
+%util is pinned at 100% across all intervals.
+r_await is stable at ~1.2 ms — close to the idle baseline, no queue blowup.
+aqu-sz is stable at ~3.9 — the device is handling the concurrency comfortably.
+
+This device is BUSY but NOT SATURATED.
+If we added more load: r_await would start climbing sharply.
+%util would remain at 100% — it is already at its ceiling and tells us nothing.
+
+The transition from busy to saturated is invisible in %util.
+Only r_await and aqu-sz reveal it.</pre></div>
+            </div>
+            <div class="callout" style="margin-top:16px">
+              <p><strong>Why %util misleads on NVMe.</strong> The <code>%util</code> metric was designed for spinning disks with a single actuator — at any moment, the disk is either busy (one request being served) or idle. On that model, <code>%util ≈ capacity consumed</code>. NVMe devices have many internal queues and flash channels that process multiple requests in parallel. "At least one request in flight" is true almost continuously under any meaningful load. The metric saturates early and tells you nothing about remaining capacity. Use <code>r_await</code> instead.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S4 EX 6 -->
+    <section class="section" id="s4-ex6">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 6</span>
+          <div>
+            <p class="step-title">Apply the four-state diagnosis pattern to pre-baked scenarios</p>
+            <p class="step-desc">Given any combination of <code>%util</code> and <code>r_await</code>, the device state falls into one of four categories. This exercise reads a set of pre-staged iostat snapshots and classifies each one. The classification drives the operational response.</p>
+
+            <table class="diag-table" style="margin-bottom:24px">
+              <thead><tr><th>%util</th><th>r_await</th><th>State</th><th>Meaning</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td class="state-idle">Low</td>
+                  <td class="state-idle">Low</td>
+                  <td class="state-idle">Idle / Healthy</td>
+                  <td style="font-size:11px; color:#8a8078;">Device underutilised. Storage is not the bottleneck.</td>
+                  <td style="font-size:11px; color:#8a8078;">Look elsewhere for the bottleneck.</td>
+                </tr>
+                <tr>
+                  <td class="state-busy">High</td>
+                  <td class="state-busy">Low</td>
+                  <td class="state-busy">Busy — not saturated</td>
+                  <td style="font-size:11px; color:#8a8078;">Device working hard. Capacity still available. Headroom exists.</td>
+                  <td style="font-size:11px; color:#8a8078;">Continue monitoring. No immediate action needed.</td>
+                </tr>
+                <tr>
+                  <td class="state-sat">High</td>
+                  <td class="state-sat">High</td>
+                  <td class="state-sat">Saturated</td>
+                  <td style="font-size:11px; color:#8a8078;">Queue building. Requests waiting. Application is slowing down.</td>
+                  <td style="font-size:11px; color:#8a8078;">Investigate workload. Consider striping, queue depth, I/O scheduling.</td>
+                </tr>
+                <tr>
+                  <td class="state-anom">Low</td>
+                  <td class="state-anom">High</td>
+                  <td class="state-anom">Anomalous</td>
+                  <td style="font-size:11px; color:#8a8078;">Unusual. Bursty workload, very large requests, or device error.</td>
+                  <td style="font-size:11px; color:#8a8078;">Investigate device health. Check dmesg for hardware errors.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="code-block">
+              <div class="code-label">Read the pre-staged scenario file and classify each entry</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat /labdata/jobs/session4/iostat_scenarios.txt</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Contents of iostat_scenarios.txt — four scenarios to classify</div>
+              <div class="expected-body"><pre>SCENARIO A:
+Device  r/s    w/s   rkB/s    wkB/s  r_await  aqu-sz  %util
+nvme0n1  0.50  0.30   4.0k    8.0k     0.31    0.00    0.1%
+
+SCENARIO B:
+Device  r/s     w/s   rkB/s    wkB/s  r_await  aqu-sz  %util
+nvme0n1  3100  0.00   12.1M    0.0k     1.20    3.90  100.0%
+
+SCENARIO C:
+Device  r/s     w/s   rkB/s    wkB/s  r_await  aqu-sz   %util
+nvme0n1  3150  0.00   12.3M    0.0k     8.40   84.50   100.0%
+
+SCENARIO D:
+Device  r/s     w/s   rkB/s    wkB/s  r_await  aqu-sz  %util
+nvme0n1   0.20  0.10   2.0k    4.0k     6.80    0.01    0.2%</pre></div>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Correct classifications</div>
+              <div class="expected-body"><pre>SCENARIO A: %util 0.1% + r_await 0.31 ms → IDLE / HEALTHY
+  Device barely active. Storage is not the bottleneck for any current workload.
+
+SCENARIO B: %util 100% + r_await 1.20 ms → BUSY, NOT SATURATED
+  %util is at ceiling. r_await is only 4x the idle baseline (0.31 ms).
+  aqu-sz 3.90 is stable. Device still has headroom.
+
+SCENARIO C: %util 100% + r_await 8.40 ms → SATURATED
+  %util is identical to Scenario B — still 100%, still says nothing new.
+  r_await exploded from 1.2 ms to 8.4 ms (7x). aqu-sz 84.5 — queue is massive.
+  Application requests are waiting 8+ ms. This is the saturation signature.
+
+SCENARIO D: %util 0.2% + r_await 6.80 ms → ANOMALOUS
+  Very low utilisation but high latency. Candidates:
+  - Very large single requests taking long to complete
+  - Storage device responding slowly (possible hardware fault)
+  - Check dmesg for I/O timeout or error messages</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Create the scenarios file if it does not exist on your instance</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">mkdir -p /labdata/jobs/session4
+cat &gt; /labdata/jobs/session4/iostat_scenarios.txt &lt;&lt;'EOF'
+SCENARIO A:
+Device  r/s    w/s   rkB/s    wkB/s  r_await  aqu-sz  %util
+nvme0n1  0.50  0.30   4.0k    8.0k     0.31    0.00    0.1%
+
+SCENARIO B:
+Device  r/s     w/s   rkB/s    wkB/s  r_await  aqu-sz  %util
+nvme0n1  3100  0.00   12.1M    0.0k     1.20    3.90  100.0%
+
+SCENARIO C:
+Device  r/s     w/s   rkB/s    wkB/s  r_await  aqu-sz   %util
+nvme0n1  3150  0.00   12.3M    0.0k     8.40   84.50   100.0%
+
+SCENARIO D:
+Device  r/s     w/s   rkB/s    wkB/s  r_await  aqu-sz  %util
+nvme0n1   0.20  0.10   2.0k    4.0k     6.80    0.01    0.2%
+EOF
+echo "Scenarios file created."</span></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S4 EX 7 -->
+    <section class="section" id="s4-ex7">
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">Ex 7</span>
+          <div>
+            <p class="step-title">Run the complete live monitoring workflow against a real workload</p>
+            <p class="step-desc">This exercise ties the session together: start monitoring before the workload, discard block 1, apply the reading checklist to every subsequent interval, capture to a file, and produce a diagnosis. This is the exact workflow used in production HPC storage troubleshooting.</p>
+            <div class="code-block">
+              <div class="code-label">Terminal 1 — start iostat capture before the workload</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">iostat -xh 2 30 $DEVICE &gt; /labdata/${USER}/iostat_capture.txt &amp;
+IOSTAT_PID=$!
+echo "iostat capture PID: $IOSTAT_PID"
+echo "Capturing 30 intervals (60 seconds). Start workload in Terminal 2."</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Terminal 2 — run a workload while the capture is running</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmt"># Sequential write phase (30 sec), then random read phase (30 sec)</span>
+<span class="cmd">echo "Phase 1: Sequential write..."
+fio --name=seq_phase --filename=/labdata/${USER}/workload_file \
+    --rw=write --bs=1M --size=512M --direct=1 \
+    --runtime=25 --time_based --output=/dev/null
+
+echo "Phase 2: Random read..."
+fio --name=rand_phase --filename=/labdata/${USER}/workload_file \
+    --rw=randread --bs=4k --size=512M --numjobs=4 --direct=1 \
+    --runtime=25 --time_based --output=/dev/null
+
+rm -f /labdata/${USER}/workload_file</span></pre>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">Terminal 1 — wait for capture to complete, then analyse</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">wait $IOSTAT_PID
+echo "Capture complete. Analysing..."
+
+echo "=== Block count ==="
+grep -c "$DEVICE" /labdata/${USER}/iostat_capture.txt
+
+echo "=== r_await range across all intervals (skip block 1) ==="
+grep "$DEVICE" /labdata/${USER}/iostat_capture.txt | tail -n +2 | \
+    awk '{print $14}' | sort -n | \
+    awk 'NR==1{min=$1} {max=$1} END{print "min r_await:", min, "ms  max r_await:", max, "ms"}'
+
+echo "=== aqu-sz range ==="
+grep "$DEVICE" /labdata/${USER}/iostat_capture.txt | tail -n +2 | \
+    awk '{print $15}' | sort -n | \
+    awk 'NR==1{min=$1} {max=$1} END{print "min aqu-sz:", min, "  max aqu-sz:", max}'
+
+echo "=== %util range ==="
+grep "$DEVICE" /labdata/${USER}/iostat_capture.txt | tail -n +2 | \
+    awk '{print $NF}' | sort -n | \
+    awk 'NR==1{min=$1} {max=$1} END{print "min %util:", min, "  max %util:", max}'</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected analysis output</div>
+              <div class="expected-body"><pre>=== Block count ===
+30
+
+=== r_await range across all intervals (skip block 1) ===
+min r_await: 0.28 ms   max r_await: 1.84 ms
+
+=== aqu-sz range ===
+min aqu-sz: 0.00   max aqu-sz: 4.12
+
+=== %util range ===
+min %util: 0.0%   max %util: 100.0%
+
+Analysis:
+  r_await: max 1.84 ms — elevated vs idle (0.28 ms) but not alarming.
+  aqu-sz:  max 4.12 — moderate queue, consistent with random read phase.
+  %util:   swings 0–100% — meaningless range; confirms why we don't use it alone.
+  Diagnosis: device was busy during both phases, never saturated.
+  The random read phase drove r_await up but not to saturation levels.</pre></div>
+            </div>
+
+            <div class="quickref-block" style="margin-top:20px">
+              <div class="quickref-header">Reading checklist — apply to every iostat interval</div>
+              <div class="quickref-row"><span class="quickref-k">r_await</span><span class="quickref-v">Stable and near baseline? Healthy. Rising sharply? Saturation developing. Primary signal.</span></div>
+              <div class="quickref-row"><span class="quickref-k">aqu-sz</span><span class="quickref-v">Modest (&lt;4) and stable? Healthy. Growing continuously alongside r_await? Saturation confirmed.</span></div>
+              <div class="quickref-row"><span class="quickref-k">%util</span><span class="quickref-v">Use only to detect idle (low) vs active (high). Never use to judge capacity consumed.</span></div>
+              <div class="quickref-row"><span class="quickref-k">rareq-sz</span><span class="quickref-v">Large (&gt;64 kB)? Sequential. Small (4–16 kB)? Random. Confirms workload shape.</span></div>
+              <div class="quickref-row"><span class="quickref-k">%rrqm / %wrqm</span><span class="quickref-v">High? Sequential (merging happening). Low? Random. On NVMe, use rareq-sz as primary signal.</span></div>
+              <div class="quickref-row"><span class="quickref-k">IOPS plateau</span><span class="quickref-v">If r/s stops growing while r_await keeps rising: device hit its IOPS limit. Saturation.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout-teal" style="margin-top:8px">
+        <p><strong>The Lustre boundary.</strong> On a compute node, <code>iostat</code> sees only local block devices. Lustre and NFS storage behavior is on the server side — outside the compute node's <code>/proc/diskstats</code> entirely. However, the interpretation does not change: <code>r_await</code> and <code>aqu-sz</code> are still the saturation signals on the OSS side, visible via Prometheus/Grafana metrics collected from OSS nodes. The tool changes; the diagnostic reasoning does not.</p>
+      </div>
+    </section>
+
+    <!-- S4 CHECKPOINT -->
+    <section class="section" id="s4-checkpoint">
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Session 4 Checkpoint <span>Run this sequence and classify the output</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>echo "=== Session 4 Checkpoint ==="
+export DEVICE=$(lsblk -d -o NAME,TYPE | awk '$2=="disk"{print $1; exit}')
+
+echo "Device: $DEVICE"
+echo ""
+echo "--- Capturing 3 intervals at idle (discard block 1) ---"
+iostat -xh 2 3 $DEVICE | grep -E "($DEVICE)" | tail -2
+
+echo ""
+echo "--- Generating load and capturing r_await ---"
+fio --name=chk --filename=/tmp/s4_chk --rw=randread --bs=4k \
+    --size=64M --numjobs=2 --direct=1 --runtime=15 \
+    --time_based --output=/dev/null &amp;
+FIO_PID=$!
+sleep 2
+iostat -xh 2 4 $DEVICE | grep -E "($DEVICE)" | tail -3
+wait $FIO_PID
+rm -f /tmp/s4_chk*
+
+echo ""
+echo "Classify: is r_await under load alarming relative to idle baseline?"
+echo "Session 4 checkpoint complete"</pre>
+          <div class="checkpoint-note">Expected: idle intervals show r_await below 0.5 ms and aqu-sz near 0. Under load, r_await rises but should remain below 5 ms on a healthy EBS gp3 volume. %util may reach 100% — that alone is not a finding. If r_await under load stays below 3–4× the idle baseline, the device is busy but not saturated.</div>
+        </div>
+      </div>
+
+      <div class="callout-teal" style="margin-top:28px">
+        <p><strong>Both sessions complete.</strong> Session 3 built the /proc verification discipline from first principles: confirming the virtual filesystem type, reading the fields that matter in meminfo, distinguishing VmRSS from VmSize, navigating per-process directories, diagnosing D-state with the kernel stack, then proving the page cache effect with Cached field evidence and establishing Direct I/O as the correct benchmark discipline.</p>
+        <p>Session 4 built the storage saturation diagnosis workflow: correct iostat invocation, the first-block rule, workload shape identification from merge rate, r_await and aqu-sz as the primary saturation signals, the %util ceiling proof on NVMe, the four-state diagnosis pattern, and a full live monitoring workflow with capture and analysis.</p>
+      </div>
+    </section>
+
+    <!-- FORWARD CONNECTIONS -->
+    <section class="section" id="forward">
+      <p class="label">where this shows up — forward connections</p>
+      <p class="prose">The techniques from both sessions are directly referenced in specific associate-level tasks. These are not background concepts — they are the tools the task specifies.</p>
+
+      <table class="fwd-table" style="margin-top:24px">
+        <thead>
+          <tr><th>Session · Concept</th><th>Module · Task</th><th>Specific technique</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="concept-col">S3 · /proc/meminfo Cached field</td>
+            <td class="dest-col">A8 · T50 — Page cache effects demonstration</td>
+            <td class="task-col">Watch Cached grow during buffered write · compare Cached delta to file size · demonstrate immediate re-read at memory speed · contrast with Direct I/O result where Cached is unchanged</td>
+          </tr>
+          <tr>
+            <td class="concept-col">S3 · VmHWM + VmRSS</td>
+            <td class="dest-col">A7 · T43 — OOM process diagnosis</td>
+            <td class="task-col"><code>grep VmHWM /proc/PID/status</code> identifies peak physical RAM usage before the OOM kill · <code>VmRSS</code> at the moment of kill vs cgroup memory.max confirms the trigger · feeds into the four-source OOM evidence chain from Sessions 1 &amp; 2</td>
+          </tr>
+          <tr>
+            <td class="concept-col">S3 · /proc/PID/stack + wchan</td>
+            <td class="dest-col">A9 · T58 — Filesystem hang diagnosis</td>
+            <td class="task-col"><code>sudo cat /proc/PID/stack</code> identifies the kernel subsystem ([nfs], [lustre], [jbd2]) that a hung process is blocked in · subsystem name determines the investigation path (OSS, NFS server, local journal) · <code>cat /proc/PID/wchan</code> gives the function name for ticket/escalation documentation</td>
+          </tr>
+          <tr>
+            <td class="concept-col">S3 · D-state + stack + wchan</td>
+            <td class="dest-col">A9 · T61 — D-state process diagnosis workflow</td>
+            <td class="task-col"><code>ps aux | awk '$8~/^D/'</code> to detect · <code>cat /proc/PID/status</code> to confirm state · <code>cat /proc/PID/wchan</code> for quick summary · <code>sudo cat /proc/PID/stack</code> for full trace · classify as transient (local journal) or requires intervention (dead NFS server)</td>
+          </tr>
+          <tr>
+            <td class="concept-col">S4 · r_await + aqu-sz</td>
+            <td class="dest-col">A8 · T51 — Storage saturation analysis</td>
+            <td class="task-col"><code>iostat -xh 2</code> with first-block rule applied · <code>r_await</code> as primary signal · <code>aqu-sz</code> trend as confirmation · four-state pattern (idle / busy / saturated / anomalous) applied to live intervals · report includes device name, r_await baseline vs peak, and classification</td>
+          </tr>
+          <tr>
+            <td class="concept-col">S4 · %util ceiling proof</td>
+            <td class="dest-col">A8 · T51 — Storage saturation analysis</td>
+            <td class="task-col">Documenting that <code>%util = 100%</code> alone is not a saturation finding for NVMe/EBS devices · the saturation finding requires <code>r_await</code> significantly above baseline alongside growing <code>aqu-sz</code> · this distinction prevents false escalations and misdiagnosed storage tickets</td>
+          </tr>
+          <tr>
+            <td class="concept-col">S3 · oflag=direct benchmark discipline</td>
+            <td class="dest-col">A10 · T100 / T103 — HPL / STREAM benchmark validation</td>
+            <td class="task-col">Before accepting any storage throughput number from a benchmark: verify with <code>grep '^Cached:' /proc/meminfo</code> before and after · if Cached grew by the file size, the result is measuring RAM not storage · re-run with <code>oflag=direct</code> or after <code>drop_caches</code> to get a trustworthy baseline</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="footer-wrap">
+        <span class="footer-copy">Linux for HPC · Sessions 3 &amp; 4 · Lab Runbook · HPC Operations · Associate Stream</span>
+        <span class="footer-badge">/proc · Page Cache · Direct I/O · iostat · Storage Saturation · master.hpc.now</span>
+        <a href="https://master.hpc.now" class="footer-link">master.hpc.now</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(i => i.classList.remove('is-active'));
+        const a = document.querySelector('.side-nav-item[href="#' + entry.target.id + '"]');
+        if (a) a.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  function copyCode(btn) {
+    const block = btn.closest('.code-block, .checkpoint-body');
+    const pre = block.querySelector('pre');
+    const text = pre.innerText || pre.textContent;
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      btn.textContent = 'copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
