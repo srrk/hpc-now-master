@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HPC Lab — Hands-On Walkthrough · hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #e4ddd0;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    /* ── NAV ── */
+    .nav-wrap {
+      padding: 0;
+      border-bottom: 1px solid var(--rule-cover);
+      background: var(--cover);
+    }
+    nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 22px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: .06em;
+    }
+    .logo em { color: var(--terra); font-style: normal; }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .nav-link {
+      font-size: 11px;
+      color: var(--ink3);
+      text-decoration: none;
+      letter-spacing: .05em;
+      transition: color .18s;
+    }
+    .nav-link:hover { color: var(--terra); }
+    .nav-cta {
+      font-size: 11px;
+      letter-spacing: .08em;
+      color: var(--terra);
+      text-decoration: none;
+      border: 1px solid var(--terra-dim);
+      padding: 6px 14px;
+      transition: background .18s, color .18s;
+    }
+    .nav-cta:hover { background: var(--terra); color: var(--paper); }
+
+    /* ── RUNBOOK HEADER ── */
+    .rh-cover {
+      background: var(--cover);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+      border-bottom: 1px solid var(--rule-cover);
+    }
+    .rh-hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 64px 52px 72px;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 80px;
+      align-items: end;
+    }
+    .rh-label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .rh-label::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--ink3);
+    }
+    .rh-title {
+      font-family: var(--serif);
+      font-size: clamp(30px, 4vw, 52px);
+      font-weight: 400;
+      line-height: 1.15;
+      color: var(--ink);
+      letter-spacing: -.02em;
+      margin-bottom: 20px;
+    }
+    .rh-title em { font-style: italic; color: var(--terra); }
+    .rh-sub {
+      font-size: 14px;
+      color: var(--ink2);
+      line-height: 1.9;
+      max-width: 440px;
+    }
+    .rh-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--rule-cover);
+      background: rgba(255,255,255,0.35);
+      padding-bottom: 8px;
+    }
+    .rh-meta-row {
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--rule-cover);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .rh-meta-row:last-child { border-bottom: none; }
+    .rh-meta-k {
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink3);
+    }
+    .rh-meta-v {
+      font-size: 12px;
+      color: var(--ink);
+      line-height: 1.55;
+    }
+    .rh-meta-v code {
+      font-size: 11px;
+      color: var(--terra);
+      background: var(--terra-bg);
+      padding: 1px 5px;
+    }
+
+    /* ── TWO-COLUMN LAYOUT ── */
+    .page-body {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 52px;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 0 72px;
+      align-items: start;
+    }
+
+    /* ── STICKY SIDEBAR ── */
+    .sidebar {
+      position: sticky;
+      top: 40px;
+      padding: 64px 0 40px;
+      align-self: start;
+    }
+    .side-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .side-nav-item {
+      font-size: 11px;
+      color: var(--ink3);
+      text-decoration: none;
+      letter-spacing: .04em;
+      padding: 6px 0 6px 12px;
+      border-left: 2px solid transparent;
+      transition: color .18s, border-color .18s;
+      line-height: 1.4;
+    }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+    .side-nav-divider {
+      height: 1px;
+      background: var(--rule);
+      margin: 8px 0;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main-content { padding: 0; background: var(--paper); }
+
+    /* ── SECTIONS ── */
+    .section {
+      padding: 64px 0 56px;
+      border-top: 1px solid var(--rule);
+    }
+    .section:first-child { border-top: none; padding-top: 72px; }
+
+    .label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .label::after {
+      content: '';
+      width: 36px;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* ── PROSE ── */
+    .prose {
+      font-size: 15px;
+      color: var(--ink2);
+      line-height: 2.05;
+      max-width: 580px;
+    }
+    .prose + .prose { margin-top: 1.2em; }
+
+    /* ── SECTION TITLE (h2) ── */
+    .section-title {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .section-tagline {
+      font-family: var(--serif);
+      font-size: 14px;
+      font-style: italic;
+      color: var(--ink3);
+      margin-bottom: 28px;
+    }
+
+    /* ── SUBSECTION ── */
+    .subsection { margin-top: 36px; }
+    .subsection-title {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .subsection-title .sub-num {
+      font-size: 10px;
+      color: var(--terra-dim);
+      font-weight: 300;
+      letter-spacing: .1em;
+    }
+
+    /* ── ENTERPRISE ANALOGY BOX ── */
+    .analogy-box {
+      border-left: 3px solid var(--terra);
+      padding: 18px 22px;
+      background: var(--terra-bg);
+      margin: 8px 0 28px;
+      max-width: 580px;
+    }
+    .analogy-label {
+      font-size: 9px;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      color: var(--terra);
+      margin-bottom: 8px;
+    }
+    .analogy-box p {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 2;
+    }
+
+    /* ── KEY NOTE ── */
+    .key-note {
+      border-left: 2px solid var(--rule);
+      padding: 14px 18px;
+      background: var(--paper-mid);
+      margin: 20px 0;
+      max-width: 580px;
+    }
+    .key-note p {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.9;
+    }
+    .key-note strong { color: var(--ink); font-weight: 500; }
+
+    /* ── CODE BLOCK ── */
+    .code-block {
+      background: var(--dark);
+      padding: 20px 24px;
+      margin: 14px 0 20px;
+      overflow-x: auto;
+      max-width: 620px;
+    }
+    .code-block pre {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      font-weight: 300;
+      color: #c8c0b8;
+      line-height: 1.85;
+      white-space: pre;
+    }
+    .code-block pre .cm  { color: #5a5650; }   /* comment */
+    .code-block pre .kw  { color: #c4956e; }   /* keyword / command */
+    .code-block pre .st  { color: #a8c89a; }   /* string */
+    .code-block pre .nu  { color: #8ab8d0; }   /* number */
+    .code-block pre .pr  { color: var(--terra-dim); } /* prompt */
+
+    /* ── DIAGRAM BLOCK (ASCII art) ── */
+    .diagram-block {
+      background: var(--dark);
+      padding: 28px 32px;
+      margin: 20px 0 28px;
+      overflow-x: auto;
+      max-width: 720px;
+    }
+    .diagram-block pre {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 300;
+      color: #a8a09a;
+      line-height: 1.7;
+      white-space: pre;
+    }
+    .diagram-block pre .hl { color: #c4956e; }  /* highlighted labels */
+    .diagram-block pre .dv { color: #6a8a9e; }  /* device/node names */
+    .diagram-block pre .st { color: #7a9870; }  /* storage labels */
+
+    /* ── INLINE CODE ── */
+    code {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--terra);
+      background: var(--terra-bg);
+      padding: 1px 6px;
+    }
+
+    /* ── TABLE ── */
+    .table-wrap {
+      margin: 20px 0;
+      max-width: 580px;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    th {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      font-weight: 400;
+      text-align: left;
+      padding: 10px 14px 10px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    td {
+      color: var(--ink2);
+      padding: 11px 14px 11px 0;
+      border-bottom: 1px solid var(--rule);
+      line-height: 1.65;
+      vertical-align: top;
+    }
+    td:last-child, th:last-child { padding-right: 0; }
+    td code { font-size: 11.5px; }
+
+    /* ── EXPECTED RESULTS BOX ── */
+    .results-box {
+      border: 1px solid var(--rule);
+      padding: 20px 24px;
+      background: var(--paper-mid);
+      margin: 16px 0 20px;
+      max-width: 480px;
+    }
+    .results-box-label {
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 14px;
+    }
+    .results-row {
+      display: grid;
+      grid-template-columns: 130px 1fr 1fr;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--ink2);
+      padding: 8px 0;
+      border-top: 1px solid var(--rule);
+      line-height: 1.5;
+    }
+    .results-row:first-of-type { border-top: none; padding-top: 0; }
+    .results-row .rk { color: var(--ink3); font-size: 10px; letter-spacing: .06em; }
+    .results-row .rv { color: var(--ink); }
+    .results-row .col-h {
+      font-size: 9px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding-bottom: 6px;
+    }
+
+    /* ── CHECKLIST ── */
+    .checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 20px;
+      max-width: 540px;
+    }
+    .checklist-item {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 14px;
+      padding: 12px 0;
+      border-top: 1px solid var(--rule);
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.6;
+      align-items: start;
+    }
+    .checklist-item .cb {
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--rule-cover);
+      display: inline-block;
+      margin-top: 3px;
+      flex-shrink: 0;
+    }
+
+    /* ── FACTS (quick reference) ── */
+    .facts {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--rule);
+      max-width: 580px;
+      margin-top: 20px;
+    }
+    .fact {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 20px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--rule);
+      font-size: 13px;
+      align-items: start;
+    }
+    .fact-k {
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding-top: 2px;
+      line-height: 1.6;
+    }
+    .fact-v { color: var(--ink2); line-height: 1.8; }
+    .fact-v code { font-size: 11px; }
+
+    /* ── LATENCY TABLE (special) ── */
+    .latency-table {
+      background: var(--dark);
+      padding: 20px 24px;
+      margin: 16px 0;
+      max-width: 480px;
+    }
+    .latency-table pre {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: #a8a09a;
+      line-height: 1.9;
+    }
+    .latency-table pre .fast { color: #7a9870; }
+    .latency-table pre .hd   { color: #6a6460; font-size: 11px; }
+
+    /* ── HIGHLIGHT NUMBER ── */
+    .hl-number {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-style: italic;
+      color: var(--terra);
+      margin: 8px 0 4px;
+    }
+    .hl-label {
+      font-size: 11px;
+      color: var(--ink3);
+      letter-spacing: .06em;
+    }
+
+    /* ── CREDENTIAL BOX ── */
+    .cred-box {
+      border: 1px solid var(--rule-cover);
+      background: rgba(255,255,255,0.4);
+      max-width: 420px;
+      margin-top: 20px;
+    }
+    .cred-row {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 12px;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--rule);
+      font-size: 13px;
+      align-items: center;
+    }
+    .cred-row:last-child { border-bottom: none; }
+    .cred-k {
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--ink3);
+    }
+
+    /* ── BEFORE-YOU-BEGIN PANEL ── */
+    .prereq-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--rule);
+      max-width: 500px;
+      margin-top: 24px;
+    }
+    .prereq-item {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 14px;
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--rule);
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.65;
+      align-items: start;
+    }
+    .prereq-item:last-child { border-bottom: none; }
+    .prereq-item .pi-num {
+      font-size: 10px;
+      color: var(--terra-dim);
+      padding-top: 2px;
+    }
+
+    /* ── ACCOUNTS LIST ── */
+    .accounts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+      max-width: 480px;
+    }
+    .account-tag {
+      font-size: 12px;
+      color: var(--ink2);
+      background: var(--paper-mid);
+      border: 1px solid var(--rule);
+      padding: 4px 12px;
+      font-family: var(--mono);
+    }
+
+    /* ── ENROLL FOOTER (dark band) ── */
+    .footer-band {
+      background: var(--dark2);
+      margin: 72px -52px 0;
+      padding: 28px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-top: 1px solid #2e2820;
+    }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-link {
+      font-size: 11px;
+      color: #6a6460;
+      text-decoration: none;
+      transition: color .18s;
+    }
+    .footer-link:hover { color: var(--terra-dim); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .rh-hero {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 52px 44px 60px;
+      }
+      nav { padding: 20px 44px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 44px; }
+      .sidebar { display: none; }
+      .footer-band { margin: 56px -44px 0; padding: 24px 44px; }
+    }
+    @media (max-width: 640px) {
+      nav { padding: 18px 24px; }
+      .nav-right .nav-link { display: none; }
+      .rh-hero { padding: 44px 24px 52px; }
+      .page-body { padding: 0 24px; }
+      .footer-band { margin: 48px -24px 0; padding: 20px 24px; }
+      .diagram-block { padding: 18px 16px; }
+      .code-block { padding: 16px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<div class="nav-wrap">
+  <nav>
+    <a href="https://hpc.now" class="logo">hpc<em>.now</em></a>
+    <div class="nav-right">
+      <a href="https://hpc.now#modules" class="nav-link">Modules</a>
+      <a href="https://hpc.now#capstone" class="nav-link">Capstone</a>
+      <a href="https://hpc.now#rajesh" class="nav-link">Instructor</a>
+      <a href="mailto:rajesh@hpc.now" class="nav-cta">Start a conversation</a>
+    </div>
+  </nav>
+</div>
+
+<!-- ── RUNBOOK HEADER ── -->
+<div class="rh-cover">
+  <div class="rh-hero">
+    <div>
+      <p class="rh-label">Module 2 · Lab Walkthrough · March 2026</p>
+      <h1 class="rh-title">HPC Lab —<br><em>Hands-On Walkthrough</em></h1>
+      <p class="rh-sub">You have just completed the Bridge Module. Now you step into a live cluster for the first time. This walkthrough moves from connection to benchmark to TFLOPS result — in 90 to 120 minutes.</p>
+    </div>
+    <div>
+      <div class="rh-meta">
+        <div class="rh-meta-row">
+          <span class="rh-meta-k">Duration</span>
+          <span class="rh-meta-v">90 – 120 minutes</span>
+        </div>
+        <div class="rh-meta-row">
+          <span class="rh-meta-k">Cluster</span>
+          <span class="rh-meta-v">1 × c5n.large headnode · 2 × c5n.9xlarge compute · EFA interconnect</span>
+        </div>
+        <div class="rh-meta-row">
+          <span class="rh-meta-k">Storage</span>
+          <span class="rh-meta-v"><code>/home</code> NFS · <code>/efs</code> EFS · <code>/fsx</code> Lustre 1.2 TiB</span>
+        </div>
+        <div class="rh-meta-row">
+          <span class="rh-meta-k">Access</span>
+          <span class="rh-meta-v">SSH with password · HeadNode IP from instructor</span>
+        </div>
+        <div class="rh-meta-row">
+          <span class="rh-meta-k">Accounts</span>
+          <span class="rh-meta-v">Your first name — confirmed by your instructor at session start</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TWO-COLUMN BODY ── -->
+<div class="page-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <nav class="side-nav">
+      <a href="#before"    class="side-nav-item">Before you begin</a>
+      <a href="#cluster"   class="side-nav-item">The cluster</a>
+      <div class="side-nav-divider"></div>
+      <a href="#s0"        class="side-nav-item">0 · Connect</a>
+      <a href="#s1"        class="side-nav-item">1 · Orient</a>
+      <a href="#s2"        class="side-nav-item">2 · Storage</a>
+      <a href="#s3"        class="side-nav-item">3 · First job</a>
+      <a href="#s4"        class="side-nav-item">4 · IOR benchmark</a>
+      <a href="#s5"        class="side-nav-item">5 · EFA latency</a>
+      <a href="#s6"        class="side-nav-item">6 · HPL Linpack</a>
+      <div class="side-nav-divider"></div>
+      <a href="#wrapup"    class="side-nav-item">Wrap-up</a>
+      <a href="#reference" class="side-nav-item">Quick reference</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- BEFORE YOU BEGIN -->
+    <section class="section" id="before">
+      <p class="label">before you begin</p>
+      <p class="prose">You need three things to start this lab.</p>
+      <div class="prereq-panel">
+        <div class="prereq-item"><span class="pi-num">01</span><span>The HeadNode public IP — given by your instructor at the start of the session.</span></div>
+        <div class="prereq-item"><span class="pi-num">02</span><span>Your assigned username and the shared password <code>hpcnow2026</code>.</span></div>
+        <div class="prereq-item"><span class="pi-num">03</span><span>A terminal — macOS Terminal, Windows PowerShell, PuTTY, or any SSH client.</span></div>
+      </div>
+      <p class="prose" style="margin-top:28px">Your account name is your first name. Your instructor will confirm it at the start of the session — it is the same name you used to register.</p>
+    </section>
+
+    <!-- CLUSTER AT A GLANCE -->
+    <section class="section" id="cluster">
+      <p class="label">the cluster</p>
+      <p class="section-title">Your cluster at a glance</p>
+      <p class="section-tagline">Before you log in, understand the machine you are about to walk into.</p>
+      <p class="prose">This is not a simulated environment. It is a live AWS ParallelCluster deployment, provisioned this morning and running right now. Everything you do in this lab runs on real hardware.</p>
+
+      <div class="diagram-block">
+        <pre>
+                       ┌─────────────────────────────────────────────┐
+  <span class="hl">You (SSH)</span>            │          AWS  us-east-1a                    │
+      │                │                                             │
+      │  port 22        │  ┌──────────────────────────────────────┐  │
+      └─────────────────┼─▶│      <span class="dv">HeadNode  (c5n.large)</span>         │  │
+                        │  │  Login node · Slurm controller       │  │
+                        │  │  NFS server for /home                │  │
+                        │  └──────────────┬───────────────────────┘  │
+                        │                 │  Ethernet / TCP            │
+                        │       ┌─────────┴─────────┐                │
+                        │       │                   │                │
+                        │  ┌────▼──────────┐  ┌─────▼──────────┐    │
+                        │  │  <span class="dv">compute-01</span>   │  │  <span class="dv">compute-02</span>   │    │
+                        │  │  c5n.9xlarge  │  │  c5n.9xlarge   │    │
+                        │  │  36 cores     │  │  36 cores      │    │
+                        │  │   96 GiB RAM  │  │   96 GiB RAM   │    │
+                        │  │   (93 GiB     │  │   (93 GiB      │    │
+                        │  │   to Slurm)   │  │    to Slurm)   │    │
+                        │  │  <span class="hl">EFA ◀─────────────────────▶ EFA</span>   │    │
+                        │  └───────────────┘  └────────────────┘    │
+                        │       ↑  EFA: ~21 µs · ~50 Gbps  ↑        │
+                        │                                             │
+                        │  ═══════════ Shared Storage ════════════   │
+                        │  <span class="st">/home</span>   NFS over Ethernet   (EBS  50 GiB)  │
+                        │  <span class="st">/efs</span>    Amazon EFS            (~unlimited)  │
+                        │  <span class="st">/fsx</span>    FSx Lustre             (1.2 TiB)    │
+                        └─────────────────────────────────────────────┘
+        </pre>
+      </div>
+
+      <p class="prose"><strong>EFA</strong> — Elastic Fabric Adapter — is the hardware interconnect between the two compute nodes. Raw bandwidth is not the differentiator here: both EFA and standard Ethernet on c5n.9xlarge top out at around 50 Gbps. The difference is <em>latency</em>. EFA bypasses the OS kernel using RDMA, cutting small-message inter-node latency from ~35 µs (TCP through the kernel on the same ENA hardware) down to ~21 µs — a ~12 µs absolute saving per round trip. On older AWS networking or commodity Ethernet that gap used to be 10× or more; on modern c5n.9xlarge with ENA Express the gap is narrower in ratio but still compounds at scale. You will measure it directly in Section 5.</p>
+
+      <div style="margin-top:36px">
+        <p class="subsection-title" style="margin-bottom:20px">How each traffic type actually travels</p>
+
+        <p class="prose" style="margin-bottom:6px">A common misconception: EFA is not a general fast lane for all traffic. It is exclusively used by MPI processes that explicitly request it. All storage I/O — including FSx Lustre — travels over standard Ethernet/TCP. The performance differences between storage tiers come from <em>how many servers are in the path</em>, not from which network transport is used.</p>
+
+        <div class="diagram-block" style="margin-top:20px">
+          <pre>
+  ┌─ /home  (NFS) ──────────────────────────────────────────────────┐
+  │                                                                  │
+  │  compute-01 ──TCP──▶ ┌──────────┐ ──▶ EBS volume               │
+  │  compute-02 ──TCP──▶ │ headnode │       (one disk,              │
+  │                       │ NFS srv  │        one server)            │
+  │                       └──────────┘                              │
+  │  All compute I/O serialises through the headnode's 25 Gbps NIC  │
+  └──────────────────────────────────────────────────────────────────┘
+
+  ┌─ /efs  (Amazon EFS) ────────────────────────────────────────────┐
+  │                                                                  │
+  │  headnode   ──TCP──▶ ┌─────────────────────┐                   │
+  │  compute-01 ──TCP──▶ │  AWS EFS service    │                   │
+  │  compute-02 ──TCP──▶ │  (managed NFS)      │                   │
+  │                       └─────────────────────┘                   │
+  │  Each node has its own independent connection — headnode is not  │
+  │  in the path. Ceiling set by EFS service (~1–3 Gbps).           │
+  └──────────────────────────────────────────────────────────────────┘
+
+  ┌─ /fsx  (FSx Lustre) ────────────────────────────────────────────┐
+  │                                                                  │
+  │  headnode   ──TCP──▶ OST-0 ─┐                                  │
+  │  compute-01 ──TCP──▶ OST-1 ─┤ multiple parallel storage        │
+  │  compute-02 ──TCP──▶ OST-2 ─┘ servers (Object Storage Targets) │
+  │                                                                  │
+  │  Each process gets its own parallel I/O path. No single server  │
+  │  is a bottleneck. Speed comes from parallelism, not transport.  │
+  └──────────────────────────────────────────────────────────────────┘
+
+  ┌─ MPI messages (EFA) ────────────────────────────────────────────┐
+  │                                                                  │
+  │  compute-01 ──EFA──▶ compute-02                                 │
+  │                                                                  │
+  │  Only MPI traffic. Application must explicitly request EFA      │
+  │  (FI_PROVIDER=efa). Kernel is bypassed entirely. ~21 µs.       │
+  │  Storage filesystems never use this path.                       │
+  └──────────────────────────────────────────────────────────────────┘
+          </pre>
+        </div>
+
+        <div class="table-wrap" style="margin-top:8px">
+          <table>
+            <thead>
+              <tr><th>Traffic</th><th>Transport</th><th>Bottleneck</th><th>Why faster/slower</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>/home</code> reads</td><td>Ethernet/TCP</td><td>Headnode 25 Gbps NIC (shared)</td><td>Single server for all clients</td></tr>
+              <tr><td><code>/efs</code> reads</td><td>Ethernet/TCP</td><td>EFS service limit (~1–3 Gbps)</td><td>Each node independent, no headnode</td></tr>
+              <tr><td><code>/fsx</code> reads</td><td>Ethernet/TCP</td><td>FSx provisioned throughput</td><td>Parallel OSTs, no single bottleneck</td></tr>
+              <tr><td>MPI messages</td><td>EFA (RDMA)</td><td>~50 Gbps · ~21 µs latency</td><td>Kernel bypassed entirely</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 0: CONNECT -->
+    <section class="section" id="s0">
+      <p class="label">section 0</p>
+      <p class="section-title">Connect to the cluster</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>You are SSH-ing into a jump host. The headnode is the single managed entry point for the whole cluster — identical in function to a bastion server in a corporate datacenter. Everything you run, every job you submit, every file you inspect, goes through this node first.</p>
+      </div>
+
+      <p class="prose">Open a terminal and connect with your assigned username and the HeadNode IP from your instructor.</p>
+
+      <div class="code-block"><pre><span class="kw">ssh</span> &lt;your-username&gt;@&lt;HEADNODE-IP&gt;</pre></div>
+
+      <p class="prose">Enter the password when prompted: <code>hpcnow2026</code></p>
+
+      <div class="key-note" style="margin-top:20px">
+        <p><strong>If SSH refuses with "host key verification failed" —</strong> this happens because each lab deployment brings up a fresh cluster at the same IP or hostname, but with a new host key that doesn't match what your laptop remembered from a previous session.</p>
+        <p style="margin-top:10px">Clear the stale entry and reconnect normally:</p>
+      </div>
+      <div class="code-block"><pre><span class="cm"># Remove the stale host key for this IP (run on your laptop, not the cluster)</span>
+<span class="kw">ssh-keygen -R</span> &lt;HEADNODE-IP&gt;
+
+<span class="cm"># Then connect as normal</span>
+<span class="kw">ssh</span> &lt;your-username&gt;@&lt;HEADNODE-IP&gt;</pre></div>
+      <p class="prose">If you want to skip host key checking entirely for the duration of the lab session — useful if the IP might change mid-session — use the one-liner below. Do not use this on production systems.</p>
+      <div class="code-block"><pre><span class="kw">ssh</span> -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    &lt;your-username&gt;@&lt;HEADNODE-IP&gt;</pre></div>
+      <p class="prose" style="margin-top:16px">A successful login shows a prompt like this:</p>
+
+      <div class="code-block"><pre><span class="pr">[&lt;your-username&gt;@ip-172-31-xx-xx ~]$</span></pre></div>
+
+      <p class="prose">That <code>ip-172-31-*</code> hostname is the HeadNode's private AWS address. You are on the cluster.</p>
+    </section>
+
+    <!-- SECTION 1: ORIENT -->
+    <section class="section" id="s1">
+      <p class="label">section 1</p>
+      <p class="section-title">Orient yourself</p>
+      <p class="section-tagline">Stepping into a new home.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>Your first day in a new datacenter — you walk the floor, open the rack doors, read the cable labels. You build a mental map before you touch anything. Do the same here, but with commands instead of a floor plan.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">1.1</span>Who am I and where am I?</p>
+        <div class="code-block"><pre><span class="kw">whoami</span>          <span class="cm"># your username</span>
+<span class="kw">hostname</span>        <span class="cm"># HeadNode hostname</span>
+<span class="kw">uname -r</span>        <span class="cm"># Linux kernel version</span>
+<span class="kw">uptime</span>          <span class="cm"># how long the cluster has been running</span></pre></div>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">1.2</span>What hardware is under the hood?</p>
+        <div class="code-block"><pre><span class="kw">nproc</span>
+<span class="kw">lscpu</span> | grep -E <span class="st">"^CPU\(s\)|Model name|Thread|Core|Socket"</span>
+<span class="kw">free -h</span></pre></div>
+        <p class="prose">The HeadNode (<code>c5n.large</code>) has 2 vCPUs and 5.25 GiB RAM. It is the <em>manager</em>, not the workhorse. The compute nodes are orders of magnitude larger — you will see them next.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">1.3</span>View the compute fleet</p>
+        <div class="code-block"><pre><span class="kw">sinfo</span> -o <span class="st">"%N %C %m %f"</span></pre></div>
+        <p class="prose">Output columns: node name · CPUs (allocated/idle/other/total) · memory (MiB) · features. <code>sinfo</code> collapses contiguous node names into a range, so you will see one line: <code>compute-st-c5n9xlarge-[1-2]  0/72/0/72  93388  static,c5n.9xlarge,c5n9xlarge,efa</code> — 72 CPUs idle across both nodes, ~93 GiB RAM each, and the <code>efa</code> feature tag among others. (The slight gap to 96 GiB is what Slurm reserves for OS + kernel.)</p>
+        <div class="code-block"><pre><span class="cm"># Discover the real Slurm node name first, then drill in</span>
+<span class="kw">sinfo -h -N -o</span> <span class="st">"%N"</span> | head -1
+<span class="kw">scontrol show node</span> compute-st-c5n9xlarge-1    <span class="cm"># full details for one node</span></pre></div>
+        <p class="prose">Look for <code>CfgTRES=cpu=36,mem=93388M</code> and <code>AvailableFeatures=static,c5n.9xlarge,c5n9xlarge,efa</code>. ParallelCluster auto-tags the static fleet, instance type, and EFA capability as Slurm features — you can use any of them in <code>--constraint</code> when submitting a job.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">1.4</span>Explore the shared tools directory</p>
+        <div class="code-block"><pre><span class="kw">ls</span> /opt/hpc-tools/
+<span class="kw">ls</span> /opt/hpc-tools/bin/
+<span class="kw">ls</span> /opt/hpc-tools/sample-jobs/</pre></div>
+        <p class="prose">Everything under <code>/opt/hpc-tools</code> lives on the shared ParallelCluster filesystem. It is visible on both compute nodes without copying anything — that is what shared storage means in practice.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">1.5</span>Check your PATH</p>
+        <div class="code-block"><pre><span class="kw">which</span> ior iozone osu_latency xhpl</pre></div>
+        <p class="prose">All four should resolve immediately. The <code>/etc/profile.d/hpc-tools.sh</code> script configured these paths during cluster bootstrap.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 2: STORAGE -->
+    <section class="section" id="s2">
+      <p class="label">section 2</p>
+      <p class="section-title">The storage tour</p>
+      <p class="section-tagline">Familiar tiers, radically different performance characteristics.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>Your datacenter has a SAN, a NAS, and local SSDs. Each tier has a different speed, capacity, and cost profile. HPC clusters are identical in concept — but the speed gap between tiers is much wider, and choosing the wrong tier for a workload is one of the most common performance mistakes in HPC operations.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">2.1</span>See all three tiers at once</p>
+        <div class="code-block"><pre><span class="kw">df -h</span> /home /efs /fsx</pre></div>
+        <p class="prose" style="margin-top:8px"><em>Heads-up:</em> on the headnode, <code>/home</code> is part of the root EBS volume — so it will show up as <code>/dev/nvme0n1p1</code> rather than as an NFS mount. The NFS export only kicks in when compute nodes mount the headnode's <code>/home</code> over the network. <code>/efs</code> and <code>/fsx</code> are real network mounts on every node.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Mount</th><th>Technology</th><th>Typical use</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>/home</code></td><td>NFS (EBS)</td><td>Home directories, scripts, small output files</td></tr>
+              <tr><td><code>/efs</code></td><td>Amazon EFS</td><td>Shared data, checkpoints, moderate I/O</td></tr>
+              <tr><td><code>/fsx</code></td><td>FSx Lustre</td><td>High-throughput parallel I/O, job scratch space</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">2.2</span>Explore each tier</p>
+        <div class="code-block"><pre><span class="cm"># Your home directory — NFS mounted from the HeadNode</span>
+<span class="kw">ls -la</span> ~
+<span class="kw">echo</span> <span class="st">"Hello from $(hostname)"</span> &gt; ~/test-home.txt
+<span class="kw">cat</span> ~/test-home.txt
+
+<span class="cm"># EFS — shared across the whole cluster</span>
+<span class="kw">ls</span> /efs
+<span class="kw">mkdir -p</span> /efs/$USER
+<span class="kw">echo</span> <span class="st">"EFS write from $(hostname)"</span> &gt; /efs/$USER/test-efs.txt
+
+<span class="cm"># FSx Lustre — the fast scratch filesystem</span>
+<span class="kw">ls</span> /fsx
+<span class="kw">lfs df -h</span> /fsx           <span class="cm"># Lustre-specific disk usage</span>
+<span class="kw">lfs getstripe -d</span> /fsx    <span class="cm"># stripe layout for /fsx itself (no recurse)</span></pre></div>
+        <p class="prose"><code>lfs</code> is the Lustre filesystem client tool — think of it as <code>df</code> with HPC superpowers. The <code>getstripe</code> output shows <strong>Object Storage Targets (OSTs)</strong>: the parallel storage spindles that give Lustre its throughput.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">2.3</span>Write a file and see it from both compute nodes</p>
+        <div class="code-block"><pre><span class="kw">echo</span> <span class="st">"Written on headnode at $(date)"</span> &gt; /fsx/shared-test.txt
+
+<span class="cm"># Run a command on all nodes simultaneously via Slurm</span>
+<span class="kw">srun</span> --nodes=2 --ntasks-per-node=1 <span class="kw">cat</span> /fsx/shared-test.txt</pre></div>
+        <p class="prose">Both compute nodes print the same file without any copying, rsync, or SFTP. All nodes read the same bytes from the same Lustre OSTs simultaneously — this is what parallel shared storage means on a real cluster.</p>
+
+        <div class="key-note">
+          <p><strong>Key distinction from Module 1, slide 24 —</strong> NFS (your <code>/home</code>) serialises all I/O through one server over one Ethernet port. Lustre stripes files across multiple storage servers in parallel. That is why FSx can deliver hundreds of GB/s where NFS tops out at a few hundred MB/s. You will measure this gap directly in Section 4.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: FIRST JOB -->
+    <section class="section" id="s3">
+      <p class="label">section 3</p>
+      <p class="section-title">Your first Slurm job</p>
+      <p class="section-tagline">The scheduler as a service request system.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>In ITSM, you submit a service request ticket — it enters a queue, a system picks it up when resources are available, executes the task, and writes output to a log you can retrieve later. Slurm does exactly the same thing. The "resource" is CPU cores on a compute node rather than a human technician, but the model is identical: submit, queue, execute, log.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">3.1</span>Read the job script before submitting it</p>
+        <div class="code-block"><pre><span class="kw">cat</span> /opt/hpc-tools/sample-jobs/01-hello-cluster.sh</pre></div>
+        <p class="prose">The <code>#SBATCH</code> lines are Slurm <em>directives</em> — structured metadata embedded in the script that tells the scheduler exactly what resources to allocate:</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Directive</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td><code>--nodes=2</code></td><td>Allocate 2 compute nodes</td></tr>
+              <tr><td><code>--ntasks-per-node=1</code></td><td>Run 1 process per node</td></tr>
+              <tr><td><code>--output=%x-%j.out</code></td><td>Write stdout to <code>&lt;jobname&gt;-&lt;jobid&gt;.out</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">3.2</span>Submit the job</p>
+        <div class="code-block"><pre><span class="kw">cd</span> ~
+<span class="kw">sbatch</span> /opt/hpc-tools/sample-jobs/01-hello-cluster.sh</pre></div>
+        <p class="prose">Note the job ID printed: <code>Submitted batch job 1234</code></p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">3.3</span>Watch the queue</p>
+        <div class="code-block"><pre><span class="kw">squeue</span>              <span class="cm"># all jobs across all users</span>
+<span class="kw">squeue -u</span> $USER     <span class="cm"># only your jobs</span></pre></div>
+        <p class="prose">Both compute nodes are configured with <code>MinCount=2</code> — they are always running. Your job should transition from <code>PD</code> (pending) to <code>R</code> (running) within seconds.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">3.4</span>Read the output</p>
+        <div class="code-block"><pre><span class="kw">cat</span> hello-cluster-&lt;JOBID&gt;.out</pre></div>
+        <p class="prose">You will see <code>hostname</code> output from both compute nodes, and a listing of your home directory retrieved <em>from</em> a compute node — confirming that <code>/home</code> NFS is visible everywhere in the cluster.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">3.5</span>Check job state and resources used</p>
+        <div class="code-block"><pre><span class="kw">scontrol show job</span> &lt;JOBID&gt;</pre></div>
+        <p class="prose">This shows the live and recently-cached state for the job — submit time, run time, allocated nodes, exit code, working directory. Slurm holds completed-job state in memory for ~5 minutes before discarding it. This is the HPC equivalent of looking up an ITSM ticket while it is still in-cache: every recent job has a detailed record.</p>
+        <p class="prose" style="margin-top:8px"><em>Note:</em> Persistent per-job accounting via <code>sacct</code> requires Slurm's accounting database, which is not enabled in this lab. Production HPC clusters typically enable it for chargeback and audit.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 4: IOR -->
+    <section class="section" id="s4">
+      <p class="label">section 4</p>
+      <p class="section-title">IOR storage benchmark</p>
+      <p class="section-tagline">Numbers, not brochure claims.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>Running a storage acceptance test before signing an SLA — you want real throughput numbers, not vendor specs. IOR (Interleaved Or Random) is the HPC standard for this. It runs across all your MPI ranks simultaneously: 72 processes on 2 nodes all reading and writing at the same time. A single-client tool like <code>dd</code> will never show you what a filesystem can actually deliver under real HPC load.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">4.1</span>Submit the IOR job</p>
+        <div class="code-block"><pre><span class="kw">sbatch</span> /opt/hpc-tools/sample-jobs/02-ior-benchmark.sh</pre></div>
+        <p class="prose">This runs IOR against all three storage tiers in sequence. Allow 3–5 minutes to complete.</p>
+        <div class="code-block"><pre><span class="kw">squeue -u</span> $USER     <span class="cm"># watch it run</span></pre></div>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">4.2</span>Read the results</p>
+        <div class="code-block"><pre><span class="kw">ls</span> ~/ior-results-*.txt
+<span class="kw">cat</span> ~/ior-results-&lt;JOBID&gt;.txt</pre></div>
+
+        <div class="results-box">
+          <p class="results-box-label">What to expect</p>
+          <div class="results-row">
+            <span class="col-h">Tier</span>
+            <span class="col-h">Write</span>
+            <span class="col-h">Read</span>
+          </div>
+          <div class="results-row">
+            <span class="rk">/home (NFS)</span>
+            <span class="rv">~130 MiB/s</span>
+            <span class="rv">~780 MiB/s</span>
+          </div>
+          <div class="results-row">
+            <span class="rk">/efs (EFS)</span>
+            <span class="rv">~100 MiB/s</span>
+            <span class="rv">~60 MiB/s</span>
+          </div>
+          <div class="results-row">
+            <span class="rk">/fsx (Lustre)</span>
+            <span class="rv">~250 MiB/s</span>
+            <span class="rv">~1,070 MiB/s</span>
+          </div>
+        </div>
+
+        <div class="key-note">
+          <p><strong>How to read this table.</strong> FSx Lustre on a 1.2 TiB SCRATCH_2 deployment is provisioned at ~240 MiB/s aggregate write throughput — so a single bulk write hits the ceiling. Read performance is much higher because Lustre OST caching kicks in. NFS reads are surprisingly fast (~780 MiB/s) because the headnode's EBS volume reads serve from local page cache, while writes are bound by EBS write throughput. EFS came in slower than NFS on this account — EFS bursting credits cap small-account throughput; a production workload would size FSx and use EFS only for moderate-I/O shared state.</p>
+          <p style="margin-top:10px"><strong>The pedagogical point still holds:</strong> NFS serialises all 72 MPI processes through one headnode NIC; FSx Lustre serves all 72 processes in parallel from multiple Object Storage Targets — each process gets its own I/O path. On a larger FSx deployment (12 TiB+) the Lustre numbers scale linearly. Storage tier choice in HPC is almost always about <em>parallelism in the path</em>, not about raw transport.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: EFA -->
+    <section class="section" id="s5">
+      <p class="label">section 5</p>
+      <p class="section-title">EFA latency demo</p>
+      <p class="section-tagline">Measuring the fabric that makes tightly-coupled workloads possible.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>In a call centre handling a complex escalation, agents need to consult each other constantly. If inter-agent communication is slow, throughput collapses even if each individual agent works quickly. In HPC, MPI processes on different nodes exchange messages thousands of times per second. The latency of those exchanges is the same bottleneck — and this is exactly why InfiniBand was developed, as Rajesh walked you through in Module 1, slides 26–28. EFA is AWS's implementation of the same principle.</p>
+      </div>
+
+      <p class="prose">You will run the identical latency test twice — once over standard Ethernet (TCP), once over EFA. Both paths share the same ~50 Gbps physical network on c5n.9xlarge. What changes is the software path: Ethernet goes through the OS kernel and TCP stack; EFA goes directly from one process's memory to another's, bypassing the kernel entirely. The bandwidth numbers look similar. The latency numbers do not.</p>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">5.1</span>Ethernet baseline — the slow path</p>
+        <div class="code-block"><pre><span class="kw">sbatch</span> /opt/hpc-tools/sample-jobs/03-osu-latency-ethernet.sh</pre></div>
+        <div class="code-block"><pre><span class="kw">cat</span> osu-latency-ethernet-&lt;JOBID&gt;.out</pre></div>
+        <p class="prose">Look at the latency column for small messages (1–8 bytes). On modern c5n.9xlarge with ENA Express and the placement group, you will see values around <strong>30–40 µs</strong> — much faster than the 100–200 µs you would have seen on older AWS networking generations or traditional datacenter Ethernet. This is your TCP/IP-stack-through-kernel baseline.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">5.2</span>EFA — the fast path</p>
+        <div class="code-block"><pre><span class="kw">sbatch</span> /opt/hpc-tools/sample-jobs/04-osu-latency-efa.sh</pre></div>
+        <div class="code-block"><pre><span class="kw">cat</span> osu-latency-efa-&lt;JOBID&gt;.out</pre></div>
+        <p class="prose">Small message latency drops to <strong>~20 µs</strong> — measurably faster than the TCP baseline on the same two physical nodes over the same physical network. The absolute saving is around 10 µs per round trip; for MPI workloads exchanging thousands of small messages per timestep, that compounds into hours of wall-clock difference per run.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">5.3</span>Understand what you're seeing</p>
+
+        <div class="latency-table">
+          <pre><span class="hd">Size (bytes)   Ethernet (µs)   EFA (µs)   Ratio</span>
+           1         ~33           ~<span class="fast">21</span>      ~1.6×
+          64         ~28           ~<span class="fast">21</span>      ~1.3×
+        1024         ~29           ~<span class="fast">22</span>      ~1.3×
+       65536        ~155           ~<span class="fast">44</span>      ~3.5×
+     1048576        ~760          ~<span class="fast">417</span>      ~1.8×</pre>
+        </div>
+
+        <p class="prose">This is not a configuration trick. EFA bypasses the OS kernel entirely using <strong>RDMA</strong> — Remote Direct Memory Access. One MPI process writes directly into another process's memory on a remote machine, with no kernel context switches, no buffer copies, no TCP stack processing.</p>
+        <p class="prose">A note on the numbers above: AWS's c5n.9xlarge with ENA Express in a placement group is genuinely fast at the TCP layer — much faster than older AWS hardware or traditional datacenter Ethernet. The kernel-bypass advantage now shows as ~10–15 µs absolute saving per round trip, not the ~150 µs gap older HPC documentation describes. For a tightly-coupled MPI simulation exchanging boundary data 10,000 times per timestep, even a 12 µs per-message saving compounds into hours of difference per run — which is why HPC clusters still ship with kernel-bypass fabrics even as TCP networking gets faster.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">5.4</span>Bonus — EFA peak bandwidth</p>
+        <div class="code-block"><pre><span class="kw">sbatch</span> /opt/hpc-tools/sample-jobs/05-osu-bandwidth-efa.sh
+<span class="kw">cat</span> osu-bandwidth-efa-&lt;JOBID&gt;.out</pre></div>
+        <p class="prose">Peak bandwidth should approach <strong>50 Gbps</strong> — the full line rate of the c5n.9xlarge EFA network adapter.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 6: HPL -->
+    <section class="section" id="s6">
+      <p class="label">section 6</p>
+      <p class="section-title">HPL Linpack demo</p>
+      <p class="section-tagline">The benchmark that ranks supercomputers — running on your two-node cluster.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>Every server vendor quotes SPEC benchmarks. HPL Linpack is the HPC equivalent — it is the benchmark behind the TOP500 list that ranks the world's fastest supercomputers. You are about to run the same benchmark code (at a much smaller scale) on your own cluster, and read the same GFLOPS metric that defines where a machine sits in the global HPC hierarchy.</p>
+      </div>
+
+      <p class="prose">HPL solves a dense system of linear equations using LU factorisation. It exercises every layer of the HPC stack simultaneously: floating-point throughput, memory bandwidth, inter-node MPI communication over EFA, and scratch I/O on FSx. That comprehensive coverage is why it is a meaningful benchmark.</p>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">6.1</span>Look at the problem configuration</p>
+        <div class="code-block"><pre><span class="kw">cat</span> /opt/hpc-tools/hpl/HPL.dat</pre></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Parameter</th><th>Value</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td><code>N</code></td><td>50000</td><td>Matrix size: 50,000 × 50,000 doubles ≈ 20 GiB/node</td></tr>
+              <tr><td><code>NB</code></td><td>192</td><td>Block size: tuned for L3 cache on c5n.9xlarge</td></tr>
+              <tr><td><code>P</code></td><td>2</td><td>Process grid rows</td></tr>
+              <tr><td><code>Q</code></td><td>36</td><td>Process grid columns — 2 × 36 = 72 MPI ranks total</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">N=50000 uses roughly 80% of available RAM across both nodes, which is the standard HPL tuning target. Going higher risks OOM; going lower leaves performance on the table.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">6.2</span>Submit the job now</p>
+        <div class="code-block"><pre><span class="kw">sbatch</span> /opt/hpc-tools/sample-jobs/07-linpack-demo.sh</pre></div>
+        <p class="prose">This will take <strong>15–25 minutes</strong>. Submit it now, then continue reading through the explanation below while it runs.</p>
+        <div class="code-block"><pre><span class="kw">squeue -u</span> $USER    <span class="cm"># check status periodically</span></pre></div>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">6.3</span>While you wait — what is actually happening</p>
+        <p class="prose">HPL breaks the N×N matrix into NB×NB blocks and distributes them across the P×Q process grid. Each of the 72 MPI ranks owns a subset of blocks. At every step of the factorisation:</p>
+        <div class="prereq-panel" style="max-width:580px;margin-top:16px">
+          <div class="prereq-item"><span class="pi-num">01</span><span>Each rank performs Gaussian elimination on its local block — CPU-bound, using OpenBLAS DGEMM (the fastest dense matrix routine available on this hardware).</span></div>
+          <div class="prereq-item"><span class="pi-num">02</span><span>The pivot row is broadcast to all ranks in the same row of the process grid — EFA bandwidth.</span></div>
+          <div class="prereq-item"><span class="pi-num">03</span><span>Boundary data is exchanged with neighbouring ranks — EFA latency.</span></div>
+        </div>
+        <p class="prose" style="margin-top:20px">All three bottlenecks — floating-point throughput, network bandwidth, network latency — are exercised simultaneously and continuously. That is why HPL is a meaningful benchmark and not just a stress test.</p>
+        <p class="prose">The job also uses <code>/fsx</code> for scratch, so FSx Lustre is under load at the same time. You are benchmarking the entire stack.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">6.4</span>Read the result</p>
+        <div class="code-block"><pre><span class="kw">cat</span> linpack-demo-&lt;JOBID&gt;.out</pre></div>
+        <p class="prose">Look for the <code>WR</code> (Warm Run) line near the bottom of the output:</p>
+        <div class="code-block"><pre>WR11C2R4      50000   192     2    36          89.93    9.2673e+02</pre></div>
+        <p class="prose">The last two columns are <strong>time in seconds</strong> and <strong>Gflops</strong> — billions of floating-point operations per second.</p>
+
+        <div class="results-box" style="margin-top:20px">
+          <p class="results-box-label">Expected result</p>
+          <div class="results-row">
+            <span class="rk">Your cluster</span>
+            <span class="rv" style="color:var(--terra);font-weight:500">~900 – 1,100 Gflops</span>
+            <span class="rv">(~1 TFLOPS)</span>
+          </div>
+          <div class="results-row">
+            <span class="rk">Modern laptop</span>
+            <span class="rv">~100–200 Gflops</span>
+            <span class="rv">for comparison</span>
+          </div>
+          <div class="results-row">
+            <span class="rk">World #1 (2024)</span>
+            <span class="rv">~1,000,000,000 Gflops</span>
+            <span class="rv">1 ExaFLOP</span>
+          </div>
+        </div>
+
+        <p class="prose">Your two-node cluster sits between a laptop and a national supercomputer — but it runs the exact same benchmark code as every machine on the TOP500 list. The number at the end is a real number, on real hardware, produced by you.</p>
+
+        <div class="key-note" style="margin-top:20px">
+          <p><strong>Why ~1 TFLOPS and not the theoretical peak?</strong> Two Skylake-X cores at 3 GHz with AVX-512 can in theory hit ~96 GFLOPS each → ~7 TFLOPS across 72 cores. We are reaching ~13% of that. Three things eat the rest: HPL uses OpenBLAS (vs Intel MKL, which would gain ~40%), the AVX-512 frequency throttles under sustained load, and inter-node MPI collectives over EFA cost ~10–15% even on a placement group. A production-tuned run on MKL with a larger N would land at ~3 TFLOPS. This is the real number for the configuration you actually have.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- WRAP-UP -->
+    <section class="section" id="wrapup">
+      <p class="label">wrap-up</p>
+      <p class="section-title">Before you leave</p>
+      <p class="prose">Work through this checklist before the session ends. If you haven't completed something, ask your instructor or a neighbour — the goal is that everyone leaves having seen every result.</p>
+      <div class="checklist">
+        <div class="checklist-item"><span class="cb"></span><span>Connected to HeadNode via SSH with your assigned username</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Explored cluster topology with <code>sinfo</code> and <code>scontrol show node</code></span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Toured all three storage tiers — <code>/home</code>, <code>/efs</code>, <code>/fsx</code></span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Wrote a file on the headnode and read it from both compute nodes via <code>srun cat</code></span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Submitted <code>01-hello-cluster.sh</code> and read the output — hostname from both nodes</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Ran IOR benchmark and compared throughput numbers across the three tiers</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Ran OSU latency over Ethernet (~35 µs) and EFA (~21 µs) — measured the kernel-bypass saving</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Submitted HPL Linpack and read the GFLOPS result from the WR line</span></div>
+      </div>
+    </section>
+
+    <!-- QUICK REFERENCE -->
+    <section class="section" id="reference">
+      <p class="label">quick reference</p>
+      <p class="section-title">Commands and paths</p>
+
+      <p class="prose" style="margin-bottom:6px">Slurm scheduler</p>
+      <div class="facts">
+        <div class="fact"><span class="fact-k">sinfo</span><span class="fact-v">Show cluster nodes and their state</span></div>
+        <div class="fact"><span class="fact-k">squeue</span><span class="fact-v">Show the job queue — add <code>-u $USER</code> for your jobs only</span></div>
+        <div class="fact"><span class="fact-k">sbatch</span><span class="fact-v">Submit a batch job: <code>sbatch script.sh</code></span></div>
+        <div class="fact"><span class="fact-k">srun</span><span class="fact-v">Run a command interactively across compute nodes</span></div>
+        <div class="fact"><span class="fact-k">scancel</span><span class="fact-v">Cancel a job: <code>scancel &lt;JOBID&gt;</code></span></div>
+        <div class="fact"><span class="fact-k">scontrol show job</span><span class="fact-v">Show live + recently-cached job state: <code>scontrol show job &lt;JOBID&gt;</code> (sacct needs slurmdbd, not enabled here)</span></div>
+      </div>
+
+      <p class="prose" style="margin-top:36px;margin-bottom:6px">Sample job scripts</p>
+      <div class="facts">
+        <div class="fact"><span class="fact-k">01</span><span class="fact-v"><code>/opt/hpc-tools/sample-jobs/01-hello-cluster.sh</code> — run hostname on both nodes</span></div>
+        <div class="fact"><span class="fact-k">02</span><span class="fact-v"><code>02-ior-benchmark.sh</code> — parallel I/O benchmark across all three storage tiers</span></div>
+        <div class="fact"><span class="fact-k">03</span><span class="fact-v"><code>03-osu-latency-ethernet.sh</code> — MPI latency over TCP baseline</span></div>
+        <div class="fact"><span class="fact-k">04</span><span class="fact-v"><code>04-osu-latency-efa.sh</code> — MPI latency over EFA</span></div>
+        <div class="fact"><span class="fact-k">05</span><span class="fact-v"><code>05-osu-bandwidth-efa.sh</code> — peak bandwidth over EFA</span></div>
+        <div class="fact"><span class="fact-k">07</span><span class="fact-v"><code>07-linpack-demo.sh</code> — HPL Linpack benchmark, 72 ranks, ~15–25 min</span></div>
+      </div>
+
+      <p class="prose" style="margin-top:36px;margin-bottom:6px">Key paths</p>
+      <div class="facts">
+        <div class="fact"><span class="fact-k">/opt/hpc-tools/</span><span class="fact-v">Shared tools directory — visible on all nodes without copying</span></div>
+        <div class="fact"><span class="fact-k">bin/ior</span><span class="fact-v">IOR parallel I/O benchmark binary</span></div>
+        <div class="fact"><span class="fact-k">hpl/xhpl</span><span class="fact-v">HPL Linpack binary</span></div>
+        <div class="fact"><span class="fact-k">hpl/HPL.dat</span><span class="fact-v">HPL problem configuration (N, NB, P, Q)</span></div>
+        <div class="fact"><span class="fact-k">/var/log/bootstrap.log</span><span class="fact-v">Cluster setup log — headnode only</span></div>
+      </div>
+
+      <p class="prose" style="margin-top:36px;margin-bottom:6px">Storage tiers</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Mount</th><th>Technology</th><th>Strength</th><th>Best for</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>~/</code> (<code>/home</code>)</td><td>NFS (EBS)</td><td>Convenience</td><td>Scripts, source code, small results</td></tr>
+            <tr><td><code>/efs</code></td><td>Amazon EFS</td><td>Durable, shared</td><td>Checkpoints, datasets shared across jobs</td></tr>
+            <tr><td><code>/fsx</code></td><td>FSx Lustre</td><td>Parallel throughput</td><td>Active job scratch, benchmark data</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="footer-band">
+        <span class="footer-copy">HPC Lab · Module 2 · hpc.now · 2026</span>
+        <a href="mailto:rajesh@hpc.now" class="footer-link">rajesh@hpc.now</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(i => i.classList.remove('is-active'));
+        const active = document.querySelector(`.side-nav-item[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
