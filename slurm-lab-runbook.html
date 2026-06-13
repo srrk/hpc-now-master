@@ -203,7 +203,7 @@
     <h1 class="hero-title">Jobs, Queue, Accounting,<br><em>Control &amp; Troubleshooting</em></h1>
     <div class="hero-meta">
       <div class="hero-meta-item"><span class="hero-meta-k">Labs</span><span class="hero-meta-v">8 sections · Lab 1 / 8 through 8 / 8</span></div>
-      <div class="hero-meta-item"><span class="hero-meta-k">Head Node</span><span class="hero-meta-v">cluster.hpc.now</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Head Node</span><span class="hero-meta-v">mylab.hpc.now</span></div>
       <div class="hero-meta-item"><span class="hero-meta-k">Learners</span><span class="hero-meta-v">chandra · sujith · yogaraj</span></div>
       <div class="hero-meta-item"><span class="hero-meta-k">Password</span><span class="hero-meta-v">hpcnow2026</span></div>
       <div class="hero-meta-item"><span class="hero-meta-k">Total lab time</span><span class="hero-meta-v">~3.5 hours</span></div>
@@ -260,15 +260,15 @@
       <table class="creds-table">
         <thead><tr><th>Name</th><th>Username</th><th>Password</th><th>Host</th></tr></thead>
         <tbody>
-          <tr><td class="name-col">Chandra</td><td class="mono-col">chandra</td><td class="pass-col">hpcnow2026</td><td class="mono-col">cluster.hpc.now</td></tr>
-          <tr><td class="name-col">Sujith</td><td class="mono-col">sujith</td><td class="pass-col">hpcnow2026</td><td class="mono-col">cluster.hpc.now</td></tr>
-          <tr><td class="name-col">Yogaraj</td><td class="mono-col">yogaraj</td><td class="pass-col">hpcnow2026</td><td class="mono-col">cluster.hpc.now</td></tr>
+          <tr><td class="name-col">Chandra</td><td class="mono-col">chandra</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Sujith</td><td class="mono-col">sujith</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Yogaraj</td><td class="mono-col">yogaraj</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
         </tbody>
       </table>
       <div class="code-block">
         <div class="code-label">Connect to the cluster</div>
         <button class="copy-btn" onclick="copyCode(this)">copy</button>
-        <pre><span class="cmd">ssh chandra@cluster.hpc.now</span>          <span class="cmt"># replace chandra with your username</span>
+        <pre><span class="cmd">ssh chandra@mylab.hpc.now</span>          <span class="cmt"># replace chandra with your username</span>
 <span class="out">chandra@ip-10-0-1-5 ~ $</span>               <span class="cmt"># head node prompt — you are on the head node</span></pre>
       </div>
       <div class="callout-teal">
@@ -277,7 +277,7 @@
       <div class="wrong-block">
         <div class="wrong-label">If your connection is refused or times out</div>
         <div class="wrong-body">
-          <p>The head node IP may have changed. Ask Rajesh for the current IP or hostname. If you see <code>Host key verification failed</code>, run <code>ssh-keygen -R cluster.hpc.now</code> and reconnect. If you see <code>Permission denied (publickey)</code>, use the password with <code>ssh -o PreferredAuthentications=password chandra@cluster.hpc.now</code>.</p>
+          <p>The head node IP may have changed. Ask Rajesh for the current IP or hostname. If you see <code>Host key verification failed</code>, run <code>ssh-keygen -R mylab.hpc.now</code> and reconnect. If you see <code>Permission denied (publickey)</code>, use the password with <code>ssh -o PreferredAuthentications=password chandra@mylab.hpc.now</code>.</p>
         </div>
       </div>
     </section>
@@ -292,7 +292,7 @@
       </div>
 
       <div class="callout-teal">
-        <p><strong>Setup.</strong> Log in to <code>cluster.hpc.now</code>. All exercises in this section run on the head node. You are observing a cluster with 4 compute nodes in partition <code>compute</code> and 2 nodes in partition <code>debug</code>.</p>
+        <p><strong>Setup.</strong> Log in to <code>mylab.hpc.now</code>. All exercises in this section run on the head node. You are observing a cluster with 4 compute nodes in partition <code>compute</code> and 2 nodes in partition <code>debug</code>.</p>
       </div>
 
       <div class="steps">
@@ -1499,7 +1499,7 @@ ls /home/sujith/jobs/timeout-scenario-*.out 2>/dev/null</span>
 
       <div class="footer-wrap">
         <span class="footer-copy">SLURM Workload Management · Lab Runbook · HPC Associate · Associate Stream · master.hpc.now/slurm-workload-mgmt</span>
-        <span class="footer-badge">Labs 1–8 · cluster.hpc.now · chandra · sujith · yogaraj</span>
+        <span class="footer-badge">Labs 1–8 · mylab.hpc.now · chandra · sujith · yogaraj</span>
         <a href="https://master.hpc.now" class="footer-link">master.hpc.now</a>
       </div>
     </section>
