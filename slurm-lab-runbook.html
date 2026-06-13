@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SLURM Workload Management · Lab Runbook · master.hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #181817;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --teal:       #0f6e56;
+      --teal-dim:   #1d9e75;
+      --teal-bg:    #e8f5f0;
+      --amber:      #c47f1a;
+      --amber-bg:   #fdf4e3;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--paper); color: var(--ink); font-family: var(--mono); font-size: 15px; line-height: 1.75; }
+
+    /* COVER */
+    .cover { background: var(--cover); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E"); }
+    .nav-wrap { border-bottom: 1px solid var(--rule-cover); }
+    nav { max-width: 1200px; margin: 0 auto; padding: 20px 52px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: var(--mono); font-size: 12px; color: #f0e8e0; text-decoration: none; letter-spacing: .06em; }
+    .logo em { color: var(--terra-dim); font-style: normal; }
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-tag { font-size: 10px; color: #6a6460; letter-spacing: .12em; text-transform: uppercase; }
+    .nav-mod { font-size: 11px; color: var(--terra-dim); letter-spacing: .06em; }
+    .hero { max-width: 1200px; margin: 0 auto; padding: 72px 52px 80px; }
+    .hero-eyebrow { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #6a6460; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+    .hero-eyebrow::before { content: ''; width: 20px; height: 1px; background: #6a6460; }
+    .hero-title { font-family: var(--serif); font-size: clamp(32px, 4.5vw, 56px); font-weight: 400; color: #f0e8e0; line-height: 1.15; letter-spacing: -.02em; margin-bottom: 28px; }
+    .hero-title em { font-style: italic; color: var(--terra-dim); }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid #2e2820; width: fit-content; margin-top: 36px; }
+    .hero-meta-item { padding: 12px 24px; border-right: 1px solid #2e2820; display: flex; flex-direction: column; gap: 3px; }
+    .hero-meta-item:last-child { border-right: none; }
+    .hero-meta-k { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .hero-meta-v { font-size: 12px; color: #c8c0b4; }
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* LAYOUT */
+    .page-body { max-width: 1200px; margin: 0 auto; padding: 0 52px; display: grid; grid-template-columns: 200px 1fr; gap: 0 72px; align-items: start; }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 40px; padding: 64px 0 40px; align-self: start; }
+    .side-label { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink3); margin-bottom: 12px; padding-left: 14px; }
+    .side-nav { display: flex; flex-direction: column; gap: 1px; margin-bottom: 20px; }
+    .side-nav-item { font-size: 11px; color: var(--ink3); text-decoration: none; letter-spacing: .03em; padding: 5px 0 5px 14px; border-left: 2px solid transparent; transition: color .18s, border-color .18s; line-height: 1.4; }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+    .side-nav-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+    .side-nav-part { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); padding: 8px 0 4px 14px; }
+
+    /* MAIN */
+    .main-content { padding: 0; background: var(--paper); }
+    .section { padding: 64px 0 56px; border-top: 1px solid var(--rule); }
+    .section:first-child { border-top: none; padding-top: 72px; }
+    .label { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: var(--ink3); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
+    .label::after { content: ''; width: 36px; height: 1px; background: var(--rule); }
+    .prose { font-size: 14px; color: var(--ink2); line-height: 2.05; max-width: 600px; }
+    .prose + .prose { margin-top: 1.2em; }
+    .prose code { font-family: var(--mono); font-size: 12px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+
+    /* CALLOUTS */
+    .callout { border-left: 3px solid var(--terra); padding: 18px 22px; background: var(--terra-bg); margin: 24px 0; max-width: 640px; }
+    .callout p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout strong { color: var(--terra); font-weight: 500; }
+    .callout-teal { border-left: 3px solid var(--teal); padding: 18px 22px; background: var(--teal-bg); margin: 24px 0; max-width: 640px; }
+    .callout-teal p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-teal strong { color: var(--teal); font-weight: 500; }
+    .callout-amber { border-left: 3px solid var(--amber); padding: 18px 22px; background: var(--amber-bg); margin: 24px 0; max-width: 640px; }
+    .callout-amber p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-amber strong { color: var(--amber); font-weight: 500; }
+
+    /* CODE BLOCKS */
+    .code-block { background: var(--dark); border: 1px solid #2e2820; padding: 20px 24px; margin: 20px 0; max-width: 640px; overflow-x: auto; position: relative; }
+    .code-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #2e2820; }
+    .code-block pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #c8c0b4; white-space: pre; }
+    .code-block pre .cmd  { color: #9fe1cb; }
+    .code-block pre .cmt  { color: #4a4438; font-style: italic; }
+    .code-block pre .out  { color: #8a8078; }
+    .copy-btn { position: absolute; top: 12px; right: 12px; background: #2e2820; border: 1px solid #3e3830; color: #6a6460; font-family: var(--mono); font-size: 10px; letter-spacing: .08em; padding: 4px 10px; cursor: pointer; transition: color .15s, border-color .15s; }
+    .copy-btn:hover { color: #9fe1cb; border-color: #9fe1cb; }
+    .copy-btn.copied { color: var(--teal-dim); border-color: var(--teal-dim); }
+
+    /* STEPS */
+    .steps { display: flex; flex-direction: column; gap: 0; max-width: 640px; margin: 24px 0; }
+    .step { display: grid; grid-template-columns: 48px 1fr; gap: 0 20px; padding: 28px 0; border-top: 1px solid var(--rule); align-items: start; }
+    .step:first-child { border-top: none; padding-top: 0; }
+    .step-num { font-size: 11px; color: var(--ink3); letter-spacing: .1em; padding-top: 4px; font-weight: 300; }
+    .step-title { font-family: var(--serif); font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 10px; line-height: 1.35; }
+    .step-desc { font-size: 13px; color: var(--ink2); line-height: 1.95; margin-bottom: 14px; max-width: 520px; }
+    .step-desc code { font-family: var(--mono); font-size: 11px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+    .step-notice { font-size: 12px; color: var(--terra); font-style: italic; line-height: 1.7; margin-top: 10px; display: flex; gap: 8px; align-items: flex-start; max-width: 520px; }
+    .step-notice::before { content: '→'; flex-shrink: 0; color: var(--terra-dim); }
+    .step-notice code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); font-style: normal; }
+
+    /* PART HEADER */
+    .part-header { background: var(--dark); padding: 32px 36px 28px; border-left: 4px solid var(--terra); margin-bottom: 28px; }
+    .part-num { font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: #6a6460; margin-bottom: 8px; }
+    .part-title { font-family: var(--serif); font-size: 22px; font-weight: 400; color: #f0e8e0; line-height: 1.3; margin-bottom: 10px; }
+    .part-intent { font-size: 13px; color: #8a8078; line-height: 1.8; max-width: 520px; font-style: italic; }
+
+    /* CHECKPOINT */
+    .checkpoint-block { background: var(--dark); border: 1px solid var(--teal); max-width: 640px; margin: 28px 0; }
+    .checkpoint-header { background: var(--teal); padding: 10px 20px; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+    .checkpoint-header span { font-size: 11px; color: rgba(255,255,255,0.7); font-style: italic; letter-spacing: 0; text-transform: none; }
+    .checkpoint-body { padding: 20px 24px; position: relative; }
+    .checkpoint-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #9fe1cb; white-space: pre-wrap; word-break: break-all; }
+    .checkpoint-note { font-size: 12px; color: #8a8078; font-style: italic; margin-top: 14px; line-height: 1.7; padding-top: 12px; border-top: 1px solid #2e2820; }
+
+    /* EXPECTED OUTPUT */
+    .expected-block { background: #141210; border: 1px solid #2e2820; border-left: 3px solid var(--teal); max-width: 640px; margin: 12px 0; }
+    .expected-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--teal-dim); padding: 8px 16px; border-bottom: 1px solid #2e2820; }
+    .expected-body { padding: 14px 16px; }
+    .expected-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #8a8078; white-space: pre-wrap; }
+
+    /* WRONG BLOCK */
+    .wrong-block { background: #140e0e; border: 1px solid #2e2820; border-left: 3px solid var(--terra); max-width: 640px; margin: 12px 0; }
+    .wrong-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--terra-dim); padding: 8px 16px; border-bottom: 1px solid #2e1818; }
+    .wrong-body { padding: 14px 16px; font-size: 13px; color: var(--ink2); line-height: 1.85; }
+    .wrong-body code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); background: rgba(123,75,51,0.1); padding: 1px 5px; }
+    .wrong-body p + p { margin-top: 8px; }
+
+    /* QUICK REF */
+    .quickref-block { background: var(--dark); border: 1px solid #2e2820; max-width: 640px; margin: 20px 0; overflow: hidden; }
+    .quickref-header { background: #2e2820; padding: 10px 20px; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .quickref-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid #2e2820; }
+    .quickref-row:last-child { border-bottom: none; }
+    .quickref-k { font-size: 11px; color: #6a6460; padding: 12px 16px; border-right: 1px solid #2e2820; display: flex; align-items: center; letter-spacing: .04em; }
+    .quickref-v { font-family: var(--mono); font-size: 12px; color: #9fe1cb; padding: 12px 16px; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+
+    /* CREDS TABLE */
+    .creds-table { border: 1px solid var(--rule); width: 100%; max-width: 560px; margin: 20px 0; border-collapse: collapse; }
+    .creds-table thead th { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); background: var(--paper-mid); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--rule); font-weight: 400; }
+    .creds-table tbody td { font-size: 12px; color: var(--ink2); padding: 11px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.6; }
+    .creds-table tbody tr:last-child td { border-bottom: none; }
+    .creds-table .name-col { font-family: var(--serif); font-style: italic; color: var(--ink); font-size: 14px; }
+    .creds-table .mono-col { font-family: var(--mono); color: var(--teal); font-size: 12px; }
+    .creds-table .pass-col { font-family: var(--mono); color: var(--amber); font-size: 12px; }
+
+    /* DOMAIN HEADER */
+    .domain-header { background: var(--dark); border-left: 4px solid var(--amber); padding: 20px 28px; margin-bottom: 28px; max-width: 640px; }
+    .domain-label { font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: #6a6460; margin-bottom: 6px; }
+    .domain-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: #f0e8e0; line-height: 1.3; margin-bottom: 6px; }
+    .domain-intent { font-size: 13px; color: #8a8078; font-style: italic; line-height: 1.7; }
+
+    /* FOOTER */
+    .footer-wrap { background: var(--dark2); margin: 64px -52px 0; padding: 24px 52px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-top: 1px solid #2e2820; }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-badge { font-size: 10px; color: var(--teal-dim); letter-spacing: .08em; }
+    .footer-link { font-size: 11px; color: #6a6460; text-decoration: none; }
+
+    @media (max-width: 1024px) {
+      nav, .hero { padding-left: 32px; padding-right: 32px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 32px; }
+      .sidebar { display: none; }
+      .footer-wrap { margin: 64px -32px 0; padding: 24px 32px; }
+    }
+    @media (max-width: 640px) {
+      nav, .hero { padding-left: 20px; padding-right: 20px; }
+      .page-body { padding: 0 20px; }
+      .footer-wrap { margin: 64px -20px 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="https://master.hpc.now" class="logo">master<em>.hpc.now</em></a>
+      <div class="nav-right">
+        <span class="nav-tag">Lab Runbook</span>
+        <span class="nav-mod">SLURM Workload Management · Jobs · Queue · Accounting · Control</span>
+      </div>
+    </nav>
+  </div>
+  <div class="hero">
+    <p class="hero-eyebrow">SLURM Workload Management · Lab Runbook · HPC Operations · Associate Stream</p>
+    <h1 class="hero-title">Jobs, Queue, Accounting,<br><em>Control &amp; Troubleshooting</em></h1>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><span class="hero-meta-k">Labs</span><span class="hero-meta-v">8 sections · Lab 1 / 8 through 8 / 8</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Head Node</span><span class="hero-meta-v">cluster.hpc.now</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Learners</span><span class="hero-meta-v">chandra · sujith · yogaraj</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Password</span><span class="hero-meta-v">hpcnow2026</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Total lab time</span><span class="hero-meta-v">~3.5 hours</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">URL</span><span class="hero-meta-v">master.hpc.now/slurm-workload-mgmt</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- BODY -->
+<div class="page-body">
+
+  <aside class="sidebar">
+    <div class="side-label">Runbook</div>
+    <nav class="side-nav">
+      <a href="#how-to-use" class="side-nav-item">How to Use</a>
+      <a href="#credentials" class="side-nav-item">Credentials</a>
+      <div class="side-nav-divider"></div>
+      <div class="side-nav-part">Labs</div>
+      <a href="#lab-1" class="side-nav-item">1 · Cluster Orientation</a>
+      <a href="#lab-2" class="side-nav-item">2 · First Job</a>
+      <a href="#lab-3" class="side-nav-item">3 · Interactive Jobs</a>
+      <a href="#lab-4" class="side-nav-item">4 · Resource Requests</a>
+      <a href="#lab-5" class="side-nav-item">5 · Job Arrays</a>
+      <a href="#lab-6" class="side-nav-item">6 · Dependencies</a>
+      <a href="#lab-7" class="side-nav-item">7 · Monitoring</a>
+      <a href="#lab-8" class="side-nav-item">8 · Troubleshooting</a>
+      <div class="side-nav-divider"></div>
+      <a href="#checkpoints" class="side-nav-item">All Checkpoints</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- HOW TO USE -->
+    <section class="section" id="how-to-use">
+      <p class="label">how to use this runbook</p>
+      <p class="prose">This is the lab runbook for the SLURM Workload Management module. The lecture portion of this module has already been delivered. You are now executing the lab as a single uninterrupted bootcamp stretch — all eight sections in sequence, on a shared AWS ParallelCluster cluster.</p>
+      <p class="prose" style="margin-top:1em">Every command block is copy-pasteable. Do not type commands from memory or from slides — use the copy button. After each command, compare your terminal output to the <strong>Expected Output</strong> block. Discrepancies are diagnostic signals, not failures — read them and figure out what they mean before moving on.</p>
+      <p class="prose" style="margin-top:1em">Each section ends with a <strong>Checkpoint</strong>. Run the checkpoint command when you believe you have completed the section. When the checkpoint passes, type <code>done</code> in the session chat so Rajesh can confirm the cohort is ready to move on.</p>
+      <div class="callout-teal" style="margin-top:24px">
+        <p><strong>Lab structure.</strong> Each exercise is one of three types. <strong>Guided</strong> exercises provide complete commands — run them and read the output. <strong>Prompted</strong> exercises describe what you need to achieve and hint at the approach — you compose the command. <strong>Checkpoints</strong> give you a validation command and the expected output — you must produce that exact state on the cluster.</p>
+      </div>
+      <div class="callout-amber" style="margin-top:16px">
+        <p><strong>Trainer note.</strong> Sections 1–7 are independent — a cohort member who gets stuck on one section should not hold others back. Section 8 (Troubleshooting) uses pre-deployed scenarios; do not run <code>setup-scenarios.sh</code> during the session — it was run before lab start. The drain on compute node 2 is intentional — do not resume it until Lab 8 calls for it.</p>
+      </div>
+    </section>
+
+    <!-- CREDENTIALS -->
+    <section class="section" id="credentials">
+      <p class="label">lab credentials</p>
+      <p class="prose">Connect to the head node using SSH. Use the row matching your name. The head node is an AWS ParallelCluster head node running Amazon Linux 2 with SLURM installed.</p>
+      <table class="creds-table">
+        <thead><tr><th>Name</th><th>Username</th><th>Password</th><th>Host</th></tr></thead>
+        <tbody>
+          <tr><td class="name-col">Chandra</td><td class="mono-col">chandra</td><td class="pass-col">hpcnow2026</td><td class="mono-col">cluster.hpc.now</td></tr>
+          <tr><td class="name-col">Sujith</td><td class="mono-col">sujith</td><td class="pass-col">hpcnow2026</td><td class="mono-col">cluster.hpc.now</td></tr>
+          <tr><td class="name-col">Yogaraj</td><td class="mono-col">yogaraj</td><td class="pass-col">hpcnow2026</td><td class="mono-col">cluster.hpc.now</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">
+        <div class="code-label">Connect to the cluster</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="cmd">ssh chandra@cluster.hpc.now</span>          <span class="cmt"># replace chandra with your username</span>
+<span class="out">chandra@ip-10-0-1-5 ~ $</span>               <span class="cmt"># head node prompt — you are on the head node</span></pre>
+      </div>
+      <div class="callout-teal">
+        <p><strong>Your jobs directory.</strong> All lab job scripts are pre-loaded in <code>~/jobs/</code>. You can also find them in <code>/shared/lab/</code>. Do not submit jobs from the head node's local disk for anything requiring high I/O — use <code>/shared/</code> for output files in production. For this lab, <code>~/jobs/</code> is fine.</p>
+      </div>
+      <div class="wrong-block">
+        <div class="wrong-label">If your connection is refused or times out</div>
+        <div class="wrong-body">
+          <p>The head node IP may have changed. Ask Rajesh for the current IP or hostname. If you see <code>Host key verification failed</code>, run <code>ssh-keygen -R cluster.hpc.now</code> and reconnect. If you see <code>Permission denied (publickey)</code>, use the password with <code>ssh -o PreferredAuthentications=password chandra@cluster.hpc.now</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB 1 — CLUSTER ORIENTATION -->
+    <section class="section" id="lab-1">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 1 / 8 · 30 minutes · Guided</p>
+        <h2 class="domain-title">Cluster Orientation — Reading Before Touching</h2>
+        <p class="domain-intent">Follows: SLURM architecture, node states, sinfo, scontrol. No jobs are submitted in this section.</p>
+      </div>
+
+      <div class="callout-teal">
+        <p><strong>Setup.</strong> Log in to <code>cluster.hpc.now</code>. All exercises in this section run on the head node. You are observing a cluster with 4 compute nodes in partition <code>compute</code> and 2 nodes in partition <code>debug</code>.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Read the cluster state with sinfo</p>
+            <p class="step-desc">Run <code>sinfo</code> and read every column. Identify: which partitions exist, how many nodes are in each state, and what the time limits are.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sinfo</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>PARTITION  AVAIL  TIMELIMIT  NODES  STATE  NODELIST
+compute*      up    4:00:00      4   idle  compute-st-t3small-[1-4]
+debug         up      30:00      2   idle  compute-st-t3small-[1-2]</pre></div>
+            </div>
+            <p class="step-notice">The asterisk on <code>compute*</code> means it is the default partition — jobs submitted without <code>--partition</code> go here. TIMELIMIT is the maximum wall time a job in this partition can request.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Inspect a compute node in full detail</p>
+            <p class="step-desc">Use <code>scontrol show node</code> to see everything SLURM knows about one compute node. Read: CPUTot, CPUAlloc, RealMemory, FreeMem, and State.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">scontrol show node compute-st-t3small-1</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — key fields</div>
+              <div class="expected-body"><pre>NodeName=compute-st-t3small-1 Arch=x86_64 CoresPerSocket=1
+   CPUTot=2 CPULoad=N/A
+   AvailableFeatures=t3small
+   ActiveFeatures=t3small
+   Gres=(null)
+   NodeAddr=10.0.1.10 NodeHostName=compute-st-t3small-1
+   OS=Linux 5.10.x
+   RealMemory=1920 AllocMem=0 FreeMem=N/A
+   State=IDLE+CLOUD+POWER Reason=None
+   CfgTRES=cpu=2,mem=1920M
+   AllocTRES=</pre></div>
+            </div>
+            <p class="step-notice">RealMemory is in MB. This node has 1920 MB (~2 GB) available for jobs. AllocMem=0 confirms no jobs are running on it right now. IDLE+CLOUD+POWER means the node is available and managed by ParallelCluster's dynamic scaling.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Inspect the compute partition's configuration</p>
+            <p class="step-desc">Read the partition record to find: MaxTime, DefaultTime, MaxNodes per job, and whether the partition is up.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">scontrol show partition compute</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — key fields</div>
+              <div class="expected-body"><pre>PartitionName=compute
+   AllowGroups=ALL AllowAccounts=ALL AllowQos=ALL
+   AllocNodes=ALL Default=YES QoS=N/A
+   DefaultTime=01:00:00 DisableRootJobs=NO ExclusiveUser=NO GraceTime=0
+   Hidden=NO
+   MaxNodes=4 MaxTime=04:00:00 MinNodes=0
+   Nodes=compute-st-t3small-[1-4]
+   State=UP</pre></div>
+            </div>
+            <p class="step-notice">DefaultTime=01:00:00 means a job submitted without <code>--time</code> gets 1 hour. MaxTime=04:00:00 means no job in this partition can request more than 4 hours. A request exceeding this results in a PENDING job with reason <code>PartitionTimeLimit</code>.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Use sinfo with a format string — node-centric view</p>
+            <p class="step-desc">The default sinfo output is partition-centric. Switch to node-centric view and use a custom format to show one row per node with state and memory.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sinfo -N -o "%-30N %8T %8m %8c %P"</span>   <span class="cmt"># node, state, memory(MB), CPUs, partition</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>NODELIST                       STATE    MEMORY   CPUS   PARTITION
+compute-st-t3small-1           idle     1920     2      compute*
+compute-st-t3small-2           drained  1920     2      compute*
+compute-st-t3small-3           idle     1920     2      compute*
+compute-st-t3small-4           idle     1920     2      compute*</pre></div>
+            </div>
+            <p class="step-notice">Notice node 2 shows <code>drained</code>. This is intentional — it is one of the Lab 8 troubleshooting scenarios. Do not attempt to resume it now.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5 (Prompted)</span>
+          <div>
+            <p class="step-title">Run the morning health check sequence</p>
+            <p class="step-desc">Without looking at the answers below, run the four-command morning health check described in the lecture. When done, reveal the commands to compare.</p>
+            <div class="callout-amber">
+              <p><strong>Try it yourself first.</strong> The four commands check: partition state, unavailable nodes, pending jobs, running jobs. The commands are sinfo and squeue variants.</p>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Morning health check — reveal after trying</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sinfo</span>                                      <span class="cmt"># 1. partition overview</span>
+<span class="cmd">sinfo -t down,drain</span>                        <span class="cmt"># 2. unavailable nodes</span>
+<span class="cmd">squeue --states=PENDING --noheader | wc -l</span> <span class="cmt"># 3. pending job count</span>
+<span class="cmd">squeue --states=RUNNING --noheader | wc -l</span> <span class="cmt"># 4. running job count</span></pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Lab 1 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>sinfo -h -o "%T %D" | awk '{sum[$1]+=$2} END {for (s in sum) print s, sum[s]}' | sort && echo "Lab 1 complete"</pre>
+          <div class="checkpoint-note">Expected: one line per node state showing the count of nodes in that state (e.g., <code>drained 1</code>, <code>idle 3</code>), followed by <code>Lab 1 complete</code>. The totals should add up to 4 nodes.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB 2 — FIRST JOB -->
+    <section class="section" id="lab-2">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 2 / 8 · 30 minutes · Guided</p>
+        <h2 class="domain-title">First Job — Write, Submit, Monitor, Review</h2>
+        <p class="domain-intent">Follows: job submission modes, job script anatomy, sbatch directives, SLURM environment variables, job output files.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Write the hello job script</p>
+            <p class="step-desc">A pre-written version is in <code>~/jobs/hello.sh</code>. Read it in full before submitting — understand each directive and each command in the body.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat ~/jobs/hello.sh</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected file content</div>
+              <div class="expected-body"><pre>#!/bin/bash
+#SBATCH --job-name=hello
+#SBATCH --output=~/jobs/hello-%j.out
+#SBATCH --error=~/jobs/hello-%j.err
+#SBATCH --partition=compute
+#SBATCH --time=00:05:00
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+
+echo "=== Job started ==="
+echo "Job ID:       $SLURM_JOB_ID"
+echo "Job name:     $SLURM_JOB_NAME"
+echo "Running on:   $(hostname)"
+echo "Node list:    $SLURM_JOB_NODELIST"
+echo "Allocated CPUs: $SLURM_CPUS_PER_TASK"
+echo "Date:         $(date)"
+echo ""
+echo "Counting to 5:"
+for i in 1 2 3 4 5; do echo "  Step $i"; sleep 1; done
+echo "=== Job complete ==="</pre></div>
+            </div>
+            <p class="step-notice">The <code>%j</code> in the <code>--output</code> path is replaced by the actual job ID when the job runs. This ensures each job writes to its own file and older files are not overwritten.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Submit the job and capture the job ID</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">JOBID=$(sbatch --parsable ~/jobs/hello.sh)
+echo "Submitted job ID: $JOBID"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Submitted job ID: 1</pre></div>
+            </div>
+            <p class="step-notice"><code>--parsable</code> makes sbatch output only the job ID number, with no surrounding text. This is essential when capturing job IDs in scripts for later use (dependencies, sacct queries).</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Monitor the job with squeue</p>
+            <p class="step-desc">Watch your job transition from PENDING → RUNNING → disappear (COMPLETED). Run squeue every few seconds until the job is gone.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">watch -n 2 "squeue -u $USER"</span>         <span class="cmt"># refresh every 2 seconds; Ctrl+C to exit</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected sequence</div>
+              <div class="expected-body"><pre>First appearance (PENDING on ParallelCluster — node may be powering on):
+  JOBID PARTITION  NAME  USER  ST  TIME  NODES  NODELIST(REASON)
+      1   compute hello chandra PD  0:00      1  (Resources)
+
+Then RUNNING:
+      1   compute hello chandra  R  0:05      1  compute-st-t3small-1
+
+Then gone (job completed — press Ctrl+C after confirming it disappears)</pre></div>
+            </div>
+            <div class="wrong-block">
+              <div class="wrong-label">If the job stays in PD for more than 3 minutes</div>
+              <div class="wrong-body">
+                <p>On AWS ParallelCluster, compute nodes power on dynamically. The first job of the lab will wait 1–2 minutes for a node to boot. This is expected. If still waiting after 4 minutes, run <code>squeue -j $JOBID -o %R</code> to read the pending reason. <code>Not Running</code> means nodes are starting up. <code>ReqNodeNotAvail</code> means nodes have a problem — tell Rajesh.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Read the job output file</p>
+            <p class="step-desc">When the job disappears from squeue, the output file is written. Read it and verify every echo from the job script appears.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat ~/jobs/hello-${JOBID}.out</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>=== Job started ===
+Job ID:       1
+Job name:     hello
+Running on:   compute-st-t3small-1
+Node list:    compute-st-t3small-1
+Allocated CPUs: 1
+Date:         Thu Jun 13 10:15:42 UTC 2026
+
+Counting to 5:
+  Step 1
+  Step 2
+  Step 3
+  Step 4
+  Step 5
+=== Job complete ===</pre></div>
+            </div>
+            <p class="step-notice">The hostname shown is a compute node name, not the head node. This confirms the job executed on the allocated compute resource, not where you submitted it from.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5 (Prompted)</span>
+          <div>
+            <p class="step-title">Query the completed job with sacct</p>
+            <p class="step-desc">Use <code>sacct</code> to retrieve accounting data for the completed job. Show: JobID, State, ExitCode, Elapsed time, and the node it ran on.</p>
+            <div class="callout-amber">
+              <p><strong>Build the command yourself.</strong> Hint: <code>sacct -j $JOBID --format=JobID,State,ExitCode,Elapsed,NodeList</code> — confirm State=COMPLETED and ExitCode=0:0.</p>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Reference — reveal after trying</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sacct -j $JOBID --format=JobID,State,ExitCode,Elapsed,NodeList -n</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>1      COMPLETED      0:0   00:00:07   compute-st-t3small-1
+1.batch COMPLETED     0:0   00:00:07   compute-st-t3small-1</pre></div>
+            </div>
+            <p class="step-notice">The <code>1.batch</code> row is the implicit batch step that wraps the job script. Both the job (1) and the step (1.batch) record COMPLETED with ExitCode 0:0 (signal 0, exit code 0 = clean exit).</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Lab 2 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>sacct -u $USER --format=JobID,State -n --starttime=today | grep COMPLETED | wc -l && echo "Lab 2 complete"</pre>
+          <div class="checkpoint-note">Expected: a number ≥ 1 (count of your COMPLETED jobs today), followed by <code>Lab 2 complete</code>. If the number is 0, your job may still be running — wait 30 seconds and re-run.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB 3 — INTERACTIVE JOBS -->
+    <section class="section" id="lab-3">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 3 / 8 · 20 minutes · Guided</p>
+        <h2 class="domain-title">Interactive Jobs — Allocating and Running on Compute Nodes</h2>
+        <p class="domain-intent">Follows: salloc, srun --pty, interactive allocation workflow, SLURM environment variables inside a job.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Allocate resources interactively with salloc</p>
+            <p class="step-desc">Request a 10-minute allocation on the debug partition. salloc will block until resources are granted, then return you to your shell — with SLURM variables set in your environment.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">salloc --ntasks=1 --cpus-per-task=1 --time=00:10:00 --partition=debug</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>salloc: Granted job allocation 5
+salloc: Waiting for resource configuration
+salloc: Nodes compute-st-t3small-1 are ready for job</pre></div>
+            </div>
+            <p class="step-notice">After salloc returns, you are still on the head node — but you hold an active allocation. Verify this by running <code>echo $SLURM_JOB_ID</code> — it should show your allocation's job ID. Running <code>squeue -u $USER</code> shows the job in RUNNING state.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Land on the compute node with srun --pty</p>
+            <p class="step-desc">srun within an active allocation launches a job step. <code>--pty bash</code> gives you an interactive shell on the allocated compute node.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">srun --pty bash</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Your shell prompt changes — you are now on the compute node:
+[chandra@compute-st-t3small-1 ~]$</pre></div>
+            </div>
+            <p class="step-notice">You are now running a shell on a compute node. This is not an SSH session — it is a SLURM job step. Your resources are governed by the allocation you obtained with salloc. If you run resource-heavy commands here, they are within your allocation's limits.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Verify SLURM environment variables on the compute node</p>
+            <p class="step-desc">Inside the interactive session, confirm that SLURM has injected environment variables into your shell — the same variables that batch job scripts use.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">hostname</span>                             <span class="cmt"># should be a compute node, not the head node</span>
+<span class="cmd">echo "Job ID:    $SLURM_JOB_ID"</span>
+<span class="cmd">echo "Nodes:     $SLURM_JOB_NODELIST"</span>
+<span class="cmd">echo "CPUs:      $SLURM_CPUS_PER_TASK"</span>
+<span class="cmd">echo "Tasks:     $SLURM_NTASKS"</span>
+<span class="cmd">nproc</span>                                <span class="cmt"># should match SLURM_CPUS_PER_TASK</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>compute-st-t3small-1
+Job ID:    5
+Nodes:     compute-st-t3small-1
+CPUs:      1
+Tasks:     1
+1</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4 (Prompted)</span>
+          <div>
+            <p class="step-title">Exit the interactive session and confirm release</p>
+            <p class="step-desc">Exit the interactive bash session, then verify on the head node that the allocation has been released and no jobs remain running.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">exit</span>                                 <span class="cmt"># exit the compute node shell</span>
+<span class="out">exit</span>
+<span class="out">salloc: Relinquishing job allocation 5</span>
+<span class="cmd">squeue -u $USER</span>                      <span class="cmt"># confirm no jobs running</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output of squeue</div>
+              <div class="expected-body"><pre>JOBID PARTITION  NAME  USER  ST  TIME  NODES  NODELIST(REASON)
+(no rows — allocation released)</pre></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Lab 3 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>salloc --ntasks=1 --time=00:02:00 --partition=debug srun hostname && echo "Lab 3 complete"</pre>
+          <div class="checkpoint-note">Expected: a compute node hostname (not <code>ip-10-0-1-5</code> or similar head node name), followed by <code>Lab 3 complete</code>. This one-liner allocates, runs hostname on the compute node, and releases immediately.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB 4 — RESOURCE REQUESTS -->
+    <section class="section" id="lab-4">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 4 / 8 · 25 minutes · Guided + Prompted</p>
+        <h2 class="domain-title">Resource Requests — CPUs, Memory, and Time Limits</h2>
+        <p class="domain-intent">Follows: --ntasks, --cpus-per-task, --mem, --time, consequences of over/under-requesting.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Submit a 2-CPU job and verify the allocation</p>
+            <p class="step-desc">The <code>multi-cpu.sh</code> script requests 2 CPUs and prints <code>nproc</code> inside the job to confirm the OS sees the allocated CPUs.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat ~/jobs/multi-cpu.sh</span>              <span class="cmt"># read first — note --cpus-per-task=2</span>
+<span class="cmd">JOBID=$(sbatch --parsable ~/jobs/multi-cpu.sh)
+echo "Submitted: $JOBID"</span></pre>
+            </div>
+            <p class="step-desc" style="margin-top:8px">Wait for completion, then read the output:</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat ~/jobs/multi-cpu-${JOBID}.out</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected in output file</div>
+              <div class="expected-body"><pre>Allocated CPUs (SLURM): 2
+CPUs visible to nproc:  2
+
+Environment for a 2-thread application:
+  OMP_NUM_THREADS would be: 2</pre></div>
+            </div>
+            <p class="step-notice"><code>nproc</code> sees exactly 2 CPUs because SLURM creates a cgroup that limits the job to its allocated CPUs. If you request 1 CPU but run 4 threads, the OS will still run them — but SLURM's accounting will flag this as a resource abuse in a production environment.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Submit a job with a memory request</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sbatch --job-name=mem-test \
+       --output=~/jobs/mem-test-%j.out \
+       --partition=compute \
+       --time=00:02:00 \
+       --ntasks=1 \
+       --mem=256M \
+       ~/jobs/mem-test.sh</span></pre>
+            </div>
+            <p class="step-desc" style="margin-top:8px">The mem-test script shows available memory inside the job:</p>
+            <div class="expected-block">
+              <div class="expected-label">Expected in output file</div>
+              <div class="expected-body"><pre>Requested memory: 256M (from SLURM directive)
+Free memory on node: ~1600 MB (the node's total, not your limit)
+Your job's limit is enforced by cgroups — not visible in free -m.</pre></div>
+            </div>
+            <p class="step-notice">Memory limits are enforced by cgroups, not by the values in <code>free</code>. The job sees the node's full memory in <code>free</code> output, but will be killed if it allocates more than 256 MB. Memory enforcement is per-job, not per-process-visibility.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3 (Prompted)</span>
+          <div>
+            <p class="step-title">Submit an impossible resource request — observe pending reason</p>
+            <p class="step-desc">Submit a job requesting 999 GB of memory. Since no node has this much memory, it will wait in PENDING indefinitely. Read the reason and then cancel it.</p>
+            <div class="callout-amber">
+              <p><strong>Build this yourself.</strong> Use <code>sbatch --wrap</code> to submit an inline command without a script file. The <code>--wrap</code> flag takes a quoted command string as the job body. Request <code>--mem=999G</code>.</p>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Reference — reveal after trying</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">BIGJOB=$(sbatch --parsable \
+  --job-name=impossible \
+  --partition=compute \
+  --time=00:01:00 \
+  --mem=999G \
+  --wrap="echo this will never run")
+echo "Big job ID: $BIGJOB"
+squeue -j $BIGJOB -o "%.10i %.20j %.8T %R"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected squeue output</div>
+              <div class="expected-body"><pre>JOBID                 NAME     STATE REASON
+ 8            impossible   PENDING Resources</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">scancel $BIGJOB</span>                       <span class="cmt"># cancel the impossible job</span>
+<span class="cmd">squeue -j $BIGJOB 2>/dev/null || echo "Job cancelled successfully"</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Submit a job that will timeout — observe the TIMEOUT state</p>
+            <p class="step-desc">Submit a job that sleeps for 90 seconds but only requests a 1-minute time limit. Watch it hit the TIMEOUT wall.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">TJOB=$(sbatch --parsable \
+  --job-name=timeout-demo \
+  --output=~/jobs/timeout-%j.out \
+  --partition=debug \
+  --time=00:01:00 \
+  --ntasks=1 \
+  --wrap="echo start; sleep 90; echo this will not print")
+echo "Timeout job: $TJOB"</span></pre>
+            </div>
+            <p class="step-desc" style="margin-top:8px">Watch the job. After ~1 minute it will transition to TIMEOUT:</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">watch -n 5 "squeue -j $TJOB -o '%.8i %.12j %.8T %.10M %.10l'"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected sequence</div>
+              <div class="expected-body"><pre>While running:
+  JOBID       NAME    STATE       TIME  TIME_LIMIT
+     10 timeout-dem RUNNING     0:30     1:00
+
+After timeout (check sacct after squeue shows job gone):
+  10     TIMEOUT    0:1:05   00:01:00</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sacct -j $TJOB --format=JobID,State,ExitCode -n</span>
+<span class="cmd">cat ~/jobs/timeout-${TJOB}.out</span>       <span class="cmt"># only "start" should appear — sleep was killed</span></pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Lab 4 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>squeue -u $USER --noheader | wc -l && sacct -u $USER --format=State -n --starttime=today | grep -c TIMEOUT && echo "Lab 4 complete"</pre>
+          <div class="checkpoint-note">Expected: <code>0</code> (no jobs currently in your queue), then a number ≥ 1 (at least one TIMEOUT recorded), then <code>Lab 4 complete</code>. If any jobs are still running, wait and re-run.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB 5 — JOB ARRAYS -->
+    <section class="section" id="lab-5">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 5 / 8 · 30 minutes · Guided + Prompted</p>
+        <h2 class="domain-title">Job Arrays — Parallel Tasks from a Single Submission</h2>
+        <p class="domain-intent">Follows: --array syntax, SLURM_ARRAY_TASK_ID, concurrency limits, cancelling individual array tasks.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Submit a 4-task array job</p>
+            <p class="step-desc">Read the array job script first. Note how <code>$SLURM_ARRAY_TASK_ID</code> makes each task unique despite using the same script.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat ~/jobs/array.sh</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Script content</div>
+              <div class="expected-body"><pre>#!/bin/bash
+#SBATCH --job-name=array-lab
+#SBATCH --output=~/jobs/array-%A_%a.out
+#SBATCH --partition=compute
+#SBATCH --time=00:05:00
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+
+echo "Array job:  $SLURM_ARRAY_JOB_ID"
+echo "Task ID:    $SLURM_ARRAY_TASK_ID"
+echo "Running on: $(hostname)"
+echo "Date:       $(date)"
+sleep 15
+echo "Task $SLURM_ARRAY_TASK_ID complete"</pre></div>
+            </div>
+            <p class="step-notice">The output path <code>%A_%a</code> uses two special tokens: <code>%A</code> = the array job's master ID, <code>%a</code> = the individual task ID. This produces separate output files per task: <code>array-15_1.out</code>, <code>array-15_2.out</code>, etc.</p>
+            <div class="code-block" style="margin-top:16px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ARRAYJOB=$(sbatch --parsable --array=1-4 ~/jobs/array.sh)
+echo "Array job ID: $ARRAYJOB"</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Monitor array tasks in squeue</p>
+            <p class="step-desc">While the array is running, observe how each task appears in squeue with its own JOBID_TASKID identifier.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">squeue -u $USER -o "%.10i %.12j %.4T %.8M %.12R"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output while running</div>
+              <div class="expected-body"><pre>JOBID         NAME   ST     TIME         REASON
+15_1     array-lab    R     0:05
+15_2     array-lab    R     0:05
+15_3     array-lab    R     0:05
+15_4     array-lab    R     0:05</pre></div>
+            </div>
+            <p class="step-notice">All 4 tasks start simultaneously because we have 3 idle nodes and no concurrency limit. In a production cluster with limited nodes, some tasks would show PD while others run.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Submit an array with a concurrency limit</p>
+            <p class="step-desc">The <code>%N</code> suffix on <code>--array</code> limits how many tasks run simultaneously. Submit 8 tasks with a maximum of 2 concurrent.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">LIMITJOB=$(sbatch --parsable --array=1-8%2 ~/jobs/array.sh)
+echo "Limited array: $LIMITJOB"
+squeue -u $USER -o "%.10i %.8T %.12R"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — only 2 tasks in RUNNING</div>
+              <div class="expected-body"><pre>JOBID       ST         REASON
+16_1         R
+16_2         R
+16_[3-8]    PD  JobArrayTaskLimit</pre></div>
+            </div>
+            <p class="step-notice">The pending reason <code>JobArrayTaskLimit</code> is not a problem — it is the concurrency limit working as designed. Tasks 3–8 will start automatically as tasks 1 and 2 complete.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4 (Prompted)</span>
+          <div>
+            <p class="step-title">Cancel a single array task without affecting others</p>
+            <p class="step-desc">While the limited array is running, cancel only task 3. Verify task 3 disappears while tasks 1, 2, and 4+ continue.</p>
+            <div class="callout-amber">
+              <p><strong>Build this yourself.</strong> The syntax is <code>scancel JOBID_TASKID</code>. Replace JOBID with your array job's master ID and TASKID with 3.</p>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Reference — reveal after trying</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">scancel ${LIMITJOB}_3</span>
+<span class="cmd">squeue -u $USER -o "%.10i %.8T"</span>       <span class="cmt"># task 3 should be gone</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Read array task output files</p>
+            <p class="step-desc">After the first array job completes, read the output for each task and confirm the task IDs match the files.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ls ~/jobs/array-${ARRAYJOB}_*.out</span>     <span class="cmt"># list all output files for this array</span>
+<span class="cmd">grep "Task ID" ~/jobs/array-${ARRAYJOB}_*.out</span>  <span class="cmt"># confirm each task's ID</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>~/jobs/array-15_1.out:Task ID:    1
+~/jobs/array-15_2.out:Task ID:    2
+~/jobs/array-15_3.out:Task ID:    3
+~/jobs/array-15_4.out:Task ID:    4</pre></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Lab 5 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>NEW=$(sbatch --parsable --array=1-4 ~/jobs/array.sh) && sleep 60 && sacct -j $NEW --format=JobID,State -n | grep -c COMPLETED && echo "Lab 5 complete"</pre>
+          <div class="checkpoint-note">This submits a fresh 4-task array, waits 60 seconds (tasks run for ~15s each), then counts completed tasks. Expected: <code>4</code> completed tasks followed by <code>Lab 5 complete</code>. If you get less than 4, wait another 30 seconds and re-check with <code>sacct -j $NEW --format=JobID,State -n</code>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB 6 — DEPENDENCIES -->
+    <section class="section" id="lab-6">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 6 / 8 · 20 minutes · Guided + Prompted</p>
+        <h2 class="domain-title">Job Dependencies — Building Sequential Workflows</h2>
+        <p class="domain-intent">Follows: --dependency flags, afterok/afternotok/afterany, DependencyNeverSatisfied, workflow chains.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Submit step 1 of the dependency chain</p>
+            <p class="step-desc">step1.sh runs for 30 seconds and exits cleanly. Submit it and capture its job ID — you will use this ID for the dependency in step 2.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">JOB1=$(sbatch --parsable ~/jobs/step1.sh)
+echo "Step 1 job ID: $JOB1"
+squeue -j $JOB1 -o "%.8i %.12j %.8T"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected</div>
+              <div class="expected-body"><pre>Step 1 job ID: 20
+ JOBID         NAME    STATE
+    20        step1  RUNNING</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Submit step 2 with an afterok dependency</p>
+            <p class="step-desc">step2.sh will only start if step1.sh exits with code 0. Submit it while step1 is still running — step2 will enter PENDING with reason <code>Dependency</code>.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">JOB2=$(sbatch --parsable \
+  --dependency=afterok:${JOB1} \
+  ~/jobs/step2.sh)
+echo "Step 2 job ID: $JOB2"
+squeue -u $USER -o "%.8i %.12j %.8T %.20R"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected — step 2 is waiting on step 1</div>
+              <div class="expected-body"><pre>JOBID         NAME    STATE                   REASON
+   20        step1  RUNNING
+   21        step2  PENDING           Dependency</pre></div>
+            </div>
+            <p class="step-notice">The REASON <code>Dependency</code> confirms step2 is held by its dependency, not by resource availability. Step2 will automatically transition to RUNNING the moment step1 reaches COMPLETED state.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Watch the dependency resolve</p>
+            <p class="step-desc">Use watch to observe both jobs simultaneously. After step1 completes (~30 seconds), step2 should immediately transition from PD to R.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">watch -n 3 "squeue -u $USER -o '%.8i %.12j %.8T %.8M'"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected transition sequence</div>
+              <div class="expected-body"><pre>T=0:   JOB1 RUNNING,   JOB2 PENDING
+T=30:  JOB1 gone,      JOB2 RUNNING
+T=60:  JOB2 gone       (both complete)</pre></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4 (Prompted)</span>
+          <div>
+            <p class="step-title">Demonstrate DependencyNeverSatisfied</p>
+            <p class="step-desc">Submit a job that depends on JOB1 completing with <code>afterok</code> — but JOB1 has already completed successfully. Then submit another job with <code>afternotok</code> on JOB1 (which succeeded). The afternotok job will immediately reach <code>DependencyNeverSatisfied</code>.</p>
+            <div class="callout-amber">
+              <p><strong>Build this yourself.</strong> Submit <code>~/jobs/step3-notok.sh</code> with <code>--dependency=afternotok:JOB1_ID</code>. Since JOB1 already succeeded, this dependency can never be satisfied. Read the squeue REASON, then cancel the stuck job.</p>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Reference — reveal after trying</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">JOB3=$(sbatch --parsable \
+  --dependency=afternotok:${JOB1} \
+  ~/jobs/step3-notok.sh)
+squeue -j $JOB3 -o "%.8i %.8T %.30R"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected squeue output</div>
+              <div class="expected-body"><pre>JOBID    STATE                           REASON
+   22  PENDING        DependencyNeverSatisfied</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">scancel $JOB3</span>                         <span class="cmt"># clean it up</span></pre>
+            </div>
+            <p class="step-notice">This is the most common dependency problem you will encounter in production — a user's pipeline got stuck at step 1, and steps 2 through 10 are all in <code>DependencyNeverSatisfied</code>. The fix: identify the failed upstream job, decide whether to resubmit from the failure point, and cancel the stuck dependent jobs.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Lab 6 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>sacct -u $USER --format=JobName,State -n --starttime=today | grep step2 | grep COMPLETED && echo "Lab 6 complete"</pre>
+          <div class="checkpoint-note">Expected: a line showing <code>step2</code> with state <code>COMPLETED</code>, followed by <code>Lab 6 complete</code>. If step2 has not yet completed, wait for it and re-run.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB 7 — MONITORING & ACCOUNTING -->
+    <section class="section" id="lab-7">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 7 / 8 · 25 minutes · Guided + Prompted</p>
+        <h2 class="domain-title">Monitoring &amp; Accounting — Reading What Happened and What Is Happening</h2>
+        <p class="domain-intent">Follows: sacct, sstat, squeue format strings, sprio, sdiag, job efficiency analysis.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Run a comprehensive sacct query for today's jobs</p>
+            <p class="step-desc">Query all your jobs from today with a format that covers: ID, name, state, exit code, elapsed time, allocated CPUs, and max RSS (peak memory use).</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sacct -u $USER \
+  --format=JobID,JobName%15,State%12,ExitCode,Elapsed,AllocCPUS,MaxRSS \
+  --starttime=today \
+  -n</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — all your jobs from the session</div>
+              <div class="expected-body"><pre>1         hello    COMPLETED      0:0   00:00:07   1
+1.batch   hello    COMPLETED      0:0   00:00:07   1        1500K
+3    multi-cpu    COMPLETED      0:0   00:00:03   2
+3.batch  multi-cpu COMPLETED     0:0   00:00:03   2         780K
+...and so on for all labs</pre></div>
+            </div>
+            <p class="step-notice">MaxRSS (Maximum Resident Set Size) is the peak physical memory used by the job step. It is blank for the job-level row and populated for the <code>.batch</code> step row. This is the value used to right-size <code>--mem</code> for future submissions.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Capture live statistics from a running job with sstat</p>
+            <p class="step-desc">First submit a long-running job for observation, then query it with sstat while it runs.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">MONITORJOB=$(sbatch --parsable ~/jobs/monitor-job.sh)
+echo "Monitor job: $MONITORJOB"</span></pre>
+            </div>
+            <p class="step-desc" style="margin-top:8px">Wait 10 seconds for the job to start, then query it live:</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sleep 10
+sstat -j ${MONITORJOB}.batch \
+  --format=JobID,AveCPU,MaxRSS,NTasks,AveDiskRead</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — live stats</div>
+              <div class="expected-body"><pre>JobID      AveCPU    MaxRSS  NTasks  AveDiskRead
+5.batch  00:00:01    1120K       1       0.00M</pre></div>
+            </div>
+            <p class="step-notice"><code>sstat</code> only works on running jobs. After the job completes, use <code>sacct</code> to retrieve historical stats. <code>AveCPU</code> is the average CPU time used — if it is much lower than elapsed time on a multi-CPU job, the application is not using its allocated cores.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3 (Prompted)</span>
+          <div>
+            <p class="step-title">Build a sacct command to show only TIMEOUT and FAILED jobs</p>
+            <p class="step-desc">From earlier in the lab you have at least one TIMEOUT job. Build a sacct query that shows only jobs with non-COMPLETED states, displaying the state and exit code clearly.</p>
+            <div class="callout-amber">
+              <p><strong>Build this yourself.</strong> Use <code>sacct --state=TIMEOUT,FAILED</code> combined with a format that includes State and ExitCode. Filter to today with <code>--starttime=today</code>.</p>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Reference — reveal after trying</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sacct -u $USER \
+  --state=TIMEOUT,FAILED,CANCELLED \
+  --format=JobID,JobName,State,ExitCode \
+  --starttime=today -n</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Run sdiag — inspect scheduler health</p>
+            <p class="step-desc">sdiag shows real-time statistics about the SLURM scheduler: how many jobs it scheduled in its last cycle, how long cycles take, and backfill metrics.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sdiag | head -50</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — key fields</div>
+              <div class="expected-body"><pre>*******************************************************
+sdiag output at Thu Jun 13 10:45:12 2026
+Data since       Thu Jun 13 09:00:00 2026
+*******************************************************
+Server thread count: 2
+Agent queue size:    0
+
+Jobs submitted: 28
+Jobs started:   28
+Jobs completed: 25
+Jobs cancelled:  3
+Jobs failed:     0
+
+Main sched: Last cycle:   42 usec
+Main sched: Mean cycle:   39 usec
+Main sched: Cycles/min:   10
+
+Backfill sched: Last cycle:   180 usec
+Backfill sched: Last depth cycle:  4
+Backfill sched: Scheduled:   8</pre></div>
+            </div>
+            <p class="step-notice">A healthy scheduler shows fast cycle times (under 1 ms for a small cluster) and backfill scheduling running regularly. If Main sched cycle times are measured in seconds, the scheduler is overloaded — usually caused by too many pending jobs with complex constraints.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5</span>
+          <div>
+            <p class="step-title">Build a formatted squeue view for queue analysis</p>
+            <p class="step-desc">Create a squeue output that shows all jobs from all users, with job name, user, state, running time, time limit, node count, and pending reason — formatted cleanly.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">squeue -o "%.10i %-15j %-10u %-10T %-10M %-10l %-6D %R"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — all cluster jobs</div>
+              <div class="expected-body"><pre>     JOBID           NAME       USER      STATE       TIME  TIME_LIMIT  NODES NODELIST(REASON)
+        29  monitor-job    chandra    RUNNING       0:42     1:00:00      1 compute-st-t3small-1</pre></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Lab 7 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>sacct -u $USER --format=JobID -n --starttime=today | grep -v "^\s*$" | wc -l && echo "Lab 7 complete"</pre>
+          <div class="checkpoint-note">Expected: a number representing the total count of job records (including .batch steps) from your session today. A full lab run should show 30+ records. Followed by <code>Lab 7 complete</code>. This confirms sacct has a complete accounting record of your work.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB 8 — TROUBLESHOOTING -->
+    <section class="section" id="lab-8">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 8 / 8 · 30 minutes · Prompted</p>
+        <h2 class="domain-title">Troubleshooting — Diagnose, Describe, Resolve</h2>
+        <p class="domain-intent">Follows: slurmctld log, pending reasons, node drain/resume, DependencyNeverSatisfied, morning health check. All scenarios were pre-deployed before the lab began.</p>
+      </div>
+
+      <div class="callout">
+        <p><strong>How this section works.</strong> Four scenarios have been pre-configured on the cluster. Your task is to find each one, diagnose the root cause using SLURM commands, and state the correct operator response. You do not need to fix all of them — some require admin-level action that only Rajesh will perform. For each scenario, read the cluster state, form a diagnosis, and describe what action you would take and why.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Scenario A</span>
+          <div>
+            <p class="step-title">Find the job that will never run — and explain why</p>
+            <p class="step-desc">A job has been submitted as user <code>chandra</code> that has been in PENDING state since before the lab started. Find it, read its pending reason, and diagnose the root cause without running any commands beyond squeue and scontrol.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">squeue --all -u chandra -o "%.8i %-15j %.8T %.12R"</span>  <span class="cmt"># find all pending jobs</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>JOBID            NAME    STATE         REASON
+   30       impossible  PENDING      Resources</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">scontrol show job 30</span>                  <span class="cmt"># read ReqMem field</span></pre>
+            </div>
+            <div class="callout-amber" style="margin-top:16px">
+              <p><strong>Diagnosis exercise.</strong> After running these commands, answer: What resource is this job requesting that no node can provide? What would you tell the user? What command would you run to cancel it, and would you cancel it without telling the user first?</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Scenario B</span>
+          <div>
+            <p class="step-title">Find the job that timed out — read what it produced before dying</p>
+            <p class="step-desc">A job was submitted by user <code>sujith</code> that hit its wall-time limit earlier in the session. Find it in sacct, read its state, and find the output file to determine how far it got before being killed.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sacct -u sujith \
+  --format=JobID,JobName,State,ExitCode,Elapsed,TimeLimit \
+  --starttime=today -n</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>31  timeout-scenario  TIMEOUT    0:15  00:01:05    00:01:00
+31.batch  timeout-scenario  TIMEOUT  0:15  00:01:05    00:01:00</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">ls /shared/lab/outputs/scenario-b-*.out 2>/dev/null || \
+ls /home/sujith/jobs/timeout-scenario-*.out 2>/dev/null</span>
+<span class="cmd">cat &lt;path-to-output-file&gt;</span>            <span class="cmt"># read what the job produced</span></pre>
+            </div>
+            <div class="callout-amber" style="margin-top:16px">
+              <p><strong>Diagnosis exercise.</strong> What does ExitCode 0:15 mean? (Format is signal:exitcode — signal 15 is SIGTERM, which SLURM sends at the time limit.) What would you tell the user about why the job failed? What information do you need from them to help fix it?</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Scenario C</span>
+          <div>
+            <p class="step-title">Find the drained node — read the reason and write the recovery command</p>
+            <p class="step-desc">From Lab 1, you saw that <code>compute-st-t3small-2</code> is drained. Read the full node record to find the admin reason, and write (but do not run) the command that would resume it.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">scontrol show node compute-st-t3small-2</span>   <span class="cmt"># read State and Reason fields</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected — key fields in output</div>
+              <div class="expected-body"><pre>NodeName=compute-st-t3small-2
+   ...
+   State=DRAINED
+   Reason=Lab scenario - drain test [slurm@2026-06-13T09:00:00]</pre></div>
+            </div>
+            <div class="callout-amber" style="margin-top:16px">
+              <p><strong>Write the resume command.</strong> What is the <code>scontrol update</code> command that would bring this node back to service? Write it in your terminal (but do not press Enter). Show Rajesh your answer. He will run it to verify it is correct.</p>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <div class="code-label">The command you should have written</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmt"># Do not run this — trainer will verify and run</span>
+<span class="cmd">scontrol update NodeName=compute-st-t3small-2 State=resume</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Scenario D</span>
+          <div>
+            <p class="step-title">Find and clean up DependencyNeverSatisfied jobs</p>
+            <p class="step-desc">A pre-submitted array job had task 2 fail with exit code 1. Tasks 3 and 4 were submitted with <code>afterok</code> dependency on task 2 — they are now stuck in <code>DependencyNeverSatisfied</code>. Find them and cancel them with a single command.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">squeue --all -o "%.8i %-20j %.8T %.30R" | grep -i dependency</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>   32_3  scenario-d-array  PENDING  DependencyNeverSatisfied
+   32_4  scenario-d-array  PENDING  DependencyNeverSatisfied</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">scancel 32</span>                           <span class="cmt"># cancel the entire array (all remaining tasks)</span>
+<span class="cmd">squeue --all | grep scenario-d</span>       <span class="cmt"># confirm they are gone</span></pre>
+            </div>
+            <p class="step-notice">In production, before cancelling stuck dependent jobs, always check what the upstream failure was. The user may need to be notified that their pipeline stopped at step 2 and all downstream steps need to be resubmitted from that point.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5 (Prompted)</span>
+          <div>
+            <p class="step-title">Write the five-command morning health check from memory</p>
+            <p class="step-desc">Without looking at Lab 1 or the lecture slides, write the four-command morning health check sequence. Add a fifth command: use sacct to check whether any jobs failed in the last 24 hours.</p>
+            <div class="callout-amber">
+              <p><strong>From memory.</strong> The five commands cover: (1) partition overview, (2) unavailable nodes, (3) pending job count, (4) running job count, (5) failures in the last 24 hours. Write them in order before revealing.</p>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Reference — reveal after writing from memory</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sinfo</span>                                        <span class="cmt"># 1. partition overview</span>
+<span class="cmd">sinfo -t down,drain</span>                          <span class="cmt"># 2. unavailable nodes</span>
+<span class="cmd">squeue --states=PENDING --noheader | wc -l</span>   <span class="cmt"># 3. pending count</span>
+<span class="cmd">squeue --states=RUNNING --noheader | wc -l</span>   <span class="cmt"># 4. running count</span>
+<span class="cmd">sacct --all --state=FAILED \
+  --starttime="$(date -d '24 hours ago' +%Y-%m-%dT%H:%M:%S)" \
+  --format=JobID,User,JobName,State,ExitCode -n</span>  <span class="cmt"># 5. recent failures</span></pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Lab 8 <span>Final lab · type done in chat when this passes</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>squeue -u $USER --noheader | wc -l && sinfo -t drain --noheader | wc -l && sacct --all --state=FAILED,TIMEOUT --starttime=today -n | wc -l && echo "Lab 8 complete"</pre>
+          <div class="checkpoint-note">
+            Expected three numbers then <code>Lab 8 complete</code>:<br>
+            Line 1: 0 (your queue is clean — you cancelled the DependencyNeverSatisfied jobs)<br>
+            Line 2: 1 (the drained node from Scenario C — trainer will resume it)<br>
+            Line 3: a number ≥ 2 (the TIMEOUT and FAILED jobs from scenarios B and D)<br><br>
+            <strong>This is the final lab of the SLURM Workload Management module.</strong> Labs 1–8 have taken you from reading cluster state to diagnosing multi-stage failures. The operational patterns from these eight sections — inspect, submit, monitor, control, account, troubleshoot — are the daily rhythm of HPC cluster operations.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ALL CHECKPOINTS -->
+    <section class="section" id="checkpoints">
+      <p class="label">all checkpoints — quick reference</p>
+      <p class="prose">All eight checkpoint commands for this runbook. Run each after completing the corresponding section. Each passes only when your cluster state matches the expected condition.</p>
+
+      <div class="quickref-block" style="margin-top:24px">
+        <div class="quickref-header">Checkpoint Commands · Labs 1–8</div>
+        <div class="quickref-row">
+          <span class="quickref-k">Lab 1</span>
+          <span class="quickref-v">sinfo -h -o "%T %D" | awk '{sum[$1]+=$2} END {for (s in sum) print s, sum[s]}' | sort && echo "Lab 1 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Lab 2</span>
+          <span class="quickref-v">sacct -u $USER --format=JobID,State -n --starttime=today | grep COMPLETED | wc -l && echo "Lab 2 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Lab 3</span>
+          <span class="quickref-v">salloc --ntasks=1 --time=00:02:00 --partition=debug srun hostname && echo "Lab 3 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Lab 4</span>
+          <span class="quickref-v">squeue -u $USER --noheader | wc -l && sacct -u $USER --format=State -n --starttime=today | grep -c TIMEOUT && echo "Lab 4 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Lab 5</span>
+          <span class="quickref-v">NEW=$(sbatch --parsable --array=1-4 ~/jobs/array.sh) && sleep 60 && sacct -j $NEW --format=JobID,State -n | grep -c COMPLETED && echo "Lab 5 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Lab 6</span>
+          <span class="quickref-v">sacct -u $USER --format=JobName,State -n --starttime=today | grep step2 | grep COMPLETED && echo "Lab 6 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Lab 7</span>
+          <span class="quickref-v">sacct -u $USER --format=JobID -n --starttime=today | grep -v "^\s*$" | wc -l && echo "Lab 7 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Lab 8</span>
+          <span class="quickref-v">squeue -u $USER --noheader | wc -l && sinfo -t drain --noheader | wc -l && sacct --all --state=FAILED,TIMEOUT --starttime=today -n | wc -l && echo "Lab 8 complete"</span>
+        </div>
+      </div>
+
+      <div class="quickref-block" style="margin-top:32px">
+        <div class="quickref-header">Essential Commands — Reference Card</div>
+        <div class="quickref-row">
+          <span class="quickref-k">Cluster state</span>
+          <span class="quickref-v">sinfo · sinfo -N · sinfo -t down,drain</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Node detail</span>
+          <span class="quickref-v">scontrol show node &lt;name&gt;</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Submit</span>
+          <span class="quickref-v">sbatch myscript.sh · sbatch --parsable (capture ID)</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Interactive</span>
+          <span class="quickref-v">salloc --ntasks=1 --partition=debug · srun --pty bash</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Monitor queue</span>
+          <span class="quickref-v">squeue -u $USER · squeue -j JOBID · watch -n 5 squeue</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Job arrays</span>
+          <span class="quickref-v">sbatch --array=1-N · --array=1-N%K (concurrency)</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Dependencies</span>
+          <span class="quickref-v">--dependency=afterok:ID · afternotok:ID · afterany:ID</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Cancel</span>
+          <span class="quickref-v">scancel JOBID · scancel JOBID_TASKID · scancel -u USER</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Hold / release</span>
+          <span class="quickref-v">scontrol hold JOBID · scontrol release JOBID</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Accounting</span>
+          <span class="quickref-v">sacct -u $USER --format=JobID,State,MaxRSS --starttime=today</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Live stats</span>
+          <span class="quickref-v">sstat -j JOBID.batch --format=MaxRSS,AveCPU</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Node drain</span>
+          <span class="quickref-v">scontrol update NodeName=NODE State=drain Reason="..."</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Node resume</span>
+          <span class="quickref-v">scontrol update NodeName=NODE State=resume</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Scheduler health</span>
+          <span class="quickref-v">sdiag | head -40</span>
+        </div>
+      </div>
+
+      <div class="callout-teal" style="margin-top:32px">
+        <p><strong>SLURM Workload Management module complete.</strong> Labs 1 through 8 have built the complete operational loop: read the cluster, submit work, specify resources correctly, handle arrays and dependencies, monitor live and historical activity, control running jobs, and diagnose failures. These eight capabilities form the core of what an HPC Associate does with SLURM every day in production.</p>
+      </div>
+
+      <div class="footer-wrap">
+        <span class="footer-copy">SLURM Workload Management · Lab Runbook · HPC Associate · Associate Stream · master.hpc.now/slurm-workload-mgmt</span>
+        <span class="footer-badge">Labs 1–8 · cluster.hpc.now · chandra · sujith · yogaraj</span>
+        <a href="https://master.hpc.now" class="footer-link">master.hpc.now</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(i => i.classList.remove('is-active'));
+        const a = document.querySelector('.side-nav-item[href="#' + entry.target.id + '"]');
+        if (a) a.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  function copyCode(btn) {
+    const block = btn.closest('.code-block, .checkpoint-body');
+    const pre = block.querySelector('pre');
+    const text = pre.innerText || pre.textContent;
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      btn.textContent = 'copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
