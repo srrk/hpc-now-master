@@ -127,6 +127,8 @@
     .checkpoint-body { padding: 20px 24px; position: relative; }
     .checkpoint-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #9fe1cb; white-space: pre-wrap; word-break: break-all; }
     .checkpoint-note { font-size: 12px; color: #8a8078; font-style: italic; margin-top: 14px; line-height: 1.7; padding-top: 12px; border-top: 1px solid #2e2820; }
+    .checkpoint-state { font-size: 11.5px; color: #c8a96e; background: rgba(200,169,110,0.08); border-left: 3px solid #c8a96e; padding: 8px 12px; margin-bottom: 16px; line-height: 1.65; }
+    .checkpoint-state strong { color: #e0c080; font-size: 9px; letter-spacing: .18em; text-transform: uppercase; display: block; margin-bottom: 4px; }
 
     /* EXPECTED OUTPUT */
     .expected-block { background: #141210; border: 1px solid #2e2820; border-left: 3px solid var(--teal); max-width: 640px; margin: 12px 0; }
@@ -410,6 +412,7 @@ compute-st-t3small-4           idle     1920     2      compute*</pre></div>
       <div class="checkpoint-block">
         <div class="checkpoint-header">Checkpoint — Lab 1 <span>Type done in chat when this passes</span></div>
         <div class="checkpoint-body">
+          <div class="checkpoint-state"><strong>Before you run this</strong>You are logged in to the head node. You have run at least one <code>sinfo</code> and one <code>squeue</code> variant and read the output. No other action is required — the cluster state was pre-configured by Rajesh before the session.</div>
           <button class="copy-btn" onclick="copyCode(this)">copy</button>
           <pre>sinfo -h -o "%T %D" | awk '{sum[$1]+=$2} END {for (s in sum) print s, sum[s]}' | sort && echo "Lab 1 complete"</pre>
           <div class="checkpoint-note">Expected: one line per node state showing the count of nodes in that state (e.g., <code>drained 1</code>, <code>idle 3</code>), followed by <code>Lab 1 complete</code>. The totals should add up to 4 nodes.</div>
@@ -568,6 +571,7 @@ Counting to 5:
       <div class="checkpoint-block">
         <div class="checkpoint-header">Checkpoint — Lab 2 <span>Type done in chat when this passes</span></div>
         <div class="checkpoint-body">
+          <div class="checkpoint-state"><strong>Before you run this</strong>You have written a batch script, submitted it with <code>sbatch</code>, watched it move from PENDING to RUNNING to COMPLETED, and reviewed the output file with <code>cat</code>. Your job must have reached COMPLETED state — if it is still RUNNING, wait before running the checkpoint.</div>
           <button class="copy-btn" onclick="copyCode(this)">copy</button>
           <pre>sacct -u $USER --format=JobID,State -n --starttime=today | grep COMPLETED | wc -l && echo "Lab 2 complete"</pre>
           <div class="checkpoint-note">Expected: a number ≥ 1 (count of your COMPLETED jobs today), followed by <code>Lab 2 complete</code>. If the number is 0, your job may still be running — wait 30 seconds and re-run.</div>
@@ -674,6 +678,7 @@ Tasks:     1
       <div class="checkpoint-block">
         <div class="checkpoint-header">Checkpoint — Lab 3 <span>Type done in chat when this passes</span></div>
         <div class="checkpoint-body">
+          <div class="checkpoint-state"><strong>Before you run this</strong>You have used <code>salloc</code> to obtain an interactive allocation, run at least one command on the compute node, and exited the session cleanly with <code>exit</code>. You should be back at the head node prompt — if an <code>salloc</code> shell is still open, exit it first or the checkpoint will consume your allocation.</div>
           <button class="copy-btn" onclick="copyCode(this)">copy</button>
           <pre>salloc --ntasks=1 --time=00:02:00 --partition=debug srun hostname && echo "Lab 3 complete"</pre>
           <div class="checkpoint-note">Expected: a compute node hostname (not <code>ip-10-0-1-5</code> or similar head node name), followed by <code>Lab 3 complete</code>. This one-liner allocates, runs hostname on the compute node, and releases immediately.</div>
@@ -821,6 +826,7 @@ After timeout (check sacct after squeue shows job gone):
       <div class="checkpoint-block">
         <div class="checkpoint-header">Checkpoint — Lab 4 <span>Type done in chat when this passes</span></div>
         <div class="checkpoint-body">
+          <div class="checkpoint-state"><strong>Before you run this</strong>You have submitted jobs with explicit <code>--cpus-per-task</code>, <code>--mem</code>, and <code>--time</code> flags. At least one job must have hit its wall-time limit and reached TIMEOUT state. Your queue must be empty — no jobs should be in PENDING or RUNNING. If any are still active, wait for them to finish or cancel them with <code>scancel -u $USER</code>.</div>
           <button class="copy-btn" onclick="copyCode(this)">copy</button>
           <pre>squeue -u $USER --noheader | wc -l && sacct -u $USER --format=State -n --starttime=today | grep -c TIMEOUT && echo "Lab 4 complete"</pre>
           <div class="checkpoint-note">Expected: <code>0</code> (no jobs currently in your queue), then a number ≥ 1 (at least one TIMEOUT recorded), then <code>Lab 4 complete</code>. If any jobs are still running, wait and re-run.</div>
@@ -959,6 +965,7 @@ squeue -u $USER -o "%.10i %.8T %.12R"</span></pre>
       <div class="checkpoint-block">
         <div class="checkpoint-header">Checkpoint — Lab 5 <span>Type done in chat when this passes</span></div>
         <div class="checkpoint-body">
+          <div class="checkpoint-state"><strong>Before you run this</strong>Your array script exists at <code>~/jobs/array.sh</code> and is executable. Do not submit the array manually before running this checkpoint — the checkpoint command submits a fresh array itself and waits for it to complete. If you have already submitted an array and it is still running, wait for it to finish before proceeding.</div>
           <button class="copy-btn" onclick="copyCode(this)">copy</button>
           <pre>NEW=$(sbatch --parsable --array=1-4 ~/jobs/array.sh) && sleep 60 && sacct -j $NEW --format=JobID,State -n | grep -c COMPLETED && echo "Lab 5 complete"</pre>
           <div class="checkpoint-note">This submits a fresh 4-task array, waits 60 seconds (tasks run for ~15s each), then counts completed tasks. Expected: <code>4</code> completed tasks followed by <code>Lab 5 complete</code>. If you get less than 4, wait another 30 seconds and re-check with <code>sacct -j $NEW --format=JobID,State -n</code>.</div>
@@ -1072,6 +1079,7 @@ squeue -j $JOB3 -o "%.8i %.8T %.30R"</span></pre>
       <div class="checkpoint-block">
         <div class="checkpoint-header">Checkpoint — Lab 6 <span>Type done in chat when this passes</span></div>
         <div class="checkpoint-body">
+          <div class="checkpoint-state"><strong>Before you run this</strong>You have submitted <code>step1.sh</code> and then submitted <code>step2.sh</code> with an <code>--dependency=afterok:&lt;step1_jobid&gt;</code> flag. Both jobs must have finished — step1 COMPLETED and step2 subsequently COMPLETED. If step2 is still in PENDING (waiting on dependency) or RUNNING, wait before proceeding.</div>
           <button class="copy-btn" onclick="copyCode(this)">copy</button>
           <pre>sacct -u $USER --format=JobName,State -n --starttime=today | grep step2 | grep COMPLETED && echo "Lab 6 complete"</pre>
           <div class="checkpoint-note">Expected: a line showing <code>step2</code> with state <code>COMPLETED</code>, followed by <code>Lab 6 complete</code>. If step2 has not yet completed, wait for it and re-run.</div>
@@ -1217,6 +1225,7 @@ Backfill sched: Scheduled:   8</pre></div>
       <div class="checkpoint-block">
         <div class="checkpoint-header">Checkpoint — Lab 7 <span>Type done in chat when this passes</span></div>
         <div class="checkpoint-body">
+          <div class="checkpoint-state"><strong>Before you run this</strong>You have used <code>sacct</code> to query your job history with custom format fields, used <code>sstat</code> to inspect a running job's live resource usage, and run <code>sdiag</code> to read scheduler diagnostics. All jobs from the monitoring exercise should have finished — your queue should be empty or nearly empty.</div>
           <button class="copy-btn" onclick="copyCode(this)">copy</button>
           <pre>sacct -u $USER --format=JobID -n --starttime=today | grep -v "^\s*$" | wc -l && echo "Lab 7 complete"</pre>
           <div class="checkpoint-note">Expected: a number representing the total count of job records (including .batch steps) from your session today. A full lab run should show 30+ records. Followed by <code>Lab 7 complete</code>. This confirms sacct has a complete accounting record of your work.</div>
@@ -1369,6 +1378,7 @@ ls /home/sujith/jobs/timeout-scenario-*.out 2>/dev/null</span>
       <div class="checkpoint-block">
         <div class="checkpoint-header">Checkpoint — Lab 8 <span>Final lab · type done in chat when this passes</span></div>
         <div class="checkpoint-body">
+          <div class="checkpoint-state"><strong>Before you run this</strong>You have diagnosed all four trainer-deployed scenarios: identified the over-requested memory job (A), found the TIMEOUT'd job and its output (B), identified the drained node and its reason (C), and located the DependencyNeverSatisfied tasks from the failed array (D). Any PENDING jobs that will never run — particularly the stuck dependency tasks from Scenario D — must be cancelled with <code>scancel</code> before running the checkpoint. Your queue must be clean.</div>
           <button class="copy-btn" onclick="copyCode(this)">copy</button>
           <pre>squeue -u $USER --noheader | wc -l && sinfo -t drain --noheader | wc -l && sacct --all --state=FAILED,TIMEOUT --starttime=today -n | wc -l && echo "Lab 8 complete"</pre>
           <div class="checkpoint-note">
