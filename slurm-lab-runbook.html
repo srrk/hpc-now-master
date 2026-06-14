@@ -249,7 +249,7 @@
         <p><strong>Lab structure.</strong> Each exercise is one of three types. <strong>Guided</strong> exercises provide complete commands — run them and read the output. <strong>Prompted</strong> exercises describe what you need to achieve and hint at the approach — you compose the command. <strong>Checkpoints</strong> give you a validation command and the expected output — you must produce that exact state on the cluster.</p>
       </div>
       <div class="callout-amber" style="margin-top:16px">
-        <p><strong>Trainer note.</strong> Sections 1–7 are independent — a cohort member who gets stuck on one section should not hold others back. Section 8 (Troubleshooting) uses pre-deployed scenarios; do not run <code>setup-scenarios.sh</code> during the session — it was run before lab start. The drain on compute node 2 is intentional — do not resume it until Lab 8 calls for it.</p>
+        <p><strong>Trainer note.</strong> Sections 1–7 are independent — a cohort member who gets stuck on one section should not hold others back. Section 8 (Troubleshooting) uses pre-deployed scenarios; do not run <code>setup-scenarios.sh</code> during the session — it was run before lab start. The maintenance reservation on <code>compute-dy-compute-nodes-1</code> is intentional (Scenario C) — do not delete it until Lab 8 calls for it.</p>
       </div>
     </section>
 
@@ -269,7 +269,7 @@
         <div class="code-label">Connect to the cluster</div>
         <button class="copy-btn" onclick="copyCode(this)">copy</button>
         <pre><span class="cmd">ssh chandra@mylab.hpc.now</span>          <span class="cmt"># replace chandra with your username</span>
-<span class="out">chandra@ip-10-0-1-5 ~ $</span>               <span class="cmt"># head node prompt — you are on the head node</span></pre>
+<span class="out">[chandra@ip-172-31-10-125 ~]$</span>          <span class="cmt"># head node prompt — you are on the head node</span></pre>
       </div>
       <div class="callout-teal">
         <p><strong>Your jobs directory.</strong> All lab job scripts are pre-loaded in <code>~/jobs/</code>. You can also find them in <code>/shared/lab/</code>. Do not submit jobs from the head node's local disk for anything requiring high I/O — use <code>/shared/</code> for output files in production. For this lab, <code>~/jobs/</code> is fine.</p>
@@ -292,7 +292,7 @@
       </div>
 
       <div class="callout-teal">
-        <p><strong>Setup.</strong> Log in to <code>mylab.hpc.now</code>. All exercises in this section run on the head node. You are observing a cluster with 4 compute nodes in partition <code>compute</code> and 2 nodes in partition <code>debug</code>.</p>
+        <p><strong>Setup.</strong> Log in to <code>mylab.hpc.now</code>. All exercises in this section run on the head node. You are observing a cluster with 4 compute nodes in partition <code>compute</code> (2 static, always-on: <code>compute-st-compute-nodes-[1-2]</code>; 2 dynamic, powered down until needed: <code>compute-dy-compute-nodes-[1-2]</code>) and 2 static nodes in partition <code>debug</code> (<code>debug-st-debug-nodes-[1-2]</code>).</p>
       </div>
 
       <div class="steps">
@@ -308,11 +308,13 @@
             </div>
             <div class="expected-block">
               <div class="expected-label">Expected output</div>
-              <div class="expected-body"><pre>PARTITION  AVAIL  TIMELIMIT  NODES  STATE  NODELIST
-compute*      up    4:00:00      4   idle  compute-st-t3small-[1-4]
-debug         up      30:00      2   idle  compute-st-t3small-[1-2]</pre></div>
+              <div class="expected-body"><pre>PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST
+compute*     up    4:00:00      1  maint compute-dy-compute-nodes-1
+compute*     up    4:00:00      1  idle~ compute-dy-compute-nodes-2
+compute*     up    4:00:00      2   idle compute-st-compute-nodes-[1-2]
+debug        up      30:00      2   idle debug-st-debug-nodes-[1-2]</pre></div>
             </div>
-            <p class="step-notice">The asterisk on <code>compute*</code> means it is the default partition — jobs submitted without <code>--partition</code> go here. TIMELIMIT is the maximum wall time a job in this partition can request.</p>
+            <p class="step-notice">The asterisk on <code>compute*</code> means it is the default partition — jobs submitted without <code>--partition</code> go here. TIMELIMIT is the maximum wall time a job in this partition can request. <code>idle~</code> means a dynamic node that is powered down and will boot on demand; <code>maint</code> means a node is under a maintenance reservation (Lab 8 Scenario C — leave it alone for now).</p>
           </div>
         </div>
 
@@ -323,23 +325,24 @@ debug         up      30:00      2   idle  compute-st-t3small-[1-2]</pre></div>
             <p class="step-desc">Use <code>scontrol show node</code> to see everything SLURM knows about one compute node. Read: CPUTot, CPUAlloc, RealMemory, FreeMem, and State.</p>
             <div class="code-block">
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
-              <pre><span class="cmd">scontrol show node compute-st-t3small-1</span></pre>
+              <pre><span class="cmd">scontrol show node compute-st-compute-nodes-1</span></pre>
             </div>
             <div class="expected-block">
               <div class="expected-label">Expected output — key fields</div>
-              <div class="expected-body"><pre>NodeName=compute-st-t3small-1 Arch=x86_64 CoresPerSocket=1
-   CPUTot=2 CPULoad=N/A
-   AvailableFeatures=t3small
-   ActiveFeatures=t3small
+              <div class="expected-body"><pre>NodeName=compute-st-compute-nodes-1 Arch=x86_64 CoresPerSocket=1
+   CPUAlloc=0 CPUEfctv=2 CPUTot=2 CPULoad=0.00
+   AvailableFeatures=static,t3.small,compute-nodes
+   ActiveFeatures=static,t3.small,compute-nodes
    Gres=(null)
-   NodeAddr=10.0.1.10 NodeHostName=compute-st-t3small-1
+   NodeAddr=172.31.2.x NodeHostName=compute-st-compute-nodes-1
    OS=Linux 5.10.x
-   RealMemory=1920 AllocMem=0 FreeMem=N/A
-   State=IDLE+CLOUD+POWER Reason=None
-   CfgTRES=cpu=2,mem=1920M
+   RealMemory=1945 AllocMem=0 FreeMem=521 Sockets=2 Boards=1
+   State=IDLE+CLOUD Reason=None
+   Partitions=compute
+   CfgTRES=cpu=2,mem=1945M
    AllocTRES=</pre></div>
             </div>
-            <p class="step-notice">RealMemory is in MB. This node has 1920 MB (~2 GB) available for jobs. AllocMem=0 confirms no jobs are running on it right now. IDLE+CLOUD+POWER means the node is available and managed by ParallelCluster's dynamic scaling.</p>
+            <p class="step-notice">RealMemory is in MB. This node has 1945 MB (~2 GB) available for jobs. AllocMem=0 confirms no jobs are running on it right now. <code>IDLE+CLOUD</code> means the node is available and managed by ParallelCluster (static node — kept always-on). Dynamic nodes (powered down between jobs) show additional flags like <code>POWER_DOWN</code> or appear as <code>idle~</code> in sinfo.</p>
           </div>
         </div>
 
@@ -359,11 +362,11 @@ debug         up      30:00      2   idle  compute-st-t3small-[1-2]</pre></div>
    AllocNodes=ALL Default=YES QoS=N/A
    DefaultTime=01:00:00 DisableRootJobs=NO ExclusiveUser=NO GraceTime=0
    Hidden=NO
-   MaxNodes=4 MaxTime=04:00:00 MinNodes=0
-   Nodes=compute-st-t3small-[1-4]
+   MaxNodes=UNLIMITED MaxTime=04:00:00 MinNodes=0
+   Nodes=compute-dy-compute-nodes-[1-2],compute-st-compute-nodes-[1-2]
    State=UP</pre></div>
             </div>
-            <p class="step-notice">DefaultTime=01:00:00 means a job submitted without <code>--time</code> gets 1 hour. MaxTime=04:00:00 means no job in this partition can request more than 4 hours. A request exceeding this results in a PENDING job with reason <code>PartitionTimeLimit</code>.</p>
+            <p class="step-notice">DefaultTime=01:00:00 means a job submitted without <code>--time</code> gets 1 hour. MaxTime=04:00:00 means no job in this partition can request more than 4 hours. A request exceeding this results in a PENDING job with reason <code>PartitionTimeLimit</code>. <code>MaxNodes=UNLIMITED</code> is the partition-level cap on nodes per job — but the partition only contains 4 actual nodes, so a job that asks for more than 4 will still pend with REASON=<code>PartitionConfig</code> (you will see this in Lab 4).</p>
           </div>
         </div>
 
@@ -379,12 +382,14 @@ debug         up      30:00      2   idle  compute-st-t3small-[1-2]</pre></div>
             <div class="expected-block">
               <div class="expected-label">Expected output</div>
               <div class="expected-body"><pre>NODELIST                       STATE    MEMORY   CPUS   PARTITION
-compute-st-t3small-1           idle     1920     2      compute*
-compute-st-t3small-2           drained  1920     2      compute*
-compute-st-t3small-3           idle     1920     2      compute*
-compute-st-t3small-4           idle     1920     2      compute*</pre></div>
+compute-dy-compute-nodes-1     maint    1945     2      compute*
+compute-dy-compute-nodes-2     idle~    1945     2      compute*
+compute-st-compute-nodes-1     idle     1945     2      compute*
+compute-st-compute-nodes-2     idle     1945     2      compute*
+debug-st-debug-nodes-1         idle     1945     2      debug
+debug-st-debug-nodes-2         idle     1945     2      debug</pre></div>
             </div>
-            <p class="step-notice">Notice node 2 shows <code>drained</code>. This is intentional — it is one of the Lab 8 troubleshooting scenarios. Do not attempt to resume it now.</p>
+            <p class="step-notice">Notice <code>compute-dy-compute-nodes-1</code> shows <code>maint</code> — it is under a maintenance reservation (Lab 8 Scenario C). <code>compute-dy-compute-nodes-2</code> shows <code>idle~</code> — a dynamic node that is powered down and will boot on demand. The four <code>-st-</code> nodes are static, always-on.</p>
           </div>
         </div>
 
@@ -394,16 +399,18 @@ compute-st-t3small-4           idle     1920     2      compute*</pre></div>
             <p class="step-title">Run the morning health check sequence</p>
             <p class="step-desc">Without looking at the answers below, run the four-command morning health check described in the lecture. When done, reveal the commands to compare.</p>
             <div class="callout-amber">
-              <p><strong>Try it yourself first.</strong> The four commands check: partition state, unavailable nodes, pending jobs, running jobs. The commands are sinfo and squeue variants.</p>
+              <p><strong>Try it yourself first.</strong> The five commands check: partition state, unavailable nodes, active reservations, pending jobs, running jobs. The commands are sinfo, scontrol, and squeue variants.</p>
             </div>
             <div class="code-block">
               <div class="code-label">Morning health check — reveal after trying</div>
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
               <pre><span class="cmd">sinfo</span>                                      <span class="cmt"># 1. partition overview</span>
-<span class="cmd">sinfo -t down,drain</span>                        <span class="cmt"># 2. unavailable nodes</span>
-<span class="cmd">squeue --states=PENDING --noheader | wc -l</span> <span class="cmt"># 3. pending job count</span>
-<span class="cmd">squeue --states=RUNNING --noheader | wc -l</span> <span class="cmt"># 4. running job count</span></pre>
+<span class="cmd">sinfo -t down,drain</span>                        <span class="cmt"># 2. unavailable nodes (DRAIN/DOWN)</span>
+<span class="cmd">scontrol show reservation</span>                  <span class="cmt"># 3. active reservations (maintenance, etc.)</span>
+<span class="cmd">squeue --states=PENDING --noheader | wc -l</span> <span class="cmt"># 4. pending job count</span>
+<span class="cmd">squeue --states=RUNNING --noheader | wc -l</span> <span class="cmt"># 5. running job count</span></pre>
             </div>
+            <p class="step-notice"><code>sinfo -t down,drain</code> does NOT surface nodes that are out of service due to a reservation — those show as <code>maint</code> only via <code>sinfo</code> default view or via <code>scontrol show reservation</code>. On this cluster, expect one active reservation (Lab 8 Scenario C).</p>
           </div>
         </div>
 
@@ -415,7 +422,7 @@ compute-st-t3small-4           idle     1920     2      compute*</pre></div>
           <div class="checkpoint-state"><strong>Before you run this</strong>You are logged in to the head node. You have run at least one <code>sinfo</code> and one <code>squeue</code> variant and read the output. No other action is required — the cluster state was pre-configured by Rajesh before the session.</div>
           <button class="copy-btn" onclick="copyCode(this)">copy</button>
           <pre>sinfo -h -o "%T %D" | awk '{sum[$1]+=$2} END {for (s in sum) print s, sum[s]}' | sort && echo "Lab 1 complete"</pre>
-          <div class="checkpoint-note">Expected: one line per node state showing the count of nodes in that state (e.g., <code>drained 1</code>, <code>idle 3</code>), followed by <code>Lab 1 complete</code>. The totals should add up to 4 nodes.</div>
+          <div class="checkpoint-note">Expected: one line per node state showing the count of nodes in that state (e.g., <code>idle 4</code>, <code>idle~ 1</code>, <code>maint 1</code>), followed by <code>Lab 1 complete</code>. The totals should add up to 6 nodes (4 in compute, 2 in debug).</div>
         </div>
       </div>
     </section>
@@ -443,27 +450,31 @@ compute-st-t3small-4           idle     1920     2      compute*</pre></div>
             <div class="expected-block">
               <div class="expected-label">Expected file content</div>
               <div class="expected-body"><pre>#!/bin/bash
+# ---------------------------------------------------------------------------
+# Lab 2: minimal "hello, SLURM" batch job.
+# ---------------------------------------------------------------------------
 #SBATCH --job-name=hello
-#SBATCH --output=~/jobs/hello-%j.out
-#SBATCH --error=~/jobs/hello-%j.err
 #SBATCH --partition=compute
 #SBATCH --time=00:05:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
+#SBATCH --output=/home/%u/jobs/hello-%j.out
+#SBATCH --error=/home/%u/jobs/hello-%j.err
 
-echo "=== Job started ==="
-echo "Job ID:       $SLURM_JOB_ID"
-echo "Job name:     $SLURM_JOB_NAME"
-echo "Running on:   $(hostname)"
-echo "Node list:    $SLURM_JOB_NODELIST"
-echo "Allocated CPUs: $SLURM_CPUS_PER_TASK"
-echo "Date:         $(date)"
-echo ""
-echo "Counting to 5:"
-for i in 1 2 3 4 5; do echo "  Step $i"; sleep 1; done
-echo "=== Job complete ==="</pre></div>
+echo "==== hello.sh ===="
+echo "Hostname        : $(hostname)"
+echo "Date            : $(date)"
+echo "SLURM_JOB_ID    : ${SLURM_JOB_ID}"
+echo "SLURM_JOB_NODELIST : ${SLURM_JOB_NODELIST}"
+echo "Working dir     : $(pwd)"
+echo "Counting 1..5..."
+for i in 1 2 3 4 5; do
+  echo "  hello tick ${i} at $(date +%T)"
+  sleep 1
+done
+echo "==== done ===="</pre></div>
             </div>
-            <p class="step-notice">The <code>%j</code> in the <code>--output</code> path is replaced by the actual job ID when the job runs. This ensures each job writes to its own file and older files are not overwritten.</p>
+            <p class="step-notice">The <code>%j</code> in the <code>--output</code> path is replaced by the actual job ID when the job runs. <code>%u</code> is replaced by the user name. The full pattern <code>/home/%u/jobs/hello-%j.out</code> resolves to e.g. <code>/home/chandra/jobs/hello-1.out</code> — visible from both head and compute nodes because <code>/home</code> is NFS-exported.</p>
           </div>
         </div>
 
@@ -495,12 +506,12 @@ echo "Submitted job ID: $JOBID"</span></pre>
             </div>
             <div class="expected-block">
               <div class="expected-label">Expected sequence</div>
-              <div class="expected-body"><pre>First appearance (PENDING on ParallelCluster — node may be powering on):
-  JOBID PARTITION  NAME  USER  ST  TIME  NODES  NODELIST(REASON)
-      1   compute hello chandra PD  0:00      1  (Resources)
+              <div class="expected-body"><pre>First appearance — usually goes straight to R on a static node:
+  JOBID PARTITION  NAME    USER ST  TIME NODES NODELIST(REASON)
+      1   compute hello chandra  R  0:05     1 compute-st-compute-nodes-1
 
-Then RUNNING:
-      1   compute hello chandra  R  0:05      1  compute-st-t3small-1
+If a dynamic node has to power on, you may briefly see:
+      1   compute hello chandra PD  0:00     1 (Configuration)
 
 Then gone (job completed — press Ctrl+C after confirming it disappears)</pre></div>
             </div>
@@ -524,21 +535,19 @@ Then gone (job completed — press Ctrl+C after confirming it disappears)</pre><
             </div>
             <div class="expected-block">
               <div class="expected-label">Expected output</div>
-              <div class="expected-body"><pre>=== Job started ===
-Job ID:       1
-Job name:     hello
-Running on:   compute-st-t3small-1
-Node list:    compute-st-t3small-1
-Allocated CPUs: 1
-Date:         Thu Jun 13 10:15:42 UTC 2026
-
-Counting to 5:
-  Step 1
-  Step 2
-  Step 3
-  Step 4
-  Step 5
-=== Job complete ===</pre></div>
+              <div class="expected-body"><pre>==== hello.sh ====
+Hostname        : compute-st-compute-nodes-1
+Date            : Sat Jun 14 01:30:11 UTC 2026
+SLURM_JOB_ID    : 1
+SLURM_JOB_NODELIST : compute-st-compute-nodes-1
+Working dir     : /tmp
+Counting 1..5...
+  hello tick 1 at 01:30:11
+  hello tick 2 at 01:30:12
+  hello tick 3 at 01:30:13
+  hello tick 4 at 01:30:14
+  hello tick 5 at 01:30:15
+==== done ====</pre></div>
             </div>
             <p class="step-notice">The hostname shown is a compute node name, not the head node. This confirms the job executed on the allocated compute resource, not where you submitted it from.</p>
           </div>
@@ -559,8 +568,8 @@ Counting to 5:
             </div>
             <div class="expected-block">
               <div class="expected-label">Expected output</div>
-              <div class="expected-body"><pre>1      COMPLETED      0:0   00:00:07   compute-st-t3small-1
-1.batch COMPLETED     0:0   00:00:07   compute-st-t3small-1</pre></div>
+              <div class="expected-body"><pre>1            COMPLETED      0:0   00:00:07 compute-st-compute-nodes-1
+1.batch      COMPLETED      0:0   00:00:07 compute-st-compute-nodes-1</pre></div>
             </div>
             <p class="step-notice">The <code>1.batch</code> row is the implicit batch step that wraps the job script. Both the job (1) and the step (1.batch) record COMPLETED with ExitCode 0:0 (signal 0, exit code 0 = clean exit).</p>
           </div>
@@ -603,9 +612,9 @@ Counting to 5:
               <div class="expected-label">Expected output</div>
               <div class="expected-body"><pre>salloc: Granted job allocation 5
 salloc: Waiting for resource configuration
-salloc: Nodes compute-st-t3small-1 are ready for job</pre></div>
+salloc: Nodes debug-st-debug-nodes-1 are ready for job</pre></div>
             </div>
-            <p class="step-notice">After salloc returns, you are still on the head node — but you hold an active allocation. Verify this by running <code>echo $SLURM_JOB_ID</code> — it should show your allocation's job ID. Running <code>squeue -u $USER</code> shows the job in RUNNING state.</p>
+            <p class="step-notice">After salloc returns, you are still on the head node — but you hold an active allocation. Verify this by running <code>echo $SLURM_JOB_ID</code> — it should show your allocation's job ID. Running <code>squeue -u $USER</code> shows the job in RUNNING state. (Debug partition has 2 always-on nodes, so allocation is near-instant.)</p>
           </div>
         </div>
 
@@ -621,7 +630,7 @@ salloc: Nodes compute-st-t3small-1 are ready for job</pre></div>
             <div class="expected-block">
               <div class="expected-label">Expected output</div>
               <div class="expected-body"><pre>Your shell prompt changes — you are now on the compute node:
-[chandra@compute-st-t3small-1 ~]$</pre></div>
+[chandra@debug-st-debug-nodes-1 ~]$</pre></div>
             </div>
             <p class="step-notice">You are now running a shell on a compute node. This is not an SSH session — it is a SLURM job step. Your resources are governed by the allocation you obtained with salloc. If you run resource-heavy commands here, they are within your allocation's limits.</p>
           </div>
@@ -643,9 +652,9 @@ salloc: Nodes compute-st-t3small-1 are ready for job</pre></div>
             </div>
             <div class="expected-block">
               <div class="expected-label">Expected output</div>
-              <div class="expected-body"><pre>compute-st-t3small-1
+              <div class="expected-body"><pre>debug-st-debug-nodes-1
 Job ID:    5
-Nodes:     compute-st-t3small-1
+Nodes:     debug-st-debug-nodes-1
 CPUs:      1
 Tasks:     1
 1</pre></div>
@@ -681,7 +690,7 @@ Tasks:     1
           <div class="checkpoint-state"><strong>Before you run this</strong>You have used <code>salloc</code> to obtain an interactive allocation, run at least one command on the compute node, and exited the session cleanly with <code>exit</code>. You should be back at the head node prompt — if an <code>salloc</code> shell is still open, exit it first or the checkpoint will consume your allocation.</div>
           <button class="copy-btn" onclick="copyCode(this)">copy</button>
           <pre>salloc --ntasks=1 --time=00:02:00 --partition=debug srun hostname && echo "Lab 3 complete"</pre>
-          <div class="checkpoint-note">Expected: a compute node hostname (not <code>ip-10-0-1-5</code> or similar head node name), followed by <code>Lab 3 complete</code>. This one-liner allocates, runs hostname on the compute node, and releases immediately.</div>
+          <div class="checkpoint-note">Expected: a compute node hostname (e.g. <code>debug-st-debug-nodes-1</code>, not <code>ip-172-31-…</code> which is the head node), followed by <code>Lab 3 complete</code>. This one-liner allocates, runs hostname on the compute node, and releases immediately.</div>
         </div>
       </div>
     </section>
@@ -715,13 +724,22 @@ echo "Submitted: $JOBID"</span></pre>
             </div>
             <div class="expected-block">
               <div class="expected-label">Expected in output file</div>
-              <div class="expected-body"><pre>Allocated CPUs (SLURM): 2
-CPUs visible to nproc:  2
-
-Environment for a 2-thread application:
-  OMP_NUM_THREADS would be: 2</pre></div>
+              <div class="expected-body"><pre>==== multi-cpu.sh ====
+Hostname             : compute-st-compute-nodes-1
+Date                 : Sat Jun 14 ...
+SLURM_JOB_ID         : 2
+SLURM_CPUS_PER_TASK  : 2
+SLURM_NTASKS         : 1
+OMP_NUM_THREADS (pre): unset
+OMP_NUM_THREADS (set): 2
+Launching 2 parallel workers...
+  worker 1 on compute-st-compute-nodes-1 pid=... at HH:MM:SS
+  worker 2 on compute-st-compute-nodes-1 pid=... at HH:MM:SS
+  worker 1 done
+  worker 2 done
+==== done ====</pre></div>
             </div>
-            <p class="step-notice"><code>nproc</code> sees exactly 2 CPUs because SLURM creates a cgroup that limits the job to its allocated CPUs. If you request 1 CPU but run 4 threads, the OS will still run them — but SLURM's accounting will flag this as a resource abuse in a production environment.</p>
+            <p class="step-notice">The script sets <code>OMP_NUM_THREADS</code> from <code>SLURM_CPUS_PER_TASK</code> and launches that many workers via <code>xargs -P</code>. SLURM creates a cgroup that limits the job to its allocated CPUs — if you request 1 CPU but run 4 threads, the OS will still run them, but SLURM's accounting will flag this as a resource abuse in a production environment.</p>
           </div>
         </div>
 
@@ -742,11 +760,21 @@ Environment for a 2-thread application:
             <p class="step-desc" style="margin-top:8px">The mem-test script shows available memory inside the job:</p>
             <div class="expected-block">
               <div class="expected-label">Expected in output file</div>
-              <div class="expected-body"><pre>Requested memory: 256M (from SLURM directive)
-Free memory on node: ~1600 MB (the node's total, not your limit)
-Your job's limit is enforced by cgroups — not visible in free -m.</pre></div>
+              <div class="expected-body"><pre>==== mem-test.sh ====
+Hostname        : compute-st-compute-nodes-1
+Date            : Sat Jun 14 ...
+SLURM_JOB_ID    : 3
+SLURM_MEM_PER_NODE : 256 (MB)
+-- /proc/meminfo (head) --
+MemTotal:        1991956 kB
+MemFree:         ...
+MemAvailable:    ...
+...
+Attempting to allocate ~256 MB in a bash array...
+allocated ~256 MB; pid=...
+==== done ====</pre></div>
             </div>
-            <p class="step-notice">Memory limits are enforced by cgroups, not by the values in <code>free</code>. The job sees the node's full memory in <code>free</code> output, but will be killed if it allocates more than 256 MB. Memory enforcement is per-job, not per-process-visibility.</p>
+            <p class="step-notice"><code>MemTotal</code> in <code>/proc/meminfo</code> shows the node's full ~1.9 GB — but cgroups will kill your job if it allocates more than the <code>--mem=256M</code> you requested. Memory enforcement is per-job, not per-process-visibility. If you do not set <code>--mem</code>, your job inherits the partition's <code>DefMemPerNode</code> default (unlimited on this lab cluster — but in production, expect a small default and OOM kills if you don't request enough).</p>
           </div>
         </div>
 
@@ -754,9 +782,9 @@ Your job's limit is enforced by cgroups — not visible in free -m.</pre></div>
           <span class="step-num">Ex 3 (Prompted)</span>
           <div>
             <p class="step-title">Submit an impossible resource request — observe pending reason</p>
-            <p class="step-desc">Submit a job requesting 999 GB of memory. Since no node has this much memory, it will wait in PENDING indefinitely. Read the reason and then cancel it.</p>
+            <p class="step-desc">Submit a job that asks for more nodes than the partition has. The <code>compute</code> partition only has 4 nodes — request 10. The job will sit PENDING indefinitely with REASON=<code>PartitionConfig</code>. Read the reason, then cancel it.</p>
             <div class="callout-amber">
-              <p><strong>Build this yourself.</strong> Use <code>sbatch --wrap</code> to submit an inline command without a script file. The <code>--wrap</code> flag takes a quoted command string as the job body. Request <code>--mem=999G</code>.</p>
+              <p><strong>Build this yourself.</strong> Use <code>sbatch --wrap</code> to submit an inline command without a script file. The <code>--wrap</code> flag takes a quoted command string as the job body. Request <code>--nodes=10</code>.</p>
             </div>
             <div class="code-block">
               <div class="code-label">Reference — reveal after trying</div>
@@ -765,16 +793,18 @@ Your job's limit is enforced by cgroups — not visible in free -m.</pre></div>
   --job-name=impossible \
   --partition=compute \
   --time=00:01:00 \
-  --mem=999G \
+  --nodes=10 \
+  --ntasks=10 \
   --wrap="echo this will never run")
 echo "Big job ID: $BIGJOB"
 squeue -j $BIGJOB -o "%.10i %.20j %.8T %R"</span></pre>
             </div>
             <div class="expected-block">
               <div class="expected-label">Expected squeue output</div>
-              <div class="expected-body"><pre>JOBID                 NAME     STATE REASON
- 8            impossible   PENDING Resources</pre></div>
+              <div class="expected-body"><pre>     JOBID                 NAME    STATE         REASON
+         8           impossible  PENDING  PartitionConfig</pre></div>
             </div>
+            <p class="step-notice" style="margin-top:10px">Why this scenario and not <code>--mem=999G</code>? Slurm hard-rejects memory requests beyond any node's RAM at submit time — the job never enters the queue. Asking for too many nodes lets the job ENTER the queue so you can diagnose it the same way you would in production.</p>
             <div class="code-block" style="margin-top:12px">
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
               <pre><span class="cmd">scancel $BIGJOB</span>                       <span class="cmt"># cancel the impossible job</span>
@@ -857,21 +887,28 @@ After timeout (check sacct after squeue shows job gone):
             <div class="expected-block">
               <div class="expected-label">Script content</div>
               <div class="expected-body"><pre>#!/bin/bash
+# ---------------------------------------------------------------------------
+# Lab 5: array job template.
+# ---------------------------------------------------------------------------
 #SBATCH --job-name=array-lab
-#SBATCH --output=~/jobs/array-%A_%a.out
+#SBATCH --array=1-4
 #SBATCH --partition=compute
 #SBATCH --time=00:05:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
+#SBATCH --output=/home/%u/jobs/array-lab-%A_%a.out
+#SBATCH --error=/home/%u/jobs/array-lab-%A_%a.err
 
-echo "Array job:  $SLURM_ARRAY_JOB_ID"
-echo "Task ID:    $SLURM_ARRAY_TASK_ID"
-echo "Running on: $(hostname)"
-echo "Date:       $(date)"
-sleep 15
-echo "Task $SLURM_ARRAY_TASK_ID complete"</pre></div>
+echo "==== array.sh ===="
+echo "Task ${SLURM_ARRAY_TASK_ID} running on $(hostname) at $(date)"
+echo "SLURM_ARRAY_JOB_ID   : ${SLURM_ARRAY_JOB_ID}"
+echo "SLURM_ARRAY_TASK_ID  : ${SLURM_ARRAY_TASK_ID}"
+echo "SLURM_JOB_ID         : ${SLURM_JOB_ID}"
+sleep 5
+echo "Task ${SLURM_ARRAY_TASK_ID} finished at $(date)"
+echo "==== done ===="</pre></div>
             </div>
-            <p class="step-notice">The output path <code>%A_%a</code> uses two special tokens: <code>%A</code> = the array job's master ID, <code>%a</code> = the individual task ID. This produces separate output files per task: <code>array-15_1.out</code>, <code>array-15_2.out</code>, etc.</p>
+            <p class="step-notice">The output path <code>%A_%a</code> uses two special tokens: <code>%A</code> = the array job's master ID, <code>%a</code> = the individual task ID. This produces separate output files per task: <code>array-lab-15_1.out</code>, <code>array-lab-15_2.out</code>, etc. Note: the script already has <code>--array=1-4</code> baked in, so you do not need to pass it on the sbatch command line (passing it again would override the script's directive).</p>
             <div class="code-block" style="margin-top:16px">
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
               <pre><span class="cmd">ARRAYJOB=$(sbatch --parsable --array=1-4 ~/jobs/array.sh)
@@ -947,15 +984,15 @@ squeue -u $USER -o "%.10i %.8T %.12R"</span></pre>
             <p class="step-desc">After the first array job completes, read the output for each task and confirm the task IDs match the files.</p>
             <div class="code-block">
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
-              <pre><span class="cmd">ls ~/jobs/array-${ARRAYJOB}_*.out</span>     <span class="cmt"># list all output files for this array</span>
-<span class="cmd">grep "Task ID" ~/jobs/array-${ARRAYJOB}_*.out</span>  <span class="cmt"># confirm each task's ID</span></pre>
+              <pre><span class="cmd">ls ~/jobs/array-lab-${ARRAYJOB}_*.out</span>     <span class="cmt"># list all output files for this array</span>
+<span class="cmd">grep "SLURM_ARRAY_TASK_ID" ~/jobs/array-lab-${ARRAYJOB}_*.out</span>  <span class="cmt"># confirm each task's ID</span></pre>
             </div>
             <div class="expected-block">
               <div class="expected-label">Expected output</div>
-              <div class="expected-body"><pre>~/jobs/array-15_1.out:Task ID:    1
-~/jobs/array-15_2.out:Task ID:    2
-~/jobs/array-15_3.out:Task ID:    3
-~/jobs/array-15_4.out:Task ID:    4</pre></div>
+              <div class="expected-body"><pre>/home/chandra/jobs/array-lab-15_1.out:SLURM_ARRAY_TASK_ID  : 1
+/home/chandra/jobs/array-lab-15_2.out:SLURM_ARRAY_TASK_ID  : 2
+/home/chandra/jobs/array-lab-15_3.out:SLURM_ARRAY_TASK_ID  : 3
+/home/chandra/jobs/array-lab-15_4.out:SLURM_ARRAY_TASK_ID  : 4</pre></div>
             </div>
           </div>
         </div>
@@ -1214,8 +1251,8 @@ Backfill sched: Scheduled:   8</pre></div>
             </div>
             <div class="expected-block">
               <div class="expected-label">Expected output — all cluster jobs</div>
-              <div class="expected-body"><pre>     JOBID           NAME       USER      STATE       TIME  TIME_LIMIT  NODES NODELIST(REASON)
-        29  monitor-job    chandra    RUNNING       0:42     1:00:00      1 compute-st-t3small-1</pre></div>
+              <div class="expected-body"><pre>     JOBID NAME            USER       STATE      TIME       TIME_LIMIT NODES NODELIST(REASON)
+        29 monitor-job     chandra    RUNNING    0:42       10:00      1     compute-st-compute-nodes-1</pre></div>
             </div>
           </div>
         </div>
@@ -1255,19 +1292,20 @@ Backfill sched: Scheduled:   8</pre></div>
             <p class="step-desc">A job has been submitted as user <code>chandra</code> that has been in PENDING state since before the lab started. Find it, read its pending reason, and diagnose the root cause without running any commands beyond squeue and scontrol.</p>
             <div class="code-block">
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
-              <pre><span class="cmd">squeue --all -u chandra -o "%.8i %-15j %.8T %.12R"</span>  <span class="cmt"># find all pending jobs</span></pre>
+              <pre><span class="cmd">squeue --all -u chandra -o "%.8i %-20j %.8T %.20R"</span>  <span class="cmt"># find all pending jobs</span></pre>
             </div>
             <div class="expected-block">
               <div class="expected-label">Expected output</div>
-              <div class="expected-body"><pre>JOBID            NAME    STATE         REASON
-   30       impossible  PENDING      Resources</pre></div>
+              <div class="expected-body"><pre>   JOBID NAME                  STATE               REASON
+       1 scenA-toomanynodes  PENDING      PartitionConfig</pre></div>
             </div>
             <div class="code-block" style="margin-top:12px">
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
-              <pre><span class="cmd">scontrol show job 30</span>                  <span class="cmt"># read ReqMem field</span></pre>
+              <pre><span class="cmd">scontrol show job 1</span>                  <span class="cmt"># read NumNodes / NumTasks fields</span></pre>
             </div>
+            <p class="step-notice" style="margin-top:10px">Look for <code>NumNodes=10-10 NumCPUs=10 NumTasks=10</code> — the job is asking for 10 nodes, but the <code>compute</code> partition only has 4 (2 static + 2 dynamic). <code>PartitionConfig</code> is Slurm's way of saying "the partition is too small to ever satisfy this".</p>
             <div class="callout-amber" style="margin-top:16px">
-              <p><strong>Diagnosis exercise.</strong> After running these commands, answer: What resource is this job requesting that no node can provide? What would you tell the user? What command would you run to cancel it, and would you cancel it without telling the user first?</p>
+              <p><strong>Diagnosis exercise.</strong> After running these commands, answer: What is this job requesting that the partition cannot provide? What would you tell the user? What command would you run to cancel it, and would you cancel it without telling the user first? (Production answer: never silently cancel; always notify and confirm.)</p>
             </div>
           </div>
         </div>
@@ -1285,17 +1323,17 @@ Backfill sched: Scheduled:   8</pre></div>
             </div>
             <div class="expected-block">
               <div class="expected-label">Expected output</div>
-              <div class="expected-body"><pre>31  timeout-scenario  TIMEOUT    0:15  00:01:05    00:01:00
-31.batch  timeout-scenario  TIMEOUT  0:15  00:01:05    00:01:00</pre></div>
+              <div class="expected-body"><pre>JobID         JobName           State    ExitCode    Elapsed   TimeLimit
+2             scenB-timeout     TIMEOUT       0:0  00:01:20    00:01:00
+2.batch       batch             CANCELLED   0:15  00:01:20    00:01:00</pre></div>
             </div>
             <div class="code-block" style="margin-top:12px">
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
-              <pre><span class="cmd">ls /shared/lab/outputs/scenario-b-*.out 2>/dev/null || \
-ls /home/sujith/jobs/timeout-scenario-*.out 2>/dev/null</span>
-<span class="cmd">cat &lt;path-to-output-file&gt;</span>            <span class="cmt"># read what the job produced</span></pre>
+              <pre><span class="cmd">sudo ls /home/sujith/scenB-*.out 2>/dev/null</span>
+<span class="cmd">sudo cat /home/sujith/scenB-2.out</span>      <span class="cmt"># replace 2 with the JobID</span></pre>
             </div>
             <div class="callout-amber" style="margin-top:16px">
-              <p><strong>Diagnosis exercise.</strong> What does ExitCode 0:15 mean? (Format is signal:exitcode — signal 15 is SIGTERM, which SLURM sends at the time limit.) What would you tell the user about why the job failed? What information do you need from them to help fix it?</p>
+              <p><strong>Diagnosis exercise.</strong> The job row reports <code>State=TIMEOUT</code> with <code>ExitCode=0:0</code>, while the <code>.batch</code> step row reports <code>CANCELLED</code> with <code>ExitCode=0:15</code>. Format is <code>exitcode:signal</code> — signal 15 is SIGTERM, which SLURM sends at the wall-time limit to terminate the step. The job's overall state is TIMEOUT (Slurm hit its <code>--time</code> limit); the step was killed by SIGTERM. What would you tell the user about why the job failed? What information do you need from them to help fix it?</p>
             </div>
           </div>
         </div>
@@ -1303,28 +1341,37 @@ ls /home/sujith/jobs/timeout-scenario-*.out 2>/dev/null</span>
         <div class="step">
           <span class="step-num">Scenario C</span>
           <div>
-            <p class="step-title">Find the drained node — read the reason and write the recovery command</p>
-            <p class="step-desc">From Lab 1, you saw that <code>compute-st-t3small-2</code> is drained. Read the full node record to find the admin reason, and write (but do not run) the command that would resume it.</p>
-            <div class="code-block">
+            <p class="step-title">Find the node out of service — read the reservation and write the recovery command</p>
+            <p class="step-desc">From Lab 1, you saw that <code>compute-dy-compute-nodes-1</code> shows <code>maint</code> in <code>sinfo</code>. That state comes from an active maintenance reservation, NOT a drain. Find the reservation, read its details, and write (but do not run) the command that would lift it.</p>
+            <div class="callout-teal" style="margin-top:8px">
+              <p><strong>Why a reservation and not a drain?</strong> AWS ParallelCluster's <code>clustermgtd</code> daemon actively monitors node state and reverts <code>scontrol update State=DRAIN</code> within ~60 seconds (it treats DRAIN as "node is unhealthy, replace it"). A Slurm reservation is a higher-level construct that <code>clustermgtd</code> does not touch — the right tool when you need to take a node out of scheduling on a PC cluster.</p>
+            </div>
+            <div class="code-block" style="margin-top:12px">
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
-              <pre><span class="cmd">scontrol show node compute-st-t3small-2</span>   <span class="cmt"># read State and Reason fields</span></pre>
+              <pre><span class="cmd">scontrol show reservation</span>                <span class="cmt"># list all active reservations</span></pre>
             </div>
             <div class="expected-block">
-              <div class="expected-label">Expected — key fields in output</div>
-              <div class="expected-body"><pre>NodeName=compute-st-t3small-2
-   ...
-   State=DRAINED
-   Reason=Lab scenario - drain test [slurm@2026-06-13T09:00:00]</pre></div>
+              <div class="expected-label">Expected — the lab-maintenance reservation</div>
+              <div class="expected-body"><pre>ReservationName=lab-maintenance StartTime=2026-06-14T01:27:58 EndTime=2026-06-14T05:27:58 Duration=04:00:00
+   Nodes=compute-dy-compute-nodes-1 NodeCnt=1 CoreCnt=2 Features=(null) PartitionName=(null) Flags=MAINT,IGNORE_JOBS,SPEC_NODES
+   TRES=cpu=2
+   Users=root Groups=(null) Accounts=(null) Licenses=(null) State=ACTIVE BurstBuffer=(null)</pre></div>
+            </div>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sinfo -T</span>                                <span class="cmt"># tabular view of reservations + nodes</span>
+<span class="cmd">scontrol show node compute-dy-compute-nodes-1 | grep -E "State|Partitions"</span></pre>
             </div>
             <div class="callout-amber" style="margin-top:16px">
-              <p><strong>Write the resume command.</strong> What is the <code>scontrol update</code> command that would bring this node back to service? Write it in your terminal (but do not press Enter). Show Rajesh your answer. He will run it to verify it is correct.</p>
+              <p><strong>Write the recovery command.</strong> What is the <code>scontrol</code> command that would delete this reservation and return the node to service? Write it in your terminal (but do not press Enter). Show Rajesh your answer. He will run it (it needs sudo) to verify it is correct.</p>
             </div>
             <div class="code-block" style="margin-top:12px">
               <div class="code-label">The command you should have written</div>
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
               <pre><span class="cmt"># Do not run this — trainer will verify and run</span>
-<span class="cmd">scontrol update NodeName=compute-st-t3small-2 State=resume</span></pre>
+<span class="cmd">sudo scontrol delete ReservationName=lab-maintenance</span></pre>
             </div>
+            <p class="step-notice" style="margin-top:10px">For a traditional non-PC cluster the equivalent <em>drain</em> recovery would be <code>sudo scontrol update NodeName=&lt;node&gt; State=resume</code> — that command is in the Reference Card at the bottom of the runbook for completeness.</p>
           </div>
         </div>
 
@@ -1332,22 +1379,27 @@ ls /home/sujith/jobs/timeout-scenario-*.out 2>/dev/null</span>
           <span class="step-num">Scenario D</span>
           <div>
             <p class="step-title">Find and clean up DependencyNeverSatisfied jobs</p>
-            <p class="step-desc">A pre-submitted array job had task 2 fail with exit code 1. Tasks 3 and 4 were submitted with <code>afterok</code> dependency on task 2 — they are now stuck in <code>DependencyNeverSatisfied</code>. Find them and cancel them with a single command.</p>
+            <p class="step-desc">A pre-submitted 4-task array job ran as user <code>yogaraj</code>; task 2 failed with exit code 1 (tasks 1, 3, and 4 completed normally). A separate dependent job — <code>chain-step3-notok</code> — was submitted with <code>--dependency=afterok:&lt;array&gt;_2</code>. Because task 2 failed, that dependent is now stuck in <code>DependencyNeverSatisfied</code>. Find it, then cancel it with a single command.</p>
             <div class="code-block">
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
-              <pre><span class="cmd">squeue --all -o "%.8i %-20j %.8T %.30R" | grep -i dependency</span></pre>
+              <pre><span class="cmd">squeue --all -o "%.8i %-20j %.10u %.8T %.30R" | grep -i dependency</span></pre>
             </div>
             <div class="expected-block">
               <div class="expected-label">Expected output</div>
-              <div class="expected-body"><pre>   32_3  scenario-d-array  PENDING  DependencyNeverSatisfied
-   32_4  scenario-d-array  PENDING  DependencyNeverSatisfied</pre></div>
+              <div class="expected-body"><pre>   JOBID NAME                  USER       STATE   REASON
+       5 chain-step3-notok     yogaraj  PENDING DependencyNeverSatisfied</pre></div>
             </div>
             <div class="code-block" style="margin-top:12px">
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
-              <pre><span class="cmd">scancel 32</span>                           <span class="cmt"># cancel the entire array (all remaining tasks)</span>
-<span class="cmd">squeue --all | grep scenario-d</span>       <span class="cmt"># confirm they are gone</span></pre>
+              <pre><span class="cmd">scontrol show job 5 | grep -E "JobState|Reason|Dependency"</span>   <span class="cmt"># confirm the upstream</span>
+<span class="cmd">sacct -j &lt;array-job-id&gt; --format=JobID,State,ExitCode -n</span>     <span class="cmt"># see task 2 FAILED 1:0</span></pre>
             </div>
-            <p class="step-notice">In production, before cancelling stuck dependent jobs, always check what the upstream failure was. The user may need to be notified that their pipeline stopped at step 2 and all downstream steps need to be resubmitted from that point.</p>
+            <div class="code-block" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo scancel 5</span>                       <span class="cmt"># cancel the stuck dependent (yogaraj's group has sudo for scancel)</span>
+<span class="cmd">squeue -u yogaraj</span>                    <span class="cmt"># confirm it is gone</span></pre>
+            </div>
+            <p class="step-notice">In production, before cancelling stuck dependent jobs, always check what the upstream failure was — that is what <code>scontrol show job &lt;dependent&gt;</code> and <code>sacct -j &lt;upstream&gt;</code> tell you. The user may need to be notified that their pipeline stopped at task 2 and the downstream work needs to be resubmitted from that point (or use <code>afterany</code> if downstream should run regardless of success).</p>
           </div>
         </div>
 
@@ -1357,18 +1409,19 @@ ls /home/sujith/jobs/timeout-scenario-*.out 2>/dev/null</span>
             <p class="step-title">Write the five-command morning health check from memory</p>
             <p class="step-desc">Without looking at Lab 1 or the lecture slides, write the four-command morning health check sequence. Add a fifth command: use sacct to check whether any jobs failed in the last 24 hours.</p>
             <div class="callout-amber">
-              <p><strong>From memory.</strong> The five commands cover: (1) partition overview, (2) unavailable nodes, (3) pending job count, (4) running job count, (5) failures in the last 24 hours. Write them in order before revealing.</p>
+              <p><strong>From memory.</strong> The six commands cover: (1) partition overview, (2) unavailable nodes, (3) active reservations, (4) pending job count, (5) running job count, (6) failures in the last 24 hours. Write them in order before revealing.</p>
             </div>
             <div class="code-block">
               <div class="code-label">Reference — reveal after writing from memory</div>
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
               <pre><span class="cmd">sinfo</span>                                        <span class="cmt"># 1. partition overview</span>
-<span class="cmd">sinfo -t down,drain</span>                          <span class="cmt"># 2. unavailable nodes</span>
-<span class="cmd">squeue --states=PENDING --noheader | wc -l</span>   <span class="cmt"># 3. pending count</span>
-<span class="cmd">squeue --states=RUNNING --noheader | wc -l</span>   <span class="cmt"># 4. running count</span>
+<span class="cmd">sinfo -t down,drain</span>                          <span class="cmt"># 2. unavailable nodes (DRAIN/DOWN)</span>
+<span class="cmd">scontrol show reservation</span>                    <span class="cmt"># 3. active reservations (MAINT, etc.)</span>
+<span class="cmd">squeue --states=PENDING --noheader | wc -l</span>   <span class="cmt"># 4. pending count</span>
+<span class="cmd">squeue --states=RUNNING --noheader | wc -l</span>   <span class="cmt"># 5. running count</span>
 <span class="cmd">sacct --all --state=FAILED \
   --starttime="$(date -d '24 hours ago' +%Y-%m-%dT%H:%M:%S)" \
-  --format=JobID,User,JobName,State,ExitCode -n</span>  <span class="cmt"># 5. recent failures</span></pre>
+  --format=JobID,User,JobName,State,ExitCode -n</span>  <span class="cmt"># 6. recent failures</span></pre>
             </div>
           </div>
         </div>
@@ -1378,14 +1431,14 @@ ls /home/sujith/jobs/timeout-scenario-*.out 2>/dev/null</span>
       <div class="checkpoint-block">
         <div class="checkpoint-header">Checkpoint — Lab 8 <span>Final lab · type done in chat when this passes</span></div>
         <div class="checkpoint-body">
-          <div class="checkpoint-state"><strong>Before you run this</strong>You have diagnosed all four trainer-deployed scenarios: identified the over-requested memory job (A), found the TIMEOUT'd job and its output (B), identified the drained node and its reason (C), and located the DependencyNeverSatisfied tasks from the failed array (D). Any PENDING jobs that will never run — particularly the stuck dependency tasks from Scenario D — must be cancelled with <code>scancel</code> before running the checkpoint. Your queue must be clean.</div>
+          <div class="checkpoint-state"><strong>Before you run this</strong>You have diagnosed all four trainer-deployed scenarios: identified the over-requested-nodes job (A), found the TIMEOUT'd job and its output (B), identified the maintenance reservation and its target node (C), and located the DependencyNeverSatisfied job left over from the failed upstream array task (D). Any PENDING job that will never run — particularly the stuck dependency job from Scenario D — should already have been cancelled with <code>scancel</code>. Your queue should be clean.</div>
           <button class="copy-btn" onclick="copyCode(this)">copy</button>
-          <pre>squeue -u $USER --noheader | wc -l && sinfo -t drain --noheader | wc -l && sacct --all --state=FAILED,TIMEOUT --starttime=today -n | wc -l && echo "Lab 8 complete"</pre>
+          <pre>squeue -u $USER --noheader | wc -l && scontrol show reservation 2>/dev/null | grep -c ReservationName && sacct --all --state=FAILED,TIMEOUT --starttime=today -n | wc -l && echo "Lab 8 complete"</pre>
           <div class="checkpoint-note">
             Expected three numbers then <code>Lab 8 complete</code>:<br>
-            Line 1: 0 (your queue is clean — you cancelled the DependencyNeverSatisfied jobs)<br>
-            Line 2: 1 (the drained node from Scenario C — trainer will resume it)<br>
-            Line 3: a number ≥ 2 (the TIMEOUT and FAILED jobs from scenarios B and D)<br><br>
+            Line 1: 0 (your queue is clean — you cancelled the DependencyNeverSatisfied job)<br>
+            Line 2: 1 (the <code>lab-maintenance</code> reservation from Scenario C — trainer will delete it)<br>
+            Line 3: a number ≥ 2 (the TIMEOUT from Scenario B and the FAILED array task from Scenario D, plus anything else from earlier labs)<br><br>
             <strong>This is the final lab of the SLURM Workload Management module.</strong> Labs 1–8 have taken you from reading cluster state to diagnosing multi-stage failures. The operational patterns from these eight sections — inspect, submit, monitor, control, account, troubleshoot — are the daily rhythm of HPC cluster operations.
           </div>
         </div>
@@ -1429,7 +1482,7 @@ ls /home/sujith/jobs/timeout-scenario-*.out 2>/dev/null</span>
         </div>
         <div class="quickref-row">
           <span class="quickref-k">Lab 8</span>
-          <span class="quickref-v">squeue -u $USER --noheader | wc -l && sinfo -t drain --noheader | wc -l && sacct --all --state=FAILED,TIMEOUT --starttime=today -n | wc -l && echo "Lab 8 complete"</span>
+          <span class="quickref-v">squeue -u $USER --noheader | wc -l && scontrol show reservation 2>/dev/null | grep -c ReservationName && sacct --all --state=FAILED,TIMEOUT --starttime=today -n | wc -l && echo "Lab 8 complete"</span>
         </div>
       </div>
 
@@ -1437,7 +1490,7 @@ ls /home/sujith/jobs/timeout-scenario-*.out 2>/dev/null</span>
         <div class="quickref-header">Essential Commands — Reference Card</div>
         <div class="quickref-row">
           <span class="quickref-k">Cluster state</span>
-          <span class="quickref-v">sinfo · sinfo -N · sinfo -t down,drain</span>
+          <span class="quickref-v">sinfo · sinfo -N · sinfo -t down,drain · sinfo -T</span>
         </div>
         <div class="quickref-row">
           <span class="quickref-k">Node detail</span>
@@ -1486,6 +1539,10 @@ ls /home/sujith/jobs/timeout-scenario-*.out 2>/dev/null</span>
         <div class="quickref-row">
           <span class="quickref-k">Node resume</span>
           <span class="quickref-v">scontrol update NodeName=NODE State=resume</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Reservations</span>
+          <span class="quickref-v">scontrol show reservation · scontrol create reservation ReservationName=NAME user=root nodes=NODE starttime=now duration=4:00:00 flags=MAINT,IGNORE_JOBS · scontrol delete ReservationName=NAME</span>
         </div>
         <div class="quickref-row">
           <span class="quickref-k">Scheduler health</span>
