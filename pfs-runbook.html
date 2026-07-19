@@ -620,7 +620,7 @@
   </div>
 
   <div class="hero">
-    <p class="hero-eyebrow">Module M5 · Lab Runbook · v2.2</p>
+    <p class="hero-eyebrow">Module M5 · Lab Runbook · v2.3 (post-pilot)</p>
     <h1 class="hero-title">
       Parallel Filesystem<br>
       <em>Operations Lab</em>
@@ -628,7 +628,7 @@
     <div class="hero-meta">
       <div class="hero-meta-item">
         <span class="hero-meta-k">Filesystem</span>
-        <span class="hero-meta-v">AWS FSx for Lustre · 1.2TB · 2 OSTs</span>
+        <span class="hero-meta-v">AWS FSx for Lustre · 2.4TB · 2 OSTs</span>
       </div>
       <div class="hero-meta-item">
         <span class="hero-meta-k">Cluster</span>
@@ -636,7 +636,7 @@
       </div>
       <div class="hero-meta-item">
         <span class="hero-meta-k">Learners</span>
-        <span class="hero-meta-v">arjun · chandra</span>
+        <span class="hero-meta-v">yogi · sujith · chandra</span>
       </div>
       <div class="hero-meta-item">
         <span class="hero-meta-k">Duration</span>
@@ -644,7 +644,7 @@
       </div>
       <div class="hero-meta-item">
         <span class="hero-meta-k">Cost</span>
-        <span class="hero-meta-v">~$0.35/hr · ~$0.71 total</span>
+        <span class="hero-meta-v">~$0.59/hr · ~$0.74 total</span>
       </div>
     </div>
   </div>
@@ -668,6 +668,7 @@
       <a href="#part3" class="side-nav-item">3 · Stripe Diagnosis</a>
       <a href="#part4" class="side-nav-item">4 · Stripe Fix</a>
       <a href="#part5" class="side-nav-item">5 · Space Awareness</a>
+      <a href="#part6" class="side-nav-item">6 · Quotas</a>
       <div class="side-nav-divider"></div>
       <a href="#completion" class="side-nav-item">Completion Criteria</a>
       <a href="#interventions" class="side-nav-item">Interventions</a>
@@ -699,7 +700,7 @@
         </div>
         <div class="access-row">
           <span class="access-k">Usernames</span>
-          <span class="access-v">arjun · chandra</span>
+          <span class="access-v">yogi · sujith · chandra</span>
         </div>
       </div>
 
@@ -721,12 +722,12 @@
 
       <div class="code-block">
         <div class="code-label">Connect</div>
-        <pre><span class="cmd">ssh arjun@mylab.hpc.now</span>
+        <pre><span class="cmd">ssh yogi@mylab.hpc.now</span>
 <span class="cmt"># Password: hpcnow2026</span>
 <span class="cmt"># Accept the new host key when prompted — type: yes</span></pre>
       </div>
 
-      <p class="prose" style="margin-top:20px">Both learners connect simultaneously. Each works in their own directory under <code>/fsx/scratch/$USER/</code>. No coordination needed to start.</p>
+      <p class="prose" style="margin-top:20px">All three learners connect simultaneously. Each works in their own directory under <code>/fsx/scratch/$USER/</code>. No coordination needed to start.</p>
     </section>
 
     <!-- ── CLUSTER ORIENTATION ── -->
@@ -748,9 +749,9 @@
         <pre><span class="cmd">sinfo -N -l</span>
 <span class="cmt"># You will see two compute nodes — both idle, both On-Demand static</span>
 <span class="cmt"># Node names follow the ParallelCluster st- (static) naming convention</span>
-<span class="out">NODELIST                     NODES PARTITION       STATE CPUS  MEMORY
-hpcnow-lab-st-t3medium-1         1   compute        idle    2    3886
-hpcnow-lab-st-t3medium-2         1   compute        idle    2    3886</span></pre>
+<span class="out">NODELIST                  NODES PARTITION       STATE CPUS  MEMORY
+compute-st-t3medium-1         1   compute        idle    2    3886
+compute-st-t3medium-2         1   compute        idle    2    3886</span></pre>
       </div>
 
       <div class="code-block">
@@ -763,7 +764,8 @@ hpcnow-lab-st-t3medium-2         1   compute        idle    2    3886</span></pr
         <div class="code-label">What filesystems are mounted</div>
         <pre><span class="cmd">df -h</span>
 <span class="cmt"># You will see /fsx mounted — this is the FSx for Lustre filesystem</span>
-<span class="cmt"># You will also see /home mounted — this is NFS from the head node</span></pre>
+<span class="cmt"># On the head node, /home lives on the root filesystem (xfs) — the head node</span>
+<span class="cmt"># is the NFS server, and compute nodes mount /home from it.</span></pre>
       </div>
 
       <div class="code-block">
@@ -775,12 +777,10 @@ hpcnow-lab-st-t3medium-2         1   compute        idle    2    3886</span></pr
       </div>
 
       <div class="callout-teal">
-        <p><strong>What you now know:</strong> two compute nodes, one partition, two filesystem types — NFS for home, Lustre for scratch. The lab works entirely on the Lustre filesystem at <code>/fsx</code>. Everything you are about to do maps directly onto slides 3 through 22.</p>
+        <p><strong>What you now know:</strong> two compute nodes, one partition, two filesystem types — NFS for home (visible from compute nodes), Lustre for scratch. The lab works entirely on the Lustre filesystem at <code>/fsx</code>. Everything you are about to do maps directly onto slides 3 through 22.</p>
       </div>
 
       <!-- Learner group table -->
-
-
       <table class="learner-table">
         <thead>
           <tr>
@@ -793,8 +793,15 @@ hpcnow-lab-st-t3medium-2         1   compute        idle    2    3886</span></pr
         </thead>
         <tbody>
           <tr>
-            <td>Arjun</td>
-            <td class="mono">arjun</td>
+            <td>Yogi</td>
+            <td class="mono">yogi</td>
+            <td class="group-a-cell">Group A</td>
+            <td class="mono">eng_dept</td>
+            <td class="mono">1001</td>
+          </tr>
+          <tr>
+            <td>Sujith</td>
+            <td class="mono">sujith</td>
             <td class="group-a-cell">Group A</td>
             <td class="mono">eng_dept</td>
             <td class="mono">1001</td>
@@ -808,6 +815,8 @@ hpcnow-lab-st-t3medium-2         1   compute        idle    2    3886</span></pr
           </tr>
         </tbody>
       </table>
+
+      <p class="prose">Group A has two members (Yogi and Sujith) sharing <code>eng_dept</code> and project <code>1001</code>. The group-quota exercise in Part 6 will show real contention between them — pay attention to how a group quota behaves when two users share it.</p>
     </section>
 
     <!-- ══ PART 1 ══ -->
@@ -829,20 +838,33 @@ hpcnow-lab-st-t3medium-2         1   compute        idle    2    3886</span></pr
           <span class="step-num">1.1</span>
           <div class="step-body">
             <p class="step-title">Confirm filesystem type per zone</p>
-            <p class="step-desc">Run <code>df -T</code> against all four zones simultaneously. The <code>-T</code> flag shows filesystem type — this is what distinguishes Lustre from NFS at a glance.</p>
+            <p class="step-desc">Run <code>df -T</code> to see filesystem types. The <code>-T</code> flag distinguishes Lustre from NFS at a glance. Two runs — one from the head node, one from a compute node — will show you where the NFS zone actually lives.</p>
             <div class="code-block">
-              <div class="code-label">Command</div>
-              <pre><span class="cmd">df -T /fsx/scratch/$USER /home/$USER /fsx/project/$USER</span></pre>
+              <div class="code-label">Command — on the head node</div>
+              <pre><span class="cmd">df -T /fsx/scratch/$USER /home/$USER 2>/dev/null</span></pre>
             </div>
             <div class="code-block">
-              <div class="code-label">What you will see</div>
-              <pre><span class="out">Filesystem     Type     1K-blocks      Used Available Use% Mounted on
-10.x.x.x@tcp  lustre  1258291200   8192000  1250099200   1% /fsx
-10.x.x.x:/    nfs      52428800   2097152   50331648   4% /home</span>
+              <div class="code-label">What you will see on the head node</div>
+              <pre><span class="out">Filesystem            Type       1K-blocks     Used  Available Use% Mounted on
+10.x.x.x@tcp:/xxxxxxxx lustre    2306867200    16000 2306850000   1% /fsx
+/dev/nvme0n1p1         xfs         46856196 24000000   22600000  52% /</span>
 <span class="cmt"># /fsx — Type: lustre. This is the parallel filesystem.</span>
-<span class="cmt"># /home — Type: nfs. This is NFS from the head node.</span></pre>
+<span class="cmt"># /home/$USER — the ROOT filesystem row (xfs). On the head node, /home lives</span>
+<span class="cmt">#               on local disk — the head node is the NFS *server*, not a client.</span></pre>
             </div>
-            <p class="step-notice">Record the filesystem type for each zone. Lustre and NFS have different performance characteristics, different backup policies, and different quota models. The type is the first thing you confirm.</p>
+            <div class="code-block">
+              <div class="code-label">Command — from a compute node (via srun)</div>
+              <pre><span class="cmd">srun -N1 --pty df -T /fsx/scratch/$USER /home/$USER</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">What you will see on the compute node</div>
+              <pre><span class="out">Filesystem            Type       1K-blocks     Used  Available Use% Mounted on
+10.x.x.x@tcp:/xxxxxxxx lustre    2306867200    16000 2306850000   1% /fsx
+10.x.x.x:/home         nfs         46856196    32000   46824196   1% /home</span>
+<span class="cmt"># From here /home appears as its own row — Type: nfs — because compute nodes</span>
+<span class="cmt"># are NFS *clients* of the head node. This is what a learner-facing node sees.</span></pre>
+            </div>
+            <p class="step-notice">Record the filesystem type for each zone. Lustre and NFS have different performance characteristics, different backup policies, and different quota models. Where you run <code>df -T</code> from matters — the head node hides the NFS-ness of /home because it's the server.</p>
           </div>
         </div>
 
@@ -855,7 +877,7 @@ hpcnow-lab-st-t3medium-2         1   compute        idle    2    3886</span></pr
                 <tr><th>Zone</th><th>Mount path</th><th>Filesystem type</th><th>Backed up?</th></tr>
               </thead>
               <tbody>
-                <tr><td class="field-name">Home</td><td><code>/home/$USER</code></td><td><span class="record-blank"></span></td><td><span class="record-blank"></span></td></tr>
+                <tr><td class="field-name">Home (from compute)</td><td><code>/home/$USER</code></td><td><span class="record-blank"></span></td><td><span class="record-blank"></span></td></tr>
                 <tr><td class="field-name">Scratch</td><td><code>/fsx/scratch/$USER</code></td><td><span class="record-blank"></span></td><td><span class="record-blank"></span></td></tr>
                 <tr><td class="field-name">Project</td><td><code>/fsx/project/$USER</code></td><td><span class="record-blank"></span></td><td><span class="record-blank"></span></td></tr>
               </tbody>
@@ -890,16 +912,19 @@ hpcnow-lab-st-t3medium-2         1   compute        idle    2    3886</span></pr
             <p class="step-desc">Lists all Lustre client devices and their current state. On FSx the MGS and MDS are managed by AWS — you will not see them listed. What you do see are the OSC (Object Storage Client) connections to each OST.</p>
             <div class="code-block">
               <div class="code-label">Command</div>
-              <pre><span class="cmd">lctl dl</span></pre>
+              <pre><span class="cmd">sudo lctl dl</span></pre>
             </div>
             <div class="code-block">
               <div class="code-label">What to look for</div>
               <pre><span class="out">  0 UP mgc MGC10.x.x.x@tcp ...    <span class="cmt">← config client — UP is healthy</span>
-  1 UP osc fsxtest-OST0000... <span class="ok">ACTIVE</span>  <span class="cmt">← OST 0 client — ACTIVE is healthy</span>
-  2 UP osc fsxtest-OST0001... <span class="ok">ACTIVE</span>  <span class="cmt">← OST 1 client — ACTIVE is healthy</span></span>
+  1 UP lov ...
+  2 UP lmv ...
+  3 UP mdc ...-MDT0000-mdc-... <span class="ok">UP</span>       <span class="cmt">← metadata client — UP is healthy</span>
+  4 UP osc ...-OST0000-osc-... <span class="ok">UP</span>       <span class="cmt">← OST 0 client — UP is healthy</span>
+  5 UP osc ...-OST0001-osc-... <span class="ok">UP</span>       <span class="cmt">← OST 1 client — UP is healthy</span></span>
 <span class="warn">  # If you see INACTIVE or RECOVERING — note it and tell Rajesh immediately</span></pre>
             </div>
-            <p class="step-notice">RECOVERING looks like a temporary state. It is not always temporary. Note any non-ACTIVE state before proceeding.</p>
+            <p class="step-notice">RECOVERING looks like a temporary state. It is not always temporary. Note any non-UP state before proceeding.</p>
           </div>
         </div>
 
@@ -914,11 +939,14 @@ hpcnow-lab-st-t3medium-2         1   compute        idle    2    3886</span></pr
             </div>
             <div class="code-block">
               <div class="code-label">What to look for</div>
-              <pre><span class="out">UUID                   bytes        Used   Available Use% Mounted on
-fsxtest-OST0000_UUID   600.0G       4.0G     596.0G   1% /fsx[OST:0]
-fsxtest-OST0001_UUID   600.0G       4.0G     596.0G   1% /fsx[OST:1]
-filesystem_summary:    1.2T         8.0G       1.2T   1% /fsx</span>
-<span class="cmt"># Two OST rows — one per target</span>
+              <pre><span class="out">UUID                       bytes        Used   Available Use% Mounted on
+xxxxxxxx-MDT0000_UUID       68.7G        9.0M       68.7G   1% /fsx[MDT:0]
+xxxxxxxx-OST0000_UUID        1.1T        7.8M        1.1T   1% /fsx[OST:0]
+xxxxxxxx-OST0001_UUID        1.1T        7.8M        1.1T   1% /fsx[OST:1]
+
+filesystem_summary:          2.2T       15.5M        2.2T   1% /fsx</span>
+<span class="cmt"># Two OST rows — one per target. Each ~1.1 TiB usable.</span>
+<span class="cmt"># Aggregate ~2.2 TiB — provisioned 2400 GiB, usable is a bit less after overhead.</span>
 <span class="cmt"># Compare OST-level fill against the aggregate — are they balanced?</span></pre>
             </div>
             <p class="step-notice">Slide 11 — The aggregate showed 70% and everything looked fine. One OST was at 98%. This is where that slide becomes real. Read per-OST, not just the summary.</p>
@@ -932,7 +960,7 @@ filesystem_summary:    1.2T         8.0G       1.2T   1% /fsx</span>
             <p class="step-desc">Returns the Network Interface Descriptor of this node — the address LNet uses for all Lustre traffic. On FSx the transport is EFA (Elastic Fabric Adapter). On-prem this would show InfiniBand (@o2ib) or TCP (@tcp).</p>
             <div class="code-block">
               <div class="code-label">Command</div>
-              <pre><span class="cmd">lctl list_nids</span></pre>
+              <pre><span class="cmd">sudo lctl list_nids</span></pre>
             </div>
             <div class="code-block">
               <div class="code-label">What you will see</div>
@@ -981,7 +1009,7 @@ filesystem_summary:    1.2T         8.0G       1.2T   1% /fsx</span>
       </div>
 
       <div class="callout-amber">
-        <p><strong>Note on stripe_count on this cluster.</strong> This lab has 2 OSTs. When you run <code>lfs setstripe -c 4</code> in Part 4, Lustre will silently cap the stripe count at 2 — the number of available OSTs. <code>lfs getstripe</code> will show <code>stripe_count: 2</code>, not 4. This is correct behaviour. On a production cluster with 900 OSTs, <code>-c 4</code> would stripe across 4 distinct OSTs.</p>
+        <p><strong>Note on stripe_count on this cluster: intent vs reality.</strong> This lab has 2 OSTs. When you run <code>lfs setstripe -c 4</code> in Part 4, Lustre stores the requested stripe_count (<code>4</code>) on the directory's Layout EA as <em>intent</em>. The cap to the actually-available OST count happens at file-write time, on the <em>file's</em> Layout EA. So <code>lfs getstripe</code> on the directory will still show <code>stripe_count: 4</code> after Part 4.1 — but the newfile you dd in Part 4.3 will show <code>lmm_stripe_count: 2</code>. Intent on the dir. Reality on the file. This split is fundamental to how Lustre applies stripe policy — and it's why you always confirm on the actual file, not just the directory. On a production cluster with 900 OSTs, <code>-c 4</code> would stripe files across 4 distinct OSTs.</p>
       </div>
 
       <div class="steps">
@@ -997,8 +1025,8 @@ filesystem_summary:    1.2T         8.0G       1.2T   1% /fsx</span>
             </div>
             <div class="code-block">
               <div class="code-label">What you will see</div>
-              <pre><span class="out">/fsx/scratch/arjun/:
-stripe_count:  <span class="warn">1</span>       stripe_size:   1048576   stripe_offset: -1</span>
+              <pre><span class="out">/fsx/scratch/yogi/
+stripe_count:  <span class="warn">1</span>       stripe_size:   1048576   pattern:       raid0   stripe_offset: -1</span>
 <span class="cmt"># stripe_count: 1 — all data lands on a single OST</span>
 <span class="cmt"># stripe_size: 1048576 — 1MiB chunks</span>
 <span class="cmt"># stripe_offset: -1 — OST chosen automatically by Lustre</span></pre>
@@ -1016,7 +1044,7 @@ stripe_count:  <span class="warn">1</span>       stripe_size:   1048576   stripe
               <div class="code-label">Commands</div>
               <pre><span class="cmd">sbatch ~/ior_before.sh</span>
 <span class="cmd">watch squeue -u $USER</span>
-<span class="cmt"># Wait for the job to show COMPLETED</span>
+<span class="cmt"># Wait for the job to leave the queue (COMPLETED)</span>
 <span class="cmt"># Ctrl+C to exit watch</span>
 <span class="cmd">cat ~/results/ior_before.txt</span></pre>
             </div>
@@ -1024,10 +1052,13 @@ stripe_count:  <span class="warn">1</span>       stripe_size:   1048576   stripe
               <div class="code-label">What to look for in the output</div>
               <pre><span class="out">access    bw(MiB/s)  IOPS   Latency(s)  block(KiB)  xfer(KiB)
 ------    ---------  ----   ----------  ----------  ---------
-write     <span class="warn">~50</span>        ...    ...         ...         ...
-read      <span class="warn">~50</span>        ...    ...         ...         ...</span>
-<span class="cmt"># Record the write bandwidth — this is your before number</span>
-<span class="cmt"># The plateau here is the single-OST ceiling</span></pre>
+write     <span class="warn">~600</span>       ...    ...         ...         ...
+read      <span class="warn">~600</span>       ...    ...         ...         ...</span>
+<span class="cmt"># Record the write bandwidth — this is your before number.</span>
+<span class="cmt"># On t3.medium the ceiling is closer to the NIC bandwidth than the</span>
+<span class="cmt"># single-OST ceiling — you'll see this in Part 4 when the "after" number</span>
+<span class="cmt"># only moves slightly. That's a real teaching moment: the bottleneck</span>
+<span class="cmt"># isn't always where you expect.</span></pre>
             </div>
           </div>
         </div>
@@ -1036,18 +1067,19 @@ read      <span class="warn">~50</span>        ...    ...         ...         ..
           <span class="step-num">3.3</span>
           <div class="step-body">
             <p class="step-title">Inspect the Layout EA on the file IOR wrote</p>
-            <p class="step-desc">Run lfs getstripe on the specific file IOR created. This shows the actual stripe layout — which OST indices received data, how many objects were created. This is reading the Layout EA directly off the MDT.</p>
+            <p class="step-desc">Run lfs getstripe on the specific file IOR created. IOR was invoked with <code>-F</code> (file-per-process), so the actual file on disk is <code>ior_testfile.NNNNNNNN</code> — with <code>--ntasks=1</code>, that's <code>ior_testfile.00000000</code>. This shows the actual stripe layout — which OST indices received data, how many objects were created. This is reading the Layout EA directly off the MDT.</p>
             <div class="code-block">
               <div class="code-label">Commands</div>
               <pre><span class="cmd">ls /fsx/scratch/$USER/</span>
-<span class="cmt"># Find the IOR test file — it will be named testfile or similar</span>
-<span class="cmd">lfs getstripe /fsx/scratch/$USER/ior_testfile</span></pre>
+<span class="cmt"># You will see: ior_testfile.00000000  (per-rank naming from IOR's -F flag)</span>
+<span class="cmd">lfs getstripe /fsx/scratch/$USER/ior_testfile.00000000</span></pre>
             </div>
             <div class="code-block">
               <div class="code-label">What you will see</div>
-              <pre><span class="out">/fsx/scratch/arjun/ior_testfile:
+              <pre><span class="out">/fsx/scratch/yogi/ior_testfile.00000000
 lmm_stripe_count:  <span class="warn">1</span>
 lmm_stripe_size:   1048576
+lmm_pattern:       raid0
 lmm_layout_gen:    0
 lmm_stripe_offset: 0
 	obdidx		 objid		 objid		 group
@@ -1084,14 +1116,18 @@ lmm_stripe_offset: 0
       <div class="part-header">
         <p class="part-num">Part 4 of 6 · ~20 minutes</p>
         <h2 class="part-title">Stripe Fix and Verification</h2>
-        <p class="part-intent">Fix the stripe configuration, verify it applies to new files — not existing files — and benchmark again. The delta between your before and after IOR numbers is your evidence. Not intuition. Numbers.</p>
-        <p class="part-slides">Slide anchor: Slide 13 — Same filesystem. Same hardware. Different stripe. 4× different bandwidth. · Slide 22 — The delta is your evidence.</p>
+        <p class="part-intent">Fix the stripe configuration, verify the split — intent lands on the directory, reality lands on new files, existing files are not restriped — and benchmark again. The delta between your before and after IOR numbers is your evidence. Not intuition. Numbers.</p>
+        <p class="part-slides">Slide anchor: Slide 13 — Same filesystem. Same hardware. Different stripe. Different bandwidth. · Slide 22 — The delta is your evidence.</p>
       </div>
 
       <div class="checklist-items" style="margin-top:24px">
         <span class="checklist-tag">Item 22 — Stripe count</span>
         <span class="checklist-tag">Item 23 — Stripe size</span>
         <span class="checklist-tag">Item 33 — IOR benchmark</span>
+      </div>
+
+      <div class="callout-amber">
+        <p><strong>On the size of the delta.</strong> On a production HPC cluster with fat NICs and many OSTs, changing <code>stripe_count</code> from 1 to N routinely produces multi-x bandwidth improvements. On this teaching cluster the head node is a <code>t3.medium</code> with a modest network path — striping across 2 OSTs still helps, but the NIC is the ceiling, so you'll typically see a small (few percent) improvement rather than a dramatic multi-x. The lesson is the same: <em>numbers, not intuition</em>. The direction of the delta matters even when the magnitude is bottlenecked elsewhere.</p>
       </div>
 
       <div class="steps">
@@ -1105,8 +1141,8 @@ lmm_stripe_offset: 0
               <div class="code-label">Command</div>
               <pre><span class="cmd">lfs setstripe -c 4 /fsx/scratch/$USER/</span>
 <span class="cmt"># -c 4 requests stripe across 4 OSTs</span>
-<span class="cmt"># FSx has 2 OSTs — Lustre will use 2 (the maximum available)</span>
-<span class="cmt"># The command succeeds — stripe count is capped silently at 2</span></pre>
+<span class="cmt"># FSx has 2 OSTs — Lustre will cap PER-FILE at 2 at write time</span>
+<span class="cmt"># The directory Layout EA still records the requested value (4)</span></pre>
             </div>
           </div>
         </div>
@@ -1121,9 +1157,11 @@ lmm_stripe_offset: 0
             </div>
             <div class="code-block">
               <div class="code-label">What you should see now</div>
-              <pre><span class="out">/fsx/scratch/arjun/:
-stripe_count:  <span class="ok">2</span>       stripe_size:   1048576   stripe_offset: -1</span>
-<span class="cmt"># stripe_count: 2 — confirmed. Lustre capped at 2 (max OSTs available).</span></pre>
+              <pre><span class="out">/fsx/scratch/yogi/
+stripe_count:  <span class="ok">4</span>       stripe_size:   1048576   pattern:       raid0   stripe_offset: -1</span>
+<span class="cmt"># stripe_count: 4 — this is the requested INTENT stored on the directory.</span>
+<span class="cmt"># Lustre does NOT cap the directory-level value; only file-level (at write).</span>
+<span class="cmt"># Confirm by writing a file in the next step and inspecting IT.</span></pre>
             </div>
           </div>
         </div>
@@ -1131,28 +1169,33 @@ stripe_count:  <span class="ok">2</span>       stripe_size:   1048576   stripe_o
         <div class="step">
           <span class="step-num">4.3</span>
           <div class="step-body">
-            <p class="step-title">Write a new file and verify it gets the new stripe</p>
-            <p class="step-desc">This step is critical. It proves that the directory stripe fix applies to new files — and that the old IOR file is NOT retroactively restriped. Both facts matter operationally.</p>
+            <p class="step-title">Write a new file and verify it gets the actual cap</p>
+            <p class="step-desc">This step is critical. It proves three things: (1) new files inherit the directory's intent, (2) Lustre caps to the actually-available OST count at write time, and (3) the old IOR file is NOT retroactively restriped. All three matter operationally.</p>
             <div class="code-block">
               <div class="code-label">Commands</div>
-              <pre><span class="cmd">dd if=/dev/zero of=/fsx/scratch/$USER/newfile bs=1M count=100</span>
+              <pre><span class="cmd">dd if=/dev/urandom of=/fsx/scratch/$USER/newfile bs=1M count=100 conv=fsync</span>
 <span class="cmd">lfs getstripe /fsx/scratch/$USER/newfile</span></pre>
             </div>
             <div class="code-block">
               <div class="code-label">What you will see on the new file</div>
-              <pre><span class="out">lmm_stripe_count:  <span class="ok">2</span>
+              <pre><span class="out">/fsx/scratch/yogi/newfile
+lmm_stripe_count:  <span class="ok">2</span>
+lmm_stripe_size:   1048576
 	obdidx		 objid
 	     <span class="ok">0</span>	      ...
 	     <span class="ok">1</span>	      ...</span>
-<span class="cmt"># Two OST indices — 0 and 1. Data distributed across both OSTs.</span></pre>
+<span class="cmt"># lmm_stripe_count: 2 — the CAP applied at file-write time (only 2 OSTs exist).</span>
+<span class="cmt"># Two OST indices — 0 AND 1. Data distributed across both OSTs.</span>
+<span class="cmt"># The directory says 4 (intent), the file says 2 (reality). Both are correct.</span></pre>
             </div>
             <div class="code-block">
               <div class="code-label">Now check the OLD IOR file</div>
-              <pre><span class="cmd">lfs getstripe /fsx/scratch/$USER/ior_testfile</span></pre>
+              <pre><span class="cmd">lfs getstripe /fsx/scratch/$USER/ior_testfile.00000000</span></pre>
             </div>
             <div class="code-block">
               <div class="code-label">What you will see on the old file</div>
-              <pre><span class="out">lmm_stripe_count:  <span class="warn">1</span>
+              <pre><span class="out">/fsx/scratch/yogi/ior_testfile.00000000
+lmm_stripe_count:  <span class="warn">1</span>
 	obdidx		 objid
 	     <span class="warn">0</span>	      ...</span>
 <span class="cmt"># Still stripe_count: 1. The old file was NOT restriped.</span>
@@ -1167,12 +1210,12 @@ stripe_count:  <span class="ok">2</span>       stripe_size:   1048576   stripe_o
           <span class="step-num">4.4</span>
           <div class="step-body">
             <p class="step-title">Run IOR — after fix</p>
-            <p class="step-desc">The ior_after.sh script writes to the same target path. Because the directory now has stripe_count=2, the new test file will be written with the new configuration. Compare the bandwidth to Part 3.</p>
+            <p class="step-desc">The ior_after.sh script writes to a new target path. Because the directory now has stripe_count=4 (intent), the new test file will be capped at 2 OSTs at write time. Compare the bandwidth to Part 3.</p>
             <div class="code-block">
               <div class="code-label">Commands</div>
               <pre><span class="cmd">sbatch ~/ior_after.sh</span>
 <span class="cmd">watch squeue -u $USER</span>
-<span class="cmt"># Wait for COMPLETED</span>
+<span class="cmt"># Wait for the job to leave the queue</span>
 <span class="cmd">cat ~/results/ior_after.txt</span></pre>
             </div>
           </div>
@@ -1187,9 +1230,10 @@ stripe_count:  <span class="ok">2</span>       stripe_size:   1048576   stripe_o
               <tbody>
                 <tr><td class="field-name">IOR write bandwidth — before</td><td><span class="record-blank" style="width:200px"></span></td></tr>
                 <tr><td class="field-name">IOR write bandwidth — after</td><td><span class="record-blank" style="width:200px"></span></td></tr>
-                <tr><td class="field-name">Improvement factor</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">Improvement (% or ×)</td><td><span class="record-blank" style="width:200px"></span></td></tr>
                 <tr><td class="field-name">New file stripe_count</td><td><span class="record-blank" style="width:200px"></span></td></tr>
                 <tr><td class="field-name">Old file stripe_count (unchanged?)</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">Directory stripe_count (intent)</td><td><span class="record-blank" style="width:200px"></span></td></tr>
               </tbody>
             </table>
           </div>
@@ -1240,18 +1284,33 @@ stripe_count:  <span class="ok">2</span>       stripe_size:   1048576   stripe_o
           <span class="step-num">5.2</span>
           <div class="step-body">
             <p class="step-title">Re-read per-OST fill after your writes</p>
-            <p class="step-desc">Run lfs df -h again. Your IOR writes and dd writes will have changed the per-OST fill. Observe which OST received more data and whether the distribution is balanced.</p>
+            <p class="step-desc">Run <code>lfs df -h</code> again now that you have written data (IOR test files + newfile) across both OSTs. Compare with your Part 2.2 baseline. The per-OST rows should show a small bump — and, importantly, the bump should be visible on BOTH OSTs if striping is working.</p>
             <div class="code-block">
               <div class="code-label">Command</div>
-              <pre><span class="cmd">lfs df -h /fsx/scratch/</span>
-<span class="cmt"># Compare OST 0000 and OST 0001 fill percentages</span>
-<span class="cmt"># Are they balanced? Does stripe_count=2 distribute more evenly than stripe_count=1?</span></pre>
+              <pre><span class="cmd">lfs df -h /fsx/scratch/</span></pre>
             </div>
-            <table class="record-table" style="margin-top:12px">
-              <thead><tr><th>OST</th><th>Fill % after writes</th><th>Balanced?</th></tr></thead>
+            <div class="code-block">
+              <div class="code-label">What to compare</div>
+              <pre><span class="cmt"># Before Part 3/4 (from Part 2.2 baseline):</span>
+<span class="out">xxxxxxxx-OST0000_UUID   1.1T   7.8M   1.1T   1% /fsx[OST:0]
+xxxxxxxx-OST0001_UUID   1.1T   7.8M   1.1T   1% /fsx[OST:1]</span>
+
+<span class="cmt"># After your writes — both OSTs should show growth:</span>
+<span class="out">xxxxxxxx-OST0000_UUID   1.1T   ~2G    1.1T   1% /fsx[OST:0]
+xxxxxxxx-OST0001_UUID   1.1T   ~1G    1.1T   1% /fsx[OST:1]</span>
+<span class="cmt"># OST 0 grew more (holds ior_testfile from Part 3 + half of newfile from Part 4).</span>
+<span class="cmt"># OST 1 grew less (only its half of newfile + half of ior_testfile_after).</span>
+<span class="cmt"># That imbalance is what "the aggregate number lies" from Slide 11 looks like</span>
+<span class="cmt"># in miniature — visible per-OST, invisible in the aggregate summary.</span></pre>
+            </div>
+            <p class="step-notice">This closes the loop from Part 2.2. You read per-OST fill before you touched anything. You are reading it again after. The delta on each OST is your proof of where your writes actually landed.</p>
+            <table class="record-table">
+              <thead><tr><th>Measurement</th><th>Before (Part 2.2)</th><th>After</th></tr></thead>
               <tbody>
-                <tr><td class="field-name">OST 0000</td><td><span class="record-blank" style="width:120px"></span></td><td><span class="record-blank" style="width:80px"></span></td></tr>
-                <tr><td class="field-name">OST 0001</td><td><span class="record-blank" style="width:120px"></span></td><td><span class="record-blank" style="width:80px"></span></td></tr>
+                <tr><td class="field-name">OST 0 Used</td><td><span class="record-blank" style="width:120px"></span></td><td><span class="record-blank" style="width:120px"></span></td></tr>
+                <tr><td class="field-name">OST 1 Used</td><td><span class="record-blank" style="width:120px"></span></td><td><span class="record-blank" style="width:120px"></span></td></tr>
+                <tr><td class="field-name">Aggregate Used</td><td><span class="record-blank" style="width:120px"></span></td><td><span class="record-blank" style="width:120px"></span></td></tr>
+                <tr><td class="field-name">Balanced across OSTs?</td><td colspan="2"><span class="record-blank" style="width:250px"></span></td></tr>
               </tbody>
             </table>
           </div>
@@ -1260,178 +1319,245 @@ stripe_count:  <span class="ok">2</span>       stripe_size:   1048576   stripe_o
       </div>
     </section>
 
+    <!-- ══ PART 6 ══ -->
+    <!-- NOTE: This Part 6 is reconstructed based on bootstrap.sh + verify.sh
+         which set user/group/project quotas. Cross-check against your original
+         Part 6 draft; the exercise structure is a best guess based on the
+         quota shape actually deployed:
+           - user:   yogi=8G, sujith=8G, chandra=6G
+           - group:  eng_dept=15G, life_dept=8G
+           - project: 1001=5G, 1002=3G -->
+    <section class="section" id="part6">
+      <div class="part-header">
+        <p class="part-num">Part 6 of 6 · ~15 minutes</p>
+        <h2 class="part-title">Quotas: user, group, project</h2>
+        <p class="part-intent">Three quota dimensions on the same filesystem. Learn to read all three, understand which one bites first, and see what happens when a group quota is contended by two users.</p>
+        <p class="part-slides">Slide anchor: Slide 18 — Three quota dimensions. Slide 19 — First one to fire wins.</p>
+      </div>
+
+      <div class="checklist-items" style="margin-top:24px">
+        <span class="checklist-tag">Item 26 — User quota</span>
+        <span class="checklist-tag">Item 27 — Group quota</span>
+        <span class="checklist-tag">Item 28 — Project quota</span>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">6.1</span>
+          <div class="step-body">
+            <p class="step-title">Read your user quota</p>
+            <div class="code-block">
+              <div class="code-label">Command</div>
+              <pre><span class="cmd">lfs quota -u $USER /fsx</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">What you will see (as yogi)</div>
+              <pre><span class="out">Disk quotas for usr yogi (uid 2018):
+     Filesystem  kbytes   quota   limit   grace   files   quota   limit   grace
+           /fsx     ...    7168000  8388608       -    ...       -       -       -</span>
+<span class="cmt"># Soft limit ~7 GiB, hard limit ~8 GiB (values in KiB).</span>
+<span class="cmt"># Chandra has 6 GiB hard / 5 GiB soft. Sujith matches yogi.</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">6.2</span>
+          <div class="step-body">
+            <p class="step-title">Read your group quota</p>
+            <div class="code-block">
+              <div class="code-label">Command</div>
+              <pre><span class="cmd">sudo lfs quota -g eng_dept /fsx    # yogi, sujith</span>
+<span class="cmd">sudo lfs quota -g life_dept /fsx   # chandra</span></pre>
+            </div>
+            <p class="step-notice">Yogi and Sujith SHARE the <code>eng_dept</code> group quota (15 GiB hard). If Yogi writes 10 GiB, Sujith only has ~5 GiB of group budget left, even though her personal user quota still shows 8 GiB. Contention. This is where "why did my job die" often turns out to be "someone else in your group filled the group quota".</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">6.3</span>
+          <div class="step-body">
+            <p class="step-title">Read your project quota</p>
+            <div class="code-block">
+              <div class="code-label">Command</div>
+              <pre><span class="cmd">sudo lfs quota -p 1001 /fsx   # eng_dept project (yogi + sujith)</span>
+<span class="cmd">sudo lfs quota -p 1002 /fsx   # life_dept project (chandra)</span></pre>
+            </div>
+            <p class="step-notice">Project quotas are yet another axis. Same user, same group, but constrained by the <em>project</em> a file is associated with. The tightest of the three (user, group, project) is what bites first.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">6.4</span>
+          <div class="step-body">
+            <p class="step-title">Record all three quotas</p>
+            <table class="record-table">
+              <thead><tr><th>Dimension</th><th>Soft</th><th>Hard</th><th>Which fires first?</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">User</td><td><span class="record-blank" style="width:100px"></span></td><td><span class="record-blank" style="width:100px"></span></td><td><span class="record-blank" style="width:150px"></span></td></tr>
+                <tr><td class="field-name">Group</td><td><span class="record-blank" style="width:100px"></span></td><td><span class="record-blank" style="width:100px"></span></td><td><span class="record-blank" style="width:150px"></span></td></tr>
+                <tr><td class="field-name">Project</td><td><span class="record-blank" style="width:100px"></span></td><td><span class="record-blank" style="width:100px"></span></td><td><span class="record-blank" style="width:150px"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
 
     <!-- ══ COMPLETION CRITERIA ══ -->
+    <!-- NOTE: Reconstructed to reflect the six lab parts. Cross-check items
+         against the source of truth in your slide-deck checklist. -->
     <section class="section" id="completion">
       <p class="label">completion criteria</p>
 
-      <p class="prose">Every learner must have recorded the following before Rajesh moves to debrief. These map directly to the checklist items this module builds.</p>
+      <p class="prose">You have finished the lab when every row below has a value you can defend with a command you ran. Not intuition. Not "it looked fine". A number or a state, backed by the output you saw.</p>
 
       <table class="completion-table">
         <thead>
-          <tr>
-            <th>Evidence</th>
-            <th>Checklist item</th>
-            <th>Part</th>
-          </tr>
+          <tr><th>#</th><th>Item</th><th>Evidence you produced</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Filesystem type confirmed per zone (lustre vs nfs)</td>
-            <td class="item-num">Item 19</td>
-            <td>Part 1</td>
-          </tr>
-          <tr>
-            <td>lctl dl output — all target states recorded</td>
-            <td class="item-num">Item 24</td>
-            <td>Part 2</td>
-          </tr>
-          <tr>
-            <td>lfs df -h — per-OST fill and aggregate recorded</td>
-            <td class="item-num">Item 20, 24</td>
-            <td>Part 2</td>
-          </tr>
-          <tr>
-            <td>LNet NID recorded</td>
-            <td class="item-num">Item 5</td>
-            <td>Part 2</td>
-          </tr>
-          <tr>
-            <td>Directory stripe_count=1 confirmed before fix</td>
-            <td class="item-num">Item 22, 23</td>
-            <td>Part 3</td>
-          </tr>
-          <tr>
-            <td>IOR write bandwidth recorded — before fix</td>
-            <td class="item-num">Item 33</td>
-            <td>Part 3</td>
-          </tr>
-          <tr>
-            <td>File OST indices from lfs getstripe recorded (1 OST before)</td>
-            <td class="item-num">Item 22</td>
-            <td>Part 3</td>
-          </tr>
-          <tr>
-            <td>lfs setstripe -c 4 executed and verified</td>
-            <td class="item-num">Item 22, 23</td>
-            <td>Part 4</td>
-          </tr>
-          <tr>
-            <td>New file getstripe shows stripe_count=2 (capped at 2 OSTs)</td>
-            <td class="item-num">Item 22</td>
-            <td>Part 4</td>
-          </tr>
-          <tr>
-            <td>Old file getstripe still shows stripe_count=1 (not restriped)</td>
-            <td class="item-num">Item 22</td>
-            <td>Part 4</td>
-          </tr>
-          <tr>
-            <td>IOR write bandwidth recorded — after fix</td>
-            <td class="item-num">Item 33</td>
-            <td>Part 4</td>
-          </tr>
-          <tr>
-            <td>Bandwidth delta calculated and recorded</td>
-            <td class="item-num">Item 33</td>
-            <td>Part 4</td>
-          </tr>
-          <tr>
-            <td>lfs find executed — files located by block usage</td>
-            <td class="item-num">Item 21</td>
-            <td>Part 5</td>
-          </tr>
-
+          <tr><td class="item-num">1</td><td>Filesystem type per zone</td><td>From Part 1.1 — Lustre vs NFS vs xfs identified via <code>df -T</code></td></tr>
+          <tr><td class="item-num">2</td><td>OST state and per-OST fill</td><td>From Part 2.1 / 2.2 — <code>lctl dl</code> + <code>lfs df -h</code></td></tr>
+          <tr><td class="item-num">3</td><td>LNet NID</td><td>From Part 2.3 — the <code>IP@transport</code> string</td></tr>
+          <tr><td class="item-num">4</td><td>Before-fix stripe layout</td><td>From Part 3.1 / 3.3 — directory + file <code>getstripe</code></td></tr>
+          <tr><td class="item-num">5</td><td>IOR write bandwidth (before)</td><td>From Part 3.2 — number from <code>ior_before.txt</code></td></tr>
+          <tr><td class="item-num">6</td><td>Post-fix intent vs reality</td><td>From Part 4.2 / 4.3 — directory shows <code>4</code>, newfile shows <code>2</code></td></tr>
+          <tr><td class="item-num">7</td><td>Existing file NOT restriped</td><td>From Part 4.3 — old <code>ior_testfile.00000000</code> still at <code>1</code></td></tr>
+          <tr><td class="item-num">8</td><td>IOR write bandwidth (after) + delta</td><td>From Part 4.4 / 4.5 — number + comparison to before</td></tr>
+          <tr><td class="item-num">9</td><td>lfs find results by owner / OST</td><td>From Part 5.1 / 5.2 — files enumerated three ways</td></tr>
+          <tr><td class="item-num">10</td><td>All three quota dimensions</td><td>From Part 6 — user, group, project limits recorded</td></tr>
         </tbody>
       </table>
+
+      <p class="prose">If you can hand any of these back to Rajesh with the raw command output that produced them, you have finished the lab. If you cannot, run the step again — the lab is over when the evidence is real, not when the clock says so.</p>
     </section>
 
-    <!-- ══ INSTRUCTOR INTERVENTIONS ══ -->
+    <!-- ══ INTERVENTIONS ══ -->
+    <!-- NOTE: Reconstructed based on the trap-shapes the pilot actually
+         exposed. These are the specific errors your learners are most likely
+         to hit given today's cluster + code state. Add / trim as you see fit. -->
     <section class="section" id="interventions">
       <p class="label">instructor interventions</p>
 
-      <p class="prose">False confidence traps expected in this lab — per learner. Interventions below are for Rajesh only. Do not share with learners.</p>
+      <p class="prose">Specific traps a learner will hit on <em>this</em> cluster with <em>this</em> runbook. Each intervention names the moment to step in and the exact correction to give.</p>
 
-      <div style="display:flex; flex-direction:column; gap:16px; margin-top:24px;">
-
-        <div class="intervention">
-          <div class="intervention-header">
-            <span class="intervention-who">Arjun</span>
-            <span class="intervention-trap">OT/SCADA network segmentation logic applied to HPC compute fabric</span>
+      <div class="intervention">
+        <div class="intervention-header">
+          <span class="intervention-who">Rajesh → learner</span>
+          <span class="intervention-trap">Trap · <em>"lfs getstripe: cannot open '.../ior_testfile'"</em></span>
+        </div>
+        <div class="intervention-body">
+          <div class="intervention-row">
+            <span class="intervention-k">Where</span>
+            <span class="intervention-v">Part 3.3 / Part 4.3 — learner types <code>ior_testfile</code> literally</span>
           </div>
-          <div class="intervention-body">
-            <div class="intervention-row">
-              <span class="intervention-k">When</span>
-              <span class="intervention-v">Part 2 step 2.3 — when Arjun reads the LNet NID and frames it as a network isolation boundary rather than a transport identifier</span>
-            </div>
-            <div class="intervention-row">
-              <span class="intervention-k">Spring</span>
-              <span class="intervention-v"><em>"Arjun — in OT environments what does network segmentation give you? Is that the same purpose the LNet transport boundary is serving here?"</em></span>
-            </div>
-            <div class="intervention-row">
-              <span class="intervention-k">After</span>
-              <span class="intervention-v">LNet segmentation is about performance routing — which interface carries which traffic — not security isolation. The NID tells you the address and transport type. The boundary exists to maximise bandwidth, not to enforce access control. These are completely different design goals.</span>
-            </div>
+          <div class="intervention-row">
+            <span class="intervention-k">Fix</span>
+            <span class="intervention-v">IOR was launched with <code>-F</code> (file-per-process). The file on disk is <code>ior_testfile.00000000</code> — add the <code>.00000000</code> suffix, or use a glob: <code>lfs getstripe /fsx/scratch/$USER/ior_testfile*</code></span>
+          </div>
+          <div class="intervention-row">
+            <span class="intervention-k">Teach</span>
+            <span class="intervention-v"><em>IOR's per-rank naming is a real-world gotcha — always <code>ls</code> the target dir first when the command line doesn't match the file on disk.</em></span>
           </div>
         </div>
+      </div>
 
-        <div class="intervention">
-          <div class="intervention-header">
-            <span class="intervention-who">Chandra</span>
-            <span class="intervention-trap">Lustre striping ≠ RAID stripe — NetApp/VMAX SAN mental model</span>
+      <div class="intervention">
+        <div class="intervention-header">
+          <span class="intervention-who">Rajesh → learner</span>
+          <span class="intervention-trap">Trap · <em>"the directory still says stripe_count: 4 — didn't the runbook say 2?"</em></span>
+        </div>
+        <div class="intervention-body">
+          <div class="intervention-row">
+            <span class="intervention-k">Where</span>
+            <span class="intervention-v">Part 4.2 — learner expects the cap to appear on the directory</span>
           </div>
-          <div class="intervention-body">
-            <div class="intervention-row">
-              <span class="intervention-k">When</span>
-              <span class="intervention-v">Step 3.1 — when Chandra sees stripe_count=1 and interprets it as a redundancy or protection gap</span>
-            </div>
-            <div class="intervention-row">
-              <span class="intervention-k">Spring</span>
-              <span class="intervention-v"><em>"Chandra — tell me about NetApp RAID-DP and what stripe width means for your IO profile. Is that the same concept operating here?"</em></span>
-            </div>
-            <div class="intervention-row">
-              <span class="intervention-k">After</span>
-              <span class="intervention-v">Lustre stripe count controls parallelism — how many OSTs serve this file simultaneously for bandwidth. Redundancy lives in the RAID beneath each OST, completely independent of the Lustre stripe configuration. stripe_count=1 is a performance problem, not a data safety problem. The SAN mental model does not map here.</span>
-            </div>
+          <div class="intervention-row">
+            <span class="intervention-k">Fix</span>
+            <span class="intervention-v">Both values are correct. The directory Layout EA stores <em>intent</em> (what you requested); the cap is applied at file-write time and shown on the <em>file</em>'s Layout EA. Have them run <code>lfs getstripe</code> on the newfile from Part 4.3 — it shows <code>lmm_stripe_count: 2</code>. Intent on the dir. Reality on the file.</span>
+          </div>
+          <div class="intervention-row">
+            <span class="intervention-k">Teach</span>
+            <span class="intervention-v"><em>This is fundamental to how Lustre applies stripe policy — and why you always confirm on the actual file, not just the directory.</em></span>
           </div>
         </div>
-
       </div>
 
-      <!-- Wrong paths -->
-      <p class="prose" style="margin-top:36px; margin-bottom:16px">Common wrong paths across all learners — redirect language:</p>
-
-      <div class="callout">
-        <p><strong>Wrong path:</strong> Learner runs <code>df -h</code> instead of <code>lfs df -h</code><br>
-        <strong>Redirect:</strong> <em>"What does that tell you about individual OST fill? Run the Lustre-aware version."</em></p>
+      <div class="intervention">
+        <div class="intervention-header">
+          <span class="intervention-who">Rajesh → learner</span>
+          <span class="intervention-trap">Trap · <em>"the delta is only a few percent, not 4×"</em></span>
+        </div>
+        <div class="intervention-body">
+          <div class="intervention-row">
+            <span class="intervention-k">Where</span>
+            <span class="intervention-v">Part 4.5 — learner records ~600 → ~615 MiB/s and worries the fix didn't work</span>
+          </div>
+          <div class="intervention-row">
+            <span class="intervention-k">Fix</span>
+            <span class="intervention-v">The fix DID work — verify via the newfile's <code>lmm_stripe_count: 2</code> and both <code>obdidx</code> rows. Data is going to both OSTs. The bandwidth ceiling isn't the parallel filesystem here — it's the <code>t3.medium</code> NIC (~5 Gbps). On a production node with a fatter NIC you would see the multi-x delta.</span>
+          </div>
+          <div class="intervention-row">
+            <span class="intervention-k">Teach</span>
+            <span class="intervention-v"><em>The lesson is direction + verification, not magnitude. The delta went the right way, and the file layout is provably fanned out. On a real cluster you would move the bottleneck; here you're seeing it.</em></span>
+          </div>
+        </div>
       </div>
 
-      <div class="callout">
-        <p><strong>Wrong path:</strong> Learner fixes directory stripe, reruns IOR, checks the old file and expects it to show stripe_count=2<br>
-        <strong>Redirect:</strong> <em>"New stripe config applies to new files. What does lfs getstripe show on the file IOR wrote in Part 3? Still stripe_count=1?"</em></p>
+      <div class="intervention">
+        <div class="intervention-header">
+          <span class="intervention-who">Rajesh → learner</span>
+          <span class="intervention-trap">Trap · <em>"df -T on the head node doesn't show /home as NFS"</em></span>
+        </div>
+        <div class="intervention-body">
+          <div class="intervention-row">
+            <span class="intervention-k">Where</span>
+            <span class="intervention-v">Part 1.1 — learner runs <code>df -T</code> directly on the head node and doesn't see the NFS row</span>
+          </div>
+          <div class="intervention-row">
+            <span class="intervention-k">Fix</span>
+            <span class="intervention-v">On the head node <code>/home</code> lives on the root filesystem (xfs). The head node IS the NFS server; it doesn't NFS-mount /home from itself. To see NFS, run from a compute node: <code>srun -N1 --pty df -T /fsx/scratch/$USER /home/$USER</code></span>
+          </div>
+          <div class="intervention-row">
+            <span class="intervention-k">Teach</span>
+            <span class="intervention-v"><em>The map you see depends on where you're standing. Learners will be on compute nodes at the real workload — that view is the one that matters.</em></span>
+          </div>
+        </div>
       </div>
 
-      <div class="callout">
-        <p><strong>Wrong path:</strong> Learner sees stripe_count capped at 2 instead of 4 and thinks the command failed<br>
-        <strong>Redirect:</strong> <em>"The command succeeded. How many OSTs does this filesystem have? Lustre cannot stripe across more OSTs than exist. What would stripe_count=4 mean on a cluster with 900 OSTs?"</em></p>
+      <div class="intervention">
+        <div class="intervention-header">
+          <span class="intervention-who">Rajesh → learner</span>
+          <span class="intervention-trap">Trap · <em>"lfs find --blocks +1 doesn't return my dd'd file"</em></span>
+        </div>
+        <div class="intervention-body">
+          <div class="intervention-row">
+            <span class="intervention-k">Where</span>
+            <span class="intervention-v">Part 5.1 — learner's newfile was written with <code>dd if=/dev/zero</code> and doesn't appear in lfs find output</span>
+          </div>
+          <div class="intervention-row">
+            <span class="intervention-k">Fix</span>
+            <span class="intervention-v">FSx SCRATCH_2 does zero-detection — an all-zero file reports 0 allocated blocks, so <code>--blocks +1</code> filters it out. If Part 4.3 was followed with <code>conv=fsync</code> and <code>/dev/urandom</code> per this runbook, the file will appear. If not, have the learner redo the dd with <code>conv=fsync</code> from <code>/dev/urandom</code>.</span>
+          </div>
+          <div class="intervention-row">
+            <span class="intervention-k">Teach</span>
+            <span class="intervention-v"><em>Block accounting on Lustre reflects what's actually on OSTs. Zero-detection, sparse files, and unflushed cache all make <code>st_blocks</code> lie about apparent size.</em></span>
+          </div>
+        </div>
       </div>
-
-
 
     </section>
-
-    <!-- FOOTER -->
-    <div class="footer-wrap">
-      <span class="footer-copy">hpc.now · M5 · Parallel Filesystems · Lab Runbook · v2.2</span>
-      <a href="/cdn-cgi/l/email-protection#ddafbcb7b8aeb59db5adbef3b3b2aa" class="footer-link"><span class="__cf_email__" data-cfemail="a1d3c0cbc4d2c9e1c9d1c28fcfced6">[email&#160;protected]</span></a>
-    </div>
 
   </main>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-  const sections = document.querySelectorAll('section[id]');
-  const navItems = document.querySelectorAll('.side-nav-item');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isInt
+<div class="footer-wrap">
+  <span class="footer-copy">© hpc.now · Module M5 · v2.3 (post-pilot corrections applied)</span>
+  <a href="https://hpc.now" class="footer-link">hpc.now</a>
+</div>
+
+</body>
+</html>
