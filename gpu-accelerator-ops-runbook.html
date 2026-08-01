@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GPU and Accelerator Operations · Lab Runbook · master.hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #181817;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --teal:       #0f6e56;
+      --teal-dim:   #1d9e75;
+      --teal-bg:    #e8f5f0;
+      --amber:      #c47f1a;
+      --amber-bg:   #fdf4e3;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--paper); color: var(--ink); font-family: var(--mono); font-size: 15px; line-height: 1.75; }
+
+    /* COVER */
+    .cover { background: var(--cover); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E"); }
+    .nav-wrap { border-bottom: 1px solid var(--rule-cover); }
+    nav { max-width: 1200px; margin: 0 auto; padding: 20px 52px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: var(--mono); font-size: 12px; color: #f0e8e0; text-decoration: none; letter-spacing: .06em; }
+    .logo em { color: var(--terra-dim); font-style: normal; }
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-tag { font-size: 10px; color: #6a6460; letter-spacing: .12em; text-transform: uppercase; }
+    .nav-mod { font-size: 11px; color: var(--terra-dim); letter-spacing: .06em; }
+    .hero { max-width: 1200px; margin: 0 auto; padding: 72px 52px 80px; }
+    .hero-eyebrow { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #6a6460; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+    .hero-eyebrow::before { content: ''; width: 20px; height: 1px; background: #6a6460; }
+    .hero-title { font-family: var(--serif); font-size: clamp(32px, 4.5vw, 56px); font-weight: 400; color: #f0e8e0; line-height: 1.15; letter-spacing: -.02em; margin-bottom: 28px; }
+    .hero-title em { font-style: italic; color: var(--terra-dim); }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid #2e2820; width: fit-content; margin-top: 36px; }
+    .hero-meta-item { padding: 12px 24px; border-right: 1px solid #2e2820; display: flex; flex-direction: column; gap: 3px; }
+    .hero-meta-item:last-child { border-right: none; }
+    .hero-meta-k { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .hero-meta-v { font-size: 12px; color: #c8c0b4; }
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* LAYOUT */
+    .page-body { max-width: 1200px; margin: 0 auto; padding: 0 52px; display: grid; grid-template-columns: 200px 1fr; gap: 0 72px; align-items: start; }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 40px; padding: 64px 0 40px; align-self: start; }
+    .side-label { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink3); margin-bottom: 12px; padding-left: 14px; }
+    .side-nav { display: flex; flex-direction: column; gap: 1px; margin-bottom: 20px; }
+    .side-nav-item { font-size: 11px; color: var(--ink3); text-decoration: none; letter-spacing: .03em; padding: 5px 0 5px 14px; border-left: 2px solid transparent; transition: color .18s, border-color .18s; line-height: 1.4; }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+    .side-nav-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+    .side-nav-part { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); padding: 8px 0 4px 14px; }
+
+    /* MAIN */
+    .main-content { padding: 0; background: var(--paper); }
+    .section { padding: 64px 0 56px; border-top: 1px solid var(--rule); }
+    .section:first-child { border-top: none; padding-top: 72px; }
+    .label { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: var(--ink3); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
+    .label::after { content: ''; width: 36px; height: 1px; background: var(--rule); }
+    .prose { font-size: 14px; color: var(--ink2); line-height: 2.05; max-width: 600px; }
+    .prose + .prose { margin-top: 1.2em; }
+    .prose code { font-family: var(--mono); font-size: 12px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+
+    /* CALLOUTS */
+    .callout { border-left: 3px solid var(--terra); padding: 18px 22px; background: var(--terra-bg); margin: 24px 0; max-width: 640px; }
+    .callout p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout strong { color: var(--terra); font-weight: 500; }
+    .callout-teal { border-left: 3px solid var(--teal); padding: 18px 22px; background: var(--teal-bg); margin: 24px 0; max-width: 640px; }
+    .callout-teal p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-teal strong { color: var(--teal); font-weight: 500; }
+    .callout-amber { border-left: 3px solid var(--amber); padding: 18px 22px; background: var(--amber-bg); margin: 24px 0; max-width: 640px; }
+    .callout-amber p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-amber strong { color: var(--amber); font-weight: 500; }
+
+    /* CODE BLOCKS */
+    .code-block { background: var(--dark); border: 1px solid #2e2820; padding: 20px 24px; margin: 20px 0; max-width: 640px; overflow-x: auto; position: relative; }
+    .code-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #2e2820; }
+    .code-block pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #c8c0b4; white-space: pre; }
+    .code-block pre .cmd  { color: #9fe1cb; }
+    .code-block pre .cmt  { color: #4a4438; font-style: italic; }
+    .code-block pre .out  { color: #8a8078; }
+    .copy-btn { position: absolute; top: 12px; right: 12px; background: #2e2820; border: 1px solid #3e3830; color: #6a6460; font-family: var(--mono); font-size: 10px; letter-spacing: .08em; padding: 4px 10px; cursor: pointer; transition: color .15s, border-color .15s; }
+    .copy-btn:hover { color: #9fe1cb; border-color: #9fe1cb; }
+    .copy-btn.copied { color: var(--teal-dim); border-color: var(--teal-dim); }
+
+    /* STEPS */
+    .steps { display: flex; flex-direction: column; gap: 0; max-width: 640px; margin: 24px 0; }
+    .step { display: grid; grid-template-columns: 48px 1fr; gap: 0 20px; padding: 28px 0; border-top: 1px solid var(--rule); align-items: start; }
+    .step:first-child { border-top: none; padding-top: 0; }
+    .step-num { font-size: 11px; color: var(--ink3); letter-spacing: .1em; padding-top: 4px; font-weight: 300; }
+    .step-title { font-family: var(--serif); font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 10px; line-height: 1.35; }
+    .step-desc { font-size: 13px; color: var(--ink2); line-height: 1.95; margin-bottom: 14px; max-width: 520px; }
+    .step-desc code { font-family: var(--mono); font-size: 11px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+    .step-notice { font-size: 12px; color: var(--terra); font-style: italic; line-height: 1.7; margin-top: 10px; display: flex; gap: 8px; align-items: flex-start; max-width: 520px; }
+    .step-notice::before { content: '→'; flex-shrink: 0; color: var(--terra-dim); }
+    .step-notice code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); font-style: normal; }
+
+    /* PART HEADER */
+    .part-header { background: var(--dark); padding: 32px 36px 28px; border-left: 4px solid var(--terra); margin-bottom: 28px; }
+    .part-num { font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: #6a6460; margin-bottom: 8px; }
+    .part-title { font-family: var(--serif); font-size: 22px; font-weight: 400; color: #f0e8e0; line-height: 1.3; margin-bottom: 10px; }
+    .part-intent { font-size: 13px; color: #8a8078; line-height: 1.8; max-width: 520px; font-style: italic; }
+
+    /* CHECKPOINT */
+    .checkpoint-block { background: var(--dark); border: 1px solid var(--teal); max-width: 640px; margin: 28px 0; }
+    .checkpoint-header { background: var(--teal); padding: 10px 20px; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+    .checkpoint-header span { font-size: 11px; color: rgba(255,255,255,0.7); font-style: italic; letter-spacing: 0; text-transform: none; }
+    .checkpoint-body { padding: 20px 24px; position: relative; }
+    .checkpoint-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #9fe1cb; white-space: pre-wrap; word-break: break-all; }
+    .checkpoint-note { font-size: 12px; color: #8a8078; font-style: italic; margin-top: 14px; line-height: 1.7; padding-top: 12px; border-top: 1px solid #2e2820; }
+    .checkpoint-state { font-size: 11.5px; color: #c8a96e; background: rgba(200,169,110,0.08); border-left: 3px solid #c8a96e; padding: 8px 12px; margin-bottom: 16px; line-height: 1.65; }
+    .checkpoint-state strong { color: #e0c080; font-size: 9px; letter-spacing: .18em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+
+    /* EXPECTED OUTPUT */
+    .expected-block { background: #141210; border: 1px solid #2e2820; border-left: 3px solid var(--teal); max-width: 640px; margin: 12px 0; }
+    .expected-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--teal-dim); padding: 8px 16px; border-bottom: 1px solid #2e2820; }
+    .expected-body { padding: 14px 16px; }
+    .expected-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #8a8078; white-space: pre-wrap; }
+
+    /* WRONG BLOCK */
+    .wrong-block { background: #140e0e; border: 1px solid #2e2820; border-left: 3px solid var(--terra); max-width: 640px; margin: 12px 0; }
+    .wrong-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--terra-dim); padding: 8px 16px; border-bottom: 1px solid #2e1818; }
+    .wrong-body { padding: 14px 16px; font-size: 13px; color: var(--ink2); line-height: 1.85; }
+    .wrong-body code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); background: rgba(123,75,51,0.1); padding: 1px 5px; }
+    .wrong-body p + p { margin-top: 8px; }
+
+    /* QUICK REF */
+    .quickref-block { background: var(--dark); border: 1px solid #2e2820; max-width: 640px; margin: 20px 0; overflow: hidden; }
+    .quickref-header { background: #2e2820; padding: 10px 20px; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .quickref-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid #2e2820; }
+    .quickref-row:last-child { border-bottom: none; }
+    .quickref-k { font-size: 11px; color: #6a6460; padding: 12px 16px; border-right: 1px solid #2e2820; display: flex; align-items: center; letter-spacing: .04em; }
+    .quickref-v { font-family: var(--mono); font-size: 12px; color: #9fe1cb; padding: 12px 16px; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+
+    /* CREDS TABLE */
+    .creds-table { border: 1px solid var(--rule); width: 100%; max-width: 560px; margin: 20px 0; border-collapse: collapse; }
+    .creds-table thead th { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); background: var(--paper-mid); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--rule); font-weight: 400; }
+    .creds-table tbody td { font-size: 12px; color: var(--ink2); padding: 11px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.6; }
+    .creds-table tbody tr:last-child td { border-bottom: none; }
+    .creds-table .name-col { font-family: var(--serif); font-style: italic; color: var(--ink); font-size: 14px; }
+    .creds-table .mono-col { font-family: var(--mono); color: var(--teal); font-size: 12px; }
+    .creds-table .pass-col { font-family: var(--mono); color: var(--amber); font-size: 12px; }
+
+    /* DOMAIN HEADER */
+    .domain-header { background: var(--dark); border-left: 4px solid var(--amber); padding: 20px 28px; margin-bottom: 28px; max-width: 640px; }
+    .domain-label { font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: #6a6460; margin-bottom: 6px; }
+    .domain-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: #f0e8e0; line-height: 1.3; margin-bottom: 6px; }
+    .domain-intent { font-size: 13px; color: #8a8078; font-style: italic; line-height: 1.7; }
+
+    /* FOOTER */
+    .footer-wrap { background: var(--dark2); margin: 64px -52px 0; padding: 24px 52px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-top: 1px solid #2e2820; }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-badge { font-size: 10px; color: var(--teal-dim); letter-spacing: .08em; }
+    .footer-link { font-size: 11px; color: #6a6460; text-decoration: none; }
+
+    @media (max-width: 1024px) {
+      nav, .hero { padding-left: 32px; padding-right: 32px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 32px; }
+      .sidebar { display: none; }
+      .footer-wrap { margin: 64px -32px 0; padding: 24px 32px; }
+    }
+    @media (max-width: 640px) {
+      nav, .hero { padding-left: 20px; padding-right: 20px; }
+      .page-body { padding: 0 20px; }
+      .footer-wrap { margin: 64px -20px 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="https://master.hpc.now" class="logo">master<em>.hpc.now</em></a>
+      <div class="nav-right">
+        <span class="nav-tag">Lab Runbook</span>
+        <span class="nav-mod">GPU and Accelerator Operations · nvidia-smi · ECC · GRES · Fleet Hygiene</span>
+      </div>
+    </nav>
+  </div>
+  <div class="hero">
+    <p class="hero-eyebrow">A8 · Module 12 · GPU and Accelerator Operations · Lab Runbook · Associate Stream</p>
+    <h1 class="hero-title">Read the Card, Read the Scheduler,<br><em>Find the Disagreement</em></h1>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><span class="hero-meta-k">Labs</span><span class="hero-meta-v">8 sections · Lab 1 / 8 through 8 / 8</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Host</span><span class="hero-meta-v">mylab.hpc.now → gpu-node-01</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Accelerator</span><span class="hero-meta-v">1 × Tesla T4 · 16 GB · sharded ×4</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Learners</span><span class="hero-meta-v">chandra · sujith · yogaraj</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Password</span><span class="hero-meta-v">hpcnow2026</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Total lab time</span><span class="hero-meta-v">~3 hours</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">URL</span><span class="hero-meta-v">master.hpc.now/gpu-accelerator-ops</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- BODY -->
+<div class="page-body">
+
+  <aside class="sidebar">
+    <div class="side-label">Runbook</div>
+    <nav class="side-nav">
+      <a href="#how-to-use" class="side-nav-item">How to Use</a>
+      <a href="#credentials" class="side-nav-item">Credentials</a>
+      <div class="side-nav-divider"></div>
+      <div class="side-nav-part">Labs</div>
+      <a href="#lab-1" class="side-nav-item">1 · GPU Orientation</a>
+      <a href="#lab-2" class="side-nav-item">2 · Eight Invocations</a>
+      <a href="#lab-3" class="side-nav-item">3 · ECC &amp; Retirement</a>
+      <a href="#lab-4" class="side-nav-item">4 · Persistence Mode</a>
+      <a href="#lab-5" class="side-nav-item">5 · Fleet Hygiene</a>
+      <a href="#lab-6" class="side-nav-item">6 · The GRES Chain</a>
+      <a href="#lab-7" class="side-nav-item">7 · Three Truths</a>
+      <a href="#lab-8" class="side-nav-item">8 · GPU Jobs &amp; Drain</a>
+      <div class="side-nav-divider"></div>
+      <a href="#checkpoints" class="side-nav-item">All Checkpoints</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- HOW TO USE -->
+    <section class="section" id="how-to-use">
+      <p class="label">how to use this runbook</p>
+      <p class="prose">This is the lab runbook for GPU and Accelerator Operations — the final module of the Associate stream. The lecture portion has already been delivered. You are now executing the lab as a single uninterrupted stretch, all eight sections in sequence, on one machine with one real NVIDIA GPU.</p>
+      <p class="prose" style="margin-top:1em">Every command block is copy-pasteable. Do not type commands from memory or from slides — use the copy button. After each command, compare your terminal output to the <strong>Expected Output</strong> block. Discrepancies are diagnostic signals, not failures — read them and work out what they mean before moving on.</p>
+      <p class="prose" style="margin-top:1em">Each section ends with a <strong>Checkpoint</strong>. Run the checkpoint command when you believe you have completed the section. When it passes, type <code>done</code> in the session chat so Rajesh can confirm the cohort is ready to move on.</p>
+      <div class="callout-teal" style="margin-top:24px">
+        <p><strong>Lab structure.</strong> Each exercise is one of three types. <strong>Guided</strong> exercises provide complete commands — run them and read the output. <strong>Prompted</strong> exercises describe what you need to achieve and hint at the approach — you compose the command. <strong>Checkpoints</strong> give you a validation command and the expected output — you must produce that exact state on the lab.</p>
+      </div>
+      <div class="callout-teal" style="margin-top:16px">
+        <p><strong>One machine, not a cluster.</strong> Slide 17 shows a login node talking to a separate GPU node. Here they are the same box: <code>gpu-node-01</code> is your login host, the Slurm controller and the compute node all at once. Nothing in the operational logic changes — the scheduler still allocates, the cgroup still constrains, the driver still exposes. When you meet a real cluster, the only difference is that these roles sit on different hardware and you have to be careful which host you are typing on.</p>
+      </div>
+      <div class="callout" style="margin-top:16px">
+        <p><strong>One GPU, three of you.</strong> Labs 1 through 5 are read-only <code>nvidia-smi</code> work — run them simultaneously, they do not interfere. Labs 6 through 8 change shared state (Slurm config, node state, persistence). For those, <strong>one person drives and the other two watch and read along</strong>. Rajesh will nominate the driver for each. If two people run <code>scontrol update</code> at the same time you will spend the rest of the session untangling it.</p>
+      </div>
+      <div class="callout-amber" style="margin-top:16px">
+        <p><strong>Trainer note.</strong> Three scenarios are pre-armed by <code>scenarios.sh --arm</code> during bootstrap: the persistence trap (Lab 4), the fleet driver drift (Lab 5), and the GRES count mismatch that leaves the node drained (Labs 6–7). Do not fix the drain before Lab 7 — the drained node is the whole point of that section. The T4 is sharded four ways so all three learners can run GPU jobs concurrently in Lab 8. If a section needs resetting mid-session, <code>scenarios.sh --reset &amp;&amp; scenarios.sh --arm</code> restores the starting state.</p>
+      </div>
+      <div class="callout-teal" style="margin-top:16px">
+        <p><strong>What this hardware cannot show you.</strong> The T4 has no NVLink, and there is one GPU node rather than eight. Where the slides show NVLink topology or a fleet-wide sweep, this runbook uses <strong>captured output from production hardware</strong>, stored in <code>/shared/lab/captured/</code> and always labelled as such. The commands are real; the fleet is not. You will be told every time you are reading captured data.</p>
+      </div>
+    </section>
+
+    <!-- CREDENTIALS -->
+    <section class="section" id="credentials">
+      <p class="label">lab credentials</p>
+      <p class="prose">Connect over SSH using the row matching your name. You land directly on <code>gpu-node-01</code> — the GPU is on the machine you log in to.</p>
+      <table class="creds-table">
+        <thead><tr><th>Name</th><th>Username</th><th>Password</th><th>Host</th></tr></thead>
+        <tbody>
+          <tr><td class="name-col">Chandra</td><td class="mono-col">chandra</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Sujith</td><td class="mono-col">sujith</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Yogaraj</td><td class="mono-col">yogaraj</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block" data-validate="skip">
+        <div class="code-label">Connect to the lab</div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="cmd">ssh chandra@mylab.hpc.now</span>          <span class="cmt"># replace chandra with your username</span>
+<span class="out">[chandra@gpu-node-01 ~]$</span>             <span class="cmt"># you are on the GPU node</span></pre>
+      </div>
+      <div class="callout-teal">
+        <p><strong>Where things live.</strong> Lab job scripts are in <code>~/jobs/</code>. Shared assets — helper tools, the simulated fleet inventory, and captured production output — are in <code>/shared/lab/</code>. Slurm configuration is in <code>/etc/slurm/</code>, and the Slurm binaries are under <code>/opt/slurm/</code>.</p>
+      </div>
+      <div class="wrong-block">
+        <div class="wrong-label">If your connection is refused or times out</div>
+        <div class="wrong-body">
+          <p>The lab IP changes between cohorts. Ask Rajesh for the current one. If you see <code>Host key verification failed</code>, run <code>ssh-keygen -R mylab.hpc.now</code> and reconnect. If you see <code>Permission denied (publickey)</code>, force password auth with <code>ssh -o PreferredAuthentications=password chandra@mylab.hpc.now</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB 1 -->
+    <section class="section" id="lab-1">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 1 / 8 · 25 minutes · Guided</p>
+        <h2 class="domain-title">GPU Orientation — First Conversation with the Hardware</h2>
+        <p class="domain-intent">Follows: Slide 17 (first contact) and Slide 7 (the nvidia-smi summary table, field by field).</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Establish where you are before you diagnose anything</p>
+            <p class="step-desc">Every GPU investigation starts with two questions: which host am I on, and does it have a GPU. Answer both before touching anything else.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">hostname</span>
+<span class="cmd">lspci | grep -i nvidia</span>
+<span class="cmd">lsmod | grep -c nvidia</span>                <span class="cmt"># kernel module loaded?</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>gpu-node-01
+00:1e.0 3D controller: NVIDIA Corporation TU104GL [Tesla T4] (rev a1)
+4</pre></div>
+            </div>
+            <p class="step-notice">Three layers, bottom up: <code>lspci</code> proves the card is on the bus, <code>lsmod</code> proves the kernel module is loaded, and only then can <code>nvidia-smi</code> work. On a real cluster the most common false alarm is someone running <code>nvidia-smi</code> on a login node that never had a GPU — check <code>lspci</code> before you escalate anything.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Confirm the GPU is visible and record its identity</p>
+            <p class="step-desc"><code>nvidia-smi -L</code> is the cheapest, fastest question you can ask: how many GPUs, and what are their UUIDs. The UUID is what you quote in an escalation ticket — index numbers change, UUIDs do not.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">nvidia-smi -L</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>GPU 0: Tesla T4 (UUID: GPU-1f4a9c2b-77d3-8e10-5b6c-9a0e3d21ff47)</pre></div>
+            </div>
+            <p class="step-notice">Your UUID will differ. Write it down — Lab 3 and Lab 8 both ask you to draft escalation text and the UUID belongs in it. One line back means the driver is loaded and the device node is present.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Read the summary table field by field</p>
+            <p class="step-desc">This is Slide 7. Run bare <code>nvidia-smi</code> and account for every field before moving on. Do not skim it — this table is the single most-used diagnostic surface in GPU operations.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">nvidia-smi</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>+---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 550.54.14              Driver Version: 550.54.14    CUDA Version: 12.4      |
+|-----------------------------------------+------------------------+---------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC|
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M.|
+|=========================================+========================+=====================|
+|   0  Tesla T4                       On  |   00000000:00:1E.0 Off |                   0 |
+| N/A   34C    P8               9W /  70W |       1MiB /  15360MiB |      0%      Default|
++-----------------------------------------+------------------------+---------------------+
+
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  No running processes found                                                           |
++---------------------------------------------------------------------------------------+</pre></div>
+            </div>
+            <p class="step-notice">Six fields, six meanings. <code>Driver Version</code> must match across every GPU node in a fleet. <code>CUDA Version</code> is the <em>maximum</em> the driver supports — not the toolkit installed. <code>Persistence-M</code> should read <code>On</code> in HPC. <code>Volatile Uncorr. ECC</code> must be <code>0</code>, always. <code>Perf</code> is P8 (idle) here; P0 is full clocks. <code>GPU-Util</code> answers "is it being used", not "is it saturated".</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4 (Prompted)</span>
+          <div>
+            <p class="step-title">Get the same facts in machine-readable form</p>
+            <p class="step-desc">The table is for humans. For scripting you want CSV. Build a query that returns the GPU name, driver version, total memory and current temperature as one comma-separated line with no header.</p>
+            <div class="callout-amber">
+              <p><strong>Build this yourself.</strong> The flag is <code>--query-gpu=</code> with a comma-separated field list, paired with <code>--format=csv,noheader</code>. Useful field names: <code>name</code>, <code>driver_version</code>, <code>memory.total</code>, <code>temperature.gpu</code>. Run <code>nvidia-smi --help-query-gpu | head -40</code> to see the full list.</p>
+            </div>
+            <div class="code-block" data-validate="run">
+              <div class="code-label">Reference — reveal after trying</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">nvidia-smi --query-gpu=name,driver_version,memory.total,temperature.gpu \
+  --format=csv,noheader</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Tesla T4, 550.54.14, 15360 MiB, 34</pre></div>
+            </div>
+            <p class="step-notice">This one command is the building block for every fleet check you will write. Lab 5 wraps exactly this in a loop.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Lab 1 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body" data-validate="run">
+          <div class="checkpoint-state"><strong>Before you run this</strong>You have confirmed the card on the PCI bus and the module in the kernel, run <code>nvidia-smi -L</code>, recorded your GPU UUID, and can explain every field in the summary table.</div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>hostname && nvidia-smi --query-gpu=count,name,driver_version,memory.total --format=csv,noheader && echo "Lab 1 complete"</pre>
+          <div class="checkpoint-note">Expected: <code>gpu-node-01</code>, then <code>1, Tesla T4, 550.54.14, 15360 MiB</code>, then <code>Lab 1 complete</code>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB 2 -->
+    <section class="section" id="lab-2">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 2 / 8 · 25 minutes · Guided + Prompted</p>
+        <h2 class="domain-title">The Eight Invocations — One Command Per Operational Question</h2>
+        <p class="domain-intent">Follows: Slide 8. The default output is the summary; the query flags are the specifics.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Clocks and thermal headroom</p>
+            <p class="step-desc">Two of the eight invocations answer performance questions: is the GPU clocked where it should be, and does it have thermal room to stay there.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">nvidia-smi -q -d CLOCK | head -25</span>
+<span class="cmd">nvidia-smi -q -d TEMPERATURE</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected — key fields</div>
+              <div class="expected-body"><pre>    Clocks
+        Graphics                          : 300 MHz
+        SM                                : 300 MHz
+        Memory                            : 405 MHz
+    Max Clocks
+        Graphics                          : 1590 MHz
+        SM                                : 1590 MHz
+        Memory                            : 5001 MHz
+
+    Temperature
+        GPU Current Temp                  : 34 C
+        GPU Shutdown Temp                 : 96 C
+        GPU Slowdown Temp                 : 93 C
+        GPU Max Operating Temp            : 85 C</pre></div>
+            </div>
+            <p class="step-notice">An idle GPU sits far below max clocks — that is correct, not a fault. The number that matters operationally is the gap between <code>Current Temp</code> and <code>Slowdown Temp</code>. A card running a job while sitting a few degrees under slowdown is thermally throttled, and the user's "it got slower" ticket is a cooling problem, not a code problem.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Ask about NVLink — and read the answer honestly</p>
+            <p class="step-desc">Two invocations cover the GPU-to-GPU fabric: link state and error counters. Run both on the T4.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">nvidia-smi nvlink -s</span>
+<span class="cmd">nvidia-smi nvlink -e</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output on this hardware</div>
+              <div class="expected-body"><pre>GPU 0: Tesla T4 (UUID: GPU-1f4a9c2b-...)
+         (no NVLink links reported)</pre></div>
+            </div>
+            <p class="step-notice">The T4 has no NVLink. This is the honest answer from the tool, and recognising "this card does not have that fabric" is itself the operational skill — an NVLink ticket raised against a T4 node is a misrouted ticket.</p>
+            <p class="step-desc" style="margin-top:14px">Now read what a real NVLink system returns. This is <strong>captured output</strong> from an 8-GPU H100 node, not live data:</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">head -20 /shared/lab/captured/nvlink-status.txt</span>
+<span class="cmd">head -20 /shared/lab/captured/nvlink-errors.txt</span></pre>
+            </div>
+            <p class="step-notice">In the captured error file, look for a link whose replay or recovery counters are non-zero while every other link reads zero. That single asymmetric line, combined with a user complaint about multi-GPU throughput, is the marginal-link signature from Slide 11.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Watch the GPU live with dmon</p>
+            <p class="step-desc"><code>dmon</code> is the one invocation you run <em>during</em> a job rather than before or after it. Start it now on an idle GPU so you know what zero looks like — Lab 8 puts load underneath it.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">timeout 12 nvidia-smi dmon -s u -d 2</span>    <span class="cmt"># 6 samples, then exits</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — an idle card</div>
+              <div class="expected-body"><pre># gpu    sm   mem   enc   dec   jpg   ofa
+# Idx     %     %     %     %     %     %
+    0     0     0     0     0     -     -
+    0     0     0     0     0     -     -
+    0     0     0     0     0     -     -</pre></div>
+            </div>
+            <p class="step-notice"><code>sm</code> is the utilisation figure that matters — the percentage of sampled time at least one kernel was resident. <code>mem</code> is memory-bandwidth activity, not memory occupancy; people confuse the two constantly. Columns showing <code>-</code> are engines this card does not have.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4 (Prompted)</span>
+          <div>
+            <p class="step-title">Compose the fleet-check one-liner</p>
+            <p class="step-desc">Write the machine-readable invocation you would run on every node of a fleet: driver version, GPU name, and total memory, as CSV with no header, so the output of many nodes can be diffed.</p>
+            <div class="callout-amber">
+              <p><strong>Build this yourself.</strong> You already wrote most of it in Lab 1 Ex 4. Keep the field list short — a fleet check that returns twelve columns is a fleet check nobody reads.</p>
+            </div>
+            <div class="code-block" data-validate="run">
+              <div class="code-label">Reference — reveal after trying</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">nvidia-smi --query-gpu=driver_version,name,memory.total --format=csv,noheader</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>550.54.14, Tesla T4, 15360 MiB</pre></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Lab 2 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body" data-validate="run">
+          <div class="checkpoint-state"><strong>Before you run this</strong>You have run the clock, temperature, NVLink and dmon invocations, and read the captured NVLink files. You can say, in one sentence each, which operational question every invocation answers.</div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>nvidia-smi --query-gpu=index,uuid,temperature.gpu,clocks.max.sm,utilization.gpu --format=csv,noheader && echo "Lab 2 complete"</pre>
+          <div class="checkpoint-note">Expected: one line — index <code>0</code>, your GPU's UUID, a temperature in the 30s or 40s, <code>1590 MHz</code>, and <code>0 %</code> — followed by <code>Lab 2 complete</code>. A utilisation above 0% means someone else is already running something; find out who before continuing.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB 3 -->
+    <section class="section" id="lab-3">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 3 / 8 · 20 minutes · Guided</p>
+        <h2 class="domain-title">ECC and Page Retirement — The Numbers That Decide an RMA</h2>
+        <p class="domain-intent">Follows: Slide 10. Corrected ECC is expected at low rates. Uncorrected ECC is never routine.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Read the full ECC record</p>
+            <p class="step-desc">Run the ECC query and find four things: whether ECC is enabled, the volatile corrected count, the volatile uncorrected count, and the aggregate counts that survive reboots.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">nvidia-smi -q -d ECC | head -40</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected — key fields</div>
+              <div class="expected-body"><pre>    Ecc Mode
+        Current                           : Enabled
+        Pending                           : Enabled
+    ECC Errors
+        Volatile
+            SRAM Correctable              : 0
+            SRAM Uncorrectable            : 0
+            DRAM Correctable              : 0
+            DRAM Uncorrectable            : 0
+        Aggregate
+            SRAM Correctable              : 0
+            SRAM Uncorrectable            : 0
+            DRAM Correctable              : 0
+            DRAM Uncorrectable            : 0</pre></div>
+            </div>
+            <p class="step-notice"><strong>Volatile</strong> counters reset when the driver reloads or the GPU is reset. <strong>Aggregate</strong> counters persist for the life of the card. A clean volatile count on a card with a large aggregate count means someone reset it recently — check aggregate before you declare a card healthy.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Extract just the number that triggers action</p>
+            <p class="step-desc">In an alerting script you do not parse forty lines — you query the one field whose non-zero value means "drain this node now".</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">nvidia-smi --query-gpu=ecc.errors.uncorrected.volatile.total,ecc.errors.corrected.volatile.total \
+  --format=csv,noheader</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>0, 0</pre></div>
+            </div>
+            <p class="step-notice">The first number is the one that ends jobs. One uncorrected multi-bit error means a computation produced wrong results and the job's output is suspect — the user must be told, not just the hardware queue. The second is expected to drift slowly upward on a healthy card; only a sudden spike on one GPU in a fleet is a signal.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Check page retirement</p>
+            <p class="step-desc">When memory cells fail, the driver retires the affected pages so they are never allocated again. A few over a card's lifetime is normal; many, or a rising rate, means the card is approaching end of life.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">nvidia-smi -q -d PAGE_RETIREMENT</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected — a healthy T4</div>
+              <div class="expected-body"><pre>    Retired Pages
+        Single Bit ECC                    : 0
+        Double Bit ECC                    : 0
+        Pending Page Blacklist            : No</pre></div>
+            </div>
+            <p class="step-notice">On Ampere and Hopper cards this section is replaced by <strong>Remapped Rows</strong>, with a <code>Remapping Failure Occurred</code> flag. Same concept, different vocabulary — when you move from T4s to H100s the field name changes and the operational meaning does not. <code>Pending Page Blacklist: Yes</code> means the retirement takes effect at the next GPU reset, so the node needs draining and cycling.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4 (Prompted)</span>
+          <div>
+            <p class="step-title">Write the escalation record — no commands</p>
+            <p class="step-desc">Imagine the uncorrected volatile count on this GPU had just come back as <code>3</code>. Write the escalation note you would file, in a text file in your home directory.</p>
+            <div class="callout-amber">
+              <p><strong>Do this in an editor.</strong> Your note must contain, at minimum: the node name, the GPU UUID from Lab 1, the exact counter values and whether they are volatile or aggregate, the retired-page state, what you did to the node, and which jobs ran on it in the affected window. Save it as <code>~/escalation-ecc.txt</code>.</p>
+            </div>
+            <div class="code-block" data-validate="skip">
+              <div class="code-label">Reference — the shape of a good record</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmt"># ~/escalation-ecc.txt</span>
+<span class="cmd">Node        : gpu-node-01
+GPU UUID    : GPU-1f4a9c2b-77d3-8e10-5b6c-9a0e3d21ff47
+Symptom     : DRAM Uncorrectable (volatile) = 3, aggregate = 3
+Retired pgs : 0 single-bit, 2 double-bit, pending blacklist = Yes
+Action taken: node drained at 14:02 UTC, reason recorded in Slurm
+Job impact  : jobs 118, 119 ran in the affected window - output suspect
+Request     : RMA assessment. Do not return node to service.</span></pre>
+            </div>
+            <p class="step-notice">"The GPU has ECC errors" is not an escalation. Counter values, UUID, blast radius on user jobs, and the action you already took — that is an escalation. The difference is roughly a day of turnaround.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Lab 3 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body" data-validate="run">
+          <div class="checkpoint-state"><strong>Before you run this</strong>You have read the full ECC record, extracted the uncorrected counter on its own, checked page retirement, and written <code>~/escalation-ecc.txt</code>. You can state the difference between volatile and aggregate counters without looking it up.</div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>nvidia-smi --query-gpu=ecc.errors.uncorrected.volatile.total --format=csv,noheader && test -s ~/escalation-ecc.txt && echo "Lab 3 complete"</pre>
+          <div class="checkpoint-note">Expected: <code>0</code>, then <code>Lab 3 complete</code>. If nothing prints after the zero, your escalation file is missing or empty — <code>test -s</code> checks it exists and has content.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB 4 -->
+    <section class="section" id="lab-4">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 4 / 8 · 20 minutes · Guided + Prompted</p>
+        <h2 class="domain-title">Persistence Mode — Two Checks, and Only Both Passing Counts</h2>
+        <p class="domain-intent">Follows: Slide 14. nvidia-smi -pm 1 does not survive a reboot. nvidia-persistenced does.</p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Driver required.</strong> This section changes node state. Rajesh nominates one person to run the commands; the other two read along and predict each output before it appears.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Run both checks and read the contradiction</p>
+            <p class="step-desc">Persistence mode has two independent questions: is it on right now, and will it still be on after a reboot. Run both.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">nvidia-smi -q | grep -i "persistence mode"</span>   <span class="cmt"># check 1: is it on now?</span>
+<span class="cmd">systemctl is-enabled nvidia-persistenced</span>      <span class="cmt"># check 2: will it come back?</span>
+<span class="cmd">systemctl is-active  nvidia-persistenced</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — this is the fault</div>
+              <div class="expected-body"><pre>    Persistence Mode                   : Enabled
+disabled
+inactive</pre></div>
+            </div>
+            <p class="step-notice">This is exactly the "first yes, second no" state from Slide 14. Persistence is on because somebody ran <code>nvidia-smi -pm 1</code> by hand. The daemon that would restore it is disabled. The next reboot silently removes persistence, and weeks later somebody files a ticket about jobs taking longer to start on one node.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Understand what you are protecting against</p>
+            <p class="step-desc">Read what persistence mode actually does, and confirm the driver's own description of the setting.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">nvidia-smi -q | grep -A3 -i "persistence"</span>
+<span class="cmd">systemctl cat nvidia-persistenced | head -15</span></pre>
+            </div>
+            <p class="step-notice">Without persistence, the driver tears down GPU state whenever no process holds the device — then rebuilds it when the next job arrives. On a busy queue of short jobs that initialisation cost is paid over and over, and it shows up as jobs that "start slowly" for no visible reason. The cost is invisible in <code>sacct</code>, because it happens before the job's own timer starts.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3 (Prompted)</span>
+          <div>
+            <p class="step-title">Fix it properly — the daemon, not the flag</p>
+            <p class="step-desc">Make persistence mode survive a reboot. Then re-run both checks from Ex 1 and confirm both now pass.</p>
+            <div class="callout-amber">
+              <p><strong>Build this yourself.</strong> The wrong fix is <code>sudo nvidia-smi -pm 1</code> — it is already on, and it will not survive. The right fix is a single <code>systemctl</code> command with a flag that both enables the unit for boot and starts it right now. Your password is <code>hpcnow2026</code>.</p>
+            </div>
+            <div class="code-block" data-validate="run-then-restore">
+              <div class="code-label">Reference — reveal after trying</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo systemctl enable --now nvidia-persistenced</span>
+<span class="cmd">systemctl is-enabled nvidia-persistenced</span>
+<span class="cmd">systemctl is-active  nvidia-persistenced</span>
+<span class="cmd">nvidia-smi -q | grep -i "persistence mode"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output — both checks now pass</div>
+              <div class="expected-body"><pre>enabled
+active
+    Persistence Mode                   : Enabled</pre></div>
+            </div>
+            <p class="step-notice">This is the pattern for a whole class of GPU node problems: the symptom is fixed by a manual command, so the ticket closes, and the fault returns at the next reboot. Whenever a fix is a manual command, ask what makes it survive a reboot — and put <em>that</em> in the runbook.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Lab 4 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body" data-validate="run">
+          <div class="checkpoint-state"><strong>Before you run this</strong>You have found the mismatched persistence state, explained why manual persistence is a trap, and enabled the daemon so both checks pass.</div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>nvidia-smi --query-gpu=persistence_mode --format=csv,noheader && systemctl is-enabled nvidia-persistenced && systemctl is-active nvidia-persistenced && echo "Lab 4 complete"</pre>
+          <div class="checkpoint-note">Expected: <code>Enabled</code>, <code>enabled</code>, <code>active</code>, then <code>Lab 4 complete</code>. If the chain stops after the first line, the daemon is still not enabled — <code>&amp;&amp;</code> halts on the non-zero exit from <code>is-enabled</code>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB 5 -->
+    <section class="section" id="lab-5">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 5 / 8 · 20 minutes · Guided + Prompted</p>
+        <h2 class="domain-title">Fleet Hygiene — Finding the Outlier Before the Users Do</h2>
+        <p class="domain-intent">Follows: Slide 15. A cluster is only as consistent as its least-patched node.</p>
+      </div>
+
+      <div class="callout-teal">
+        <p><strong>Simulated fleet, real command.</strong> This lab has one GPU node, so a genuine sweep would return one line and prove nothing. <code>fleet-check.sh</code> queries this node live and reads the remaining seven from captured production data. Every row is labelled <code>[live]</code> or <code>[captured]</code>. The loop, the parsing and the diff logic are exactly what you would run against a real fleet.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Read the fleet check before you run it</p>
+            <p class="step-desc">Never run a script across a fleet without reading it first. Open it and identify: where the node list comes from, what is executed per node, and how failures are handled.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat /shared/lab/bin/fleet-check.sh</span>
+<span class="cmd">cat /shared/lab/fleet-inventory.txt</span></pre>
+            </div>
+            <p class="step-notice">Note what the script does when a node does not answer. A fleet check that silently skips unreachable nodes will tell you every node is consistent right up until the moment you discover half of them were down.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Run it and find the outlier</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">bash /shared/lab/bin/fleet-check.sh</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>NODE            SOURCE       DRIVER VERSION
+gpu-node-01     [live]       550.54.14
+gpu-node-02     [captured]   550.54.14
+gpu-node-03     [captured]   550.54.14
+gpu-node-04     [captured]   550.54.14
+gpu-node-05     [captured]   550.54.14
+gpu-node-06     [captured]   550.54.14
+gpu-node-07     [captured]   550.54.14
+gpu-node-08     [captured]   535.86.10   &lt;-- outlier</pre></div>
+            </div>
+            <p class="step-notice">One node is two driver releases behind. Nothing is broken yet, and nothing will alert. What happens instead: a container built against a newer CUDA runtime works on seven nodes and fails on the eighth, so the user reports "my job fails randomly, about one time in eight". That ticket costs a day if you have not run this check.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3 (Prompted)</span>
+          <div>
+            <p class="step-title">Reduce the fleet to a single answer</p>
+            <p class="step-desc">A human reading eight lines finds the outlier. A monitoring system needs one number: how many distinct driver versions exist in the fleet. Build the pipeline that returns it.</p>
+            <div class="callout-amber">
+              <p><strong>Build this yourself.</strong> Take the last field of every output line, sort, uniquify, count. A healthy fleet returns <code>1</code>. Anything above <code>1</code> is drift and should page someone. Watch out for the header line.</p>
+            </div>
+            <div class="code-block" data-validate="run">
+              <div class="code-label">Reference — reveal after trying</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">bash /shared/lab/bin/fleet-check.sh | grep -E "^gpu-node" \
+  | awk '{print $3}' | sort -u | wc -l</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>2</pre></div>
+            </div>
+            <p class="step-notice">This is the whole check, compressed to one integer you can alert on. The same shape works for CUDA version, GPU model, VBIOS version, and persistence-daemon state — anything that must be identical across a fleet and silently is not.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Decide what you do about it</p>
+            <p class="step-desc">No commands. Answer three questions out loud, and be ready for Rajesh to ask you.</p>
+            <div class="callout-amber">
+              <p><strong>Diagnosis exercise.</strong> (1) Do you drain <code>gpu-node-08</code> immediately, or schedule it? (2) What do you check before assuming the driver is simply old — what else could produce a mismatched version string? (3) The fleet check runs nightly and has been green for a month. What is the most likely reason node 08 drifted, and what does that tell you about the provisioning process rather than the node?</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Lab 5 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body" data-validate="run">
+          <div class="checkpoint-state"><strong>Before you run this</strong>You have read <code>fleet-check.sh</code>, run it, identified the outlier node and version, and built the one-integer drift check. You can answer the three questions in Ex 4.</div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>bash /shared/lab/bin/fleet-check.sh | grep -E "^gpu-node" | awk '{print $3}' | sort -u | wc -l && echo "Lab 5 complete"</pre>
+          <div class="checkpoint-note">Expected: <code>2</code> — two distinct driver versions found, meaning the check correctly detected drift — followed by <code>Lab 5 complete</code>. A <code>1</code> means the captured inventory was reset; tell Rajesh.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB 6 -->
+    <section class="section" id="lab-6">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 6 / 8 · 25 minutes · Guided</p>
+        <h2 class="domain-title">The GRES Chain — From slurm.conf to CUDA_VISIBLE_DEVICES</h2>
+        <p class="domain-intent">Follows: Slide 12. Two config files declare what exists. One environment variable hands it to the job.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Read step 1 of the chain — slurm.conf declares what exists</p>
+            <p class="step-desc">Find the two lines that make GPUs schedulable at all: the <code>GresTypes</code> declaration and the <code>NodeName</code> line carrying the <code>Gres=</code> specification.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep -E "GresTypes|^NodeName|^PartitionName" /etc/slurm/slurm.conf</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>GresTypes=gpu,shard
+NodeName=gpu-node-01 CPUs=4 RealMemory=14000 Gres=gpu:t4:2,shard:4 State=UNKNOWN
+PartitionName=gpu Nodes=gpu-node-01 Default=YES MaxTime=02:00:00 DefaultTime=00:30:00 State=UP</pre></div>
+            </div>
+            <p class="step-notice">Read the <code>Gres=</code> value carefully and hold on to it. It claims <strong>two</strong> T4s. You proved in Lab 1 that this machine has one. Do not fix it yet — Lab 7 is where you diagnose it properly using all three sources of truth. <code>shard:4</code> means the GPU is divided into four schedulable slices so several small jobs can share one card.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Ask the controller what it believes</p>
+            <p class="step-desc">The config file is what was written. <code>scontrol</code> is what the running controller loaded. They are not always the same thing.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sinfo</span>
+<span class="cmd">scontrol show node gpu-node-01</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected — key fields</div>
+              <div class="expected-body"><pre>PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST
+gpu*         up    2:00:00      1  drain gpu-node-01
+
+NodeName=gpu-node-01 Arch=x86_64 CoresPerSocket=2
+   CPUAlloc=0 CPUEfctv=4 CPUTot=4 CPULoad=0.02
+   Gres=gpu:t4:2,shard:4
+   NodeAddr=10.42.1.87 NodeHostName=gpu-node-01
+   RealMemory=14000 AllocMem=0 FreeMem=14210 Sockets=2 Boards=1
+   State=IDLE+DRAIN ThreadsPerCore=2
+   Partitions=gpu
+   CfgTRES=cpu=4,mem=14000M,billing=4,gres/gpu=2
+   AllocTRES=
+   Reason=gres/gpu count reported lower than configured (1 < 2) [slurm@2026-07-31T09:14:02]</pre></div>
+            </div>
+            <p class="step-notice">The node is <code>DRAIN</code>ed and Slurm has told you precisely why. This is the healthiest possible failure: the scheduler noticed the configuration claimed more hardware than the node reported, refused to schedule against a lie, and wrote the reason down. Note the <code>Reason=</code> string verbatim — you will quote it in Lab 7.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Read the drain reason the fast way</p>
+            <p class="step-desc"><code>sinfo -R</code> is the operational shortcut: every node that is out of service, and why, in one screen. This is the second command of any GPU morning health check.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sinfo -R</span>
+<span class="cmd">sinfo -o "%-16N %-8T %-20G %R"</span>        <span class="cmt"># node, state, gres, reason</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>REASON                              USER    TIMESTAMP           NODELIST
+gres/gpu count reported lower than  slurm   2026-07-31T09:14:02 gpu-node-01
+
+NODELIST         STATE    GRES                 REASON
+gpu-node-01      drained  gpu:t4:2,shard:4     gres/gpu count reported lower...</pre></div>
+            </div>
+            <p class="step-notice">The <code>%G</code> format field prints the configured GRES next to the node state — the fastest way to spot a node whose GRES declaration looks wrong without opening any config file.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Read step 3 of the chain — how a job would receive the GPU</p>
+            <p class="step-desc">The handoff between Slurm and CUDA is one environment variable. Read the job script that demonstrates it. You cannot run it yet — the node is drained — but you must understand it before Lab 8.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat ~/jobs/gpu-hello.sh</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected file content</div>
+              <div class="expected-body"><pre>#!/bin/bash
+# ---------------------------------------------------------------------------
+# Lab 8: minimal GPU job. Proves the GRES chain end to end.
+# ---------------------------------------------------------------------------
+#SBATCH --job-name=gpu-hello
+#SBATCH --partition=gpu
+#SBATCH --gres=shard:1
+#SBATCH --ntasks=1
+#SBATCH --time=00:05:00
+#SBATCH --output=/home/%u/jobs/gpu-hello-%j.out
+
+echo "==== gpu-hello.sh ===="
+echo "Hostname             : $(hostname)"
+echo "SLURM_JOB_ID         : ${SLURM_JOB_ID}"
+echo "CUDA_VISIBLE_DEVICES : ${CUDA_VISIBLE_DEVICES}"
+echo "-- what the job can see --"
+nvidia-smi -L
+nvidia-smi --query-gpu=index,name,memory.used --format=csv
+echo "==== done ===="</pre></div>
+            </div>
+            <p class="step-notice">The job never mentions a device index. It asks Slurm for <code>shard:1</code>; Slurm sets <code>CUDA_VISIBLE_DEVICES</code>; the CUDA runtime reads that variable and shows the application only the allocated device. With <code>ConstrainDevices=yes</code> in <code>cgroup.conf</code>, the device node is also removed from the job's cgroup — so the restriction is enforced by the kernel, not merely suggested by an environment variable.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Lab 6 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body" data-validate="run">
+          <div class="checkpoint-state"><strong>Before you run this</strong>You have read the <code>GresTypes</code> and <code>Gres=</code> declarations, seen that the node is drained, read the drain reason, and understood how <code>CUDA_VISIBLE_DEVICES</code> reaches a job. <strong>Do not fix anything yet.</strong></div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>scontrol show config | grep -i "^GresTypes" && scontrol show node gpu-node-01 | grep -oE "Gres=[^ ]+" && sinfo -h -o "%T" && echo "Lab 6 complete"</pre>
+          <div class="checkpoint-note">Expected: <code>GresTypes = gpu,shard</code>, then <code>Gres=gpu:t4:2,shard:4</code>, then <code>drained</code>, then <code>Lab 6 complete</code>. Yes — the checkpoint passes on a broken cluster. You are being checked on reading the state correctly, not on it being healthy.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB 7 -->
+    <section class="section" id="lab-7">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 7 / 8 · 30 minutes · Prompted</p>
+        <h2 class="domain-title">Three Truths — Locating the Misconfiguration Exactly</h2>
+        <p class="domain-intent">Follows: Slide 13. nvidia-smi -L is physical truth. slurmd -G is what the agent sees. scontrol show node is what the controller believes.</p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Driver required.</strong> This section edits <code>slurm.conf</code> and changes node state. One person drives. The other two collect the three values and call out where they diverge before the driver touches anything.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Collect all three values</p>
+            <p class="step-desc">Gather the three sources of truth in order — hardware, agent, controller — and write each one down before interpreting any of them. On a real cluster these come from two different hosts; here all three live on this machine, but they are still three independent layers that can disagree.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmt"># 1. physical truth — what the driver reports</span>
+<span class="cmd">nvidia-smi -L</span>
+
+<span class="cmt"># 2. agent truth — what slurmd parsed out of gres.conf</span>
+<span class="cmd">sudo /opt/slurm/sbin/slurmd -G</span>
+
+<span class="cmt"># 3. controller truth — what slurmctld believes</span>
+<span class="cmd">scontrol show node gpu-node-01 | grep -E "Gres=|CfgTRES"</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>1. GPU 0: Tesla T4 (UUID: GPU-1f4a9c2b-...)          -> 1 GPU
+
+2. Gres Name=gpu Type=t4 Count=1 Index=0 File=/dev/nvidia0
+   Gres Name=shard Count=4 File=/dev/nvidia0          -> 1 GPU, 4 shards
+
+3. Gres=gpu:t4:2,shard:4
+   CfgTRES=cpu=4,mem=14000M,billing=4,gres/gpu=2      -> 2 GPUs</pre></div>
+            </div>
+            <p class="step-notice">Values 1 and 2 agree: one physical GPU, and <code>gres.conf</code> describes one. Value 3 disagrees. By the rule on Slide 13, a mismatch between 2 and 3 points at the controller's configuration — and here it is not stale state but a genuinely wrong <code>Gres=</code> on the <code>NodeName</code> line in <code>slurm.conf</code>.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Confirm gres.conf independently</p>
+            <p class="step-desc">Before editing anything, verify that <code>gres.conf</code> really is correct — you are about to change the other file, so be certain which one is wrong.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">cat /etc/slurm/gres.conf</span>
+<span class="cmd">ls -l /dev/nvidia*</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>Name=gpu Type=t4 File=/dev/nvidia0
+Name=shard Count=4 File=/dev/nvidia0
+
+crw-rw-rw- 1 root root 195,   0 Jul 31 09:02 /dev/nvidia0
+crw-rw-rw- 1 root root 195, 255 Jul 31 09:02 /dev/nvidiactl
+crw-rw-rw- 1 root root 234,   0 Jul 31 09:02 /dev/nvidia-uvm</pre></div>
+            </div>
+            <p class="step-notice">One device file, one GRES entry pointing at it, world-readable permissions. <code>gres.conf</code> is right. If the device files were missing or root-only, you would have found the third failure mode from Slide 6 instead — a node config issue that produces <code>CUDA_ERROR_NO_DEVICE</code> inside containers.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3 (Prompted)</span>
+          <div>
+            <p class="step-title">Fix slurm.conf and reload the controller</p>
+            <p class="step-desc">Correct the GPU count in <code>slurm.conf</code>, make the controller re-read its configuration without restarting it, and confirm the controller's view now matches the other two truths.</p>
+            <div class="callout-amber">
+              <p><strong>Build this yourself.</strong> Edit <code>/etc/slurm/slurm.conf</code> with <code>sudo</code> and change the <code>Gres=</code> value on the <code>NodeName</code> line to reflect one GPU. The reload command is a single <code>scontrol</code> subcommand; it is not <code>restart</code>. On a multi-node cluster you would also have to make sure this file is byte-identical on every node before reloading — a stale copy on one compute node is a classic source of "it works everywhere except node 7".</p>
+            </div>
+            <div class="code-block" data-validate="run-then-restore">
+              <div class="code-label">Reference — reveal after trying</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo sed -i 's/Gres=gpu:t4:2,shard:4/Gres=gpu:t4:1,shard:4/' /etc/slurm/slurm.conf</span>
+<span class="cmd">grep "^NodeName" /etc/slurm/slurm.conf</span>       <span class="cmt"># verify before reloading</span>
+<span class="cmd">sudo scontrol reconfigure</span>
+<span class="cmd">scontrol show node gpu-node-01 | grep -E "Gres=|State="</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected after reconfigure</div>
+              <div class="expected-body"><pre>NodeName=gpu-node-01 CPUs=4 RealMemory=14000 Gres=gpu:t4:1,shard:4 State=UNKNOWN
+   Gres=gpu:t4:1,shard:4
+   State=IDLE+DRAIN</pre></div>
+            </div>
+            <p class="step-notice">The GRES count is fixed, but the node is <strong>still drained</strong>. Slurm does not automatically forgive a node it took out of service — a human decided it was untrustworthy, so a human must decide it is trustworthy again. This surprises people every single time.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4 (Prompted)</span>
+          <div>
+            <p class="step-title">Return the node to service and prove the chain end to end</p>
+            <p class="step-desc">Resume the node, then run the end-to-end test from Slide 13: a one-line srun that allocates a GPU and asks the driver to name it.</p>
+            <div class="callout-amber">
+              <p><strong>Build this yourself.</strong> The resume command is <code>scontrol update</code> against a <code>NodeName</code> with a <code>State</code>. The end-to-end test is <code>srun</code> with <code>--gres</code>, one node, one task, running <code>nvidia-smi -L</code>.</p>
+            </div>
+            <div class="code-block" data-validate="run-then-restore">
+              <div class="code-label">Reference — reveal after trying</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo scontrol update NodeName=gpu-node-01 State=RESUME</span>
+<span class="cmd">sinfo</span>
+<span class="cmd">srun --partition=gpu --gres=gpu:1 -N1 -n1 nvidia-smi -L</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST
+gpu*         up    2:00:00      1   idle gpu-node-01
+
+GPU 0: Tesla T4 (UUID: GPU-1f4a9c2b-77d3-8e10-5b6c-9a0e3d21ff47)</pre></div>
+            </div>
+            <p class="step-notice">One line back, naming one GPU, with the same UUID you recorded in Lab 1. That is the full path proven healthy: controller allocated it, agent enforced it, driver exposed it, and the UUID confirms it is the physical card you started with.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Lab 7 <span>Type done in chat when this passes</span></div>
+        <div class="checkpoint-body" data-validate="run">
+          <div class="checkpoint-state"><strong>Before you run this</strong>You have collected all three truths, located the disagreement, corrected <code>slurm.conf</code>, reconfigured the controller and resumed the node. <code>sinfo</code> must show <code>idle</code>, not <code>drained</code>. If it still shows drained, you have fixed the config but not returned the node to service.</div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>sinfo -h -o "%T %G" && srun --partition=gpu --gres=gpu:1 -N1 -n1 nvidia-smi -L && echo "Lab 7 complete"</pre>
+          <div class="checkpoint-note">Expected: <code>idle gpu:t4:1,shard:4</code>, then one <code>GPU 0: Tesla T4 (UUID: ...)</code> line, then <code>Lab 7 complete</code>. If <code>srun</code> hangs, the node is not resumed — Ctrl+C and check <code>sinfo -R</code>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB 8 -->
+    <section class="section" id="lab-8">
+
+      <div class="domain-header">
+        <p class="domain-label">Lab 8 / 8 · 30 minutes · Guided + Prompted</p>
+        <h2 class="domain-title">GPU Jobs — Submit, Watch, Triage, Drain</h2>
+        <p class="domain-intent">Follows: Slide 18 (submit and watch), Slide 9 (Xid triage), Slide 16 (the four operational patterns).</p>
+      </div>
+
+      <div class="callout-teal">
+        <p><strong>All three of you run the job exercises.</strong> The GPU is sharded into four slices, so three <code>--gres=shard:1</code> jobs run concurrently on one card. Ex 5 onwards changes node state again — back to one driver.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">Ex 1</span>
+          <div>
+            <p class="step-title">Submit the GPU hello job</p>
+            <p class="step-desc">Submit the script you read in Lab 6 and confirm that the GRES chain delivers a device to the job.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">JOBID=$(sbatch --parsable ~/jobs/gpu-hello.sh)
+echo "Submitted: $JOBID"
+squeue -u $USER -o "%.8i %.12j %.8T %.20b"</span>     <span class="cmt"># %b shows allocated GRES</span></pre>
+            </div>
+            <p class="step-desc" style="margin-top:8px">When the job leaves the queue, read its output:</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sleep 20
+cat ~/jobs/gpu-hello-${JOBID}.out</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>==== gpu-hello.sh ====
+Hostname             : gpu-node-01
+SLURM_JOB_ID         : 12
+CUDA_VISIBLE_DEVICES : 0
+-- what the job can see --
+GPU 0: Tesla T4 (UUID: GPU-1f4a9c2b-...)
+index, name, memory.used [MiB]
+0, Tesla T4, 1 MiB
+==== done ====</pre></div>
+            </div>
+            <p class="step-notice"><code>CUDA_VISIBLE_DEVICES=0</code> was set by Slurm, not by you and not by the script. All three of you will see index <code>0</code> — with sharding you are each allocated a slice of the same physical card, and each job's view is renumbered from zero. Index numbers are per-job; UUIDs are the card.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 2</span>
+          <div>
+            <p class="step-title">Prove the constraint is real</p>
+            <p class="step-desc">Submit a job that requests no GRES at all and see what it can reach. This is what distinguishes an enforced allocation from a polite suggestion.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">NOGRES=$(sbatch --parsable ~/jobs/gpu-nogres.sh)
+sleep 20
+cat ~/jobs/gpu-nogres-${NOGRES}.out</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>==== gpu-nogres.sh ====
+Hostname             : gpu-node-01
+CUDA_VISIBLE_DEVICES : (unset)
+-- what the job can see --
+No devices were found
+==== done ====</pre></div>
+            </div>
+            <p class="step-notice">The job ran on a machine with a working GPU and could not see it. That is <code>ConstrainDevices=yes</code> doing its job at the cgroup level. When a user reports "my job says no CUDA devices", this is the first thing to check — the overwhelmingly common cause is a missing <code>--gres</code> line, exactly like the missing <code>--nv</code> container case from Slide 6. Both are user errors, and both get routed back to the user.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 3</span>
+          <div>
+            <p class="step-title">Put load on the card and watch it respond</p>
+            <p class="step-desc">This is Slide 18. Open a second SSH session to the same machine: one submits a real GPU workload, the other watches utilisation climb off zero.</p>
+            <div class="code-block" data-validate="run">
+              <div class="code-label">Session 1 — submit</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sbatch ~/jobs/gpu-test.sh</span>              <span class="cmt"># runs gpu-load for 60 seconds</span></pre>
+            </div>
+            <div class="code-block" data-validate="skip">
+              <div class="code-label">Session 2 — watch</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">nvidia-smi dmon -s u -d 2</span>              <span class="cmt"># Ctrl+C when the job finishes</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected — utilisation rises, then falls back</div>
+              <div class="expected-body"><pre># gpu    sm   mem   enc   dec   jpg   ofa
+# Idx     %     %     %     %     %     %
+    0     0     0     0     0     -     -
+    0    14     3     0     0     -     -
+    0    38     8     0     0     -     -
+    0    41     9     0     0     -     -
+    0     0     0     0     0     -     -   &lt;-- job finished</pre></div>
+            </div>
+            <p class="step-notice">Also run <code>nvidia-smi</code> once while the job is live and find the <strong>Processes</strong> table at the bottom — it names the PID and the memory it holds. That table is how you answer "who is using this GPU right now", which no Slurm command can tell you at the device level.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 4</span>
+          <div>
+            <p class="step-title">Triage Xid events from captured logs</p>
+            <p class="step-desc">This T4 is healthy and will not produce Xid errors on demand. Practise the triage pipeline against <strong>captured dmesg output</strong> from production nodes.</p>
+            <div class="code-block" data-validate="run">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">grep -i "NVRM: Xid" /shared/lab/captured/dmesg-xid.txt</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected — three different classes of event</div>
+              <div class="expected-body"><pre>NVRM: Xid (PCI:0000:1e:00): 31, pid=48211, Ch 00000010, MMU Fault ...
+NVRM: Xid (PCI:0000:1e:00): 48, pid=0, An uncorrectable double bit error ...
+NVRM: Xid (PCI:0000:87:00): 79, pid=0, GPU has fallen off the bus.</pre></div>
+            </div>
+            <div class="callout-amber" style="margin-top:16px">
+              <p><strong>Diagnosis exercise.</strong> For each of the three codes, state the category, the operational response, and where the ticket goes. Then answer the harder question from Slide 9: the first line is Xid 31 — an application error that normally routes straight back to the user. What would change your mind and make you treat it as hardware instead?</p>
+            </div>
+            <p class="step-notice">Xid 31 from one user's code is a bug in that code. Xid 31 from four different users' jobs on the same GPU is not four bad programs — it is one bad GPU. The code is authoritative, the message text is a hint, and the pattern across jobs is what tells you which layer to escalate to.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 5 (Prompted)</span>
+          <div>
+            <p class="step-title">Execute the drain response — with a reason someone can read</p>
+            <p class="step-desc">Act on the Xid 48 in the captured log as if it were this node. Take the node out of service with a reason string a colleague could act on six hours later, verify it, then return it to service.</p>
+            <div class="callout-amber">
+              <p><strong>Build this yourself.</strong> The drain command is <code>scontrol update</code> with a <code>NodeName</code>, a <code>State</code>, and a quoted <code>Reason</code>. A good reason contains the fault, the evidence, and your name. <code>Reason="broken"</code> is how nodes stay drained for three weeks.</p>
+            </div>
+            <div class="code-block" data-validate="run-then-restore">
+              <div class="code-label">Reference — reveal after trying</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo scontrol update NodeName=gpu-node-01 State=DRAIN \
+  Reason="Xid 48 uncorrectable ECC, GPU-1f4a9c2b, escalated ticket HPC-4471 - chandra"</span>
+<span class="cmd">sinfo -R</span>
+<span class="cmd">scontrol show node gpu-node-01 | grep -E "State=|Reason="</span></pre>
+            </div>
+            <div class="expected-block">
+              <div class="expected-label">Expected output</div>
+              <div class="expected-body"><pre>REASON                              USER      TIMESTAMP           NODELIST
+Xid 48 uncorrectable ECC, GPU-1f4  chandra   2026-07-31T11:22:40 gpu-node-01
+
+   State=IDLE+DRAIN
+   Reason=Xid 48 uncorrectable ECC, GPU-1f4a9c2b, escalated ticket HPC-4471 - chandra</pre></div>
+            </div>
+            <p class="step-notice">Note that draining is graceful: running jobs finish, no new jobs start. Compare with <code>State=DOWN</code>, which kills running work immediately. Uncorrected ECC is one of the few cases where <code>DOWN</code> is defensible — results produced on that card are already suspect, so letting the job run to completion produces trustworthy-looking output that is wrong.</p>
+            <div class="code-block" data-validate="run" style="margin-top:12px">
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">sudo scontrol update NodeName=gpu-node-01 State=RESUME</span>   <span class="cmt"># restore before the checkpoint</span>
+<span class="cmd">sinfo</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Ex 6 (Prompted)</span>
+          <div>
+            <p class="step-title">Run the pre-flight checklist from memory</p>
+            <p class="step-desc">Slide 16 lists five pre-flight checks before returning a GPU node to production. Write and run all five without looking back at the slides, then compare.</p>
+            <div class="callout-amber">
+              <p><strong>From memory.</strong> The five checks are: ECC is zero, NVLink is up, persistence is on, GRES matches the hardware, and a smoke test through the scheduler succeeds. Write the command for each before revealing.</p>
+            </div>
+            <div class="code-block" data-validate="run">
+              <div class="code-label">Reference — reveal after writing from memory</div>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+              <pre><span class="cmd">nvidia-smi --query-gpu=ecc.errors.uncorrected.volatile.total --format=csv,noheader</span>
+<span class="cmd">nvidia-smi nvlink -s</span>                          <span class="cmt"># N/A on T4 - note it, do not skip it</span>
+<span class="cmd">systemctl is-active nvidia-persistenced</span>
+<span class="cmd">scontrol show node gpu-node-01 | grep -oE "Gres=[^ ]+"</span>
+<span class="cmd">srun --partition=gpu --gres=gpu:1 -N1 -n1 nvidia-smi -L</span>   <span class="cmt"># the smoke test</span></pre>
+            </div>
+            <p class="step-notice">Five commands, under a minute, and they are the difference between handing a node back and handing a node back <em>twice</em>. The check that is skipped most often is the last one — people verify the hardware and forget to verify that the scheduler can actually allocate it.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Checkpoint — Lab 8 <span>Final lab · type done in chat when this passes</span></div>
+        <div class="checkpoint-body" data-validate="run">
+          <div class="checkpoint-state"><strong>Before you run this</strong>You have submitted a sharded GPU job and read <code>CUDA_VISIBLE_DEVICES</code> from its output, proved that a job without <code>--gres</code> cannot see the card, watched utilisation rise under load, triaged the captured Xid log, drained and resumed the node with a readable reason, and run the five pre-flight checks. The node must be back in <code>idle</code> state and your queue must be empty.</div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>squeue -u $USER --noheader | wc -l && sinfo -h -o "%T" && sacct -u $USER --format=JobName%12,State,AllocTRES%28 -n --starttime=today | grep -c COMPLETED && echo "Lab 8 complete"</pre>
+          <div class="checkpoint-note">
+            Expected three values then <code>Lab 8 complete</code>:<br>
+            Line 1: <code>0</code> — your queue is empty<br>
+            Line 2: <code>idle</code> — you resumed the node after the drain exercise<br>
+            Line 3: a number ≥ 3 — your completed GPU jobs from this section<br><br>
+            <strong>This is the final lab of the Associate stream.</strong> Everything from Module 1 onward has been operating a cluster somebody else built. Next you build one — and the GPU node you spent this session reading is the node you will integrate yourself.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ALL CHECKPOINTS -->
+    <section class="section" id="checkpoints">
+      <p class="label">all checkpoints — quick reference</p>
+      <p class="prose">All eight checkpoint commands for this runbook. Run each after completing the corresponding section. Each passes only when the lab state matches the expected condition.</p>
+
+      <div class="quickref-block" style="margin-top:24px">
+        <div class="quickref-header">Checkpoint Commands · Labs 1–8</div>
+        <div class="quickref-row">
+          <span class="quickref-k">Lab 1</span>
+          <span class="quickref-v">hostname &amp;&amp; nvidia-smi --query-gpu=count,name,driver_version,memory.total --format=csv,noheader &amp;&amp; echo "Lab 1 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Lab 2</span>
+          <span class="quickref-v">nvidia-smi --query-gpu=index,uuid,temperature.gpu,clocks.max.sm,utilization.gpu --format=csv,noheader &amp;&amp; echo "Lab 2 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Lab 3</span>
+          <span class="quickref-v">nvidia-smi --query-gpu=ecc.errors.uncorrected.volatile.total --format=csv,noheader &amp;&amp; test -s ~/escalation-ecc.txt &amp;&amp; echo "Lab 3 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Lab 4</span>
+          <span class="quickref-v">nvidia-smi --query-gpu=persistence_mode --format=csv,noheader &amp;&amp; systemctl is-enabled nvidia-persistenced &amp;&amp; systemctl is-active nvidia-persistenced &amp;&amp; echo "Lab 4 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Lab 5</span>
+          <span class="quickref-v">bash /shared/lab/bin/fleet-check.sh | grep -E "^gpu-node" | awk '{print $3}' | sort -u | wc -l &amp;&amp; echo "Lab 5 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Lab 6</span>
+          <span class="quickref-v">scontrol show config | grep -i "^GresTypes" &amp;&amp; scontrol show node gpu-node-01 | grep -oE "Gres=[^ ]+" &amp;&amp; sinfo -h -o "%T" &amp;&amp; echo "Lab 6 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Lab 7</span>
+          <span class="quickref-v">sinfo -h -o "%T %G" &amp;&amp; srun --partition=gpu --gres=gpu:1 -N1 -n1 nvidia-smi -L &amp;&amp; echo "Lab 7 complete"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Lab 8</span>
+          <span class="quickref-v">squeue -u $USER --noheader | wc -l &amp;&amp; sinfo -h -o "%T" &amp;&amp; sacct -u $USER --format=JobName%12,State,AllocTRES%28 -n --starttime=today | grep -c COMPLETED &amp;&amp; echo "Lab 8 complete"</span>
+        </div>
+      </div>
+
+      <div class="quickref-block" style="margin-top:32px">
+        <div class="quickref-header">Essential Commands — GPU Operations Reference Card</div>
+        <div class="quickref-row">
+          <span class="quickref-k">Is it there</span>
+          <span class="quickref-v">lspci | grep -i nvidia · lsmod | grep nvidia · nvidia-smi -L</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Summary</span>
+          <span class="quickref-v">nvidia-smi</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">ECC</span>
+          <span class="quickref-v">nvidia-smi -q -d ECC · --query-gpu=ecc.errors.uncorrected.volatile.total</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Retirement</span>
+          <span class="quickref-v">nvidia-smi -q -d PAGE_RETIREMENT   (Ampere+: Remapped Rows)</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Thermal</span>
+          <span class="quickref-v">nvidia-smi -q -d TEMPERATURE · nvidia-smi -q -d CLOCK</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">NVLink</span>
+          <span class="quickref-v">nvidia-smi nvlink -s · nvidia-smi nvlink -e</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Live watch</span>
+          <span class="quickref-v">nvidia-smi dmon -s u -d 2</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Fleet check</span>
+          <span class="quickref-v">nvidia-smi --query-gpu=driver_version,name --format=csv,noheader</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Persistence</span>
+          <span class="quickref-v">nvidia-smi -q | grep -i "persistence mode" · systemctl is-enabled/is-active nvidia-persistenced</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Xid</span>
+          <span class="quickref-v">dmesg -T | grep -i "NVRM: Xid"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Three truths</span>
+          <span class="quickref-v">nvidia-smi -L · slurmd -G · scontrol show node &lt;node&gt;</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">GRES config</span>
+          <span class="quickref-v">/etc/slurm/slurm.conf (GresTypes, Gres=) · /etc/slurm/gres.conf (File=)</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Reload</span>
+          <span class="quickref-v">scontrol reconfigure</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Submit GPU</span>
+          <span class="quickref-v">sbatch --gres=gpu:1 · --gres=shard:1 (shared card)</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Smoke test</span>
+          <span class="quickref-v">srun --gres=gpu:1 -N1 -n1 nvidia-smi -L</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Drain</span>
+          <span class="quickref-v">scontrol update NodeName=NODE State=DRAIN Reason="Xid NN, UUID, ticket, name"</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Resume</span>
+          <span class="quickref-v">scontrol update NodeName=NODE State=RESUME</span>
+        </div>
+        <div class="quickref-row">
+          <span class="quickref-k">Why drained</span>
+          <span class="quickref-v">sinfo -R · sinfo -o "%-16N %-8T %-20G %R"</span>
+        </div>
+      </div>
+
+      <div class="callout-teal" style="margin-top:32px">
+        <p><strong>GPU and Accelerator Operations module complete.</strong> Labs 1 through 8 built the accelerator operating loop: read the card, read the counters that decide an RMA, make fixes survive a reboot, find the fleet outlier before users do, follow the GRES chain from config file to environment variable, locate a misconfiguration by comparing three sources of truth, and take a node out of service with a reason someone else can act on. Everything else in GPU operations is these seven moves applied to bigger hardware.</p>
+      </div>
+
+      <div class="footer-wrap">
+        <span class="footer-copy">GPU and Accelerator Operations · Lab Runbook · HPC Associate · A8 · Module 12 · master.hpc.now/gpu-accelerator-ops</span>
+        <span class="footer-badge">Labs 1–8 · mylab.hpc.now · gpu-node-01 · chandra · sujith · yogaraj</span>
+        <a href="https://master.hpc.now" class="footer-link">master.hpc.now</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(i => i.classList.remove('is-active'));
+        const a = document.querySelector('.side-nav-item[href="#' + entry.target.id + '"]');
+        if (a) a.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  function copyCode(btn) {
+    const block = btn.closest('.code-block, .checkpoint-body');
+    const pre = block.querySelector('pre');
+    const text = pre.innerText || pre.textContent;
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      btn.textContent = 'copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
