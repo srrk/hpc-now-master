@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HPC Applications · Lab Runbook · hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #181817;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --teal:       #0f6e56;
+      --teal-dim:   #1d9e75;
+      --teal-bg:    #e8f5f0;
+      --amber:      #c47f1a;
+      --amber-bg:   #fdf4e3;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    /* ── COVER ── */
+    .cover {
+      background: var(--cover);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+    }
+
+    .nav-wrap { border-bottom: 1px solid var(--rule-cover); }
+
+    nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo { font-family: var(--mono); font-size: 12px; color: #f0e8e0; text-decoration: none; letter-spacing: .06em; }
+    .logo em { color: var(--terra-dim); font-style: normal; }
+
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-tag { font-size: 10px; color: #6a6460; letter-spacing: .12em; text-transform: uppercase; }
+    .nav-mod { font-size: 11px; color: var(--terra-dim); letter-spacing: .06em; }
+
+    .hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 72px 52px 80px;
+    }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: #6a6460;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hero-eyebrow::before { content: ''; width: 20px; height: 1px; background: #6a6460; }
+
+    .hero-title {
+      font-family: var(--serif);
+      font-size: clamp(32px, 4.5vw, 56px);
+      font-weight: 400;
+      color: #f0e8e0;
+      line-height: 1.15;
+      letter-spacing: -.02em;
+      margin-bottom: 28px;
+    }
+    .hero-title em { font-style: italic; color: var(--terra-dim); }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      border: 1px solid #2e2820;
+      width: fit-content;
+      margin-top: 36px;
+    }
+    .hero-meta-item {
+      padding: 12px 24px;
+      border-right: 1px solid #2e2820;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .hero-meta-item:last-child { border-right: none; }
+    .hero-meta-k { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .hero-meta-v { font-size: 12px; color: #c8c0b4; }
+
+    /* ── ZONE EDGE ── */
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* ── LAYOUT ── */
+    .page-body {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 52px;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 0 72px;
+      align-items: start;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: sticky;
+      top: 40px;
+      padding: 64px 0 40px;
+      align-self: start;
+    }
+
+    .side-label {
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 12px;
+      padding-left: 14px;
+    }
+
+    .side-nav { display: flex; flex-direction: column; gap: 1px; margin-bottom: 20px; }
+
+    .side-nav-item {
+      font-size: 11px;
+      color: var(--ink3);
+      text-decoration: none;
+      letter-spacing: .03em;
+      padding: 5px 0 5px 14px;
+      border-left: 2px solid transparent;
+      transition: color .18s, border-color .18s;
+      line-height: 1.4;
+    }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+
+    .side-nav-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+
+    .side-nav-part {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding: 8px 0 4px 14px;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main-content { padding: 0; background: var(--paper); }
+
+    /* ── SECTIONS ── */
+    .section {
+      padding: 64px 0 56px;
+      border-top: 1px solid var(--rule);
+    }
+    .section:first-child { border-top: none; padding-top: 72px; }
+
+    .label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .label::after { content: ''; width: 36px; height: 1px; background: var(--rule); }
+
+    /* ── PROSE ── */
+    .prose { font-size: 14px; color: var(--ink2); line-height: 2.05; max-width: 600px; }
+    .prose + .prose { margin-top: 1.2em; }
+
+    /* ── CALLOUT BOXES ── */
+    .callout {
+      border-left: 3px solid var(--terra);
+      padding: 18px 22px;
+      background: var(--terra-bg);
+      margin: 24px 0;
+      max-width: 600px;
+    }
+    .callout p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout p + p { margin-top: .9em; }
+    .callout strong { color: var(--terra); font-weight: 500; }
+
+    .callout-teal {
+      border-left: 3px solid var(--teal);
+      padding: 18px 22px;
+      background: var(--teal-bg);
+      margin: 24px 0;
+      max-width: 600px;
+    }
+    .callout-teal p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-teal p + p { margin-top: .9em; }
+    .callout-teal strong { color: var(--teal); font-weight: 500; }
+
+    .callout-amber {
+      border-left: 3px solid var(--amber);
+      padding: 18px 22px;
+      background: var(--amber-bg);
+      margin: 24px 0;
+      max-width: 600px;
+    }
+    .callout-amber p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-amber p + p { margin-top: .9em; }
+    .callout-amber strong { color: var(--amber); font-weight: 500; }
+
+    /* ── CODE BLOCKS ── */
+    .code-block {
+      background: var(--dark);
+      border: 1px solid #2e2820;
+      padding: 20px 24px;
+      margin: 20px 0;
+      max-width: 640px;
+      overflow-x: auto;
+    }
+
+    .code-label {
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #6a6460;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #2e2820;
+    }
+
+    .code-block pre {
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.8;
+      color: #c8c0b4;
+      white-space: pre;
+    }
+
+    .code-block pre .cmd { color: #9fe1cb; }
+    .code-block pre .cmt { color: #4a4438; font-style: italic; }
+    .code-block pre .out { color: #8a8078; }
+    .code-block pre .warn { color: #e8c9b8; }
+    .code-block pre .ok  { color: #6db89a; }
+
+    /* ── STEP LIST ── */
+    .steps { display: flex; flex-direction: column; gap: 0; max-width: 640px; margin: 24px 0; }
+
+    .step {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 0 20px;
+      padding: 24px 0;
+      border-top: 1px solid var(--rule);
+      align-items: start;
+    }
+    .step:first-child { border-top: none; padding-top: 0; }
+
+    .step-num {
+      font-size: 11px;
+      color: var(--ink3);
+      letter-spacing: .1em;
+      padding-top: 2px;
+      font-weight: 300;
+    }
+
+    .step-body {}
+
+    .step-title {
+      font-family: var(--serif);
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+
+    .step-desc {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.95;
+      margin-bottom: 12px;
+      max-width: 520px;
+    }
+    .step-desc + .step-desc { margin-top: -4px; }
+
+    .step-notice {
+      font-size: 12px;
+      color: var(--terra);
+      font-style: italic;
+      line-height: 1.7;
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .step-notice::before { content: '→'; flex-shrink: 0; color: var(--terra-dim); }
+
+    /* ── RECORD TABLE ── */
+    .record-table {
+      border: 1px solid var(--rule);
+      width: 100%;
+      max-width: 600px;
+      margin: 16px 0;
+      border-collapse: collapse;
+    }
+
+    .record-table thead th {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      background: var(--paper-mid);
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--rule);
+      font-weight: 400;
+    }
+
+    .record-table tbody td {
+      font-size: 12px;
+      color: var(--ink2);
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+    .record-table tbody tr:last-child td { border-bottom: none; }
+
+    .record-table .field-name { color: var(--ink); font-weight: 500; width: 200px; }
+    .record-blank {
+      background: #fff;
+      border-bottom: 1px dotted var(--rule-cover);
+      min-width: 180px;
+      height: 20px;
+      display: inline-block;
+    }
+
+    /* ── PART HEADER ── */
+    .part-header {
+      background: var(--dark);
+      padding: 32px 36px 28px;
+      margin: 0 -52px 0 -0px;
+      border-left: 4px solid var(--terra);
+    }
+
+    .part-num {
+      font-size: 9px;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: #6a6460;
+      margin-bottom: 8px;
+    }
+
+    .part-title {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 400;
+      color: #f0e8e0;
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+
+    .part-intent {
+      font-size: 13px;
+      color: #8a8078;
+      line-height: 1.8;
+      max-width: 520px;
+      font-style: italic;
+    }
+
+    .part-slides {
+      font-size: 10px;
+      letter-spacing: .1em;
+      color: var(--terra-dim);
+      margin-top: 12px;
+    }
+
+    /* ── CHECKLIST ITEMS ── */
+    .checklist-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 16px 0;
+    }
+
+    .checklist-tag {
+      font-size: 10px;
+      letter-spacing: .08em;
+      color: var(--teal);
+      border: 1px solid var(--teal);
+      padding: 3px 10px;
+      background: var(--teal-bg);
+    }
+
+    /* ── ACCESS BLOCK ── */
+    .access-block {
+      background: var(--dark);
+      border: 1px solid #2e2820;
+      max-width: 600px;
+      margin: 20px 0;
+    }
+
+    .access-header {
+      background: #2e2820;
+      padding: 10px 20px;
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #6a6460;
+    }
+
+    .access-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 0;
+      border-bottom: 1px solid #2e2820;
+    }
+    .access-row:last-child { border-bottom: none; }
+
+    .access-k {
+      font-size: 10px;
+      letter-spacing: .1em;
+      color: #6a6460;
+      padding: 12px 20px;
+      border-right: 1px solid #2e2820;
+      display: flex;
+      align-items: center;
+    }
+
+    .access-v {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #9fe1cb;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* ── LEARNER TABLE ── */
+    .learner-table {
+      border: 1px solid var(--rule);
+      max-width: 560px;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    .learner-table th {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      background: var(--paper-mid);
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--rule);
+      font-weight: 400;
+    }
+    .learner-table td {
+      font-size: 12px;
+      color: var(--ink2);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .learner-table tr:last-child td { border-bottom: none; }
+    .learner-table .mono { font-family: var(--mono); color: var(--teal); }
+
+    /* ── COMPLETION TABLE ── */
+    .completion-table {
+      border: 1px solid var(--rule);
+      max-width: 600px;
+      border-collapse: collapse;
+      margin: 20px 0;
+      width: 100%;
+    }
+    .completion-table th {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      background: var(--paper-mid);
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--rule);
+      font-weight: 400;
+    }
+    .completion-table td {
+      font-size: 12px;
+      color: var(--ink2);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      line-height: 1.65;
+    }
+    .completion-table tr:last-child td { border-bottom: none; }
+    .completion-table .item-num { color: var(--teal); font-weight: 500; white-space: nowrap; }
+
+    /* ── FIDELITY TABLE ── */
+    .fid-table {
+      border: 1px solid var(--rule);
+      max-width: 620px;
+      border-collapse: collapse;
+      margin: 20px 0;
+      width: 100%;
+    }
+    .fid-table th {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      background: var(--paper-mid);
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--rule);
+      font-weight: 400;
+    }
+    .fid-table td {
+      font-size: 12px;
+      color: var(--ink2);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      line-height: 1.65;
+    }
+    .fid-table tr:last-child td { border-bottom: none; }
+    .fid-high { color: var(--teal); font-weight: 500; white-space: nowrap; }
+    .fid-med  { color: var(--amber); font-weight: 500; white-space: nowrap; }
+    .fid-low  { color: var(--terra); font-weight: 500; white-space: nowrap; }
+
+    /* ── INSTRUCTOR INTERVENTION ── */
+    .intervention {
+      border: 1px solid var(--rule);
+      max-width: 620px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .intervention-header {
+      background: var(--paper-mid);
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .intervention-who {
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--terra);
+      font-weight: 500;
+    }
+
+    .intervention-trap {
+      font-size: 11px;
+      color: var(--ink3);
+      font-style: italic;
+    }
+
+    .intervention-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+
+    .intervention-row {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 12px;
+      font-size: 12px;
+      align-items: start;
+    }
+    .intervention-k { color: var(--ink3); letter-spacing: .04em; padding-top: 1px; }
+    .intervention-v { color: var(--ink2); line-height: 1.7; }
+    .intervention-v em { font-style: italic; color: var(--terra); }
+
+    /* ── FOOTER ── */
+    .footer-wrap {
+      background: var(--dark2);
+      margin: 0 -52px;
+      padding: 24px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-top: 1px solid #2e2820;
+      margin-top: 64px;
+    }
+
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-link { font-size: 11px; color: #6a6460; text-decoration: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      nav, .hero { padding-left: 32px; padding-right: 32px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 32px; }
+      .sidebar { display: none; }
+      .part-header { margin: 0; }
+      .footer-wrap { margin: 64px -32px 0; padding: 24px 32px; }
+    }
+
+    @media (max-width: 640px) {
+      nav, .hero { padding-left: 20px; padding-right: 20px; }
+      .page-body { padding: 0 20px; }
+      .footer-wrap { margin: 64px -20px 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ COVER ══ -->
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="https://hpc.now" class="logo">hpc<em>.now</em></a>
+      <div class="nav-right">
+        <span class="nav-tag">Lab Runbook</span>
+        <span class="nav-mod">HPC Applications</span>
+      </div>
+    </nav>
+  </div>
+
+  <div class="hero">
+    <p class="hero-eyebrow">Module · HPC Applications · Lab Runbook · v0.9 (pre-build)</p>
+    <h1 class="hero-title">
+      What an Application<br>
+      <em>Does to Your Filesystem</em>
+    </h1>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Cluster</span>
+        <span class="hero-meta-v">1 head · 2 compute (static) · t3.medium</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Filesystem</span>
+        <span class="hero-meta-v">FSx for Lustre · ⟨capacity⟩ · 2 OSTs</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Application</span>
+        <span class="hero-meta-v">IOR ⟨version⟩ · built from source</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Learners</span>
+        <span class="hero-meta-v">yogi · sujith · chandra</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Duration</span>
+        <span class="hero-meta-v">~90 minutes</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-k">Cost</span>
+        <span class="hero-meta-v">⟨measured on first build⟩</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- ══ BODY ══ -->
+<div class="page-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="side-label">Runbook</div>
+    <nav class="side-nav">
+      <a href="#status" class="side-nav-item">Status of This Draft</a>
+      <a href="#access" class="side-nav-item">Lab Access</a>
+      <a href="#orientation" class="side-nav-item">Cluster Orientation</a>
+      <a href="#fidelity" class="side-nav-item">What Is Real Here</a>
+      <div class="side-nav-divider"></div>
+      <div class="side-nav-part">Parts</div>
+      <a href="#part1" class="side-nav-item">1 · Build It</a>
+      <a href="#part2" class="side-nav-item">2 · Leave the Head Node</a>
+      <a href="#part3" class="side-nav-item">3 · The Scheduler</a>
+      <a href="#part4" class="side-nav-item">4 · One File or Many</a>
+      <a href="#part5" class="side-nav-item">5 · Make It Faster</a>
+      <div class="side-nav-divider"></div>
+      <a href="#completion" class="side-nav-item">Completion Criteria</a>
+      <a href="#interventions" class="side-nav-item">Interventions</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- ── STATUS ── -->
+    <section class="section" id="status">
+      <p class="label">status of this draft</p>
+
+      <div class="callout-amber">
+        <p><strong>This is v0.9 — written before the environment was built.</strong> Every value in angle brackets — <code>⟨version⟩</code>, <code>⟨hdf5-path⟩</code>, <code>⟨head-node⟩</code> — is a placeholder. None of them has been observed on a real cluster yet.</p>
+        <p>The build produces <code>VALIDATION.md</code>, which contains the real captured output of every command below. <strong>v1.0 is this document with every placeholder replaced by a measured value.</strong> Until then, treat the shape of each output as correct and the exact strings as provisional.</p>
+      </div>
+
+      <p class="prose">Section timings are estimates too. The build records the real ones in <code>TIMINGS.md</code>. If a part runs long in testing, this runbook is what changes — not the clock on the day.</p>
+    </section>
+
+    <!-- ── LAB ACCESS ── -->
+    <section class="section" id="access">
+      <p class="label">lab access</p>
+
+      <p class="prose">All three learners connect to the same head node and work simultaneously. Each of you has your own home directory and your own space under the shared applications tree. Nothing you do in Parts 1 to 3 depends on anyone else finishing first.</p>
+
+      <div class="access-block">
+        <div class="access-header">SSH Connection Details</div>
+        <div class="access-row">
+          <span class="access-k">Host</span>
+          <span class="access-v">⟨head-node-address⟩</span>
+        </div>
+        <div class="access-row">
+          <span class="access-k">Username</span>
+          <span class="access-v">&lt;your username&gt;</span>
+        </div>
+        <div class="access-row">
+          <span class="access-k">Password</span>
+          <span class="access-v">hpcnow2026</span>
+        </div>
+        <div class="access-row">
+          <span class="access-k">Usernames</span>
+          <span class="access-v">yogi · sujith · chandra</span>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>SSH known hosts conflict.</strong> The lab address maps to a different IP each session, so SSH will warn you about a changed host key. Clear it before you connect.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">Clear the old key, then connect</div>
+        <pre><span class="cmd">ssh-keygen -R ⟨head-node-address⟩</span>
+<span class="cmd">ssh yogi@⟨head-node-address⟩</span>
+<span class="cmt"># Password: hpcnow2026</span>
+<span class="cmt"># Accept the new host key when prompted — type: yes</span></pre>
+      </div>
+
+      <div class="callout-teal">
+        <p><strong>You will not need to do this for the compute nodes.</strong> Passwordless SSH between the head node and both compute nodes has already been set up for your account, and the host keys are already accepted. Part 2 depends on that working silently — if you are ever prompted for a password or a host key inside the cluster, stop and tell Rajesh.</p>
+      </div>
+    </section>
+
+    <!-- ── CLUSTER ORIENTATION ── -->
+    <section class="section" id="orientation">
+      <p class="label">cluster orientation · ~6 minutes</p>
+
+      <p class="prose">Before Part 1, find out what you have been given. These are not lab steps — they are the four questions you would ask on day one at any site: who am I, what machines exist, what can I compile with, and where does the fast storage live.</p>
+
+      <div class="code-block">
+        <div class="code-label">Who am I</div>
+        <pre><span class="cmd">whoami</span>
+<span class="cmd">hostname</span>
+<span class="cmd">id</span>
+<span class="cmt"># Note your UID and your primary group — Part 4 writes files you will own</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">What machines exist</div>
+        <pre><span class="cmd">sinfo -N -l</span>
+<span class="cmt"># TWO compute nodes, both idle, both already running.</span>
+<span class="cmt"># They are static — they exist whether or not a job is using them.</span>
+<span class="cmt"># That matters in Part 2, where you talk to them without a scheduler.</span>
+<span class="out">NODELIST                  NODES PARTITION  STATE CPUS  MEMORY
+⟨compute-node-1⟩              1   ⟨queue⟩   idle    2    ⟨mem⟩
+⟨compute-node-2⟩              1   ⟨queue⟩   idle    2    ⟨mem⟩</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">What can I build with</div>
+        <pre><span class="cmd">which mpicc mpirun</span>
+<span class="cmd">mpicc --version</span>
+<span class="cmd">mpirun --version</span>
+<span class="cmt"># An MPI compiler wrapper and a process manager are already here.</span>
+<span class="cmt"># You are not going to install MPI. You are going to use it.</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">Where the fast storage is</div>
+        <pre><span class="cmd">df -hT | grep -i lustre</span>
+<span class="cmd">lfs df -h ⟨fsx-mount⟩</span>
+<span class="cmt"># Two object targets. Remember that — Part 5 is about them.</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">What is already installed for you</div>
+        <pre><span class="cmd">ls ~/</span>
+<span class="cmt"># The IOR source tarball is already in your home directory.</span>
+<span class="cmd">ls ⟨hdf5-path⟩</span>
+<span class="cmt"># A parallel HDF5 build is already installed — on this node AND on both</span>
+<span class="cmt"># compute nodes. You will need that path in Part 1. Write it down.</span></pre>
+      </div>
+
+      <table class="learner-table">
+        <thead>
+          <tr><th>Learner</th><th>Username</th><th>Home</th><th>Shared apps space</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Yogi</td><td class="mono">yogi</td><td class="mono">/home/yogi</td><td class="mono">⟨shared-apps⟩/yogi</td></tr>
+          <tr><td>Sujith</td><td class="mono">sujith</td><td class="mono">/home/sujith</td><td class="mono">⟨shared-apps⟩/sujith</td></tr>
+          <tr><td>Chandra</td><td class="mono">chandra</td><td class="mono">/home/chandra</td><td class="mono">⟨shared-apps⟩/chandra</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout-teal">
+        <p><strong>What you now know:</strong> two compute machines that already exist, a compiler and a process manager you did not install, a parallel filesystem with two targets, and a tarball. Everything from here is yours to build and run.</p>
+      </div>
+    </section>
+
+    <!-- ── FIDELITY ── -->
+    <section class="section" id="fidelity">
+      <p class="label">what is real here</p>
+
+      <p class="prose">Published before you start, so nothing is discovered halfway through. Where this cluster differs from a production facility, it is written down.</p>
+
+      <table class="fid-table">
+        <thead><tr><th>Aspect</th><th>Fidelity</th><th>What that means</th></tr></thead>
+        <tbody>
+          <tr><td>Building from source</td><td class="fid-high">Real</td><td>A real tarball, a real configure, a real compiler. Nothing is pre-built for you</td></tr>
+          <tr><td>Ranks across two machines</td><td class="fid-high">Real</td><td>Two hosts, real network between them, real process launch</td></tr>
+          <tr><td>Parallel I/O patterns</td><td class="fid-high">Real</td><td>Real MPI-IO and HDF5 against a real Lustre filesystem with real layouts</td></tr>
+          <tr><td>The scheduler</td><td class="fid-high">Real</td><td>Real Slurm, real queueing, real allocation</td></tr>
+          <tr><td>Network performance</td><td class="fid-low">Low</td><td>A <code>t3.medium</code> is not a fabric. <strong>Do not carry any latency or bandwidth number from today into a production conversation</strong></td></tr>
+          <tr><td>Scale</td><td class="fid-low">Low</td><td>8 ranks is not 8,000. The <em>direction</em> of every result transfers. The <em>magnitude</em> does not</td></tr>
+          <tr><td>IOR as "an application"</td><td class="fid-med">Deliberate abstraction</td><td>An application with the science removed. At I/O time it does exactly what a weather model does — there is just no weather</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ══ PART 1 ══ -->
+    <section class="section" id="part1">
+      <div class="part-header">
+        <p class="part-num">Part 1 of 5 · ~20 minutes</p>
+        <h2 class="part-title">Build It</h2>
+        <p class="part-intent">Nobody ships you a working binary. You get source, you configure it against what this machine actually has, and you build it. The awkward part is not the compiler — it is telling configure where a library lives when it is not where configure expects.</p>
+        <p class="part-slides">Slide anchor: Slide 8 — What an application is made of · Slide 9 — From a tarball to a running job.</p>
+      </div>
+
+      <div class="checklist-items" style="margin-top:24px">
+        <span class="checklist-tag">Build from source</span>
+        <span class="checklist-tag">The stack</span>
+        <span class="checklist-tag">Library paths</span>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">1.1</span>
+          <div class="step-body">
+            <p class="step-title">Unpack the source</p>
+            <p class="step-desc">The tarball is already in your home directory. Unpack it and look at what you got — a source tree, a configure script, and no binary anywhere.</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">cd ~</span>
+<span class="cmd">tar xzf ior-⟨version⟩.tar.gz</span>
+<span class="cmd">cd ior-⟨version⟩</span>
+<span class="cmd">ls</span>
+<span class="cmt"># configure, Makefile.am, src/ — source, not software.</span>
+<span class="cmt"># Nothing here can run yet.</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">1.2</span>
+          <div class="step-body">
+            <p class="step-title">Configure — and tell it where HDF5 is</p>
+            <p class="step-desc">Configure inspects this machine and decides what it can build. HDF5 is installed, but the parallel build does not live in the default library path — it lives under a directory specific to the MPI it was built against. Configure will not find it on its own.</p>
+            <p class="step-desc">Install to a path on <strong>this machine</strong> for now. You will come back to that choice in Part 2.</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">./configure --prefix=⟨local-install⟩ --with-hdf5=⟨hdf5-path⟩</span>
+<span class="cmt"># --prefix     where the built binary will be installed</span>
+<span class="cmt"># --with-hdf5  where the parallel HDF5 library actually lives</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">What to look for at the end of the output</div>
+              <pre><span class="out">⟨configure summary — captured during build⟩</span>
+<span class="cmt"># Confirm the HDF5 line says found / enabled before you go further.</span>
+<span class="cmt"># If it does not, the build will succeed and then fail at run time —</span>
+<span class="cmt"># which is a much worse place to find out.</span></pre>
+            </div>
+            <p class="step-notice">A library being installed and a build being able to find it are two different things. This is the single most common reason an HPC build fails, and it is why <code>--with-…</code> flags exist at all.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">1.3</span>
+          <div class="step-body">
+            <p class="step-title">Build and install</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">make -j2</span>
+<span class="cmd">make install</span>
+<span class="cmd">ls ⟨local-install⟩/bin</span>
+<span class="cmt"># You now have a binary. You made it. It did not exist ten minutes ago.</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">1.4</span>
+          <div class="step-body">
+            <p class="step-title">Tell the machine where you put it</p>
+            <p class="step-desc">A binary the shell cannot find is the same as no binary. Same for the libraries it needs at run time — the linker recorded what it linked against, but the loader still has to be able to find it.</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">export PATH=⟨local-install⟩/bin:$PATH</span>
+<span class="cmd">export LD_LIBRARY_PATH=⟨hdf5-path⟩/lib:$LD_LIBRARY_PATH</span>
+<span class="cmd">which ior</span>
+<span class="cmd">ldd $(which ior) | grep -i hdf5</span>
+<span class="cmt"># The last command proves the binary is wired to the library you named.</span>
+<span class="cmt"># If it says "not found", the loader cannot see it — fix that now.</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">1.5</span>
+          <div class="step-body">
+            <p class="step-title">Run it — right here, on this machine</p>
+            <p class="step-desc">Four ranks, on the head node, writing to the parallel filesystem. No scheduler involved, no other machines involved. This is the smallest thing that counts as running a parallel application.</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">mkdir -p ⟨fsx-mount⟩/scratch/$USER</span>
+<span class="cmd">mpirun -n 4 ior -a HDF5 -w -t 1m -b 64m -o ⟨fsx-mount⟩/scratch/$USER/test.h5</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Shape of the output</div>
+              <pre><span class="out">⟨IOR summary — captured during build⟩
+access    bw(MiB/s)   ...
+write     ⟨n⟩         ...</span>
+<span class="cmt"># Four ranks ran. They wrote one HDF5 file between them.</span>
+<span class="cmt"># Record the bandwidth — but see "What Is Real Here" before you</span>
+<span class="cmt"># believe the number means anything about production.</span></pre>
+            </div>
+            <p class="step-notice">Everything so far happened on one machine. That is not what HPC is for. Part 2 is where it stops being a single-machine story.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">1.6</span>
+          <div class="step-body">
+            <p class="step-title">Record what you built</p>
+            <table class="record-table">
+              <thead><tr><th>Item</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">IOR version</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">HDF5 path you passed to configure</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">Install prefix you chose</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">Write bandwidth, 4 ranks, one node</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ PART 2 ══ -->
+    <section class="section" id="part2">
+      <div class="part-header">
+        <p class="part-num">Part 2 of 5 · ~18 minutes</p>
+        <h2 class="part-title">Leave the Head Node — without a scheduler</h2>
+        <p class="part-intent">A parallel application does not need a scheduler to run. It needs a process manager and a list of machines. You are going to prove that — and in doing so you will hit the most common failure in HPC operations, which is not a bug in anything.</p>
+        <p class="part-slides">Slide anchor: Slide 10 — What one command actually does.</p>
+      </div>
+
+      <div class="checklist-items" style="margin-top:24px">
+        <span class="checklist-tag">Process manager</span>
+        <span class="checklist-tag">Hostfile launch</span>
+        <span class="checklist-tag">Software placement</span>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">2.1</span>
+          <div class="step-body">
+            <p class="step-title">Write a hostfile</p>
+            <p class="step-desc">A hostfile is a list of machines and how many slots each one has. That is the entire mechanism. No scheduler, no queue, no allocation — just names.</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">cat &gt; ~/hosts &lt;&lt;'EOF'
+⟨compute-node-1⟩ slots=4
+⟨compute-node-2⟩ slots=4
+EOF</span>
+<span class="cmd">cat ~/hosts</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Confirm you can reach both, silently</div>
+              <pre><span class="cmd">ssh ⟨compute-node-1⟩ hostname</span>
+<span class="cmd">ssh ⟨compute-node-2⟩ hostname</span>
+<span class="cmt"># Both should answer immediately with no password and no host-key prompt.</span>
+<span class="cmt"># If either one prompts you, stop — mpirun will hang on that same prompt.</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">2.2</span>
+          <div class="step-body">
+            <p class="step-title">Launch across both machines</p>
+            <p class="step-desc">Eight ranks, four on each machine. Read the command carefully before you run it, because in a moment you are going to be asked what is missing from it.</p>
+            <div class="code-block">
+              <div class="code-label">Command</div>
+              <pre><span class="cmd">mpirun --hostfile ~/hosts -n 8 ⟨launcher-flags⟩ \
+  ior -a HDF5 -w -t 1m -b 64m -o ⟨fsx-mount⟩/scratch/$USER/test8.h5</span>
+<span class="cmt"># ⟨launcher-flags⟩ — filled in from the build. These force the process</span>
+<span class="cmt"># manager to launch over SSH rather than handing off to the scheduler.</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">What actually happens</div>
+              <pre><span class="warn">⟨error — captured during build⟩
+... : error while loading shared libraries: ...</span>
+<span class="cmt"># It failed. Read the error before you read the next step.</span>
+<span class="cmt"># Which machine did it fail on? What could not be found?</span></pre>
+            </div>
+            <p class="step-notice">Do not fix this yet. First answer the question: the command worked ten minutes ago on the head node, and nothing about the command changed. So what changed?</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">2.3</span>
+          <div class="step-body">
+            <p class="step-title">Work out why</p>
+            <p class="step-desc">Check whether the thing it is looking for exists where the ranks are actually running.</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">ls ⟨local-install⟩/bin        # on the head node — it is there</span>
+<span class="cmd">ssh ⟨compute-node-1⟩ ls ⟨local-install⟩/bin</span>
+<span class="cmt"># It is not there. You installed it to a path that only exists on the</span>
+<span class="cmt"># machine you were sitting on.</span></pre>
+            </div>
+            <div class="callout">
+              <p><strong>Nothing is broken.</strong> You built the software correctly, and you installed it correctly — to a directory that is local to one machine. The ranks on the other two machines have nothing to run. This is not a bug in MPI, in the scheduler, or in the filesystem, and every operator meets it in their first week.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">2.4</span>
+          <div class="step-body">
+            <p class="step-title">Fix it the way a real site does</p>
+            <p class="step-desc">Do not copy the binary to every machine. Build it once, install it somewhere every machine can already see, and let them all read the same copy. That is what a shared applications directory is for — and it is why <code>/apps</code> exists at every facility you will ever work at.</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">cd ~/ior-⟨version⟩</span>
+<span class="cmd">./configure --prefix=⟨shared-apps⟩/$USER/ior --with-hdf5=⟨hdf5-path⟩</span>
+<span class="cmd">make -j2 &amp;&amp; make install</span>
+<span class="cmd">export PATH=⟨shared-apps⟩/$USER/ior/bin:$PATH</span>
+<span class="cmd">ssh ⟨compute-node-1⟩ ls ⟨shared-apps⟩/$USER/ior/bin</span>
+<span class="cmt"># Now it is visible from there — same bytes, one copy, no distribution.</span></pre>
+            </div>
+            <p class="step-notice">Same tarball. Same source. The only thing that changed is where the output landed.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">2.5</span>
+          <div class="step-body">
+            <p class="step-title">Run it again — and check who was involved</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">mpirun --hostfile ~/hosts -n 8 ⟨launcher-flags⟩ \
+  -x PATH -x LD_LIBRARY_PATH \
+  ior -a HDF5 -w -t 1m -b 64m -o ⟨fsx-mount⟩/scratch/$USER/test8.h5</span>
+<span class="cmt"># -x exports your environment to the remote ranks. Without it they get a</span>
+<span class="cmt"># bare non-interactive shell that has never heard of your PATH.</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Now — in a second terminal, while it runs</div>
+              <pre><span class="cmd">squeue</span>
+<span class="out">JOBID PARTITION NAME USER ST TIME NODES NODELIST(REASON)</span>
+<span class="cmt"># Empty. Eight processes are running across two machines right now,</span>
+<span class="cmt"># and the scheduler does not know this is happening.</span></pre>
+            </div>
+            <p class="step-notice">Nothing in that command mentioned Slurm. The process manager launched the application; the scheduler was never asked. Hold on to that — Part 3 is about what the scheduler is actually for.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">2.6</span>
+          <div class="step-body">
+            <p class="step-title">Record it</p>
+            <table class="record-table">
+              <thead><tr><th>Item</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">The exact error text from 2.2</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">What was missing, and where</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">Install prefix that fixed it</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">Jobs in <code>squeue</code> during the run</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">Write bandwidth, 8 ranks, two nodes</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ PART 3 ══ -->
+    <section class="section" id="part3">
+      <div class="part-header">
+        <p class="part-num">Part 3 of 5 · ~12 minutes</p>
+        <h2 class="part-title">Now Hand It to the Scheduler</h2>
+        <p class="part-intent">You have just run a parallel application across two machines without a scheduler. So what is the scheduler for? Not for launching. For deciding who gets the machines, and in what order, when more people want them than there are machines.</p>
+        <p class="part-slides">Slide anchor: Slide 5 — You submit it, then you leave · Slide 6 — One job, all the way through.</p>
+      </div>
+
+      <div class="checklist-items" style="margin-top:24px">
+        <span class="checklist-tag">Batch submission</span>
+        <span class="checklist-tag">Allocation</span>
+        <span class="checklist-tag">Queueing</span>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">3.1</span>
+          <div class="step-body">
+            <p class="step-title">Wrap the same command in a batch script</p>
+            <p class="step-desc">Nothing about the application changes. You are only describing what it needs, and handing the description to something that owns the machines.</p>
+            <div class="code-block">
+              <div class="code-label">Create ~/run.sh</div>
+              <pre><span class="cmd">cat &gt; ~/run.sh &lt;&lt;'EOF'
+#!/bin/bash
+#SBATCH --job-name=ior
+#SBATCH --nodes=2
+#SBATCH --ntasks=8
+#SBATCH --output=%x-%j.out
+
+export PATH=⟨shared-apps⟩/$USER/ior/bin:$PATH
+export LD_LIBRARY_PATH=⟨hdf5-path⟩/lib:$LD_LIBRARY_PATH
+
+srun ior -a HDF5 -w -t 1m -b 64m -o ⟨fsx-mount⟩/scratch/$USER/batch.h5
+EOF</span>
+<span class="cmd">chmod +x ~/run.sh</span>
+<span class="cmt"># No hostfile. You did not name a single machine — you said "two nodes".</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">3.2</span>
+          <div class="step-body">
+            <p class="step-title">Submit it and walk away</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">sbatch ~/run.sh</span>
+<span class="out">Submitted batch job ⟨jobid⟩</span>
+<span class="cmt"># That returned instantly. Nothing is waiting for you.</span>
+<span class="cmd">squeue -u $USER</span>
+<span class="cmd">cat ior-⟨jobid⟩.out</span>
+<span class="cmt"># Same application. Same ranks. Same output. Different route.</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">3.3</span>
+          <div class="step-body">
+            <p class="step-title">Now ask for more than exists</p>
+            <p class="step-desc">This is the whole point of the part. There are two machines. Submit three jobs that each want both of them.</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">sbatch ~/run.sh; sbatch ~/run.sh; sbatch ~/run.sh</span>
+<span class="cmd">squeue</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">What you will see</div>
+              <pre><span class="out">JOBID  NAME  USER   ST  TIME  NODES  NODELIST(REASON)
+⟨id1⟩  ior   yogi   R   0:04      2  ⟨node1⟩,⟨node2⟩
+⟨id2⟩  ior   yogi   PD  0:00      2  (Resources)
+⟨id3⟩  ior   yogi   PD  0:00      2  (Resources)</span>
+<span class="cmt"># One running. Two pending — and the reason is stated: Resources.</span>
+<span class="cmt"># Not "busy". Not "slow". The machines are taken.</span></pre>
+            </div>
+            <p class="step-notice">A job does not share a node with another job. It reserves the machines and holds them until it exits. That is why there is a queue at all — and managing that queue fairly, across many users, is the entire job of the scheduler. It never had anything to do with launching your processes.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">3.4</span>
+          <div class="step-body">
+            <p class="step-title">Record it</p>
+            <table class="record-table">
+              <thead><tr><th>Item</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">Output identical to Part 2?</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">Jobs running / pending with 3 submitted</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">Reason given for pending</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+                <tr><td class="field-name">In one line — what does the scheduler do?</td><td><span class="record-blank" style="width:200px"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ PART 4 ══ -->
+    <section class="section" id="part4">
+      <div class="part-header">
+        <p class="part-num">Part 4 of 5 · ~18 minutes</p>
+        <h2 class="part-title">One File, or Many</h2>
+        <p class="part-intent">Eight ranks have the same data to write. There are two ways to put it on disk, the application chooses which, and you live with the consequence. Same bytes both ways — and two completely different problems for your filesystem.</p>
+        <p class="part-slides">Slide anchor: Slide 11 — Everyone gets a file, or everyone shares one · Slide 12 — Which meter moved.</p>
+      </div>
+
+      <div class="checklist-items" style="margin-top:24px">
+        <span class="checklist-tag">File per process</span>
+        <span class="checklist-tag">Shared file</span>
+        <span class="checklist-tag">Metadata vs bandwidth</span>
+      </div>
+
+      <div class="callout-teal">
+        <p><strong>This part is assessed.</strong> At the end you write one short paragraph: which meter moved, and why. Not which was faster — <em>which meter moved</em>.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">4.1</span>
+          <div class="step-body">
+            <p class="step-title">Take a baseline of both meters</p>
+            <p class="step-desc">Two numbers, before you write anything. Space, and inodes. You will read both again afterwards.</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">mkdir -p ⟨fsx-mount⟩/scratch/$USER/patterns</span>
+<span class="cmd">lfs df -h  ⟨fsx-mount⟩</span>
+<span class="cmd">lfs df -i  ⟨fsx-mount⟩</span>
+<span class="cmt"># -h  bytes.   -i  inodes — the count of files, not their size.</span>
+<span class="cmt"># Write both down. They move independently.</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">4.2</span>
+          <div class="step-body">
+            <p class="step-title">Pattern one — a file per rank</p>
+            <div class="code-block">
+              <div class="code-label">Command</div>
+              <pre><span class="cmd">sbatch --wrap="srun ior -a POSIX -F -w -t 1m -b 64m \
+  -o ⟨fsx-mount⟩/scratch/$USER/patterns/fpp" --nodes=2 --ntasks=8</span>
+<span class="cmt"># -F  file per process: each rank opens and writes its own file</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Then count what landed</div>
+              <pre><span class="cmd">ls ⟨fsx-mount⟩/scratch/$USER/patterns/ | wc -l</span>
+<span class="cmd">lfs df -i ⟨fsx-mount⟩</span>
+<span class="cmt"># How many files? How far did the inode number move?</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">4.3</span>
+          <div class="step-body">
+            <p class="step-title">Pattern two — one shared file</p>
+            <div class="code-block">
+              <div class="code-label">Command</div>
+              <pre><span class="cmd">sbatch --wrap="srun ior -a HDF5 -w -t 1m -b 64m \
+  -o ⟨fsx-mount⟩/scratch/$USER/patterns/shared.h5" --nodes=2 --ntasks=8</span>
+<span class="cmt"># No -F. All eight ranks write regions of ONE file, at the same time.</span>
+<span class="cmt"># That is only possible because HDF5 is doing the coordination.</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Then count again</div>
+              <pre><span class="cmd">ls -l ⟨fsx-mount⟩/scratch/$USER/patterns/shared.h5</span>
+<span class="cmd">lfs df -h ⟨fsx-mount⟩</span>
+<span class="cmd">lfs df -i ⟨fsx-mount⟩</span>
+<span class="cmt"># One file. Same bytes as before. Where did the inode number go?</span></pre>
+            </div>
+            <p class="step-notice">Eight ranks. Same data. One pattern produced eight files, the other produced one. The byte totals match. That difference is the entire part.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">4.4</span>
+          <div class="step-body">
+            <p class="step-title">Record both patterns</p>
+            <table class="record-table">
+              <thead><tr><th>Measurement</th><th>File per rank</th><th>One shared file</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">Files created</td><td><span class="record-blank" style="width:110px"></span></td><td><span class="record-blank" style="width:110px"></span></td></tr>
+                <tr><td class="field-name">Bytes written</td><td><span class="record-blank" style="width:110px"></span></td><td><span class="record-blank" style="width:110px"></span></td></tr>
+                <tr><td class="field-name">Inodes consumed</td><td><span class="record-blank" style="width:110px"></span></td><td><span class="record-blank" style="width:110px"></span></td></tr>
+                <tr><td class="field-name">Write bandwidth</td><td><span class="record-blank" style="width:110px"></span></td><td><span class="record-blank" style="width:110px"></span></td></tr>
+                <tr><td class="field-name">Needed a library to do it?</td><td><span class="record-blank" style="width:110px"></span></td><td><span class="record-blank" style="width:110px"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">4.5</span>
+          <div class="step-body">
+            <p class="step-title">Write it up — assessed</p>
+            <p class="step-desc">One short paragraph. Answer three things, in your own words.</p>
+            <div class="callout">
+              <p><strong>1 ·</strong> Which meter moved for each pattern, and which one barely moved at all.</p>
+              <p><strong>2 ·</strong> You ran this at eight ranks. Scale it in your head to a thousand. What does each pattern do to the filesystem then?</p>
+              <p><strong>3 ·</strong> A researcher asks which one they should use. What do you need to know before you can answer?</p>
+            </div>
+            <p class="step-notice">There is no correct pattern. There is a correct question, and it is about how many ranks and how many files — not about which one is faster on a two-node cluster.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ PART 5 ══ -->
+    <section class="section" id="part5">
+      <div class="part-header">
+        <p class="part-num">Part 5 of 5 · ~12 minutes</p>
+        <h2 class="part-title">Make the Shared File Faster</h2>
+        <p class="part-intent">The application chose to write one shared file. You cannot change that, and you should not want to. But where that file lives on the storage is yours — and it is the difference between one target doing all the work and all of them sharing it.</p>
+        <p class="part-slides">Slide anchor: Slide 13 — The application chose the pattern, you choose the layout.</p>
+      </div>
+
+      <div class="checklist-items" style="margin-top:24px">
+        <span class="checklist-tag">Stripe count</span>
+        <span class="checklist-tag">Layout inheritance</span>
+        <span class="checklist-tag">The handback</span>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <span class="step-num">5.1</span>
+          <div class="step-body">
+            <p class="step-title">Look at where the shared file actually lives</p>
+            <div class="code-block">
+              <div class="code-label">Command</div>
+              <pre><span class="cmd">lfs getstripe ⟨fsx-mount⟩/scratch/$USER/patterns/shared.h5</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">What to look for</div>
+              <pre><span class="out">lmm_stripe_count:  ⟨n⟩
+	obdidx		 objid
+	     ⟨n⟩	      ...</span>
+<span class="cmt"># How many object targets is this file spread across?</span>
+<span class="cmt"># Eight ranks wrote it — but how many targets received the bytes?</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">5.2</span>
+          <div class="step-body">
+            <p class="step-title">Change the layout and write it again</p>
+            <p class="step-desc">Set the stripe count on a new directory, then write the same file into it. Layout is inherited at creation — an existing file is never restriped by changing a directory.</p>
+            <div class="code-block">
+              <div class="code-label">Commands</div>
+              <pre><span class="cmd">mkdir -p ⟨fsx-mount⟩/scratch/$USER/wide</span>
+<span class="cmd">lfs setstripe -c 2 ⟨fsx-mount⟩/scratch/$USER/wide</span>
+<span class="cmd">lfs getstripe -d ⟨fsx-mount⟩/scratch/$USER/wide</span>
+<span class="cmd">sbatch --wrap="srun ior -a HDF5 -w -t 1m -b 64m \
+  -o ⟨fsx-mount⟩/scratch/$USER/wide/shared.h5" --nodes=2 --ntasks=8</span></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Then compare</div>
+              <pre><span class="cmd">lfs getstripe ⟨fsx-mount⟩/scratch/$USER/wide/shared.h5</span>
+<span class="cmt"># Now how many obdidx rows? Compare the bandwidth to 5.1.</span></pre>
+            </div>
+            <p class="step-notice">The application did not change. The ranks did not change. The command did not change. You changed where the file lives — and that is the whole of the storage module, arriving from the other direction.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">5.3</span>
+          <div class="step-body">
+            <p class="step-title">Record the comparison</p>
+            <table class="record-table">
+              <thead><tr><th>Measurement</th><th>Default layout</th><th>Wider layout</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">stripe_count on the file</td><td><span class="record-blank" style="width:110px"></span></td><td><span class="record-blank" style="width:110px"></span></td></tr>
+                <tr><td class="field-name">Targets that received data</td><td><span class="record-blank" style="width:110px"></span></td><td><span class="record-blank" style="width:110px"></span></td></tr>
+                <tr><td class="field-name">Write bandwidth</td><td><span class="record-blank" style="width:110px"></span></td><td><span class="record-blank" style="width:110px"></span></td></tr>
+                <tr><td class="field-name">Change to the application</td><td colspan="2"><span class="record-blank" style="width:240px"></span></td></tr>
+              </tbody>
+            </table>
+            <div class="callout-amber">
+              <p><strong>On the size of the difference.</strong> This cluster has two object targets and a modest network path. The improvement will be real but small — on a production filesystem with many targets and a proper fabric it is a different order of magnitude entirely. <strong>The direction is the lesson; the magnitude is bottlenecked by the machine you are on.</strong></p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ COMPLETION CRITERIA ══ -->
+    <section class="section" id="completion">
+      <p class="label">completion criteria · ~4 minutes to close</p>
+
+      <p class="prose">You have finished when every row below has a value you can defend with a command you ran, and output you saw. Not "it looked fine". A number, a path, or a state.</p>
+
+      <table class="completion-table">
+        <thead><tr><th>#</th><th>Item</th><th>Evidence you produced</th></tr></thead>
+        <tbody>
+          <tr><td class="item-num">1</td><td>An application built from source</td><td>Part 1.3 — a binary that did not exist when you logged in</td></tr>
+          <tr><td class="item-num">2</td><td>A library found because you pointed at it</td><td>Part 1.2 / 1.4 — the <code>--with-hdf5</code> path and the <code>ldd</code> output</td></tr>
+          <tr><td class="item-num">3</td><td>It ran on one machine</td><td>Part 1.5 — four ranks, one node</td></tr>
+          <tr><td class="item-num">4</td><td><strong>It failed on two machines</strong>, and you know why</td><td>Part 2.2 / 2.3 — the error, and where the binary was not</td></tr>
+          <tr><td class="item-num">5</td><td>Software installed where every machine can see it</td><td>Part 2.4 — the shared prefix, verified over SSH</td></tr>
+          <tr><td class="item-num">6</td><td>Eight ranks across two machines, no scheduler</td><td>Part 2.5 — and an empty <code>squeue</code> while it ran</td></tr>
+          <tr><td class="item-num">7</td><td>The same run through the scheduler</td><td>Part 3.2 — identical output, different route</td></tr>
+          <tr><td class="item-num">8</td><td>What the scheduler is actually for</td><td>Part 3.3 — one running, two pending, reason <code>Resources</code></td></tr>
+          <tr><td class="item-num">9</td><td><strong>Two I/O patterns, both meters read</strong></td><td>Part 4.4 — file counts, byte totals, inode movement</td></tr>
+          <tr><td class="item-num">10</td><td>Your written answer on which meter moved</td><td>Part 4.5 — <strong>assessed</strong></td></tr>
+          <tr><td class="item-num">11</td><td>Layout changed, same application</td><td>Part 5.3 — stripe count and targets, before and after</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout-teal">
+        <p><strong>The one sentence to leave with.</strong> A parallel application is launched by a process manager and scheduled by a scheduler — those are two different things. What it does to your filesystem is decided by how it writes, and how fast it can do that is decided by where you put the file.</p>
+      </div>
+    </section>
+
+    <!-- ══ INTERVENTIONS ══ -->
+    <section class="section" id="interventions">
+      <p class="label">instructor interventions</p>
+
+      <p class="prose">Traps a learner will hit on <em>this</em> cluster with <em>this</em> runbook. Each one names the moment to step in and exactly what to say — and, in two cases, what <strong>not</strong> to say.</p>
+
+      <div class="intervention">
+        <div class="intervention-header">
+          <span class="intervention-who">Rajesh → learner</span>
+          <span class="intervention-trap">Trap · <em>"configure says it cannot find HDF5 — but you said it was installed"</em></span>
+        </div>
+        <div class="intervention-body">
+          <div class="intervention-row"><span class="intervention-k">Where</span><span class="intervention-v">Part 1.2 — learner omits <code>--with-hdf5</code>, or points at the wrong path</span></div>
+          <div class="intervention-row"><span class="intervention-k">Fix</span><span class="intervention-v">Both statements are true. It is installed — under a directory specific to the MPI it was built against, not in the default library path. Have them run the <code>ls ⟨hdf5-path⟩</code> from orientation again and pass that path.</span></div>
+          <div class="intervention-row"><span class="intervention-k">Teach</span><span class="intervention-v"><em>Installed and findable are different properties. This is why every serious build system has <code>--with-…</code> flags, and why HPC sites run environment modules.</em></span></div>
+        </div>
+      </div>
+
+      <div class="intervention">
+        <div class="intervention-header">
+          <span class="intervention-who">Rajesh → learner</span>
+          <span class="intervention-trap">Trap · <em>"it failed on the compute nodes — is the cluster broken?"</em></span>
+        </div>
+        <div class="intervention-body">
+          <div class="intervention-row"><span class="intervention-k">Where</span><span class="intervention-v">Part 2.2 — <strong>this is the designed moment. Do not shortcut it.</strong></span></div>
+          <div class="intervention-row"><span class="intervention-k">Do not say</span><span class="intervention-v">"You installed it to a local path." That is the answer, and they should reach it.</span></div>
+          <div class="intervention-row"><span class="intervention-k">Say instead</span><span class="intervention-v">One question: <em>"the command has not changed — so what has?"</em> If that does not land, a second: <em>"go and look for the binary on the machine it failed on."</em></span></div>
+          <div class="intervention-row"><span class="intervention-k">Teach</span><span class="intervention-v"><em>"It works when I run it here and fails when it runs there" is one of the most common tickets at any site. They should meet it once, in a room, with someone who can explain it.</em></span></div>
+        </div>
+      </div>
+
+      <div class="intervention">
+        <div class="intervention-header">
+          <span class="intervention-who">Rajesh → learner</span>
+          <span class="intervention-trap">Trap · <em>"I installed it to shared storage and it STILL fails on the remote nodes"</em></span>
+        </div>
+        <div class="intervention-body">
+          <div class="intervention-row"><span class="intervention-k">Where</span><span class="intervention-v">Part 2.5 — learner omits the <code>-x PATH -x LD_LIBRARY_PATH</code> flags</span></div>
+          <div class="intervention-row"><span class="intervention-k">Fix</span><span class="intervention-v">The binary is visible now, but the remote ranks start in a bare non-interactive shell that never read their profile — so <code>PATH</code> and <code>LD_LIBRARY_PATH</code> are not what they are on the head node. <code>-x</code> exports them to the launched processes.</span></div>
+          <div class="intervention-row"><span class="intervention-k">Teach</span><span class="intervention-v"><em>Two separate things have to travel to the remote machine: the software, and the environment that finds it. Fixing one does not fix the other — and this is why batch scripts set their environment explicitly rather than relying on a login shell.</em></span></div>
+        </div>
+      </div>
+
+      <div class="intervention">
+        <div class="intervention-header">
+          <span class="intervention-who">Rajesh → learner</span>
+          <span class="intervention-trap">Trap · <em>"squeue shows a job during my hostfile run"</em></span>
+        </div>
+        <div class="intervention-body">
+          <div class="intervention-row"><span class="intervention-k">Where</span><span class="intervention-v">Part 2.5 — the process manager handed off to the scheduler instead of using SSH</span></div>
+          <div class="intervention-row"><span class="intervention-k">Fix</span><span class="intervention-v">Check <code>⟨launcher-flags⟩</code> is present and correct. Without it the launcher detects a scheduler and prefers it — which silently defeats the entire point of the part.</span></div>
+          <div class="intervention-row"><span class="intervention-k">Teach</span><span class="intervention-v"><em>Worth saying aloud even when it works: the launcher had a choice, and on a production cluster it usually makes the scheduler-aware one. We are forcing the other path today to show the two jobs are separable.</em></span></div>
+        </div>
+      </div>
+
+      <div class="intervention">
+        <div class="intervention-header">
+          <span class="intervention-who">Rajesh → learner</span>
+          <span class="intervention-trap">Trap · <em>"the shared file was slower — so file-per-process is better?"</em></span>
+        </div>
+        <div class="intervention-body">
+          <div class="intervention-row"><span class="intervention-k">Where</span><span class="intervention-v">Part 4.4 / 4.5 — learner ranks the patterns on bandwidth alone</span></div>
+          <div class="intervention-row"><span class="intervention-k">Fix</span><span class="intervention-v">At eight ranks, on two targets, that may well be true — and it is the wrong axis. Ask: <em>"you created eight files. What is that number at a thousand ranks, and what has to create them?"</em></span></div>
+          <div class="intervention-row"><span class="intervention-k">Teach</span><span class="intervention-v"><em>The pattern that wins on a laptop-sized run is the one that takes a metadata service down at scale. The assessed answer is about which meter moves, not which number was bigger today.</em></span></div>
+        </div>
+      </div>
+
+      <div class="intervention">
+        <div class="intervention-header">
+          <span class="intervention-who">Rajesh → learner</span>
+          <span class="intervention-trap">Trap · <em>"I set the stripe count but the old file did not change"</em></span>
+        </div>
+        <div class="intervention-body">
+          <div class="intervention-row"><span class="intervention-k">Where</span><span class="intervention-v">Part 5.2 — learner runs <code>setstripe</code> on the existing directory and re-checks the old file</span></div>
+          <div class="intervention-row"><span class="intervention-k">Fix</span><span class="intervention-v">Layout is set at file creation and never retroactively. A directory's stripe setting only affects files created after it. The runbook uses a fresh directory for exactly this reason.</span></div>
+          <div class="intervention-row"><span class="intervention-k">Teach</span><span class="intervention-v"><em>A researcher who fixes their layout mid-project has fixed nothing for the data already written. They have to re-run, or copy. Tell them that before they celebrate.</em></span></div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<div class="footer-wrap">
+  <span class="footer-copy">© hpc.now · HPC Applications · Lab Runbook v0.9 — pre-build draft, placeholders unresolved</span>
+  <a href="https://hpc.now" class="footer-link">hpc.now</a>
+</div>
+
+</body>
+</html>
