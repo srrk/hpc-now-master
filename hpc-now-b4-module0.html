@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Module 0 — Your Account and Your First Job · hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #e4ddd0;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    /* ── NAV ── */
+    .nav-wrap {
+      padding: 0;
+      border-bottom: 1px solid var(--rule-cover);
+      background: var(--cover);
+    }
+    nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 22px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: .06em;
+    }
+    .logo em { color: var(--terra); font-style: normal; }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .nav-link {
+      font-size: 11px;
+      color: var(--ink3);
+      text-decoration: none;
+      letter-spacing: .05em;
+      transition: color .18s;
+    }
+    .nav-link:hover { color: var(--terra); }
+    .nav-cta {
+      font-size: 11px;
+      letter-spacing: .08em;
+      color: var(--terra);
+      text-decoration: none;
+      border: 1px solid var(--terra-dim);
+      padding: 6px 14px;
+      transition: background .18s, color .18s;
+    }
+    .nav-cta:hover { background: var(--terra); color: var(--paper); }
+
+    /* ── RUNBOOK HEADER ── */
+    .rh-cover {
+      background: var(--cover);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+      border-bottom: 1px solid var(--rule-cover);
+    }
+    .rh-hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 64px 52px 72px;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 80px;
+      align-items: end;
+    }
+    .rh-label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .rh-label::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--ink3);
+    }
+    .rh-title {
+      font-family: var(--serif);
+      font-size: clamp(30px, 4vw, 52px);
+      font-weight: 400;
+      line-height: 1.15;
+      color: var(--ink);
+      letter-spacing: -.02em;
+      margin-bottom: 20px;
+    }
+    .rh-title em { font-style: italic; color: var(--terra); }
+    .rh-sub {
+      font-size: 14px;
+      color: var(--ink2);
+      line-height: 1.9;
+      max-width: 440px;
+    }
+    .rh-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--rule-cover);
+      background: rgba(255,255,255,0.35);
+      padding-bottom: 8px;
+    }
+    .rh-meta-row {
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--rule-cover);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .rh-meta-row:last-child { border-bottom: none; }
+    .rh-meta-k {
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink3);
+    }
+    .rh-meta-v {
+      font-size: 12px;
+      color: var(--ink);
+      line-height: 1.55;
+    }
+    .rh-meta-v code {
+      font-size: 11px;
+      color: var(--terra);
+      background: var(--terra-bg);
+      padding: 1px 5px;
+    }
+
+    /* ── TWO-COLUMN LAYOUT ── */
+    .page-body {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 52px;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 0 72px;
+      align-items: start;
+    }
+
+    /* ── STICKY SIDEBAR ── */
+    .sidebar {
+      position: sticky;
+      top: 40px;
+      padding: 64px 0 40px;
+      align-self: start;
+    }
+    .side-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .side-nav-item {
+      font-size: 11px;
+      color: var(--ink3);
+      text-decoration: none;
+      letter-spacing: .04em;
+      padding: 6px 0 6px 12px;
+      border-left: 2px solid transparent;
+      transition: color .18s, border-color .18s;
+      line-height: 1.4;
+    }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+    .side-nav-divider {
+      height: 1px;
+      background: var(--rule);
+      margin: 8px 0;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main-content { padding: 0; background: var(--paper); }
+
+    /* ── SECTIONS ── */
+    .section {
+      padding: 64px 0 56px;
+      border-top: 1px solid var(--rule);
+    }
+    .section:first-child { border-top: none; padding-top: 72px; }
+
+    .label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .label::after {
+      content: '';
+      width: 36px;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* ── PROSE ── */
+    .prose {
+      font-size: 15px;
+      color: var(--ink2);
+      line-height: 2.05;
+      max-width: 580px;
+    }
+    .prose + .prose { margin-top: 1.2em; }
+
+    /* ── SECTION TITLE (h2) ── */
+    .section-title {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .section-tagline {
+      font-family: var(--serif);
+      font-size: 14px;
+      font-style: italic;
+      color: var(--ink3);
+      margin-bottom: 28px;
+    }
+
+    /* ── SUBSECTION ── */
+    .subsection { margin-top: 36px; }
+    .subsection-title {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .subsection-title .sub-num {
+      font-size: 10px;
+      color: var(--terra-dim);
+      font-weight: 300;
+      letter-spacing: .1em;
+    }
+
+    /* ── ENTERPRISE ANALOGY BOX ── */
+    .analogy-box {
+      border-left: 3px solid var(--terra);
+      padding: 18px 22px;
+      background: var(--terra-bg);
+      margin: 8px 0 28px;
+      max-width: 580px;
+    }
+    .analogy-label {
+      font-size: 9px;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      color: var(--terra);
+      margin-bottom: 8px;
+    }
+    .analogy-box p {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 2;
+    }
+
+    /* ── KEY NOTE ── */
+    .key-note {
+      border-left: 2px solid var(--rule);
+      padding: 14px 18px;
+      background: var(--paper-mid);
+      margin: 20px 0;
+      max-width: 580px;
+    }
+    .key-note p {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.9;
+    }
+    .key-note strong { color: var(--ink); font-weight: 500; }
+
+    /* ── CODE BLOCK ── */
+    .code-block {
+      background: var(--dark);
+      padding: 20px 24px;
+      margin: 14px 0 20px;
+      overflow-x: auto;
+      max-width: 620px;
+    }
+    .code-block pre {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      font-weight: 300;
+      color: #c8c0b8;
+      line-height: 1.85;
+      white-space: pre;
+    }
+    .code-block pre .cm  { color: #5a5650; }   /* comment */
+    .code-block pre .kw  { color: #c4956e; }   /* keyword / command */
+    .code-block pre .st  { color: #a8c89a; }   /* string */
+    .code-block pre .nu  { color: #8ab8d0; }   /* number */
+    .code-block pre .pr  { color: var(--terra-dim); } /* prompt */
+
+    /* ── DIAGRAM BLOCK (ASCII art) ── */
+    .diagram-block {
+      background: var(--dark);
+      padding: 28px 32px;
+      margin: 20px 0 28px;
+      overflow-x: auto;
+      max-width: 720px;
+    }
+    .diagram-block pre {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 300;
+      color: #a8a09a;
+      line-height: 1.7;
+      white-space: pre;
+    }
+    .diagram-block pre .hl { color: #c4956e; }  /* highlighted labels */
+    .diagram-block pre .dv { color: #6a8a9e; }  /* device/node names */
+    .diagram-block pre .st { color: #7a9870; }  /* storage labels */
+
+    /* ── INLINE CODE ── */
+    code {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--terra);
+      background: var(--terra-bg);
+      padding: 1px 6px;
+    }
+
+    /* ── TABLE ── */
+    .table-wrap {
+      margin: 20px 0;
+      max-width: 580px;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    th {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      font-weight: 400;
+      text-align: left;
+      padding: 10px 14px 10px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    td {
+      color: var(--ink2);
+      padding: 11px 14px 11px 0;
+      border-bottom: 1px solid var(--rule);
+      line-height: 1.65;
+      vertical-align: top;
+    }
+    td:last-child, th:last-child { padding-right: 0; }
+    td code { font-size: 11.5px; }
+
+    /* ── EXPECTED RESULTS BOX ── */
+    .results-box {
+      border: 1px solid var(--rule);
+      padding: 20px 24px;
+      background: var(--paper-mid);
+      margin: 16px 0 20px;
+      max-width: 480px;
+    }
+    .results-box-label {
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 14px;
+    }
+    .results-row {
+      display: grid;
+      grid-template-columns: 130px 1fr 1fr;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--ink2);
+      padding: 8px 0;
+      border-top: 1px solid var(--rule);
+      line-height: 1.5;
+    }
+    .results-row:first-of-type { border-top: none; padding-top: 0; }
+    .results-row .rk { color: var(--ink3); font-size: 10px; letter-spacing: .06em; }
+    .results-row .rv { color: var(--ink); }
+    .results-row .col-h {
+      font-size: 9px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding-bottom: 6px;
+    }
+
+    /* ── CHECKLIST ── */
+    .checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 20px;
+      max-width: 540px;
+    }
+    .checklist-item {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 14px;
+      padding: 12px 0;
+      border-top: 1px solid var(--rule);
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.6;
+      align-items: start;
+    }
+    .checklist-item .cb {
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--rule-cover);
+      display: inline-block;
+      margin-top: 3px;
+      flex-shrink: 0;
+    }
+
+    /* ── FACTS (quick reference) ── */
+    .facts {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--rule);
+      max-width: 580px;
+      margin-top: 20px;
+    }
+    .fact {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 20px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--rule);
+      font-size: 13px;
+      align-items: start;
+    }
+    .fact-k {
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding-top: 2px;
+      line-height: 1.6;
+    }
+    .fact-v { color: var(--ink2); line-height: 1.8; }
+    .fact-v code { font-size: 11px; }
+
+    /* ── LATENCY TABLE (special) ── */
+    .latency-table {
+      background: var(--dark);
+      padding: 20px 24px;
+      margin: 16px 0;
+      max-width: 480px;
+    }
+    .latency-table pre {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: #a8a09a;
+      line-height: 1.9;
+    }
+    .latency-table pre .fast { color: #7a9870; }
+    .latency-table pre .hd   { color: #6a6460; font-size: 11px; }
+
+    /* ── HIGHLIGHT NUMBER ── */
+    .hl-number {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-style: italic;
+      color: var(--terra);
+      margin: 8px 0 4px;
+    }
+    .hl-label {
+      font-size: 11px;
+      color: var(--ink3);
+      letter-spacing: .06em;
+    }
+
+    /* ── CREDENTIAL BOX ── */
+    .cred-box {
+      border: 1px solid var(--rule-cover);
+      background: rgba(255,255,255,0.4);
+      max-width: 420px;
+      margin-top: 20px;
+    }
+    .cred-row {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 12px;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--rule);
+      font-size: 13px;
+      align-items: center;
+    }
+    .cred-row:last-child { border-bottom: none; }
+    .cred-k {
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--ink3);
+    }
+
+    /* ── BEFORE-YOU-BEGIN PANEL ── */
+    .prereq-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--rule);
+      max-width: 500px;
+      margin-top: 24px;
+    }
+    .prereq-item {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 14px;
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--rule);
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.65;
+      align-items: start;
+    }
+    .prereq-item:last-child { border-bottom: none; }
+    .prereq-item .pi-num {
+      font-size: 10px;
+      color: var(--terra-dim);
+      padding-top: 2px;
+    }
+
+    /* ── ACCOUNTS LIST ── */
+    .accounts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+      max-width: 480px;
+    }
+    .account-tag {
+      font-size: 12px;
+      color: var(--ink2);
+      background: var(--paper-mid);
+      border: 1px solid var(--rule);
+      padding: 4px 12px;
+      font-family: var(--mono);
+    }
+
+    /* ── ENROLL FOOTER (dark band) ── */
+    .footer-band {
+      background: var(--dark2);
+      margin: 72px -52px 0;
+      padding: 28px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-top: 1px solid #2e2820;
+    }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-link {
+      font-size: 11px;
+      color: #6a6460;
+      text-decoration: none;
+      transition: color .18s;
+    }
+    .footer-link:hover { color: var(--terra-dim); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .rh-hero {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 52px 44px 60px;
+      }
+      nav { padding: 20px 44px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 44px; }
+      .sidebar { display: none; }
+      .footer-band { margin: 56px -44px 0; padding: 24px 44px; }
+    }
+    @media (max-width: 640px) {
+      nav { padding: 18px 24px; }
+      .nav-right .nav-link { display: none; }
+      .rh-hero { padding: 44px 24px 52px; }
+      .page-body { padding: 0 24px; }
+      .footer-band { margin: 48px -24px 0; padding: 20px 24px; }
+      .diagram-block { padding: 18px 16px; }
+      .code-block { padding: 16px 16px; }
+    }
+  </style>
+
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<div class="nav-wrap">
+  <nav>
+    <a href="https://hpc.now" class="logo">hpc<em>.now</em></a>
+    <div class="nav-right">
+      <a href="https://hpc.now#modules" class="nav-link">Modules</a>
+      <a href="https://hpc.now#capstone" class="nav-link">Capstone</a>
+      <a href="https://hpc.now#rajesh" class="nav-link">Instructor</a>
+      <a href="mailto:rajesh@hpc.now" class="nav-cta">Start a conversation</a>
+    </div>
+  </nav>
+</div>
+
+<!-- ── RUNBOOK HEADER ── -->
+<div class="rh-cover">
+  <div class="rh-hero">
+    <div>
+      <p class="rh-label">Module 0 · Week One Lab Set · Orientation</p>
+      <h1 class="rh-title">Your Account —<br><em>and Your First Job</em></h1>
+      <p class="rh-sub">Two labs, back to back. In the first you establish by inspection — not by assumption — that your account on a shared cluster is correctly built. In the second you stop being an operator for ninety minutes and become a user with work to run.</p>
+    </div>
+    <div>
+      <div class="rh-meta">
+        <div class="rh-meta-row">
+          <span class="rh-meta-k">Duration</span>
+          <span class="rh-meta-v">90 min + 90 min, with a break</span>
+        </div>
+        <div class="rh-meta-row">
+          <span class="rh-meta-k">Cluster</span>
+          <span class="rh-meta-v">1 × t3.medium headnode · 1 × t3.medium login node · 1 × t3.medium compute</span>
+        </div>
+        <div class="rh-meta-row">
+          <span class="rh-meta-k">Storage</span>
+          <span class="rh-meta-v"><code>/home</code> NFS · <code>/scratch</code> NFS, separate volume · <code>/shared</code> facility tree</span>
+        </div>
+        <div class="rh-meta-row">
+          <span class="rh-meta-k">Access</span>
+          <span class="rh-meta-v">SSH with password to <code>mylab.hpc.now</code></span>
+        </div>
+        <div class="rh-meta-row">
+          <span class="rh-meta-k">Accounts</span>
+          <span class="rh-meta-v">Your assigned username — confirmed by your instructor at session start</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TWO-COLUMN BODY ── -->
+<div class="page-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <nav class="side-nav">
+      <a href="#before"    class="side-nav-item">Before you begin</a>
+      <a href="#cluster"   class="side-nav-item">The cluster</a>
+      <div class="side-nav-divider"></div>
+      <a href="#s0"        class="side-nav-item">0 · Connect</a>
+      <a href="#s1"        class="side-nav-item">1 · Who you are</a>
+      <a href="#s2"        class="side-nav-item">2 · Storage</a>
+      <a href="#s3"        class="side-nav-item">3 · Environment</a>
+      <a href="#s4"        class="side-nav-item">4 · The scheduler</a>
+      <a href="#s5"        class="side-nav-item">5 · Self-check &amp; log</a>
+      <div class="side-nav-divider"></div>
+      <a href="#s6"        class="side-nav-item">6 · Your first job</a>
+      <a href="#s7"        class="side-nav-item">7 · Watch it</a>
+      <a href="#s8"        class="side-nav-item">8 · Output &amp; cost</a>
+      <a href="#s9"        class="side-nav-item">9 · The refusal</a>
+      <div class="side-nav-divider"></div>
+      <a href="#wrapup"    class="side-nav-item">Wrap-up</a>
+      <a href="#reference" class="side-nav-item">Quick reference</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- BEFORE YOU BEGIN -->
+    <section class="section" id="before">
+      <p class="label">before you begin</p>
+      <p class="prose">You need three things to start.</p>
+      <div class="prereq-panel">
+        <div class="prereq-item"><span class="pi-num">01</span><span>The login address — <code>mylab.hpc.now</code>. Confirmed live by your instructor at the start of the session.</span></div>
+        <div class="prereq-item"><span class="pi-num">02</span><span>Your assigned username and the shared password <code>hpcnow2026</code>.</span></div>
+        <div class="prereq-item"><span class="pi-num">03</span><span>A terminal — macOS Terminal, Windows PowerShell, PuTTY, or any SSH client.</span></div>
+      </div>
+      <p class="prose" style="margin-top:28px">Your username is not your email address and it is not your first name. It follows the convention this facility uses — first initial and family name, eight characters or fewer, so that it fits the user column of the scheduler's output without being truncated. Find yours below. Write it down; you will be typing it all day.</p>
+
+      <div class="table-wrap" style="margin-top:20px">
+        <table>
+          <thead>
+            <tr><th>You registered as</th><th>Your username</th><th>Your project group</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>abdulsheik.sam@gmail.com</td><td><code>asheik</code></td><td><code>eng</code></td></tr>
+            <tr><td>Bhagya Raj G</td><td><code>braj</code></td><td><code>eng</code></td></tr>
+            <tr><td>manne.vinod4a1@outlook.com</td><td><code>vmanne</code></td><td><code>eng</code></td></tr>
+            <tr><td>Syed Mohammad Zubair</td><td><code>szubair</code></td><td><code>phys</code></td></tr>
+            <tr><td>mohmedsalauddin@gmail.com</td><td><code>msalaudd</code></td><td><code>phys</code></td></tr>
+            <tr><td>Rahul Manoharan</td><td><code>rmanohar</code></td><td><code>phys</code></td></tr>
+            <tr><td>Surya Pendyala</td><td><code>spendyal</code></td><td><code>chem</code></td></tr>
+            <tr><td>Rajesh SR Kumar</td><td><code>rkumar</code></td><td><code>chem</code></td></tr>
+            <tr><td>sai.dasari91@gmail.com</td><td><code>sdasari</code></td><td><code>chem</code></td></tr>
+            <tr><td>Khadarvali Shaik</td><td><code>kshaik</code></td><td><code>bio</code></td></tr>
+            <tr><td>Satya Srinivas</td><td><code>ssriniva</code></td><td><code>bio</code></td></tr>
+            <tr><td>vrkathi@gmail.com</td><td><code>vrkathi</code></td><td><code>bio</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="prose">The project group in the third column is not decoration — it is the group your files will belong to, and you will see it in the output of <code>id</code> in section 1. On a real facility it is what maps you to a research project, and later in this course, to an allocation.</p>
+
+      <div class="key-note" style="margin-top:24px">
+        <p><strong>Two habits this lab is really about.</strong> The first is that access problems are <em>diagnosed</em>, not reported — in the job this course leads to, you are who the ticket goes to. The second is that you will have queued a job. Someone who has never submitted work has no model of what a user sees, and gives advice that is technically correct and practically useless.</p>
+        <p style="margin-top:10px">Write down what you find as you go. You will be asked to describe this account from memory next week.</p>
+      </div>
+    </section>
+
+    <!-- CLUSTER AT A GLANCE -->
+    <section class="section" id="cluster">
+      <p class="label">the cluster</p>
+      <p class="section-title">Your cluster at a glance</p>
+      <p class="section-tagline">Understand the machine before you walk into it.</p>
+      <p class="prose">This is not a simulation. It is a live AWS ParallelCluster deployment, provisioned this morning and running right now, shared by everyone in the room. Treat it as production: you hold an ordinary account, you have no privilege, and nothing you are asked to do today can damage it.</p>
+
+      <div class="diagram-block">
+        <pre>
+                        ┌──────────────────────────────────────────────┐
+   <span class="hl">You (SSH)</span>            │           AWS  ap-south-1                    │
+       │                │                                              │
+       │  password       │  ┌───────────────────────────────────────┐  │
+       └────────────────┼─▶│   <span class="dv">tb-login   (t3.medium)</span>              │  │
+    mylab.hpc.now        │  │   The only host you log in to         │  │
+                         │  └───────────────┬───────────────────────┘  │
+                         │                  │  NFS · Slurm client       │
+                         │  ┌───────────────▼───────────────────────┐  │
+                         │  │   <span class="dv">headnode   (t3.medium)</span>              │  │
+                         │  │   Slurm controller · NFS server       │  │
+                         │  │   You do not log in here              │  │
+                         │  └───────────────┬───────────────────────┘  │
+                         │                  │                           │
+                         │  ┌───────────────▼───────────────────────┐  │
+                         │  │   <span class="dv">compute node   (t3.medium)</span>          │  │
+                         │  │   2 cores · where your job runs       │  │
+                         │  └───────────────────────────────────────┘  │
+                         │                                              │
+                         │  ═════════════ Shared Storage ════════════   │
+                         │  <span class="st">/home</span>     NFS  · your files, small        │
+                         │  <span class="st">/scratch</span>  NFS  · separate volume, working  │
+                         │  <span class="st">/shared</span>   NFS  · facility software + tools  │
+                         └──────────────────────────────────────────────┘
+        </pre>
+      </div>
+
+      <p class="prose">Three machines, one shared filesystem tree, and a queue in front of the compute node. That last point matters more than it looks: <strong>one compute node with two cores, twelve of you.</strong> Your job will wait. That is not a fault — it is the normal condition of every shared cluster you will ever operate, and watching it is half the point of this afternoon.</p>
+
+      <div class="table-wrap" style="margin-top:8px">
+        <table>
+          <thead>
+            <tr><th>Partition</th><th>Time limit</th><th>Nodes</th><th>Use</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>standard</code></td><td>1 hour</td><td>1 online</td><td>Default. Your real job goes here.</td></tr>
+            <tr><td><code>debug</code></td><td>5 minutes</td><td>on demand</td><td>Short work only. You will meet its limit deliberately.</td></tr>
+            <tr><td><code>long</code></td><td>8 hours</td><td>—</td><td>Restricted. Visible, not available to you.</td></tr>
+            <tr><td><code>largemem</code></td><td>4 hours</td><td>—</td><td>Restricted. Visible, not available to you.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">A real facility has partitions with materially different limits, and knowing which one your work belongs in is an operator's judgement. Note the five-minute ceiling on <code>debug</code>. You will come back to it in section 9.</p>
+    </section>
+
+    <!-- SECTION 0: CONNECT -->
+    <section class="section" id="s0">
+      <p class="label">section 0</p>
+      <p class="section-title">Connect to the cluster</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>You are SSH-ing into a jump host. The login node is the managed front door to the whole facility — functionally identical to a bastion in a corporate datacenter. Everything you do today passes through it. The controller and the compute node sit behind it, and you have no route to either.</p>
+      </div>
+
+      <p class="prose">Open a terminal and connect with your assigned username.</p>
+
+      <div class="code-block"><pre><span class="kw">ssh</span> &lt;your-username&gt;@mylab.hpc.now</pre></div>
+
+      <p class="prose">Enter the password when prompted: <code>hpcnow2026</code></p>
+
+      <div class="key-note" style="margin-top:20px">
+        <p><strong>You should see a password prompt, and that is correct here.</strong> On the production facilities you will operate later in this course, a password prompt means something is wrong — those use key-based authentication, and a prompt tells you your key was not accepted. This teaching cluster uses passwords deliberately, so nobody spends the first thirty minutes of week one debugging key registration. Note the difference now; you will need to read a password prompt as a <em>fault</em> soon enough.</p>
+      </div>
+
+      <div class="key-note" style="margin-top:20px">
+        <p><strong>If SSH refuses with "host key verification failed" —</strong> this cluster is rebuilt for each session, so the host key behind <code>mylab.hpc.now</code> changes even though the name does not. Your laptop remembers the old one and objects.</p>
+        <p style="margin-top:10px">Clear the stale entry and reconnect:</p>
+      </div>
+      <div class="code-block"><pre><span class="cm"># Run this on your laptop, not on the cluster</span>
+<span class="kw">ssh-keygen -R</span> mylab.hpc.now
+
+<span class="cm"># Then connect as normal</span>
+<span class="kw">ssh</span> &lt;your-username&gt;@mylab.hpc.now</pre></div>
+
+      <p class="prose" style="margin-top:16px">A successful login looks like this:</p>
+      <div class="code-block"><pre><span class="pr">[&lt;your-username&gt;@tb-login ~]$</span></pre></div>
+      <p class="prose">You are on the login node. Everything from here runs in that shell.</p>
+
+      <div class="key-note" style="margin-top:20px">
+        <p><strong>If it does not work, read what you got.</strong> The password prompt returning again means the password or username is wrong. A connection refused or timed out means the address or the route, not your account. A hang with no prompt at all points at the network path. Three different failures, three different owners — telling them apart from the message alone is the skill this whole module is building.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 1: WHO YOU ARE -->
+    <section class="section" id="s1">
+      <p class="label">section 1</p>
+      <p class="section-title">Establish who you are here</p>
+      <p class="section-tagline">Identity is a facility-wide fact, not a per-host one.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>A domain account. The same user object, the same SID, the same group memberships, on every server that trusts the directory. If it differs between two machines, you do not have an account problem — you have an integration problem, and that is a different team and a different fix.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">1.1</span>Read your own identity</p>
+        <div class="code-block"><pre><span class="kw">whoami</span>          <span class="cm"># your username</span>
+<span class="kw">id</span>              <span class="cm"># numeric identity and every group you belong to</span>
+<span class="kw">groups</span>          <span class="cm"># the same group list, more readably</span>
+<span class="kw">hostname</span>        <span class="cm"># which machine you are on</span></pre></div>
+        <p class="prose">The output of <code>id</code> is the important one. It looks like this:</p>
+        <div class="code-block"><pre><span class="pr">uid=3007(spendyal) gid=6003(chem) groups=6003(chem),6000(hpcusers)</span></pre></div>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">1.2</span>What each part means</p>
+        <div class="facts">
+          <div class="fact"><span class="fact-k">uid=3007</span><span class="fact-v">Your numeric user ID. The filesystem knows you by this number, not by your name.</span></div>
+          <div class="fact"><span class="fact-k">gid=6003(chem)</span><span class="fact-v">Your primary project group. Files you create belong to it by default.</span></div>
+          <div class="fact"><span class="fact-k">groups=…</span><span class="fact-v">Every group you are in. <code>hpcusers</code> is what grants you access to this facility at all.</span></div>
+        </div>
+        <p class="prose">Note your own numbers down. In section 4 you will run <code>id</code> again on a machine you have never logged into, and the numbers must be identical. If they were not, files your job wrote would come back unreadable to you — and the fault would be in the facility's identity configuration, not in your account.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 2: STORAGE -->
+    <section class="section" id="s2">
+      <p class="label">section 2</p>
+      <p class="section-title">Two filesystems, and what protects them</p>
+      <p class="section-tagline">Discover the protection model. Do not assume it.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>A user's home share versus a working volume on a filer. Same protocol, same look in the shell, entirely different retention and backup policy. The mistake that costs people work is assuming the second is protected like the first — and on a real facility, nobody tells them otherwise until it is gone.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">2.1</span>Locate home, and see how much of it there is</p>
+        <div class="code-block"><pre><span class="kw">pwd</span>                 <span class="cm"># you start in your home directory</span>
+<span class="kw">ls -la</span> ~
+<span class="kw">df -h</span> ~             <span class="cm"># which filesystem home lives on, and how big it is</span>
+<span class="kw">du -sh</span> ~            <span class="cm"># how much of it you are using</span></pre></div>
+        <p class="prose">Home is served over NFS from the headnode. It is small relative to the machine, it is shared by everyone, and — read this carefully — <strong>nothing on this cluster is backed up.</strong> Not home, not scratch. The facility's position on protection is published in the storage note:</p>
+        <div class="code-block"><pre><span class="kw">cat</span> /shared/facility/docs/storage-note.md</pre></div>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">2.2</span>Locate scratch, and prove it is a different thing</p>
+        <p class="prose">You have a working area at <code>/scratch/$USER</code>. Write to it, read it back, and then establish by inspection that it is not simply another directory on the same disk.</p>
+        <div class="code-block"><pre><span class="kw">cd</span> /scratch/$USER
+<span class="kw">echo</span> <span class="st">"written by $USER at $(date)"</span> &gt; hello.txt
+<span class="kw">cat</span> hello.txt</pre></div>
+        <p class="prose">Now compare the two filesystems directly:</p>
+        <div class="code-block"><pre><span class="kw">df -h</span> ~ /scratch          <span class="cm"># two rows — look at the device column</span>
+<span class="kw">stat -f</span> -c <span class="st">"%i  %n"</span> ~ /scratch   <span class="cm"># two different filesystem IDs</span>
+<span class="kw">mount</span> | <span class="kw">grep</span> -E <span class="st">"home|scratch"</span></pre></div>
+        <p class="prose">Different devices, different filesystem IDs. They are separately served volumes that happen to appear next to each other in your shell. That is the point: on a real facility the difference between where you keep things and where you work is a difference in <em>policy</em>, and you can only see it by looking.</p>
+      </div>
+
+      <div class="key-note">
+        <p><strong>The trap here is assuming home is the working area,</strong> because on every system most people have administered, it was. Ask yourself what happens when four hundred compute nodes read from one NFS export at the same moment. You do not need the answer today — week seven is about exactly that — but notice the question exists.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 3: ENVIRONMENT -->
+    <section class="section" id="s3">
+      <p class="label">section 3</p>
+      <p class="section-title">Compose a software environment</p>
+      <p class="section-tagline">Software here is assembled at need, not installed once.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>Not a package manager. Closer to loading a profile or activating a virtual environment — except several mutually incompatible versions of the same product are installed side by side, permanently, and each user composes the combination they need for the next hour. Nobody uninstalls anything, ever.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">3.1</span>See what is published</p>
+        <div class="code-block"><pre><span class="kw">module avail</span></pre></div>
+        <p class="prose">You will see the facility's own tree alongside what the platform ships. Two versions of CMake are published for this lab.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">3.2</span>Load one, and confirm where it came from</p>
+        <div class="code-block"><pre><span class="kw">which</span> cmake                    <span class="cm"># before loading — probably nothing, or a system copy</span>
+<span class="kw">module load</span> cmake/3.26.5
+<span class="kw">module list</span>                    <span class="cm"># what is loaded now</span>
+<span class="kw">which</span> cmake                    <span class="cm"># after loading</span>
+<span class="kw">cmake --version</span></pre></div>
+        <p class="prose">The path <code>which</code> reports should be under <code>/shared/facility/software/</code> — the facility's tree, not <code>/usr/bin</code>. If it resolves to a system path, the module did not load or something else shadowed it. Loading a module changes nothing on disk; it edits your <code>PATH</code> and a handful of other variables in <em>this shell only</em>.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">3.3</span>Now load the second version, while the first is still loaded</p>
+        <div class="code-block"><pre><span class="kw">module load</span> cmake/3.29.8</pre></div>
+        <p class="prose">Read what comes back, then look at the state you are actually in:</p>
+        <div class="code-block"><pre><span class="kw">module list</span>
+<span class="kw">which</span> cmake
+<span class="kw">cmake --version</span></pre></div>
+        <p class="prose">Say out loud what just happened. Either the system refused the second load because it conflicts with the first, or it swapped one for the other underneath you. Both are the same lesson from opposite sides: <strong>two versions of one application cannot be active at once, and the module system is what enforces that.</strong> A user whose job mysteriously ran against the wrong version has almost always hit this, and week nine takes it apart properly.</p>
+        <div class="code-block"><pre><span class="cm"># Clear everything and start clean — a habit worth having</span>
+<span class="kw">module purge</span>
+<span class="kw">module list</span></pre></div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: THE SCHEDULER -->
+    <section class="section" id="s4">
+      <p class="label">section 4</p>
+      <p class="section-title">Can your scheduler client see a controller?</p>
+      <p class="section-tagline">The first fork in every scheduling incident you will ever handle.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>"The service is down" versus "my client cannot reach the service." You have made this distinction a thousand times with a monitoring agent or a backup client. It is the same distinction here, and it is the first thing to establish when someone tells you the queue is broken.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">4.1</span>Ask the scheduler what the facility looks like</p>
+        <div class="code-block"><pre><span class="kw">sinfo</span></pre></div>
+        <p class="prose">You should get the four partitions from the table at the top of this page, each with a node count and a state. You are not expected to interpret the states yet — only to establish that your client got an answer from a controller. An error naming a connection means client-to-controller. An empty but successful response means configuration. <code>command not found</code> means the client is not on your path.</p>
+        <div class="code-block"><pre><span class="kw">sinfo</span> -N -l                        <span class="cm"># one line per node, with detail</span>
+<span class="kw">scontrol show partition</span> debug      <span class="cm"># the full configuration of one partition</span></pre></div>
+        <p class="prose">In that last output, find <code>MaxTime</code>. Note the value. It is the whole of section 9.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">4.2</span>Prove your identity reaches the compute node</p>
+        <p class="prose">You cannot log in to the compute node — try it and you will be refused, which is correct. But you can ask the scheduler to run a command there on your behalf.</p>
+        <div class="code-block"><pre><span class="kw">srun</span> -p standard --time=00:01:00 <span class="kw">id</span>
+<span class="kw">srun</span> -p standard --time=00:01:00 <span class="kw">hostname</span></pre></div>
+        <p class="prose">Compare that <code>id</code> output against what you wrote down in section 1. Same UID, same GID, same groups — on a machine you have never logged into and cannot log into. <strong>That is what "your identity is a facility-wide fact" means,</strong> and it is why your job can write a file on the compute node that you can read afterwards from here.</p>
+        <p class="prose">If the queue is busy, <code>srun</code> will wait for its turn before printing anything. That is not a hang. Section 7 is about exactly that.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 5: SELF-CHECK -->
+    <section class="section" id="s5">
+      <p class="label">section 5</p>
+      <p class="section-title">Self-check, and log what you did</p>
+      <p class="section-tagline">Close the first lab on the two habits that carry the rest of the course.</p>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">5.1</span>Run the facility self-check</p>
+        <div class="code-block"><pre><span class="kw">tb-selfcheck</span></pre></div>
+        <p class="prose">Seven checks, one line each, PASS or FAIL with a reason. Every item should pass. If one does not, the message names what is wrong — work back through the section of this runbook that covers it rather than working around it. In ten weeks the person seeing that message will be a real user, and you will be the one who has to know what it means.</p>
+        <p class="prose">Keep the output. Your instructor will ask for it.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">5.2</span>Write your first change-log entry</p>
+        <p class="prose">This facility keeps a shared change log. From week five onward, every privileged action you take is preceded by a line in it. Today you log something that could not possibly have harmed anything — which is exactly the point. The discipline has to be automatic before it is needed.</p>
+        <div class="code-block"><pre><span class="kw">tb-changelog</span> <span class="st">"connected to cluster, verified account, ran selfcheck"</span>
+
+<span class="cm"># Read the log — everyone's entries are visible to everyone</span>
+<span class="kw">cat</span> /shared/facility/changelog/m0-changelog.tsv</pre></div>
+        <p class="prose">Four things belong in every entry, forever: who, what, when, why. The wrapper handles the first three.</p>
+      </div>
+
+      <div class="key-note">
+        <p><strong>Before the break, write down your account in prose.</strong> Your identity and groups, where home is and what protects it, where scratch is and what does not, how software is composed, and what the scheduler told you. Half a page. You will be asked to reproduce it from memory next week, and the gap between the two is the actual measurement.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 6: FIRST JOB -->
+    <section class="section" id="s6">
+      <p class="label">section 6</p>
+      <p class="section-title">Write and submit your first job</p>
+      <p class="section-tagline">From here you are a user, not an operator. Behave accordingly.</p>
+
+      <div class="key-note">
+        <p><strong>Change of role.</strong> For the rest of this runbook you are a new researcher at this facility — week one, a small piece of work to run, no particular interest in how the machine works. Do not read scheduler documentation beyond this page. Do not tune anything. When something is slow, do not intervene. The friction is the content.</p>
+      </div>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>A batch job submitted to a scheduler, with a resource request attached. You have written the equivalent — a scheduled task with a service account and a timeout. The difference is that here the request is a <em>declaration</em> the scheduler plans around, and asking for more than you need does not make your work faster. It makes it wait longer.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">6.1</span>Write the script</p>
+        <p class="prose">Work in your scratch area. Create a file called <code>first-job.sh</code> with any editor — <code>nano</code>, <code>vi</code>, or the block below pasted straight into your shell.</p>
+        <div class="code-block"><pre><span class="kw">cd</span> /scratch/$USER
+
+<span class="kw">cat</span> &gt; first-job.sh &lt;&lt; <span class="st">'EOF'</span>
+<span class="cm">#!/bin/bash</span>
+<span class="cm">#SBATCH --job-name=first-job</span>
+<span class="cm">#SBATCH --partition=standard</span>
+<span class="cm">#SBATCH --nodes=1</span>
+<span class="cm">#SBATCH --ntasks=1</span>
+<span class="cm">#SBATCH --time=00:02:00</span>
+<span class="cm">#SBATCH --output=first-job-%j.out</span>
+
+<span class="kw">echo</span> <span class="st">"Job $SLURM_JOB_ID running as $(whoami) on $(hostname)"</span>
+<span class="kw">echo</span> <span class="st">"Started at $(date)"</span>
+
+<span class="kw">module load</span> cmake/3.26.5
+<span class="kw">cmake --version</span>
+
+<span class="kw">sleep</span> 30
+<span class="kw">echo</span> <span class="st">"Finished at $(date)"</span>
+<span class="st">EOF</span>
+
+<span class="kw">chmod +x</span> first-job.sh
+<span class="kw">cat</span> first-job.sh</pre></div>
+        <p class="prose">Read the <code>#SBATCH</code> lines. They are not comments to the shell — they are your resource request, read by the scheduler before anything runs. One node, one task, two minutes, output named after the job ID. That is the whole declaration.</p>
+        <p class="prose">Note that the job loads its own module. The compute node does not inherit your shell.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">6.2</span>Submit it</p>
+        <div class="code-block"><pre><span class="kw">sbatch</span> first-job.sh</pre></div>
+        <div class="code-block"><pre><span class="pr">Submitted batch job 42</span></pre></div>
+        <p class="prose"><strong>Write that number down.</strong> The job ID is the only handle a user has on their work. Every question you ask about this job from now on uses it.</p>
+        <p class="prose">If submission is rejected outright, that is either syntax or policy, and the two read differently. If it hangs, that points at the controller, not at your script.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 7: WATCH IT -->
+    <section class="section" id="s7">
+      <p class="label">section 7</p>
+      <p class="section-title">Watch it pend, run and disappear</p>
+      <p class="section-tagline">Pending is a normal state. The reason field is the scheduler explaining itself.</p>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">7.1</span>Look at the queue</p>
+        <div class="code-block"><pre><span class="kw">squeue</span> -u $USER</pre></div>
+        <p class="prose">Run it repeatedly. Watch the <code>ST</code> column change. With twelve people and two cores, most of you will see <code>PD</code> — pending — before you see anything else.</p>
+        <div class="code-block"><pre><span class="cm"># The reason field, spelled out</span>
+<span class="kw">squeue</span> -u $USER -o <span class="st">"%.8i %.10P %.12j %.3t %.10M %R"</span>
+
+<span class="cm"># Or watch it live — Ctrl-C to stop</span>
+<span class="kw">watch</span> -n 5 <span class="st">"squeue -u $USER"</span></pre></div>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">7.2</span>The states, and the one people miss</p>
+        <div class="facts">
+          <div class="fact"><span class="fact-k">PD · pending</span><span class="fact-v">Accepted, waiting. The last column tells you what it is waiting for.</span></div>
+          <div class="fact"><span class="fact-k">R · running</span><span class="fact-v">Allocated and executing on a compute node.</span></div>
+          <div class="fact"><span class="fact-k">CG · completing</span><span class="fact-v">Finished, being cleaned up. Usually too brief to catch.</span></div>
+          <div class="fact"><span class="fact-k">gone</span><span class="fact-v">A finished job leaves the active queue entirely. It has not vanished.</span></div>
+        </div>
+        <p class="prose">That last one catches nearly everyone. You will run <code>squeue</code>, see nothing, and wonder what happened to your job. Nothing happened to it — it finished. The active queue shows active work. Section 8 is how you ask about work that is already done.</p>
+      </div>
+
+      <div class="key-note">
+        <p><strong>Do not intervene.</strong> If your job sits pending, leave it. Experienced operators find this genuinely difficult — the instinct is to cancel, resubmit, adjust something. Notice the instinct. Intervening in a scheduler that is working correctly is one of the more expensive habits you can bring into this job, and it starts here.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 8: OUTPUT AND COST -->
+    <section class="section" id="s8">
+      <p class="label">section 8</p>
+      <p class="section-title">Find your output, and what the job consumed</p>
+      <p class="section-tagline">The facility records what happened. The record is evidence.</p>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">8.1</span>Retrieve the output</p>
+        <div class="code-block"><pre><span class="kw">cd</span> /scratch/$USER
+<span class="kw">ls -la</span> first-job-*.out
+<span class="kw">cat</span> first-job-&lt;JOBID&gt;.out</pre></div>
+        <p class="prose">The file is named against the job ID and written to the directory you submitted from. Confirm it holds what you expected — the hostname of the compute node, your username, and the CMake version the job loaded for itself.</p>
+        <p class="prose">Look at the hostname in that output. Your job ran somewhere you have never logged in, as you, and left a file you can read. Section 4 told you that would happen; this is the evidence.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">8.2</span>Ask what it actually used</p>
+        <div class="code-block"><pre><span class="kw">scontrol show job</span> &lt;JOBID&gt;</pre></div>
+        <p class="prose">In that output, find and compare:</p>
+        <div class="facts">
+          <div class="fact"><span class="fact-k">TimeLimit</span><span class="fact-v">What you asked for</span></div>
+          <div class="fact"><span class="fact-k">RunTime</span><span class="fact-v">What you actually used</span></div>
+          <div class="fact"><span class="fact-k">NumCPUs</span><span class="fact-v">What was allocated to you</span></div>
+          <div class="fact"><span class="fact-k">JobState / ExitCode</span><span class="fact-v">How it ended — <code>0:0</code> is success</span></div>
+        </div>
+        <p class="prose">You asked for two minutes and used well under one. That gap is not free: the scheduler planned around the number you gave it. Do not correct it today — just notice that the request and the reality are different things, and that the facility knows both.</p>
+        <div class="code-block"><pre><span class="cm"># A persistent record of every finished job on this facility</span>
+<span class="kw">grep</span> $USER /shared/facility/logs/jobcomp.log</pre></div>
+        <p class="prose">The record is first of all evidence of what your job did. Later in the course it becomes an accounting question; today it is simply a fact the facility keeps.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 9: THE REFUSAL -->
+    <section class="section" id="s9">
+      <p class="label">section 9</p>
+      <p class="section-title">Ask for something the facility cannot give you</p>
+      <p class="section-tagline">Read the refusal as information, not as an error.</p>
+
+      <p class="prose">You are still a user. Submit a second job — the same trivial work, but sent to the <code>debug</code> partition asking for thirty minutes of wall clock.</p>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">9.1</span>Submit it</p>
+        <div class="code-block"><pre><span class="kw">cd</span> /scratch/$USER
+
+<span class="kw">cat</span> &gt; second-job.sh &lt;&lt; <span class="st">'EOF'</span>
+<span class="cm">#!/bin/bash</span>
+<span class="cm">#SBATCH --job-name=second-job</span>
+<span class="cm">#SBATCH --partition=debug</span>
+<span class="cm">#SBATCH --nodes=1</span>
+<span class="cm">#SBATCH --ntasks=1</span>
+<span class="cm">#SBATCH --time=00:30:00</span>
+<span class="cm">#SBATCH --output=second-job-%j.out</span>
+
+<span class="kw">echo</span> <span class="st">"If you are reading this, something is very wrong"</span>
+<span class="st">EOF</span>
+
+<span class="kw">sbatch</span> second-job.sh</pre></div>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">9.2</span>Watch what happens</p>
+        <div class="code-block"><pre><span class="kw">squeue</span> -u $USER
+<span class="kw">squeue</span> -j &lt;JOBID&gt; -o <span class="st">"%.8i %.10P %.3t %R"</span></pre></div>
+        <p class="prose">Wait. Check again. Check a third time. It will not start.</p>
+        <p class="prose"><strong>Before you read any further, write down — in the words you would use to a colleague, not in technical language — what the system told you and what you would do next if nobody were here to ask.</strong> Three or four sentences. Do this now, before you diagnose anything. Keep it; your instructor will ask for it, and the sentence you just wrote is the ticket text you will be receiving for the rest of your career.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">9.3</span>Now diagnose it</p>
+        <p class="prose">Three commands. In this order.</p>
+        <div class="code-block"><pre><span class="cm"># 1 — What is the scheduler saying? Read the last column.</span>
+<span class="kw">squeue</span> -j &lt;JOBID&gt; -o <span class="st">"%.8i %.10P %.3t %R"</span>
+
+<span class="cm"># 2 — What does that partition actually permit?</span>
+<span class="kw">scontrol show partition</span> debug | <span class="kw">grep</span> MaxTime
+
+<span class="cm"># 3 — What did you ask for?</span>
+<span class="kw">grep</span> time second-job.sh</pre></div>
+        <p class="prose">Three links, one chain. The reason field names a partition limit — which rules out contention and rules in your request. The partition configuration confirms the ceiling. Your own script shows the request that exceeded it.</p>
+        <div class="key-note">
+          <p><strong>This is a working scheduler declining an impossible request.</strong> No operator intervention will start this job. Nothing is stuck, nothing is broken, nothing needs restarting. The request is simply not satisfiable in that partition, and the system said so immediately and precisely — you just had not read it yet.</p>
+          <p style="margin-top:10px">Most of the "the queue is stuck" tickets you will handle from week five onward are exactly this. The ability to see it at a glance starts here.</p>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">9.4</span>Clean up after yourself</p>
+        <div class="code-block"><pre><span class="kw">scancel</span> &lt;JOBID&gt;
+<span class="kw">squeue</span> -u $USER        <span class="cm"># confirm nothing of yours is left queued</span></pre></div>
+        <p class="prose">Try cancelling somebody else's job while you are here. It will fail, and it is supposed to. On a shared facility you can only touch your own work — the enforcement is the scheduler's, not etiquette.</p>
+      </div>
+    </section>
+
+    <!-- WRAP-UP -->
+    <section class="section" id="wrapup">
+      <p class="label">wrap-up</p>
+      <p class="section-title">Before the session ends</p>
+      <p class="prose">Work through this checklist. If something is incomplete, ask your instructor or a neighbour — the goal is that everyone leaves having seen every result, not that everyone finished first.</p>
+      <div class="checklist">
+        <div class="checklist-item"><span class="cb"></span><span>Logged in to <code>mylab.hpc.now</code> with your assigned username and password</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Read your own identity with <code>id</code> and noted your UID, GID and groups</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Wrote a file to <code>/scratch</code> and established that it is a different filesystem from home</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Loaded a module, confirmed it resolved under <code>/shared</code>, and saw what a second version does</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Confirmed <code>sinfo</code> reaches a controller, and saw your own UID on the compute node via <code>srun id</code></span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Ran <code>tb-selfcheck</code> with every item passing, and posted a change-log entry</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Submitted a job, watched it pend, run and leave the queue, and read its output</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Found what the job consumed with <code>scontrol show job</code></span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Submitted the impossible request, wrote down what you would say to a colleague, then diagnosed it</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Cancelled your own pending job and left the queue clear</span></div>
+      </div>
+
+      <p class="prose" style="margin-top:36px">Three questions for the debrief. Think about your answers before we discuss them.</p>
+      <div class="facts">
+        <div class="fact"><span class="fact-k">One</span><span class="fact-v">What here is protected, and what did you <em>do</em> to find that out?</span></div>
+        <div class="fact"><span class="fact-k">Two</span><span class="fact-v">If your UID had differed between the login node and the compute node, what class of problem would that be — and whose?</span></div>
+        <div class="fact"><span class="fact-k">Three</span><span class="fact-v">You logged an action that could not possibly have harmed anything. Why?</span></div>
+      </div>
+
+      <div class="key-note" style="margin-top:32px">
+        <p><strong>Keep these three things.</strong> Your written account description, your self-check output, and the sentence you wrote about the job that would not start. All three are reused later in the course, and the third one is reread from the other side of the desk in week five — when you are the person receiving it.</p>
+      </div>
+    </section>
+
+    <!-- QUICK REFERENCE -->
+    <section class="section" id="reference">
+      <p class="label">quick reference</p>
+      <p class="section-title">Command card</p>
+
+      <p class="prose" style="margin-bottom:6px">Your account</p>
+      <div class="facts">
+        <div class="fact"><span class="fact-k">id</span><span class="fact-v">Your numeric identity and group membership</span></div>
+        <div class="fact"><span class="fact-k">df -h ~ /scratch</span><span class="fact-v">Which filesystems your directories live on</span></div>
+        <div class="fact"><span class="fact-k">tb-selfcheck</span><span class="fact-v">Verify every property of your account, PASS or FAIL per item</span></div>
+        <div class="fact"><span class="fact-k">tb-changelog "…"</span><span class="fact-v">Append one line to the shared change log</span></div>
+      </div>
+
+      <p class="prose" style="margin-top:36px;margin-bottom:6px">Software environment</p>
+      <div class="facts">
+        <div class="fact"><span class="fact-k">module avail</span><span class="fact-v">What is published on this facility</span></div>
+        <div class="fact"><span class="fact-k">module load &lt;name&gt;/&lt;ver&gt;</span><span class="fact-v">Compose it into this shell</span></div>
+        <div class="fact"><span class="fact-k">module list</span><span class="fact-v">What is loaded right now</span></div>
+        <div class="fact"><span class="fact-k">module purge</span><span class="fact-v">Unload everything and start clean</span></div>
+      </div>
+
+      <p class="prose" style="margin-top:36px;margin-bottom:6px">The scheduler</p>
+      <div class="facts">
+        <div class="fact"><span class="fact-k">sinfo</span><span class="fact-v">Partitions, node counts and states</span></div>
+        <div class="fact"><span class="fact-k">sbatch script.sh</span><span class="fact-v">Submit a batch job — returns your job ID</span></div>
+        <div class="fact"><span class="fact-k">squeue -u $USER</span><span class="fact-v">Your jobs, their state, and why they are waiting</span></div>
+        <div class="fact"><span class="fact-k">srun -p standard &lt;cmd&gt;</span><span class="fact-v">Run one command on a compute node, interactively</span></div>
+        <div class="fact"><span class="fact-k">scontrol show job &lt;id&gt;</span><span class="fact-v">Everything about one job, including requested against used</span></div>
+        <div class="fact"><span class="fact-k">scontrol show partition &lt;p&gt;</span><span class="fact-v">A partition's real configuration, including its limits</span></div>
+        <div class="fact"><span class="fact-k">scancel &lt;id&gt;</span><span class="fact-v">Cancel your own job. Only your own.</span></div>
+      </div>
+
+      <p class="prose" style="margin-top:36px;margin-bottom:6px">Key paths</p>
+      <div class="facts">
+        <div class="fact"><span class="fact-k">~/ (/home)</span><span class="fact-v">Your home directory — NFS, small, shared, not backed up</span></div>
+        <div class="fact"><span class="fact-k">/scratch/$USER</span><span class="fact-v">Your working area — separate volume, not backed up, not protected</span></div>
+        <div class="fact"><span class="fact-k">/shared/facility/docs/</span><span class="fact-v">Storage note, environment note, user note, shared-tenancy rules</span></div>
+        <div class="fact"><span class="fact-k">/shared/facility/changelog/</span><span class="fact-v">The cohort's shared change log</span></div>
+        <div class="fact"><span class="fact-k">/shared/facility/logs/jobcomp.log</span><span class="fact-v">Persistent record of every finished job</span></div>
+      </div>
+
+      <p class="prose" style="margin-top:36px;margin-bottom:6px">Storage at a glance</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Mount</th><th>Technology</th><th>Protected?</th><th>Best for</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>~/</code> (<code>/home</code>)</td><td>NFS from the headnode</td><td>No backup</td><td>Scripts, notes, small results</td></tr>
+            <tr><td><code>/scratch</code></td><td>NFS, separate volume</td><td>No backup, no protection</td><td>Job working area, output</td></tr>
+            <tr><td><code>/shared</code></td><td>NFS, facility-managed</td><td>Read-only to you</td><td>Published software, tools, documents</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="footer-band">
+        <span class="footer-copy">HPC Lab · Module 0 · hpc.now · 2026</span>
+        <a href="mailto:rajesh@hpc.now" class="footer-link">rajesh@hpc.now</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(i => i.classList.remove('is-active'));
+        const active = document.querySelector(`.side-nav-item[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
