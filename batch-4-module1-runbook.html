@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Module 1 — Cluster Anatomy · hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #e4ddd0;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    /* ── NAV ── */
+    .nav-wrap {
+      padding: 0;
+      border-bottom: 1px solid var(--rule-cover);
+      background: var(--cover);
+    }
+    nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 22px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: .06em;
+    }
+    .logo em { color: var(--terra); font-style: normal; }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .nav-link {
+      font-size: 11px;
+      color: var(--ink3);
+      text-decoration: none;
+      letter-spacing: .05em;
+      transition: color .18s;
+    }
+    .nav-link:hover { color: var(--terra); }
+    .nav-cta {
+      font-size: 11px;
+      letter-spacing: .08em;
+      color: var(--terra);
+      text-decoration: none;
+      border: 1px solid var(--terra-dim);
+      padding: 6px 14px;
+      transition: background .18s, color .18s;
+    }
+    .nav-cta:hover { background: var(--terra); color: var(--paper); }
+
+    /* ── RUNBOOK HEADER ── */
+    .rh-cover {
+      background: var(--cover);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+      border-bottom: 1px solid var(--rule-cover);
+    }
+    .rh-hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 64px 52px 72px;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 80px;
+      align-items: end;
+    }
+    .rh-label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .rh-label::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--ink3);
+    }
+    .rh-title {
+      font-family: var(--serif);
+      font-size: clamp(30px, 4vw, 52px);
+      font-weight: 400;
+      line-height: 1.15;
+      color: var(--ink);
+      letter-spacing: -.02em;
+      margin-bottom: 20px;
+    }
+    .rh-title em { font-style: italic; color: var(--terra); }
+    .rh-sub {
+      font-size: 14px;
+      color: var(--ink2);
+      line-height: 1.9;
+      max-width: 440px;
+    }
+    .rh-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--rule-cover);
+      background: rgba(255,255,255,0.35);
+      padding-bottom: 8px;
+    }
+    .rh-meta-row {
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--rule-cover);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .rh-meta-row:last-child { border-bottom: none; }
+    .rh-meta-k {
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink3);
+    }
+    .rh-meta-v {
+      font-size: 12px;
+      color: var(--ink);
+      line-height: 1.55;
+    }
+    .rh-meta-v code {
+      font-size: 11px;
+      color: var(--terra);
+      background: var(--terra-bg);
+      padding: 1px 5px;
+    }
+
+    /* ── TWO-COLUMN LAYOUT ── */
+    .page-body {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 52px;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 0 72px;
+      align-items: start;
+    }
+
+    /* ── STICKY SIDEBAR ── */
+    .sidebar {
+      position: sticky;
+      top: 40px;
+      padding: 64px 0 40px;
+      align-self: start;
+    }
+    .side-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .side-nav-item {
+      font-size: 11px;
+      color: var(--ink3);
+      text-decoration: none;
+      letter-spacing: .04em;
+      padding: 6px 0 6px 12px;
+      border-left: 2px solid transparent;
+      transition: color .18s, border-color .18s;
+      line-height: 1.4;
+    }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+    .side-nav-divider {
+      height: 1px;
+      background: var(--rule);
+      margin: 8px 0;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main-content { padding: 0; background: var(--paper); }
+
+    /* ── SECTIONS ── */
+    .section {
+      padding: 64px 0 56px;
+      border-top: 1px solid var(--rule);
+    }
+    .section:first-child { border-top: none; padding-top: 72px; }
+
+    .label {
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .label::after {
+      content: '';
+      width: 36px;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* ── PROSE ── */
+    .prose {
+      font-size: 15px;
+      color: var(--ink2);
+      line-height: 2.05;
+      max-width: 580px;
+    }
+    .prose + .prose { margin-top: 1.2em; }
+
+    /* ── SECTION TITLE (h2) ── */
+    .section-title {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .section-tagline {
+      font-family: var(--serif);
+      font-size: 14px;
+      font-style: italic;
+      color: var(--ink3);
+      margin-bottom: 28px;
+    }
+
+    /* ── SUBSECTION ── */
+    .subsection { margin-top: 36px; }
+    .subsection-title {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .subsection-title .sub-num {
+      font-size: 10px;
+      color: var(--terra-dim);
+      font-weight: 300;
+      letter-spacing: .1em;
+    }
+
+    /* ── ENTERPRISE ANALOGY BOX ── */
+    .analogy-box {
+      border-left: 3px solid var(--terra);
+      padding: 18px 22px;
+      background: var(--terra-bg);
+      margin: 8px 0 28px;
+      max-width: 580px;
+    }
+    .analogy-label {
+      font-size: 9px;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      color: var(--terra);
+      margin-bottom: 8px;
+    }
+    .analogy-box p {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 2;
+    }
+
+    /* ── KEY NOTE ── */
+    .key-note {
+      border-left: 2px solid var(--rule);
+      padding: 14px 18px;
+      background: var(--paper-mid);
+      margin: 20px 0;
+      max-width: 580px;
+    }
+    .key-note p {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.9;
+    }
+    .key-note strong { color: var(--ink); font-weight: 500; }
+
+    /* ── CODE BLOCK ── */
+    .code-block {
+      background: var(--dark);
+      padding: 20px 24px;
+      margin: 14px 0 20px;
+      overflow-x: auto;
+      max-width: 620px;
+    }
+    .code-block pre {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      font-weight: 300;
+      color: #c8c0b8;
+      line-height: 1.85;
+      white-space: pre;
+    }
+    .code-block pre .cm  { color: #5a5650; }   /* comment */
+    .code-block pre .kw  { color: #c4956e; }   /* keyword / command */
+    .code-block pre .st  { color: #a8c89a; }   /* string */
+    .code-block pre .nu  { color: #8ab8d0; }   /* number */
+    .code-block pre .pr  { color: var(--terra-dim); } /* prompt */
+
+    /* ── DIAGRAM BLOCK (ASCII art) ── */
+    .diagram-block {
+      background: var(--dark);
+      padding: 28px 32px;
+      margin: 20px 0 28px;
+      overflow-x: auto;
+      max-width: 720px;
+    }
+    .diagram-block pre {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 300;
+      color: #a8a09a;
+      line-height: 1.7;
+      white-space: pre;
+    }
+    .diagram-block pre .hl { color: #c4956e; }  /* highlighted labels */
+    .diagram-block pre .dv { color: #6a8a9e; }  /* device/node names */
+    .diagram-block pre .st { color: #7a9870; }  /* storage labels */
+
+    /* ── INLINE CODE ── */
+    code {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--terra);
+      background: var(--terra-bg);
+      padding: 1px 6px;
+    }
+
+    /* ── TABLE ── */
+    .table-wrap {
+      margin: 20px 0;
+      max-width: 580px;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    th {
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      font-weight: 400;
+      text-align: left;
+      padding: 10px 14px 10px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    td {
+      color: var(--ink2);
+      padding: 11px 14px 11px 0;
+      border-bottom: 1px solid var(--rule);
+      line-height: 1.65;
+      vertical-align: top;
+    }
+    td:last-child, th:last-child { padding-right: 0; }
+    td code { font-size: 11.5px; }
+
+    /* ── EXPECTED RESULTS BOX ── */
+    .results-box {
+      border: 1px solid var(--rule);
+      padding: 20px 24px;
+      background: var(--paper-mid);
+      margin: 16px 0 20px;
+      max-width: 480px;
+    }
+    .results-box-label {
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 14px;
+    }
+    .results-row {
+      display: grid;
+      grid-template-columns: 130px 1fr 1fr;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--ink2);
+      padding: 8px 0;
+      border-top: 1px solid var(--rule);
+      line-height: 1.5;
+    }
+    .results-row:first-of-type { border-top: none; padding-top: 0; }
+    .results-row .rk { color: var(--ink3); font-size: 10px; letter-spacing: .06em; }
+    .results-row .rv { color: var(--ink); }
+    .results-row .col-h {
+      font-size: 9px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding-bottom: 6px;
+    }
+
+    /* ── CHECKLIST ── */
+    .checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 20px;
+      max-width: 540px;
+    }
+    .checklist-item {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 14px;
+      padding: 12px 0;
+      border-top: 1px solid var(--rule);
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.6;
+      align-items: start;
+    }
+    .checklist-item .cb {
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--rule-cover);
+      display: inline-block;
+      margin-top: 3px;
+      flex-shrink: 0;
+    }
+
+    /* ── FACTS (quick reference) ── */
+    .facts {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--rule);
+      max-width: 580px;
+      margin-top: 20px;
+    }
+    .fact {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 20px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--rule);
+      font-size: 13px;
+      align-items: start;
+    }
+    .fact-k {
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding-top: 2px;
+      line-height: 1.6;
+    }
+    .fact-v { color: var(--ink2); line-height: 1.8; }
+    .fact-v code { font-size: 11px; }
+
+    /* ── LATENCY TABLE (special) ── */
+    .latency-table {
+      background: var(--dark);
+      padding: 20px 24px;
+      margin: 16px 0;
+      max-width: 480px;
+    }
+    .latency-table pre {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: #a8a09a;
+      line-height: 1.9;
+    }
+    .latency-table pre .fast { color: #7a9870; }
+    .latency-table pre .hd   { color: #6a6460; font-size: 11px; }
+
+    /* ── HIGHLIGHT NUMBER ── */
+    .hl-number {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-style: italic;
+      color: var(--terra);
+      margin: 8px 0 4px;
+    }
+    .hl-label {
+      font-size: 11px;
+      color: var(--ink3);
+      letter-spacing: .06em;
+    }
+
+    /* ── CREDENTIAL BOX ── */
+    .cred-box {
+      border: 1px solid var(--rule-cover);
+      background: rgba(255,255,255,0.4);
+      max-width: 420px;
+      margin-top: 20px;
+    }
+    .cred-row {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 12px;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--rule);
+      font-size: 13px;
+      align-items: center;
+    }
+    .cred-row:last-child { border-bottom: none; }
+    .cred-k {
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--ink3);
+    }
+
+    /* ── BEFORE-YOU-BEGIN PANEL ── */
+    .prereq-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--rule);
+      max-width: 500px;
+      margin-top: 24px;
+    }
+    .prereq-item {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 14px;
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--rule);
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.65;
+      align-items: start;
+    }
+    .prereq-item:last-child { border-bottom: none; }
+    .prereq-item .pi-num {
+      font-size: 10px;
+      color: var(--terra-dim);
+      padding-top: 2px;
+    }
+
+    /* ── ACCOUNTS LIST ── */
+    .accounts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+      max-width: 480px;
+    }
+    .account-tag {
+      font-size: 12px;
+      color: var(--ink2);
+      background: var(--paper-mid);
+      border: 1px solid var(--rule);
+      padding: 4px 12px;
+      font-family: var(--mono);
+    }
+
+    /* ── ENROLL FOOTER (dark band) ── */
+    .footer-band {
+      background: var(--dark2);
+      margin: 72px -52px 0;
+      padding: 28px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-top: 1px solid #2e2820;
+    }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-link {
+      font-size: 11px;
+      color: #6a6460;
+      text-decoration: none;
+      transition: color .18s;
+    }
+    .footer-link:hover { color: var(--terra-dim); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .rh-hero {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 52px 44px 60px;
+      }
+      nav { padding: 20px 44px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 44px; }
+      .sidebar { display: none; }
+      .footer-band { margin: 56px -44px 0; padding: 24px 44px; }
+    }
+    @media (max-width: 640px) {
+      nav { padding: 18px 24px; }
+      .nav-right .nav-link { display: none; }
+      .rh-hero { padding: 44px 24px 52px; }
+      .page-body { padding: 0 24px; }
+      .footer-band { margin: 48px -24px 0; padding: 20px 24px; }
+      .diagram-block { padding: 18px 16px; }
+      .code-block { padding: 16px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<div class="nav-wrap">
+  <nav>
+    <a href="https://hpc.now" class="logo">hpc<em>.now</em></a>
+    <div class="nav-right">
+      <a href="https://hpc.now#modules" class="nav-link">Modules</a>
+      <a href="https://hpc.now#capstone" class="nav-link">Capstone</a>
+      <a href="https://hpc.now#rajesh" class="nav-link">Instructor</a>
+      <a href="mailto:rajesh@hpc.now" class="nav-cta">Start a conversation</a>
+    </div>
+  </nav>
+</div>
+
+<!-- ── RUNBOOK HEADER ── -->
+<div class="rh-cover">
+  <div class="rh-hero">
+    <div>
+      <p class="rh-label">Module 1 · Week Two · Cluster Anatomy</p>
+      <h1 class="rh-title">A Cluster You<br><em>Did Not Build</em></h1>
+      <p class="rh-sub">One hour to find every functional component of a live, shared cluster and put it on a drawing you made yourself. We do this together — your instructor drives, you follow in your own shell and annotate as we go. The drawing you leave with is the one eight later modules extend.</p>
+    </div>
+    <div>
+      <div class="rh-meta">
+        <div class="rh-meta-row">
+          <span class="rh-meta-k">Duration</span>
+          <span class="rh-meta-v">60 minutes, instructor-driven</span>
+        </div>
+        <div class="rh-meta-row">
+          <span class="rh-meta-k">Your role</span>
+          <span class="rh-meta-v">Ordinary user, read-only. No job submitted, no state changed</span>
+        </div>
+        <div class="rh-meta-row">
+          <span class="rh-meta-k">Login</span>
+          <span class="rh-meta-v"><code>mylab.hpc.now</code> — password <code>hpcnow2026</code></span>
+        </div>
+        <div class="rh-meta-row">
+          <span class="rh-meta-k">You need</span>
+          <span class="rh-meta-v">A terminal, and your drawing canvas open on a second screen or on paper</span>
+        </div>
+        <div class="rh-meta-row">
+          <span class="rh-meta-k">You produce</span>
+          <span class="rh-meta-v">An annotated cluster drawing, and a list of what could not be found</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TWO-COLUMN BODY ── -->
+<div class="page-body">
+
+  <aside class="sidebar">
+    <nav class="side-nav">
+      <a href="#before"   class="side-nav-item">Before you begin</a>
+      <a href="#howto"    class="side-nav-item">How this hour runs</a>
+      <div class="side-nav-divider"></div>
+      <a href="#s1"       class="side-nav-item">1 · The login node</a>
+      <a href="#s2"       class="side-nav-item">2 · The fleet</a>
+      <a href="#s3"       class="side-nav-item">3 · The control plane</a>
+      <a href="#s4"       class="side-nav-item">4 · Three networks</a>
+      <a href="#s5"       class="side-nav-item">5 · Storage</a>
+      <a href="#s6"       class="side-nav-item">6 · Identity</a>
+      <a href="#s7"       class="side-nav-item">7 · Two node shapes</a>
+      <a href="#s8"       class="side-nav-item">8 · Where it is watched</a>
+      <div class="side-nav-divider"></div>
+      <a href="#drawing"  class="side-nav-item">Finish the drawing</a>
+      <a href="#wrapup"   class="side-nav-item">Debrief</a>
+      <a href="#reference" class="side-nav-item">Quick reference</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- BEFORE YOU BEGIN -->
+    <section class="section" id="before">
+      <p class="label">before you begin</p>
+      <p class="prose">Connect now, before we start. Everyone needs to be logged in for the very first observation of the hour to work.</p>
+
+      <div class="prereq-panel">
+        <div class="prereq-item"><span class="pi-num">01</span><span>A terminal, and the login address <code>mylab.hpc.now</code>.</span></div>
+        <div class="prereq-item"><span class="pi-num">02</span><span>Your username from the table below, and the password <code>hpcnow2026</code>.</span></div>
+        <div class="prereq-item"><span class="pi-num">03</span><span>Your drawing canvas — on a second screen, a tablet, or paper. Not the screen showing the shared terminal.</span></div>
+        <div class="prereq-item"><span class="pi-num">04</span><span>A second sheet headed <strong>Gaps</strong>. You will need it.</span></div>
+      </div>
+
+      <div class="code-block"><pre><span class="kw">ssh</span> &lt;your-username&gt;@mylab.hpc.now</pre></div>
+      <p class="prose">Same username and password as week one. If SSH refuses with a host key warning, this is a different cluster behind the same name — clear the old entry and reconnect:</p>
+      <div class="code-block"><pre><span class="cm"># On your laptop, not on the cluster</span>
+<span class="kw">ssh-keygen -R</span> mylab.hpc.now</pre></div>
+
+      <div class="table-wrap" style="margin-top:28px">
+        <table>
+          <thead><tr><th>You registered as</th><th>Your username</th><th>Your group</th></tr></thead>
+          <tbody>
+            <tr><td>abdulsheik.sam@gmail.com</td><td><code>asheik</code></td><td><code>eng</code></td></tr>
+            <tr><td>Bhagya Raj G</td><td><code>braj</code></td><td><code>eng</code></td></tr>
+            <tr><td>manne.vinod4a1@outlook.com</td><td><code>vmanne</code></td><td><code>eng</code></td></tr>
+            <tr><td>Syed Mohammad Zubair</td><td><code>szubair</code></td><td><code>phys</code></td></tr>
+            <tr><td>mohmedsalauddin@gmail.com</td><td><code>msalaudd</code></td><td><code>phys</code></td></tr>
+            <tr><td>Rahul Manoharan</td><td><code>rmanohar</code></td><td><code>phys</code></td></tr>
+            <tr><td>Surya Pendyala</td><td><code>spendyal</code></td><td><code>chem</code></td></tr>
+            <tr><td>Rajesh SR Kumar</td><td><code>rkumar</code></td><td><code>chem</code></td></tr>
+            <tr><td>sai.dasari91@gmail.com</td><td><code>sdasari</code></td><td><code>chem</code></td></tr>
+            <tr><td>Khadarvali Shaik</td><td><code>kshaik</code></td><td><code>bio</code></td></tr>
+            <tr><td>Satya Srinivas</td><td><code>ssriniva</code></td><td><code>bio</code></td></tr>
+            <tr><td>vrkathi@gmail.com</td><td><code>vrkathi</code></td><td><code>bio</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">Your instructor uses a thirteenth account, <code>labguest</code>, for demonstration. If you see it in <code>who</code>, that is him.</p>
+    </section>
+
+    <!-- HOW THIS HOUR RUNS -->
+    <section class="section" id="howto">
+      <p class="label">how this hour runs</p>
+      <p class="section-title">Watch, then annotate</p>
+      <p class="section-tagline">The drawing is the work. The commands are how we find what goes on it.</p>
+
+      <p class="prose">Your instructor drives a shared terminal. Every command appears on his screen first, with the real output. You have your own shell and you are welcome to run the light commands alongside — but <strong>the annotation is what you are actually here to do</strong>, and it is what you submit.</p>
+
+      <div class="key-note">
+        <p><strong>Two kinds of command in this runbook.</strong> Most are plain reads you can run yourself on the login node — <code>id</code>, <code>sinfo</code>, <code>findmnt</code>, <code>ip</code>. A few reach a compute node through the scheduler, and those are marked <em>instructor drives this</em>. Please do not run those: twelve people asking the scheduler for the same node at once turns an anatomy lab into a queueing exercise, and this cluster has exactly two compute nodes.</p>
+      </div>
+
+      <div class="key-note" style="margin-top:20px">
+        <p><strong>Read. Do not act.</strong> This is a live shared system. Nothing in this hour changes node or job state, and nothing needs a change-log entry — because nothing changes anything. If you deviate from that, it becomes one, and a conversation.</p>
+      </div>
+
+      <div class="key-note" style="margin-top:20px">
+        <p><strong>Some components are not here, and finding that out is the point.</strong> This facility is missing several things a mature site would have. When we cannot find something, write it on the Gaps sheet along with what you would have asked the incumbent team. Your notes are read above all for what you recorded as missing. An inventory with an honest gap beats one that is complete because you guessed.</p>
+      </div>
+
+      <p class="prose" style="margin-top:28px">By the end you should be able to point at your own annotation and say, for each component: <strong>what it is, which host it runs on, which network it talks over, and what stops working if it stops.</strong></p>
+    </section>
+
+    <!-- SECTION 1 -->
+    <section class="section" id="s1">
+      <p class="label">section 1</p>
+      <p class="section-title">Establish what the login node is — and is not</p>
+      <p class="section-tagline">The host you land on is not the machine.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>A shared jump host. Nobody would confuse it with the estate behind it — but at a shell prompt on an unfamiliar cluster, almost everyone does, because it is the only host they have seen. The load you are about to read is people typing, not work being done.</p>
+      </div>
+
+      <div class="code-block"><pre><span class="kw">hostname</span>
+<span class="kw">who</span>                  <span class="cm"># who else is logged in right now</span>
+<span class="kw">w</span>
+<span class="kw">uptime</span>               <span class="cm"># load average</span>
+<span class="kw">nproc</span>                <span class="cm"># how many cores this host has</span></pre></div>
+
+      <p class="prose">Look at <code>who</code>. Those are your colleagues, in this room, on this host, right now. That is the first fact about a shared facility, and it is easy to forget an hour later when you are tempted to run something heavy here.</p>
+
+      <p class="prose">Now put the load average next to <code>nproc</code>. Whatever load exists comes from shells and editors, not from computation. <strong>No real work runs here.</strong> The login node exists so you can reach the cluster, prepare work and submit it. Everything that matters happens elsewhere, and you have not seen any of it yet.</p>
+
+      <div class="facts" style="margin-top:24px">
+        <div class="fact"><span class="fact-k">On your drawing</span><span class="fact-v">The login node — its hostname, its core count, how many people are on it</span></div>
+        <div class="fact"><span class="fact-k">Gaps sheet</span><span class="fact-v">There is only one login node here. What would a second one have been for?</span></div>
+      </div>
+    </section>
+
+    <!-- SECTION 2 -->
+    <section class="section" id="s2">
+      <p class="label">section 2</p>
+      <p class="section-title">Enumerate the fleet from the scheduler's inventory</p>
+      <p class="section-tagline">The authoritative list of what exists belongs to the scheduler.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>Your CMDB records what someone believed was true when they wrote it. The scheduler records what is answering right now. On a cluster the second one wins every argument, and the gap between them is where a surprising number of incidents live.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">2.1</span>Ask what partitions exist</p>
+        <div class="code-block"><pre><span class="kw">sinfo</span></pre></div>
+        <p class="prose">Note what you get. Now ask the same question differently:</p>
+        <div class="code-block"><pre><span class="kw">sinfo</span> -a</pre></div>
+
+        <div class="key-note">
+          <p><strong>You just saw more partitions the second time.</strong> That is not a bug and it is worth ten seconds of your attention. Some partitions on this facility carry an access restriction, and the scheduler hides a partition you are not permitted to use. Run <code>sinfo</code> without <code>-a</code> and you get an honest answer to the wrong question — "what can I use" rather than "what exists".</p>
+          <p style="margin-top:10px">Every command from here on uses <code>-a</code>. If you are ever handed a cluster and told it has fewer partitions than it does, this is why.</p>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">2.2</span>Read the fleet, and the policy behind it</p>
+        <div class="code-block"><pre><span class="kw">sinfo</span> -a -N -l                     <span class="cm"># one line per node, with detail</span>
+<span class="kw">sinfo</span> -a -h -o <span class="st">"%R|%l|%D|%T"</span>       <span class="cm"># partition | time limit | nodes | state</span>
+<span class="kw">scontrol show partition</span>            <span class="cm"># the full policy behind every partition</span></pre></div>
+        <p class="prose">Read the time limits as policy rather than configuration. A partition with a short ceiling exists for a reason. One with an access list exists for a different reason. Somebody decided each of these, and you are reading their intent.</p>
+        <p class="prose">Note also how many nodes are actually online against how many each partition could hold. A fleet is visibly not uniform, and some of it is not running at all.</p>
+      </div>
+
+      <div class="key-note">
+        <p><strong>Other schedulers, same idea.</strong> This facility runs Slurm. The equivalent inventory query exists under other names in PBS Professional and OpenPBS, Spectrum LSF and Grid Engine derivatives. If you already know one of those, say so in the debrief — the room needs the mapping.</p>
+      </div>
+
+      <div class="facts" style="margin-top:24px">
+        <div class="fact"><span class="fact-k">On your drawing</span><span class="fact-v">Every partition, its time limit, its node count, and which ones you cannot use</span></div>
+      </div>
+    </section>
+
+    <!-- SECTION 3 -->
+    <section class="section" id="s3">
+      <p class="label">section 3</p>
+      <p class="section-title">Find the control plane and name its daemons</p>
+      <p class="section-tagline">This is what makes it a cluster rather than a rack of Linux hosts.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>A control plane with a primary, a standby, and a state store behind it — a cluster manager, a hypervisor control cluster, a domain controller pair. The parts are familiar. What is unfamiliar is what happens to the workload when the control plane stops, and the answer here is not what your instinct says.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">3.1</span>Ask the controller about itself</p>
+        <p class="prose">You cannot log in to the controller, and you do not need to.</p>
+        <div class="code-block"><pre><span class="kw">scontrol ping</span>
+<span class="kw">scontrol show config</span> | <span class="kw">grep</span> -i <span class="st">"SlurmctldHost\|SlurmUser\|ClusterName"</span></pre></div>
+        <p class="prose"><code>scontrol ping</code> names the controller and says whether it is responding — and if a standby were configured, it would name that too.</p>
+        <div class="key-note" style="margin-top:20px">
+          <p><strong>There is no standby controller on this facility.</strong> That is a finding, not an omission on your part. Write it on the Gaps sheet, and next to it write what a standby would have protected against. Plenty of real facilities run a single controller and accept the exposure deliberately — knowing the exposure exists is the operator's job; pretending it does not is how it becomes an outage nobody planned for.</p>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">3.2</span>Look for the accounting service</p>
+        <div class="code-block"><pre><span class="kw">scontrol show config</span> | <span class="kw">grep</span> -i <span class="st">"AccountingStorage"</span>
+<span class="kw">sacct</span></pre></div>
+        <p class="prose">Read what comes back from both. The accounting daemon would keep the record of every job that has ever run here — who, what, how long, how much — in a database behind it. <strong>This facility does not have one.</strong></p>
+        <p class="prose">Gaps sheet. Then work out what that costs: no historical usage, no per-project reporting, no answer to "what did this group consume last quarter". A later module is entirely about that question.</p>
+        <p class="prose">Note the difference between the two commands you just ran. One told you the configuration says none; the other failed when you tried to use it. <strong>An absence you can demonstrate is worth more than one you were told about.</strong></p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">3.3</span>Find the per-node daemon</p>
+        <p class="prose">The controller decides. Something on each compute node actually runs the work, and it is a different daemon.</p>
+        <div class="key-note" style="margin-bottom:16px">
+          <p><strong>Instructor drives this.</strong> Watch his screen — please do not run these yourself.</p>
+        </div>
+        <div class="code-block"><pre><span class="cm"># On a compute node, through the scheduler</span>
+<span class="kw">srun</span> -p standard --time=00:01:00 <span class="kw">systemctl is-active</span> slurmd
+<span class="kw">srun</span> -p standard --time=00:01:00 <span class="kw">hostname</span>
+
+<span class="cm"># And on the login node — compare</span>
+<span class="kw">systemctl is-active</span> slurmd</pre></div>
+        <p class="prose">Active on the compute node, absent from the login node. That asymmetry <em>is</em> the difference between the two roles, stated by the system rather than by a diagram.</p>
+        <p class="prose">Look also at the compute node's name. It tells you which partition it belongs to and whether it is permanently online or launched on demand — the naming is not decorative.</p>
+      </div>
+
+      <div class="facts" style="margin-top:24px">
+        <div class="fact"><span class="fact-k">On your drawing</span><span class="fact-v">Controller host, standby (ABSENT), accounting (ABSENT), and where the per-node daemon runs</span></div>
+        <div class="fact"><span class="fact-k">Hold this question</span><span class="fact-v">What happens to a <em>running</em> job if the controller stops? Do not guess — it comes up in the debrief</span></div>
+      </div>
+    </section>
+
+    <!-- SECTION 4 -->
+    <section class="section" id="s4">
+      <p class="label">section 4</p>
+      <p class="section-title">Separate the three networks</p>
+      <p class="section-tagline">You assume one network with VLANs. There are three, and confusing them costs an incident.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>Production, storage, and a lights-out management network. You already run this separation. The difference here is the middle one: the fabric is not carrying storage traffic between servers, it is carrying the application itself — thousands of small messages a second between ranks of one running job, where latency matters more than throughput.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">4.1</span>Management — the one you are on</p>
+        <div class="code-block"><pre><span class="kw">ip -br addr</span>
+<span class="kw">ip route</span></pre></div>
+        <p class="prose">This is the network carrying your login, the scheduler's control traffic, and the monitoring data — everything except the workload itself.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">4.2</span>The fabric — the one the workload runs on</p>
+        <div class="key-note" style="margin-bottom:16px">
+          <p><strong>Instructor drives this.</strong> The fabric adapter is on one specific node.</p>
+        </div>
+        <div class="code-block"><pre><span class="kw">srun</span> -p accel --time=00:02:00 <span class="kw">fi_info</span> -p efa
+<span class="kw">srun</span> -p accel --time=00:02:00 <span class="kw">ip -br addr</span></pre></div>
+        <p class="prose">You are looking for an adapter reporting an active fabric provider, and the interface it presents. Note both.</p>
+        <p class="prose">Then compare the addressing on that node against your own on the login node. Different subnets, different purposes.</p>
+        <div class="key-note" style="margin-top:20px">
+          <p><strong>Only one node on this facility carries a fabric adapter.</strong> On a production cluster every compute node would, because a fabric with one endpoint cannot do the thing fabrics exist for — connecting ranks of a job spread across many nodes. What you are seeing here is the adapter and the software stack, not a working interconnect. That is a legitimate thing to write on the Gaps sheet, and the interconnect module takes the whole subject apart properly.</p>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">4.3</span>Out-of-band — the one you cannot reach</p>
+        <p class="prose">There is a third path: the one an operator uses when a node answers on no other network. A BMC, a lights-out card, a serial console — or, on a cloud-hosted facility like this one, a console API rather than a network at all.</p>
+        <p class="prose"><strong>You cannot reach it, and you are not supposed to.</strong> Your instructor will describe what it is here and who holds it. What goes on your drawing is that the path exists, what it is called, and what it is for — a node that will not answer, at three in the morning, when the alternative is a walk to the datacenter.</p>
+      </div>
+
+      <div class="facts" style="margin-top:24px">
+        <div class="fact"><span class="fact-k">On your drawing</span><span class="fact-v">Three rails: management subnet, fabric type and where it exists, out-of-band path and who holds it</span></div>
+      </div>
+    </section>
+
+    <!-- SECTION 5 -->
+    <section class="section" id="s5">
+      <p class="label">section 5</p>
+      <p class="section-title">Map the storage hierarchy from the client side</p>
+      <p class="section-tagline">Several filesystems, different protection models — and which one a job writes to is an operational decision.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>Tiered storage with different backup and retention policy per tier. Familiar. The unfamiliar part is a filesystem built so a thousand clients can write to it at once by splitting metadata from data across separate servers — and the price of that design is that it is not where you keep anything you want to still have next month.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">5.1</span>What is mounted here</p>
+        <div class="code-block"><pre><span class="kw">findmnt</span> -o TARGET,SOURCE,FSTYPE --noheadings
+<span class="kw">df -hT</span></pre></div>
+        <p class="prose"><strong>Read the type column, not the path.</strong> Paths are named by whoever installed the system; the type tells you what the thing actually is. You should see at least two different filesystem types among your home, scratch and project areas — and one of them is not a general-purpose network filesystem.</p>
+        <p class="prose">That one is a parallel filesystem. Its whole design is the split you cannot see from here: metadata handled separately from data, so many clients can write at once without queueing behind a single server. Note its type on your drawing; the storage module builds on it.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">5.2</span>The comparison that matters — login versus compute</p>
+        <div class="key-note" style="margin-bottom:16px">
+          <p><strong>Instructor drives this.</strong> Watch, then compare against what you got in 5.1.</p>
+        </div>
+        <div class="code-block"><pre><span class="kw">srun</span> -p standard --time=00:01:00 <span class="kw">findmnt</span> -o TARGET,FSTYPE --noheadings
+<span class="kw">srun</span> -p standard --time=00:01:00 <span class="kw">ls</span> -ld /local</pre></div>
+        <p class="prose">Put the two outputs side by side. <strong>The difference between the hosts is the most informative thing in this lab.</strong> An area present on the compute node and absent from the login node is node-local — visible to that machine alone, invisible to every other node, and gone when the job ends.</p>
+        <div class="key-note" style="margin-top:20px">
+          <p><strong>Be precise about what you just saw.</strong> On this facility <code>/local</code> is a directory on the compute node's root disk, not a separate device — which is why <code>findmnt</code> does not list it. On a production cluster it would be real node-local storage with its own mount line. We are showing you that the <em>area</em> exists and behaves differently from shared storage; we are not pretending it is more than it is. Write that distinction on your drawing rather than smoothing it over.</p>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">5.3</span>Classify each area</p>
+        <p class="prose">For every area you found, fill in a row. Some columns you can read, some you must ask about, some you will leave blank and record as a gap.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Area</th><th>Type</th><th>Where it is served from</th><th>Protected?</th><th>What it is for</th></tr></thead>
+            <tbody>
+              <tr><td><code>/home</code></td><td>?</td><td>?</td><td>?</td><td>?</td></tr>
+              <tr><td><code>/scratch</code></td><td>?</td><td>?</td><td>?</td><td>?</td></tr>
+              <tr><td><code>/projects</code></td><td>?</td><td>?</td><td>?</td><td>?</td></tr>
+              <tr><td><code>/local</code></td><td>?</td><td>?</td><td>?</td><td>?</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">Nothing on this facility is backed up. That is normal for a teaching cluster and not normal for a production one — note which of these areas you would expect to be protected on a real site, and say why.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 6 -->
+    <section class="section" id="s6">
+      <p class="label">section 6</p>
+      <p class="section-title">Trace identity to its source</p>
+      <p class="section-tagline">One user is one numeric identity everywhere — and something specific breaks when that is untrue.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>Directory-backed accounts against local ones. You know what happens when a server drops out of the domain and starts resolving names locally. The cluster version has a sharper edge, because files written by a job carry the numeric identity the compute node believed at the time — and that number outlives the job.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">6.1</span>Three places, one identity</p>
+        <div class="code-block"><pre><span class="cm"># 1 — here, on the login node</span>
+<span class="kw">id</span>
+
+<span class="cm"># 3 — as recorded on shared storage, numerically</span>
+<span class="kw">ls -ln</span> /scratch/$USER /projects/$USER</pre></div>
+        <p class="prose">The <code>-n</code> matters: it shows raw numbers rather than names, which is the only way to see what is actually stored. Names are a lookup; numbers are the fact.</p>
+        <div class="key-note" style="margin:16px 0">
+          <p><strong>Instructor drives this</strong> — the second of the three places.</p>
+        </div>
+        <div class="code-block"><pre><span class="cm"># 2 — inside a job, on a compute node</span>
+<span class="kw">srun</span> -p standard --time=00:01:00 <span class="kw">id</span></pre></div>
+        <p class="prose">All three must agree. Note your UID and GID on your drawing.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">6.2</span>Where does the answer come from?</p>
+        <div class="code-block"><pre><span class="kw">getent passwd</span> $USER
+<span class="kw">getent group</span> $(<span class="kw">id</span> -gn)
+<span class="kw">grep</span> -E <span class="st">"^passwd|^group"</span> /etc/nsswitch.conf</pre></div>
+        <p class="prose">That last file names the sources consulted, in order. Read it carefully. If it lists only local files, identity is held separately on each host and <em>something</em> is keeping those files in step — ask what. If it names a directory service, identity is centrally held and each host asks.</p>
+        <p class="prose">Both designs work. They fail differently, and the difference is what you are recording. On this facility it is the first of the two — which means the thing keeping the hosts consistent is a build process, not a running service. Write down what that implies when a new node joins the fleet at three in the morning.</p>
+      </div>
+
+      <div class="key-note">
+        <p><strong>If your UID on the compute node differed from your UID here,</strong> that would be a real defect worth stopping for — a file written by your job on shared storage would carry a number that no longer means you, so it comes back unreadable, owned by a user that may not exist, and no amount of retrying fixes it.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 7 -->
+    <section class="section" id="s7">
+      <p class="label">section 7</p>
+      <p class="section-title">Read two nodes' hardware honestly</p>
+      <p class="section-tagline">Enough literacy to read a spec sheet critically. Not an architecture class.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>Reading a server's actual configuration rather than the line item on the purchase order. Familiar work. The new idea is locality: on these machines memory and devices attach to a specific socket, not to the machine as a whole, and a process on the wrong socket pays for every access. Nobody notices on a web server. Everybody notices here.</p>
+      </div>
+
+      <div class="key-note" style="margin-bottom:20px">
+        <p><strong>Instructor drives this whole section.</strong> There are two compute nodes and thirteen of us.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">7.1</span>The thin compute node</p>
+        <div class="code-block"><pre><span class="kw">srun</span> -p standard --time=00:02:00 <span class="kw">lscpu</span>
+<span class="kw">srun</span> -p standard --time=00:02:00 <span class="kw">free -h</span>
+<span class="kw">srun</span> -p standard --time=00:02:00 <span class="kw">lsblk</span></pre></div>
+        <p class="prose">From <code>lscpu</code>, take four numbers: sockets, cores per socket, threads per core, NUMA nodes. Multiply the first three and compare against what the scheduler reported for this node in section 2. They should agree. When they do not, one of the two is lying to you, and finding out which is a genuine skill.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">7.2</span>The accelerator node</p>
+        <div class="code-block"><pre><span class="kw">srun</span> -p accel --time=00:02:00 <span class="kw">lscpu</span> | <span class="kw">grep</span> -E <span class="st">"Socket|Core|NUMA|Model name"</span>
+<span class="kw">srun</span> -p accel --time=00:02:00 <span class="kw">free -h</span>
+<span class="kw">srun</span> -p accel --time=00:02:00 <span class="kw">nvidia-smi</span>
+<span class="kw">srun</span> -p accel --time=00:02:00 <span class="kw">nvidia-smi</span> topo -m</pre></div>
+        <p class="prose">Two nodes of materially different shape, in the same fleet, under the same scheduler. That is what "the fleet is not uniform" means in practice, and it is why the scheduler needs to know each node's attributes rather than assuming they are interchangeable.</p>
+        <p class="prose">The topology matrix in that last command is worth a moment. It shows which devices share a bus and which must cross between sockets to talk to each other. A job placed without regard to that pays for it, every message, for the length of the run.</p>
+      </div>
+
+      <div class="facts" style="margin-top:24px">
+        <div class="fact"><span class="fact-k">On your drawing</span><span class="fact-v">Sockets, cores, memory, NUMA and devices — for both node shapes, side by side</span></div>
+        <div class="fact"><span class="fact-k">Be ready to say</span><span class="fact-v">Which two nodes differ, and in exactly which dimension</span></div>
+      </div>
+    </section>
+
+    <!-- SECTION 8 -->
+    <section class="section" id="s8">
+      <p class="label">section 8</p>
+      <p class="section-title">Find where the cluster is watched from</p>
+      <p class="section-tagline">One number, traced from where it is produced to where somebody looks at it.</p>
+
+      <div class="analogy-box">
+        <p class="analogy-label">Enterprise IT analogy</p>
+        <p>An agent on every host, a time-series store, a dashboard. Structurally identical to what you already run. What differs is what is worth alerting on: a node at 100% CPU is the desired state here, not an incident — and the signals that matter, like a node quietly running slower than its neighbours, are not on any default dashboard.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">8.1</span>The node-side collector</p>
+        <div class="code-block"><pre><span class="kw">systemctl is-active</span> amazon-cloudwatch-agent
+<span class="kw">ps</span> -ef | <span class="kw">grep</span> -i <span class="st">"cloudwatch\|amazon-ssm"</span> | <span class="kw">grep</span> -v grep</pre></div>
+        <p class="prose">Something on this host is collecting and shipping measurements. Find it, name it, and note which network it ships over — you established that network in section 4.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">8.2</span>The dashboard</p>
+        <p class="prose">Your instructor will show the dashboard consuming those measurements. Watch for one metric you can trace all the way: produced by the collector on a specific host, shipped over the management network, stored, and drawn on the screen in front of you. <strong>One number, source to display.</strong> That is the whole of the observation layer in a sentence.</p>
+      </div>
+
+      <div class="subsection">
+        <p class="subsection-title"><span class="sub-num">8.3</span>What the dashboard does not know</p>
+        <p class="prose">Node metrics are only one input. The scheduler has its own view — what is queued, what is waiting, how long — and neither of these comes from a node agent:</p>
+        <div class="code-block"><pre><span class="kw">squeue</span> -h -t pending | <span class="kw">wc -l</span>      <span class="cm"># queue depth right now</span>
+<span class="kw">sinfo</span> -a -h -o <span class="st">"%F"</span>                <span class="cm"># allocated/idle/other/total across the fleet</span></pre></div>
+        <p class="prose">Those two numbers are among the most useful things you can know about a facility. Ask whether anything on this cluster is joining them to the node metrics — and if not, that is a gap, and most of the observability module.</p>
+      </div>
+    </section>
+
+    <!-- FINISH THE DRAWING -->
+    <section class="section" id="drawing">
+      <p class="label">finish the drawing</p>
+      <p class="section-title">Complete the annotation and list what is missing</p>
+      <p class="section-tagline">This drawing is consumed by eight later modules. An error here travels.</p>
+
+      <p class="prose">Five minutes. For every component on your drawing you should be able to say four things:</p>
+      <div class="facts">
+        <div class="fact"><span class="fact-k">What</span><span class="fact-v">The component, named the way this facility names it</span></div>
+        <div class="fact"><span class="fact-k">Where</span><span class="fact-v">Which host it runs on — the real hostname, not a role label</span></div>
+        <div class="fact"><span class="fact-k">Over what</span><span class="fact-v">Which of the three networks it talks over</span></div>
+        <div class="fact"><span class="fact-k">So what</span><span class="fact-v">What stops working if it stops</span></div>
+      </div>
+
+      <p class="prose" style="margin-top:28px">Then the Gaps sheet. For each thing you could not locate, two lines: <strong>what you could not find</strong>, and <strong>what you would have asked the incumbent team</strong>. That second line is what your instructor reads most carefully — it is the difference between an engineer who reports a blocker and one who arrives with the question already formed.</p>
+
+      <p class="prose">You should have at least four entries. This facility is missing more than one thing a mature site would have, and you met every one of them today.</p>
+
+      <div class="key-note">
+        <p><strong>Both sheets are submitted.</strong> The drawing is checked against the actual system: node roles correct, three networks distinguished, scheduling and identity and monitoring each on the right host, storage showing distinct types. The gap list is checked for honesty. <strong>A complete drawing with an invented component scores below an incomplete one with the gap recorded.</strong></p>
+      </div>
+    </section>
+
+    <!-- DEBRIEF -->
+    <section class="section" id="wrapup">
+      <p class="label">debrief</p>
+      <p class="section-title">Before the session ends</p>
+
+      <div class="checklist">
+        <div class="checklist-item"><span class="cb"></span><span>Established what the login node is, who else is on it, and that no real work runs there</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Enumerated every partition — including the ones plain <code>sinfo</code> hides</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Located the controller, and recorded the standby and the accounting service as absent</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Confirmed the per-node daemon runs on compute and not on the login node</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Separated management, fabric and out-of-band — and noted what the fabric here really is</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Compared mount tables between the login node and a compute node</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Classified each storage area by type, including which one is a parallel filesystem</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Confirmed one identity in three places, and found where the lookup is answered</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Read two nodes of different shape and named the dimension they differ in</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Traced one metric from the collector that produces it to the dashboard that shows it</span></div>
+        <div class="checklist-item"><span class="cb"></span><span>Completed the drawing and the gap list, and submitted both</span></div>
+      </div>
+
+      <p class="prose" style="margin-top:36px">Three questions. Have an answer ready for each.</p>
+      <div class="facts">
+        <div class="fact"><span class="fact-k">One</span><span class="fact-v">Name one component sitting somewhere you did not expect. Why might it have been put there?</span></div>
+        <div class="fact"><span class="fact-k">Two</span><span class="fact-v">Which single host, if it stopped, would stop the most work? Defend it — then hear the counter-argument</span></div>
+        <div class="fact"><span class="fact-k">Three</span><span class="fact-v">What could you not find, and what would you have asked the incumbent team?</span></div>
+      </div>
+
+      <div class="key-note" style="margin-top:32px">
+        <p><strong>On question two, hold your answer loosely.</strong> Most people say the controller, and there is a good case for it. There is also a case that for a researcher running one tightly-coupled job across hundreds of nodes for days, the worse failure is a single compute node quietly degrading — because every other node in that job waits on the slowest one. Whose work you are protecting changes which host is critical. That reframing is the point of the question.</p>
+      </div>
+
+      <p class="prose" style="margin-top:28px">Keep the drawing somewhere you will find it again. Scheduler placement, storage services, the fabric layer, telemetry collection points, the identity flow, the accelerator nodes — every one of those is added to <em>this</em> drawing in a later module. No competing version is issued.</p>
+    </section>
+
+    <!-- QUICK REFERENCE -->
+    <section class="section" id="reference">
+      <p class="label">quick reference</p>
+      <p class="section-title">Command card</p>
+      <p class="prose">Every command here reads. None of them changes anything.</p>
+
+      <p class="prose" style="margin-top:32px;margin-bottom:6px">The fleet and its policy</p>
+      <div class="facts">
+        <div class="fact"><span class="fact-k">sinfo -a</span><span class="fact-v">All partitions — including the ones you cannot use</span></div>
+        <div class="fact"><span class="fact-k">sinfo -a -N -l</span><span class="fact-v">One line per node, with detail</span></div>
+        <div class="fact"><span class="fact-k">sinfo -a -h -o "%R|%l|%D|%T"</span><span class="fact-v">Partition, time limit, node count, state</span></div>
+        <div class="fact"><span class="fact-k">scontrol show partition</span><span class="fact-v">Full policy behind every partition</span></div>
+      </div>
+
+      <p class="prose" style="margin-top:36px;margin-bottom:6px">The control plane</p>
+      <div class="facts">
+        <div class="fact"><span class="fact-k">scontrol ping</span><span class="fact-v">Is the controller up, and is a standby configured</span></div>
+        <div class="fact"><span class="fact-k">scontrol show config</span><span class="fact-v">The whole configuration — grep it for what you need</span></div>
+        <div class="fact"><span class="fact-k">sacct</span><span class="fact-v">Job accounting — where it exists. Here, it does not</span></div>
+        <div class="fact"><span class="fact-k">systemctl is-active &lt;svc&gt;</span><span class="fact-v">Whether a daemon runs here — readable unprivileged</span></div>
+      </div>
+
+      <p class="prose" style="margin-top:36px;margin-bottom:6px">Reading a node you cannot log in to</p>
+      <div class="facts">
+        <div class="fact"><span class="fact-k">srun -p &lt;part&gt; --time=00:02:00 &lt;cmd&gt;</span><span class="fact-v">One read-only command on a compute node</span></div>
+        <div class="fact"><span class="fact-k">lscpu · free -h · lsblk</span><span class="fact-v">Processors, memory, block devices</span></div>
+        <div class="fact"><span class="fact-k">nvidia-smi topo -m</span><span class="fact-v">How accelerator devices attach, and what they share</span></div>
+        <div class="fact"><span class="fact-k">fi_info -p efa</span><span class="fact-v">Fabric provider and adapter state</span></div>
+      </div>
+
+      <p class="prose" style="margin-top:36px;margin-bottom:6px">Networks, storage, identity</p>
+      <div class="facts">
+        <div class="fact"><span class="fact-k">ip -br addr</span><span class="fact-v">Interfaces and addresses, one line each</span></div>
+        <div class="fact"><span class="fact-k">findmnt -o TARGET,FSTYPE</span><span class="fact-v">What is mounted, and what type it actually is</span></div>
+        <div class="fact"><span class="fact-k">df -hT</span><span class="fact-v">Size and use, with the type column</span></div>
+        <div class="fact"><span class="fact-k">id · getent passwd $USER</span><span class="fact-v">Your identity, and where the answer came from</span></div>
+        <div class="fact"><span class="fact-k">ls -ln</span><span class="fact-v">Ownership as stored — numbers, not names</span></div>
+      </div>
+
+      <p class="prose" style="margin-top:36px;margin-bottom:6px">What goes on your drawing</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Slot</th><th>Component</th><th>Answered by</th></tr></thead>
+          <tbody>
+            <tr><td>①</td><td>Access tier — the login node, who is on it</td><td><code>hostname</code>, <code>who</code>, <code>uptime</code></td></tr>
+            <tr><td>②</td><td>The fleet — partitions, limits, node counts, states</td><td><code>sinfo -a</code>, <code>scontrol show partition</code></td></tr>
+            <tr><td>③</td><td>Control plane — controller, standby, accounting, per-node daemon</td><td><code>scontrol ping</code>, <code>scontrol show config</code></td></tr>
+            <tr><td>④</td><td>Three networks — management, fabric, out-of-band</td><td><code>ip -br addr</code>, <code>fi_info -p efa</code></td></tr>
+            <tr><td>⑤</td><td>Storage hierarchy and what each area is for</td><td><code>findmnt</code>, <code>df -hT</code>, login vs compute</td></tr>
+            <tr><td>⑥</td><td>Identity — one user, three places, one source</td><td><code>id</code>, <code>getent</code>, <code>ls -ln</code></td></tr>
+            <tr><td>⑦</td><td>Two node shapes, compared</td><td><code>lscpu</code>, <code>free</code>, <code>nvidia-smi</code></td></tr>
+            <tr><td>⑧</td><td>Observation — collector to dashboard</td><td><code>systemctl is-active</code>, the dashboard</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="footer-band">
+        <span class="footer-copy">HPC Lab · Module 1 · hpc.now · 2026</span>
+        <a href="mailto:rajesh@hpc.now" class="footer-link">rajesh@hpc.now</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(i => i.classList.remove('is-active'));
+        const active = document.querySelector(`.side-nav-item[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
