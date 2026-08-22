@@ -202,7 +202,7 @@
     <div class="hero-meta">
       <div class="hero-meta-item"><span class="hero-meta-k">Instance</span><span class="hero-meta-v">mylab.hpc.now</span></div>
       <div class="hero-meta-item"><span class="hero-meta-k">Type</span><span class="hero-meta-v">m5.16xlarge · us-east-1</span></div>
-      <div class="hero-meta-item"><span class="hero-meta-k">Users</span><span class="hero-meta-v">yogi · sujith · chandra · labguest</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Users</span><span class="hero-meta-v">14 lab users · see roster below</span></div>
       <div class="hero-meta-item"><span class="hero-meta-k">Password</span><span class="hero-meta-v">hpcnow2026</span></div>
       <div class="hero-meta-item"><span class="hero-meta-k">Cost</span><span class="hero-meta-v">~$3.07/hr · destroy when done</span></div>
     </div>
@@ -263,10 +263,20 @@
       <table class="creds-table" style="margin-top:28px">
         <thead><tr><th>Name</th><th>Username</th><th>Password</th><th>Host</th></tr></thead>
         <tbody>
-          <tr><td class="name-col">Yogi</td><td class="mono-col">yogi</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
-          <tr><td class="name-col">Sujith</td><td class="mono-col">sujith</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
-          <tr><td class="name-col">Chandra</td><td class="mono-col">chandra</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Abdul</td><td class="mono-col">abdul</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Bhagya</td><td class="mono-col">bhagya</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Khadarvali</td><td class="mono-col">khadar</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
           <tr><td class="name-col">Guest</td><td class="mono-col">labguest</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Rahul</td><td class="mono-col">rahul</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Rajesh</td><td class="mono-col">rajesh</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Sai</td><td class="mono-col">sai</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Salauddin</td><td class="mono-col">salauddin</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Satya</td><td class="mono-col">satya</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Shashidhar</td><td class="mono-col">shashi</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Surya</td><td class="mono-col">surya</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Vinod</td><td class="mono-col">vinod</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">VRKathi</td><td class="mono-col">vrkathi</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Zubair</td><td class="mono-col">zubair</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
         </tbody>
       </table>
     </section>
@@ -280,13 +290,13 @@
         <button class="copy-btn" onclick="copyCode(this)">copy</button>
         <pre><span class="cmd">ssh hpc-lab</span>                                    <span class="cmt"># uses ~/.ssh/config Host hpc-lab</span>
 <span class="cmt"># Once on the instance, switch to a lab user:</span>
-<span class="cmd">sudo su - yogi</span></pre>
+<span class="cmd">sudo su - &lt;your-username&gt;</span>   <span class="cmt"># e.g. sudo su - abdul   (see roster on cover page)</span></pre>
       </div>
       <div class="code-block">
         <div class="code-label">SSH — manual form (replace IP from deploy.sh status output)</div>
         <button class="copy-btn" onclick="copyCode(this)">copy</button>
         <pre><span class="cmd">ssh -i ~/hpc-lab-key.pem rocky@&lt;instance-ip&gt;</span>
-<span class="cmd">sudo su - yogi</span></pre>
+<span class="cmd">sudo su - &lt;your-username&gt;</span>   <span class="cmt"># e.g. sudo su - abdul   (see roster on cover page)</span></pre>
       </div>
     </section>
 
@@ -298,10 +308,20 @@
         <div class="code-label">Lab filesystem layout</div>
         <button class="copy-btn" onclick="copyCode(this)">copy</button>
         <pre><span class="out">/labdata/
-├── yogi/              ← per-user scratch directory
-├── sujith/
-├── chandra/
+├── abdul/             ← per-user scratch directory (14 total)
+├── bhagya/
+├── khadar/
 ├── labguest/
+├── rahul/
+├── rajesh/
+├── sai/
+├── salauddin/
+├── satya/
+├── shashi/
+├── surya/
+├── vinod/
+├── vrkathi/
+├── zubair/
 └── jobs/
     ├── session1/      ← Session 1 NUMA exercises
     │   ├── ex1_topology.sh
@@ -842,7 +862,7 @@ sbatch hello.sh</span>
 <span class="out">Submitted batch job 42</span>
 <span class="cmd">squeue</span>
 <span class="out">JOBID PARTITION  NAME      USER ST  TIME  NODES NODELIST
-   42    normal  hello.sh  yogi  R  0:03      1 mylab</span></pre>
+   42    normal  hello.sh  abdul R  0:03      1 mylab</span></pre>
             </div>
             <div class="code-block" style="margin-top:12px">
               <div class="code-label">Terminal 2 — find and navigate the job cgroup</div>
