@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cluster Build Models and Stateless Provisioning &middot; Lab Runbook &middot; mylab.hpc.now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cover:      #181817;
+      --paper:      #faf8f4;
+      --paper-mid:  #f2ede5;
+      --ink:        #110f0c;
+      --ink2:       #46423d;
+      --ink3:       #96918b;
+      --rule:       #dedad3;
+      --rule-cover: #c8c0b4;
+      --terra:      #7b4b33;
+      --terra-dim:  #b8907a;
+      --terra-bg:   #f0e8e2;
+      --dark:       #1e1a16;
+      --dark2:      #2e2820;
+      --teal:       #0f6e56;
+      --teal-dim:   #1d9e75;
+      --teal-bg:    #e8f5f0;
+      --amber:      #c47f1a;
+      --amber-bg:   #fdf4e3;
+      --serif:      "Lora", Georgia, serif;
+      --mono:       "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--paper); color: var(--ink); font-family: var(--mono); font-size: 15px; line-height: 1.75; }
+
+    /* COVER */
+    .cover { background: var(--cover); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E"); }
+    .nav-wrap { border-bottom: 1px solid var(--rule-cover); }
+    nav { max-width: 1200px; margin: 0 auto; padding: 20px 52px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: var(--mono); font-size: 12px; color: #f0e8e0; text-decoration: none; letter-spacing: .06em; }
+    .logo em { color: var(--terra-dim); font-style: normal; }
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-tag { font-size: 10px; color: #6a6460; letter-spacing: .12em; text-transform: uppercase; }
+    .nav-mod { font-size: 11px; color: var(--terra-dim); letter-spacing: .06em; }
+    .hero { max-width: 1200px; margin: 0 auto; padding: 72px 52px 80px; }
+    .hero-eyebrow { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #6a6460; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+    .hero-eyebrow::before { content: ''; width: 20px; height: 1px; background: #6a6460; }
+    .hero-title { font-family: var(--serif); font-size: clamp(28px, 4vw, 52px); font-weight: 400; color: #f0e8e0; line-height: 1.15; letter-spacing: -.02em; margin-bottom: 28px; }
+    .hero-title em { font-style: italic; color: var(--terra-dim); }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid #2e2820; width: fit-content; margin-top: 36px; }
+    .hero-meta-item { padding: 12px 24px; border-right: 1px solid #2e2820; display: flex; flex-direction: column; gap: 3px; }
+    .hero-meta-item:last-child { border-right: none; }
+    .hero-meta-k { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .hero-meta-v { font-size: 12px; color: #c8c0b4; }
+    .zone-edge { height: 1px; background: var(--rule-cover); }
+
+    /* LAYOUT */
+    .page-body { max-width: 1200px; margin: 0 auto; padding: 0 52px; display: grid; grid-template-columns: 200px 1fr; gap: 0 72px; align-items: start; }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 40px; padding: 64px 0 40px; align-self: start; }
+    .side-label { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink3); margin-bottom: 12px; padding-left: 14px; }
+    .side-nav { display: flex; flex-direction: column; gap: 1px; margin-bottom: 20px; }
+    .side-nav-item { font-size: 11px; color: var(--ink3); text-decoration: none; letter-spacing: .03em; padding: 5px 0 5px 14px; border-left: 2px solid transparent; transition: color .18s, border-color .18s; line-height: 1.4; }
+    .side-nav-item:hover { color: var(--ink2); border-color: var(--rule); }
+    .side-nav-item.is-active { color: var(--terra); border-color: var(--terra); }
+    .side-nav-divider { height: 1px; background: var(--rule); margin: 8px 0; }
+    .side-nav-part { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); padding: 8px 0 4px 14px; }
+
+    /* MAIN */
+    .main-content { padding: 0; background: var(--paper); }
+    .section { padding: 64px 0 56px; border-top: 1px solid var(--rule); }
+    .section:first-child { border-top: none; padding-top: 72px; }
+    .label { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: var(--ink3); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
+    .label::after { content: ''; width: 36px; height: 1px; background: var(--rule); }
+    .prose { font-size: 14px; color: var(--ink2); line-height: 2.05; max-width: 600px; }
+    .prose + .prose { margin-top: 1.2em; }
+    .prose code { font-family: var(--mono); font-size: 12px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+
+    /* CALLOUTS */
+    .callout { border-left: 3px solid var(--terra); padding: 18px 22px; background: var(--terra-bg); margin: 24px 0; max-width: 640px; }
+    .callout p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout p + p { margin-top: 8px; }
+    .callout strong { color: var(--terra); font-weight: 500; }
+    .callout-teal { border-left: 3px solid var(--teal); padding: 18px 22px; background: var(--teal-bg); margin: 24px 0; max-width: 640px; }
+    .callout-teal p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-teal p + p { margin-top: 8px; }
+    .callout-teal strong { color: var(--teal); font-weight: 500; }
+    .callout-amber { border-left: 3px solid var(--amber); padding: 18px 22px; background: var(--amber-bg); margin: 24px 0; max-width: 640px; }
+    .callout-amber p { font-size: 13px; color: var(--ink2); line-height: 1.9; }
+    .callout-amber p + p { margin-top: 8px; }
+    .callout-amber strong { color: var(--amber); font-weight: 500; }
+
+    /* CODE BLOCKS */
+    .code-block { background: var(--dark); border: 1px solid #2e2820; padding: 20px 24px; margin: 20px 0; max-width: 640px; overflow-x: auto; position: relative; }
+    .code-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #2e2820; }
+    .code-block pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #c8c0b4; white-space: pre; overflow-x: auto; }
+    .code-block pre .cmd  { color: #9fe1cb; }
+    .code-block pre .cmt  { color: #4a4438; font-style: italic; }
+    .code-block pre .out  { color: #8a8078; }
+    .code-block pre .hi   { color: var(--amber); }
+    .copy-btn { position: absolute; top: 12px; right: 12px; background: #2e2820; border: 1px solid #3e3830; color: #6a6460; font-family: var(--mono); font-size: 10px; letter-spacing: .08em; padding: 4px 10px; cursor: pointer; transition: color .15s, border-color .15s; }
+    .copy-btn:hover { color: #9fe1cb; border-color: #9fe1cb; }
+    .copy-btn.copied { color: var(--teal-dim); border-color: var(--teal-dim); }
+
+    /* STEPS */
+    .steps { display: flex; flex-direction: column; gap: 0; max-width: 640px; margin: 24px 0; }
+    .step { display: grid; grid-template-columns: 48px 1fr; gap: 0 20px; padding: 28px 0; border-top: 1px solid var(--rule); align-items: start; }
+    .step:first-child { border-top: none; padding-top: 0; }
+    .step-num { font-size: 11px; color: var(--ink3); letter-spacing: .1em; padding-top: 4px; font-weight: 300; }
+    .step-title { font-family: var(--serif); font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 10px; line-height: 1.35; }
+    .step-desc { font-size: 13px; color: var(--ink2); line-height: 1.95; margin-bottom: 14px; max-width: 520px; }
+    .step-desc code { font-family: var(--mono); font-size: 11px; background: var(--paper-mid); padding: 1px 5px; color: var(--teal); }
+    .step-notice { font-size: 12px; color: var(--terra); font-style: italic; line-height: 1.7; margin-top: 10px; display: flex; gap: 8px; align-items: flex-start; max-width: 520px; }
+    .step-notice::before { content: '→'; flex-shrink: 0; color: var(--terra-dim); }
+    .step-notice code { font-family: var(--mono); font-size: 11px; color: var(--terra-dim); font-style: normal; }
+
+    /* DOMAIN HEADER */
+    .domain-header { background: var(--dark); border-left: 4px solid var(--amber); padding: 20px 28px; margin-bottom: 28px; max-width: 640px; }
+    .domain-label { font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: #6a6460; margin-bottom: 6px; }
+    .domain-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: #f0e8e0; line-height: 1.3; margin-bottom: 6px; }
+    .domain-intent { font-size: 13px; color: #8a8078; font-style: italic; line-height: 1.7; }
+
+    /* CHECKPOINT */
+    .checkpoint-block { background: var(--dark); border: 1px solid var(--teal); max-width: 640px; margin: 28px 0; }
+    .checkpoint-header { background: var(--teal); padding: 10px 20px; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+    .checkpoint-header span { font-size: 11px; color: rgba(255,255,255,0.7); font-style: italic; letter-spacing: 0; text-transform: none; }
+    .checkpoint-body { padding: 20px 24px; position: relative; }
+    .checkpoint-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #9fe1cb; white-space: pre-wrap; word-break: break-all; }
+    .checkpoint-note { font-size: 12px; color: #8a8078; font-style: italic; margin-top: 14px; line-height: 1.7; padding-top: 12px; border-top: 1px solid #2e2820; }
+
+    /* EXPECTED OUTPUT */
+    .expected-block { background: #141210; border: 1px solid #2e2820; border-left: 3px solid var(--teal); max-width: 640px; margin: 12px 0; }
+    .expected-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--teal-dim); padding: 8px 16px; border-bottom: 1px solid #2e2820; }
+    .expected-body { padding: 14px 16px; }
+    .expected-body pre { font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #8a8078; white-space: pre-wrap; }
+
+    /* CREDS TABLE */
+    .creds-table { border: 1px solid var(--rule); width: 100%; max-width: 560px; margin: 20px 0; border-collapse: collapse; }
+    .creds-table thead th { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); background: var(--paper-mid); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--rule); font-weight: 400; }
+    .creds-table tbody td { font-size: 12px; color: var(--ink2); padding: 11px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.6; }
+    .creds-table tbody tr:last-child td { border-bottom: none; }
+    .creds-table .name-col { font-family: var(--serif); font-style: italic; color: var(--ink); font-size: 14px; }
+    .creds-table .mono-col { font-family: var(--mono); color: var(--teal); font-size: 12px; }
+    .creds-table .pass-col { font-family: var(--mono); color: var(--amber); font-size: 12px; }
+
+    /* QUICKREF */
+    .quickref-block { background: var(--dark); border: 1px solid #2e2820; max-width: 640px; margin: 20px 0; overflow: hidden; }
+    .quickref-header { background: #2e2820; padding: 10px 20px; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6a6460; }
+    .quickref-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid #2e2820; }
+    .quickref-row:last-child { border-bottom: none; }
+    .quickref-k { font-size: 11px; color: var(--amber); padding: 12px 16px; border-right: 1px solid #2e2820; display: flex; align-items: center; letter-spacing: .04em; font-weight: 500; }
+    .quickref-v { font-family: var(--mono); font-size: 12px; color: #9fe1cb; padding: 12px 16px; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+
+    /* FORWARD MAP TABLE */
+    .fwd-table { border: 1px solid var(--rule); width: 100%; max-width: 640px; margin: 20px 0; border-collapse: collapse; }
+    .fwd-table thead th { font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink3); background: var(--paper-mid); padding: 10px 16px; text-align: left; border-bottom: 2px solid var(--amber); font-weight: 400; }
+    .fwd-table tbody td { font-size: 12px; color: var(--ink2); padding: 12px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.7; }
+    .fwd-table tbody tr:last-child td { border-bottom: none; }
+    .fwd-table .concept-col { font-family: var(--mono); color: var(--amber); font-size: 11px; white-space: nowrap; }
+    .fwd-table .dest-col { font-family: var(--serif); font-style: italic; color: var(--ink); font-size: 13px; }
+    .fwd-table .task-col { font-size: 11px; color: var(--ink3); }
+
+    /* FOOTER */
+    .footer-wrap { background: var(--dark2); margin: 64px -52px 0; padding: 24px 52px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-top: 1px solid #2e2820; }
+    .footer-copy { font-size: 11px; color: #4a4438; letter-spacing: .04em; }
+    .footer-badge { font-size: 10px; color: var(--teal-dim); letter-spacing: .08em; }
+    .footer-link { font-size: 11px; color: #6a6460; text-decoration: none; }
+
+    @media (max-width: 1024px) {
+      nav, .hero { padding-left: 32px; padding-right: 32px; }
+      .page-body { grid-template-columns: 1fr; padding: 0 32px; }
+      .sidebar { display: none; }
+      .footer-wrap { margin: 64px -32px 0; padding: 24px 32px; }
+    }
+    @media (max-width: 640px) {
+      nav, .hero { padding-left: 20px; padding-right: 20px; }
+      .page-body { padding: 0 20px; }
+      .footer-wrap { margin: 64px -20px 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="nav-wrap">
+    <nav>
+      <a href="https://master.hpc.now" class="logo">master<em>.hpc.now</em></a>
+      <div class="nav-right">
+        <span class="nav-tag">Lab Runbook</span>
+        <span class="nav-mod">Cluster Provisioning &middot; Warewulf &middot; Stateless Nodes</span>
+      </div>
+    </nav>
+  </div>
+  <div class="hero">
+    <p class="hero-eyebrow">Cluster Provisioning and Node Lifecycle &middot; Lab Runbook &middot; HPC Operations &middot; Associate Stream</p>
+    <h1 class="hero-title">Cluster Build Models and Stateless Provisioning,<br><em>tracing the boot chain of a diskless node</em></h1>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><span class="hero-meta-k">Instance</span><span class="hero-meta-v">mylab.hpc.now</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Type</span><span class="hero-meta-v">m5.2xlarge &middot; us-east-1</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Users</span><span class="hero-meta-v">14 lab users &middot; see roster below</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Password</span><span class="hero-meta-v">hpcnow2026</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Cost</span><span class="hero-meta-v">~$0.38/hr &middot; destroy when done</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="zone-edge"></div>
+
+<!-- BODY -->
+<div class="page-body">
+
+  <aside class="sidebar">
+    <div class="side-label">Runbook</div>
+    <nav class="side-nav">
+      <a href="#before-you-start" class="side-nav-item">Before You Start</a>
+      <a href="#connect" class="side-nav-item">How to Connect</a>
+      <a href="#estate" class="side-nav-item">What Is On This Box</a>
+      <div class="side-nav-divider"></div>
+      <div class="side-nav-part">Lab 1 &mdash; Server Tour</div>
+      <a href="#l1-overview" class="side-nav-item">Lab Overview</a>
+      <a href="#l1-ex1" class="side-nav-item">Ex 1 &middot; Database vs reality</a>
+      <a href="#l1-ex2" class="side-nav-item">Ex 2 &middot; Resolve a node</a>
+      <a href="#l1-ex3" class="side-nav-item">Ex 3 &middot; The profile chain</a>
+      <a href="#l1-ex4" class="side-nav-item">Ex 4 &middot; Inside the image</a>
+      <a href="#l1-ex5" class="side-nav-item">Ex 5 &middot; The two overlays</a>
+      <a href="#l1-ex6" class="side-nav-item">Ex 6 &middot; The node's own view</a>
+      <a href="#l1-ex7" class="side-nav-item">Ex 7 &middot; Where the address came from</a>
+      <a href="#l1-ex8" class="side-nav-item">Ex 8 &middot; The terminus</a>
+      <a href="#l1-trace" class="side-nav-item">Complete the trace</a>
+      <a href="#l1-checkpoint" class="side-nav-item">Lab 1 Checkpoint</a>
+      <div class="side-nav-divider"></div>
+      <div class="side-nav-part">Lab 2 &mdash; Modify &amp; Reprovision</div>
+      <a href="#l2-overview" class="side-nav-item">Watch For</a>
+      <a href="#l2-s1" class="side-nav-item">1 &middot; The change set</a>
+      <a href="#l2-s2" class="side-nav-item">2 &middot; Package into the image</a>
+      <a href="#l2-s3" class="side-nav-item">3 &middot; Mount and sysctl</a>
+      <a href="#l2-s4" class="side-nav-item">4 &middot; The key</a>
+      <a href="#l2-s5" class="side-nav-item">5 &middot; Render the overlays</a>
+      <a href="#l2-s6" class="side-nav-item">6 &middot; Watch the boot chain</a>
+      <a href="#l2-s7" class="side-nav-item">7 &middot; Prove the blast radius</a>
+      <a href="#l2-checkpoint" class="side-nav-item">Lab 2 Checkpoint</a>
+      <div class="side-nav-divider"></div>
+      <a href="#physical" class="side-nav-item">The Physical Gap</a>
+      <a href="#quickref" class="side-nav-item">Command Reference</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- BEFORE YOU START -->
+    <section class="section" id="before-you-start">
+      <p class="label">before you start</p>
+      <p class="prose">This runbook covers one session on a single AWS EC2 instance. Lab 1 you run yourself, from your own shell, with read-only access to a live provisioning server. Lab 2 is driven from the front of the room on the same server &mdash; follow along, but do not run its commands.</p>
+      <p class="prose" style="margin-top:1em">Every exercise is self-contained. Expected Output blocks show the structure of correct output; build identifiers, timestamps and byte counts will differ from what is printed here. The interpretation matters more than the exact strings.</p>
+
+      <div class="callout-amber" style="margin-top:28px">
+        <p><strong>Cost warning.</strong> The m5.2xlarge instance runs at approximately $0.38/hr. Run <code>./destroy.sh</code> at the end of the lab day. An idle instance left over a weekend costs roughly $28.</p>
+      </div>
+
+      <div class="callout-teal">
+        <p><strong>If a command is not found.</strong> This build pins one specific version of the provisioning tool. If <code>wwctl container</code> returns an unknown-command error, this build is on the newer naming and the subcommand is <code>wwctl image</code> &mdash; substitute it throughout, the arguments are unchanged.</p>
+      </div>
+
+      <table class="creds-table" style="margin-top:28px">
+        <thead><tr><th>Name</th><th>Username</th><th>Password</th><th>Host</th></tr></thead>
+        <tbody>
+          <tr><td class="name-col">Abdul</td><td class="mono-col">abdul</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Bhagya</td><td class="mono-col">bhagya</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Khadarvali</td><td class="mono-col">khadar</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Guest</td><td class="mono-col">labguest</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Rahul</td><td class="mono-col">rahul</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Rajesh</td><td class="mono-col">rajesh</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Sai</td><td class="mono-col">sai</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Salauddin</td><td class="mono-col">salauddin</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Satya</td><td class="mono-col">satya</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Shashidhar</td><td class="mono-col">shashi</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Surya</td><td class="mono-col">surya</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Vinod</td><td class="mono-col">vinod</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">VRKathi</td><td class="mono-col">vrkathi</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Zubair</td><td class="mono-col">zubair</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- CONNECT -->
+    <section class="section" id="connect">
+      <p class="label">how to connect</p>
+      <p class="prose">One hop, password authentication. You land in your own home directory on the provisioning server itself.</p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="cmd">ssh &lt;username&gt;@mylab.hpc.now</span>
+<span class="cmt"># password: hpcnow2026</span></pre>
+      </div>
+      <p class="prose">Your account is read-only against the provisioning tooling. You can inspect every object on this server &mdash; nodes, profiles, images, overlays, logs &mdash; and you cannot change any of them. That is deliberate: fourteen people editing one fleet image at once would produce a lesson about collisions rather than about provisioning.</p>
+      <p class="step-notice" style="max-width:600px"><code>sudo wwctl</code> is permitted for the read subcommands listed in the command reference and refused for everything else. If a command is refused, that is the boundary working, not a broken environment.</p>
+    </section>
+
+    <!-- ESTATE -->
+    <section class="section" id="estate">
+      <p class="label">what is on this box</p>
+      <p class="prose">This single instance is the whole cluster. It is the provisioning server: it hands out addresses, serves the boot files, holds the fleet image, exports the shared filesystem, and runs the scheduler that decides which nodes are eligible for work.</p>
+      <p class="prose" style="margin-top:1em">Two compute nodes, <code>cn01</code> and <code>cn02</code>, run as virtual machines on this same box, on an internal network that has no route to the outside. They are not simulated. They power on with nothing, acquire an address by DHCP, fetch a bootloader, pull a kernel and a root image over the network, have host-specific files written over that image, and register with the scheduler. That chain is the subject of the session.</p>
+      <p class="prose" style="margin-top:1em">Neither node has a disk. Run <code>lsblk</code> on either one and there is nothing to mount.</p>
+
+      <div class="quickref-block">
+        <div class="quickref-header">the estate at a glance</div>
+        <div class="quickref-row"><div class="quickref-k">host</div><div class="quickref-v">mylab.hpc.now &mdash; provisioning server, boot server, NFS, scheduler controller</div></div>
+        <div class="quickref-row"><div class="quickref-k">cn01</div><div class="quickref-v">diskless compute node &mdash; IN SERVICE, do not disturb</div></div>
+        <div class="quickref-row"><div class="quickref-k">cn02</div><div class="quickref-v">diskless compute node &mdash; sandbox, reprovision target</div></div>
+        <div class="quickref-row"><div class="quickref-k">internal net</div><div class="quickref-v">10.31.0.0/24 &mdash; DHCP and network boot live here, no route out</div></div>
+        <div class="quickref-row"><div class="quickref-k">image</div><div class="quickref-v">rocky9 &mdash; one image, both nodes, held on this server</div></div>
+      </div>
+
+      <div class="callout">
+        <p><strong>This server is not fresh out of the box.</strong> It has accumulated the sediment a real one does: more than one profile, a node record for hardware that no longer exists, an overlay entry someone commented out and never removed, and boot logs going back several days.</p>
+        <p>That is deliberate. A system with exactly one of everything makes attribute tracing trivial, because there is only one candidate answer. A system with history makes it real work.</p>
+      </div>
+
+      <div class="callout-amber">
+        <p><strong>There is no service processor here.</strong> On a real floor you power a node with <code>ipmitool</code> against its BMC &mdash; out of band, independent of whether the node's own operating system is alive. This estate has <code>hpcops-power</code>, which does the same job through the layer underneath these machines. Worth holding on to: the first node you meet that has stopped answering entirely is the one that teaches you why out-of-band power exists.</p>
+      </div>
+    </section>
+
+    <!-- LAB 1 OVERVIEW -->
+    <section class="section" id="l1-overview">
+      <div class="domain-header">
+        <div class="domain-label">Lab 1 &mdash; hands on, everyone</div>
+        <div class="domain-title">Provisioning Server Tour</div>
+        <div class="domain-intent">Establish, for certain rather than by assumption, where each property of a running node actually comes from.</div>
+      </div>
+      <p class="prose">You have been handed access to a provisioning server you did not build and told nothing about its history. Before anyone can safely change a fleet like this, they need to know which file or object is the real source of truth for each attribute of a running node &mdash; and whether changing it needs a reboot or a full image rebuild.</p>
+      <p class="prose" style="margin-top:1em">Eight exercises, then a trace file to complete and a self-check to run. Nothing in this lab changes anything; if a command you try is refused, you have found the read-only boundary.</p>
+    </section>
+
+    <!-- L1 EX1 -->
+    <section class="section" id="l1-ex1">
+      <div class="steps"><div class="step">
+        <span class="step-num">Ex 1</span>
+        <div>
+          <p class="step-title">List the node objects &mdash; then count what is actually running</p>
+          <p class="step-desc"><code>wwctl node list</code> reads a database. It tells you what this server believes exists. It does not check whether any of it is powered on.</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">sudo wwctl node list</span>
+<span class="cmd">sinfo -N</span></pre>
+          </div>
+          <div class="expected-block">
+            <div class="expected-label">Expected output &mdash; note the row count</div>
+            <div class="expected-body"><pre>NODE NAME  PROFILES  NETWORK
+cn01       compute   default:10.31.0.11
+cn02       compute   default:10.31.0.12
+cn07       compute   default:10.31.0.17
+
+NODELIST  NODES PARTITION STATE
+cn01          1  compute* idle
+cn02          1  compute* idle</pre></div>
+          </div>
+          <p class="step-notice">Three node objects. Two running machines. <code>cn07</code> is a record for hardware that left the rack and took its reservation with it. Nothing on this server will ever tell you that unprompted &mdash; you have to notice.</p>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- L1 EX2 -->
+    <section class="section" id="l1-ex2">
+      <div class="steps"><div class="step">
+        <span class="step-num">Ex 2</span>
+        <div>
+          <p class="step-title">Resolve one node fully &mdash; the difference between --long and --all</p>
+          <p class="step-desc">A node's own record holds very little. Most of what it is comes from the profiles it inherits. Only one of these two flags shows you the resolved result.</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">sudo wwctl node list cn01 --long</span>
+<span class="cmd">sudo wwctl node list cn01 --all</span></pre>
+          </div>
+          <div class="expected-block">
+            <div class="expected-label">Expected output &mdash; the --all view, abridged</div>
+            <div class="expected-body"><pre>NODE  FIELD              PROFILE   VALUE
+cn01  Profiles           --        compute
+cn01  Kernel.Args        default   quiet crashkernel=no vga=791
+cn01  ContainerName      compute   rocky9
+cn01  SystemOverlay      default   site-system
+cn01  RuntimeOverlay     default   site-runtime
+cn01  NetDevs[default]   --        10.31.0.11
+cn01  Ipmi.Ipaddr        --        (unset)
+
+The PROFILE column is the answer to "where did this come from".
+A value marked "--" was set on the node itself.</pre></div>
+          </div>
+          <p class="step-notice"><code>--long</code> widens the table. <code>--all</code> resolves inheritance and shows you which profile each value arrived from. Only the second one answers today's question.</p>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- L1 EX3 -->
+    <section class="section" id="l1-ex3">
+      <div class="steps"><div class="step">
+        <span class="step-num">Ex 3</span>
+        <div>
+          <p class="step-title">Walk the profile chain, and find the one assigned to nothing</p>
+          <p class="step-desc">Profiles inherit. The effective configuration of a node is the resolved chain, not any single file. There is more than one profile on this system and they are not all in use.</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">sudo wwctl profile list</span>
+<span class="cmd">sudo wwctl profile list compute --all</span>
+<span class="cmd">sudo wwctl profile list compute-legacy --all</span></pre>
+          </div>
+          <div class="expected-block">
+            <div class="expected-label">Expected output &mdash; compare the two compute profiles</div>
+            <div class="expected-body"><pre>PROFILE NAME
+default
+compute
+compute-legacy
+
+compute         Kernel.Args     quiet crashkernel=no vga=791
+compute         ContainerName   rocky9
+
+compute-legacy  Kernel.Args     quiet crashkernel=no console=ttyS0
+compute-legacy  ContainerName   rocky8
+
+Two settings differ. No node references compute-legacy.</pre></div>
+          </div>
+          <p class="step-notice">A profile that is defined but assigned to nothing is the residue of a hardware refresh that was never cleaned up. Decide for yourself whether you would delete it or leave it, and be able to say why.</p>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- L1 EX4 -->
+    <section class="section" id="l1-ex4">
+      <div class="steps"><div class="step">
+        <span class="step-num">Ex 4</span>
+        <div>
+          <p class="step-title">Inspect the image &mdash; and note its build identifier</p>
+          <p class="step-desc">One image serves both nodes. It carries the kernel and the entire package set. Nothing host-specific is in it, and that distinction is the whole basis of the model.</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">sudo wwctl container list</span>
+<span class="cmd">sudo wwctl container exec rocky9 /bin/sh -c "rpm -qa | wc -l"</span></pre>
+          </div>
+          <div class="expected-block">
+            <div class="expected-label">Expected output</div>
+            <div class="expected-body"><pre>CONTAINER NAME  NODES  KERNEL VERSION      SIZE
+rocky9          2      5.14.0-503.el9      1.4 GiB
+
+412</pre></div>
+          </div>
+          <p class="step-notice">Write down the kernel version and the size. In Lab 2 you will watch both of them change, and the size delta is the thing that has to cross the network to every node in a real fleet.</p>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- L1 EX5 -->
+    <section class="section" id="l1-ex5">
+      <div class="steps"><div class="step">
+        <span class="step-num">Ex 5</span>
+        <div>
+          <p class="step-title">The two overlays &mdash; written once, versus written at every boot</p>
+          <p class="step-desc">Anything that differs per node cannot live in a shared image. It is written over the image after the image is fetched, by one of two overlays with different lifetimes.</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">sudo wwctl overlay list</span>
+<span class="cmd">sudo wwctl overlay show site-system /etc/passwd.ww --render cn01</span>
+<span class="cmd">sudo wwctl overlay show site-runtime /etc/fstab.ww --render cn01</span></pre>
+          </div>
+          <div class="expected-block">
+            <div class="expected-label">Expected output &mdash; the rendered fstab, note line 3</div>
+            <div class="expected-body"><pre>10.31.0.1:/home       /home    nfs  defaults  0 0
+tmpfs                 /tmp     tmpfs defaults 0 0
+# 10.31.0.1:/exports/proj-cfd  /proj  nfs defaults 0 0   # commented 11 Aug, reinstate?
+
+The user accounts on a running node come from the SYSTEM overlay.
+They are not in the image, and there is no directory service here.</pre></div>
+          </div>
+          <p class="step-notice">A commented-out mount with a date and a question mark is somebody's unfinished change. It is also the exact line Lab 2 will reinstate &mdash; watch for it.</p>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- L1 EX6 -->
+    <section class="section" id="l1-ex6">
+      <div class="steps"><div class="step">
+        <span class="step-num">Ex 6</span>
+        <div>
+          <p class="step-title">Ask the node itself &mdash; and confirm it has no disk</p>
+          <p class="step-desc">Everything so far has been the server's view. Now get the node's own view and reconcile the two. If they disagree, the node is right and the database is stale.</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">ssh cn01 lsblk</span>
+<span class="cmd">ssh cn01 uname -r</span>
+<span class="cmd">ssh cn01 findmnt -t nfs4,tmpfs,rootfs</span>
+<span class="cmd">ssh cn01 "getent passwd | tail -4"</span></pre>
+          </div>
+          <div class="expected-block">
+            <div class="expected-label">Expected output &mdash; lsblk returns nothing at all</div>
+            <div class="expected-body"><pre>(no output from lsblk)
+
+5.14.0-503.el9.x86_64
+
+TARGET  SOURCE              FSTYPE  OPTIONS
+/       rootfs              rootfs  rw
+/home   10.31.0.1:/home     nfs4    rw,relatime
+/tmp    tmpfs               tmpfs   rw
+
+asamuel:x:4001:6100::/home/asamuel:/bin/bash
+rmirza:x:4002:6100::/home/rmirza:/bin/bash</pre></div>
+          </div>
+          <p class="step-notice">The root filesystem is <code>rootfs</code> &mdash; it is in memory. Power this node off and everything written outside <code>/home</code> ceases to exist. That is not a failure mode, it is the design.</p>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- L1 EX7 -->
+    <section class="section" id="l1-ex7">
+      <div class="steps"><div class="step">
+        <span class="step-num">Ex 7</span>
+        <div>
+          <p class="step-title">Find where the address came from, and read the evidence of past boots</p>
+          <p class="step-desc">A stateless node has no address until something gives it one. That transaction is logged, and the log is the first place any provisioning fault is diagnosed.</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">sudo grep -A3 'host cn01' /etc/dhcp/dhcpd.conf</span>
+<span class="cmd">sudo journalctl -u dnsmasq --since '5 days ago' | grep -Ei 'DHCPACK|tftp|no address'</span></pre>
+          </div>
+          <div class="expected-block">
+            <div class="expected-label">Expected output &mdash; five days of boots, one of them failed</div>
+            <div class="expected-body"><pre>host cn01 {
+  hardware ethernet 52:54:00:07:00:01;
+  fixed-address 10.31.0.11;
+}
+
+Aug 24 03:11:07 DHCPACK(virbr1) 10.31.0.11 52:54:00:07:00:01 cn01
+Aug 24 03:11:09 sent /var/lib/tftpboot/undionly.kpxe to 10.31.0.11
+Aug 26 22:40:52 DHCPACK(virbr1) 10.31.0.12 52:54:00:07:00:02 cn02
+Aug 27 01:15:33 no address available for 52:54:00:07:00:07
+
+The last line is a machine asking for an address it will never get.
+Match that hardware address against the node objects from Ex 1.</pre></div>
+          </div>
+          <p class="step-notice">The failed request belongs to <code>cn07</code>. A record that outlived its hardware still holds a reservation, and something on the network is still asking for it. Both halves of that are worth explaining out loud.</p>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- L1 EX8 -->
+    <section class="section" id="l1-ex8">
+      <div class="steps"><div class="step">
+        <span class="step-num">Ex 8</span>
+        <div>
+          <p class="step-title">Find the terminus &mdash; a node that boots but never registers runs nothing</p>
+          <p class="step-desc">The boot chain does not end when the operating system is up. It ends when the scheduler will accept work on that node, and that is a separate handshake with its own failure mode.</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">sinfo</span>
+<span class="cmd">scontrol show node cn01 | grep -E 'State|BootTime|Reason'</span>
+<span class="cmd">ssh cn01 systemctl is-active slurmd</span></pre>
+          </div>
+          <div class="expected-block">
+            <div class="expected-label">Expected output</div>
+            <div class="expected-body"><pre>PARTITION AVAIL TIMELIMIT NODES STATE NODELIST
+compute*     up  infinite     2  idle cn01,cn02
+
+   State=IDLE
+   BootTime=2026-08-24T03:11:42
+   Reason=(null)
+
+active
+
+The client that performs this handshake arrived inside the image.
+Its configuration file arrived through an overlay.</pre></div>
+          </div>
+          <p class="step-notice">Two different layers had to be correct for this one line of output. Be able to name both, because when a freshly provisioned node sits in <code>DOWN</code> it is almost always one of them.</p>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- L1 TRACE -->
+    <section class="section" id="l1-trace">
+      <p class="label">complete the trace</p>
+      <p class="prose">A template is waiting in your home directory at <code>~/lab12-trace.yaml</code>. It lists eleven attributes of a running compute node against blank answers. For each, record which object or file is the actual source of truth.</p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        <pre><span class="cmd">vi ~/lab12-trace.yaml</span>
+<span class="cmt"># one line per attribute; the accepted answers are layer names:</span>
+<span class="cmt">#   dhcp | image | profile | system-overlay | runtime-overlay | node-object</span></pre>
+      </div>
+      <p class="prose">Three of the eleven are not layer names. They are values you have to read off this system: the image build identifier, <code>cn02</code>'s hardware address, and the number of node objects in the database. You collected all three during the exercises above.</p>
+    </section>
+
+    <!-- L1 CHECKPOINT -->
+    <section class="section" id="l1-checkpoint">
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Lab 1 Checkpoint <span>run this when your trace is complete</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>hpcops-check 12
+hpcops-check 12 --hint</pre>
+          <p class="checkpoint-note">The check names which attributes are correctly attributed and which are not. <code>--hint</code> gives you the next unmet one &mdash; where to look, never the answer. If you break the file's structure rather than its content, <code>hpcops-reset 12</code> restores a blank template in under a second and costs you nothing you had not written yourself.</p>
+        </div>
+      </div>
+      <div class="callout-teal">
+        <p><strong>Before Lab 2 begins.</strong> Run the trace once more against <code>cn02</code> instead of <code>cn01</code>. Every attribute that comes out identical tells you what a shared image and a shared profile actually guarantee. Every one that differs was assigned per node rather than per fleet, and those are the ones that will bite you at scale.</p>
+      </div>
+    </section>
+
+    <!-- LAB 2 OVERVIEW -->
+    <section class="section" id="l2-overview">
+      <div class="domain-header">
+        <div class="domain-label">Lab 2 &mdash; driven from the front, watch and question</div>
+        <div class="domain-title">Modify and Reprovision</div>
+        <div class="domain-intent">Land four specific changes on one node and prove they reached that node and nothing else.</div>
+      </div>
+      <p class="prose">This is the request an operator gets dozens of times over a node's life, and it is the one most likely to go wrong in a way nobody notices until the wrong machine reboots. It runs on the shared server, so it is driven from the front of the room. Do not run these commands from your own shell &mdash; they will be refused, and if they were not, fourteen simultaneous image rebuilds would be the only thing anyone learned today.</p>
+
+      <div class="callout">
+        <p><strong>Three things to watch for, and be ready to answer on.</strong></p>
+        <p>First: each change is made twice &mdash; once so it is true on the running node, once so it is declared somewhere that survives the next boot. Watch which command does which. They are not the same operation and confusing them is the single most common provisioning error.</p>
+        <p>Second: <code>cn01</code> is in service throughout. Nothing done here is allowed to touch it. Watch for the moment where it would have been easy to take it down by accident.</p>
+        <p>Third: the boot in step 6 is slow enough to narrate. Follow each stage as it happens and note where the time actually goes.</p>
+      </div>
+    </section>
+
+    <!-- L2 S1 -->
+    <section class="section" id="l2-s1">
+      <div class="steps"><div class="step">
+        <span class="step-num">1</span>
+        <div>
+          <p class="step-title">Read the change set before touching anything</p>
+          <p class="step-desc">Four changes: one package, one filesystem to mount at <code>/proj</code>, one SSH key principal to authorise, one kernel parameter to set. All four must land on <code>cn02</code> and nowhere else.</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">cat /etc/hpcops/lab13-changeset</span></pre>
+          </div>
+          <div class="expected-block">
+            <div class="expected-label">Expected output</div>
+            <div class="expected-body"><pre>PACKAGE   strace
+MOUNT     10.31.0.1:/exports/proj-cfd  ->  /proj
+KEY       svc-monitor
+SYSCTL    kernel.numa_balancing = 0</pre></div>
+          </div>
+          <p class="step-notice">Disabling NUMA balancing on a compute node is a real HPC setting, not a placeholder. Worth a moment on why a site would want the kernel to stop migrating pages between nodes underneath a running job.</p>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- L2 S2 -->
+    <section class="section" id="l2-s2">
+      <div class="steps"><div class="step">
+        <span class="step-num">2</span>
+        <div>
+          <p class="step-title">Put the package inside the image, then rebuild it</p>
+          <p class="step-desc">On a diskless node the image is the only thing carrying packages. Installing on the running node would work until the next boot and then silently vanish, which is worse than not working at all.</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">sudo wwctl container exec rocky9 /bin/sh -c "dnf install -y strace"</span>
+<span class="cmd">sudo wwctl container build rocky9</span>
+<span class="cmd">sudo wwctl container list</span></pre>
+          </div>
+          <div class="expected-block">
+            <div class="expected-label">Expected output &mdash; compare the size against Ex 4</div>
+            <div class="expected-body"><pre>Building container: rocky9
+Created image for VNFS container rocky9: 1.4 GiB
+
+CONTAINER NAME  NODES  KERNEL VERSION      SIZE
+rocky9          2      5.14.0-503.el9      1.4 GiB</pre></div>
+          </div>
+          <p class="step-notice">This one command has just changed the image that <em>both</em> nodes are configured to use. Nothing has moved yet &mdash; but the fleet's source of truth is now different from what <code>cn01</code> is running.</p>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- L2 S3 -->
+    <section class="section" id="l2-s3">
+      <div class="steps"><div class="step">
+        <span class="step-num">3</span>
+        <div>
+          <p class="step-title">Declare the mount and the kernel parameter in the every-boot overlay</p>
+          <p class="step-desc">Both of these are host-behaviour rather than host-identity, so they belong in the overlay that is rewritten at every boot. The mount line is the one that was commented out with a date &mdash; reinstate it.</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">sudo wwctl overlay edit site-runtime /etc/fstab.ww</span>
+<span class="cmt"># uncomment the proj-cfd line</span>
+<span class="cmd">sudo wwctl overlay edit site-runtime /etc/sysctl.d/90-hpc.conf.ww</span>
+<span class="cmt"># add: kernel.numa_balancing = 0</span></pre>
+          </div>
+          <p class="step-notice">Setting a sysctl with <code>sysctl -w</code> on the running node would satisfy anyone watching the output and would not survive the reboot two steps from now. Declared and set are different states and the check tests both separately.</p>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- L2 S4 -->
+    <section class="section" id="l2-s4">
+      <div class="steps"><div class="step">
+        <span class="step-num">4</span>
+        <div>
+          <p class="step-title">Authorise the key in the first-boot overlay</p>
+          <p class="step-desc">Identity material belongs in the overlay applied once at provisioning rather than rewritten every boot &mdash; a node that regenerates its trust on every reboot is a node whose fingerprint nobody can pin.</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">sudo wwctl overlay edit site-system /root/.ssh/authorized_keys.ww</span>
+<span class="cmt"># append the svc-monitor public key</span>
+<span class="cmd">sudo wwctl overlay show site-system /root/.ssh/authorized_keys.ww --render cn02</span></pre>
+          </div>
+          <p class="step-notice">Ask yourself where this key would have to live if there were five hundred nodes and the key had to be rotated on a Friday afternoon. The answer is the same file &mdash; that is the point of the model.</p>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- L2 S5 -->
+    <section class="section" id="l2-s5">
+      <div class="steps"><div class="step">
+        <span class="step-num">5</span>
+        <div>
+          <p class="step-title">Render the overlays &mdash; editing is not building</p>
+          <p class="step-desc">Overlay source files are templates. Until they are rendered, the change exists in the editor's output and nowhere a booting node can reach.</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">sudo wwctl overlay build</span></pre>
+          </div>
+          <div class="expected-block">
+            <div class="expected-label">Expected output</div>
+            <div class="expected-body"><pre>Building overlay for cn01: site-system, site-runtime
+Building overlay for cn02: site-system, site-runtime</pre></div>
+          </div>
+          <p class="step-notice">Note that it built for both nodes. The overlays are now staged for <code>cn01</code> too &mdash; and <code>cn01</code> will not receive them, because it is not going to boot. Staged and delivered are yet another pair of different states.</p>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- L2 S6 -->
+    <section class="section" id="l2-s6">
+      <div class="steps"><div class="step">
+        <span class="step-num">6</span>
+        <div>
+          <p class="step-title">Reboot cn02 and watch every stage of the chain</p>
+          <p class="step-desc">The node has no disk, so any reboot re-runs the entire chain from nothing. Watch the log on the left and the console on the right; the stages arrive in a fixed order and each one is a place a real fleet fails.</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmt"># terminal 1 &mdash; the evidence trail, live</span>
+<span class="cmd">sudo journalctl -u dnsmasq -u warewulfd -f</span>
+
+<span class="cmt"># terminal 2 &mdash; trigger it</span>
+<span class="cmd">ssh cn02 systemctl reboot</span>
+
+<span class="cmt"># if cn02 has stopped answering, the out-of-band path instead:</span>
+<span class="cmd">hpcops-power cycle cn02</span></pre>
+          </div>
+          <div class="expected-block">
+            <div class="expected-label">Expected output &mdash; the chain, in order</div>
+            <div class="expected-body"><pre>DHCPDISCOVER(virbr1) 52:54:00:07:00:02
+DHCPACK(virbr1) 10.31.0.12 52:54:00:07:00:02 cn02      &lt;- address
+sent /var/lib/tftpboot/undionly.kpxe to 10.31.0.12     &lt;- bootloader
+warewulfd: cn02 requested kernel                        &lt;- kernel
+warewulfd: cn02 requested container rocky9              &lt;- root image
+warewulfd: cn02 requested overlay site-system           &lt;- identity
+warewulfd: cn02 requested overlay site-runtime          &lt;- behaviour
+slurmctld: node cn02 returned to service                &lt;- terminus</pre></div>
+          </div>
+          <p class="step-notice">Seven stages, seven separate things that can fail independently. The image fetch is the one that dominates the clock, and it is the only one whose cost multiplies by node count.</p>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- L2 S7 -->
+    <section class="section" id="l2-s7">
+      <div class="steps"><div class="step">
+        <span class="step-num">7</span>
+        <div>
+          <p class="step-title">Prove the blast radius &mdash; four changes on cn02, nothing on cn01</p>
+          <p class="step-desc">Verifying that a change landed is the easy half. Verifying that it landed nowhere else is the half that keeps a partition in service.</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">ssh cn02 "rpm -q strace; findmnt /proj; sysctl kernel.numa_balancing"</span>
+<span class="cmd">ssh cn01 "rpm -q strace; uptime -s"</span></pre>
+          </div>
+          <div class="expected-block">
+            <div class="expected-label">Expected output &mdash; the second block is the important one</div>
+            <div class="expected-body"><pre>strace-5.18-2.el9.x86_64
+TARGET SOURCE                       FSTYPE OPTIONS
+/proj  10.31.0.1:/exports/proj-cfd  nfs4   rw,relatime
+kernel.numa_balancing = 0
+
+package strace is not installed
+2026-08-24 03:11:42
+
+cn01 has not rebooted since Monday. It is running the old image.
+That is the correct outcome, not a missed step.</pre></div>
+          </div>
+          <p class="step-notice">The fleet is now deliberately inconsistent, and somebody has to decide when <code>cn01</code> catches up. That decision &mdash; not the rebuild &mdash; is the actual job.</p>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- L2 CHECKPOINT -->
+    <section class="section" id="l2-checkpoint">
+      <div class="checkpoint-block">
+        <div class="checkpoint-header">Lab 2 Checkpoint <span>run from the front &mdash; twelve criteria</span></div>
+        <div class="checkpoint-body">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre>hpcops-check 13</pre>
+          <p class="checkpoint-note">Each of the four changes is checked twice &mdash; true on the running node, and declared where it survives a boot. Then <code>cn02</code>'s re-registration, and finally that <code>cn01</code> has not moved: same boot, same packages, same mounts as at the start. On a clean pass it prints the measured time from image rebuild to <code>cn02</code> returning to service.</p>
+        </div>
+      </div>
+      <div class="callout-teal">
+        <p><strong>The closing question.</strong> Break the measured round trip into its parts &mdash; the image rebuild, the network fetch, the boot itself, the scheduler handshake. Decide which one you would attack first if this were five hundred nodes instead of one, and be able to say what you would actually change to attack it.</p>
+      </div>
+    </section>
+
+    <!-- PHYSICAL -->
+    <section class="section" id="physical">
+      <p class="label">the physical gap</p>
+      <p class="prose">Assigned alongside this session: a recorded walkthrough of an actual bare-metal deployment &mdash; racking, cabling, BMC configuration and first boot.</p>
+      <p class="prose" style="margin-top:1em">Today's estate keeps its networks apart in software. A real provisioning network is kept apart by separate cabling, separate switches and separate colour conventions, and that discipline does not show up on a screen. The same goes for the service processor you saw stood in for by <code>hpcops-power</code>: on a real floor that is a separate embedded computer with its own address, its own credentials and its own failure modes, reachable when the node it is attached to is entirely dead.</p>
+      <p class="prose" style="margin-top:1em">Watch for both, and bring back one concrete example of something you did today that would not be acceptable on a real floor.</p>
+    </section>
+
+    <!-- QUICKREF -->
+    <section class="section" id="quickref">
+      <p class="label">command reference</p>
+      <p class="prose">Everything above <code>hpcops-check</code> is read-only and available to every account. Everything below the divider is the demonstration only.</p>
+
+      <div class="quickref-block">
+        <div class="quickref-header">read-only &mdash; available to all accounts</div>
+        <div class="quickref-row"><div class="quickref-k">connect</div><div class="quickref-v">ssh &lt;username&gt;@mylab.hpc.now</div></div>
+        <div class="quickref-row"><div class="quickref-k">nodes</div><div class="quickref-v">sudo wwctl node list</div></div>
+        <div class="quickref-row"><div class="quickref-k">resolve</div><div class="quickref-v">sudo wwctl node list &lt;node&gt; --all</div></div>
+        <div class="quickref-row"><div class="quickref-k">profiles</div><div class="quickref-v">sudo wwctl profile list
+sudo wwctl profile list &lt;name&gt; --all</div></div>
+        <div class="quickref-row"><div class="quickref-k">overlays</div><div class="quickref-v">sudo wwctl overlay list
+sudo wwctl overlay show &lt;overlay&gt; &lt;file&gt; --render &lt;node&gt;</div></div>
+        <div class="quickref-row"><div class="quickref-k">image</div><div class="quickref-v">sudo wwctl container list</div></div>
+        <div class="quickref-row"><div class="quickref-k">node view</div><div class="quickref-v">ssh cn01 lsblk / uname -r / findmnt</div></div>
+        <div class="quickref-row"><div class="quickref-k">boot log</div><div class="quickref-v">sudo journalctl -u dnsmasq -u warewulfd</div></div>
+        <div class="quickref-row"><div class="quickref-k">scheduler</div><div class="quickref-v">sinfo
+scontrol show node cn01</div></div>
+        <div class="quickref-row"><div class="quickref-k">check</div><div class="quickref-v">hpcops-check 12
+hpcops-check 12 --hint
+hpcops-reset 12</div></div>
+      </div>
+
+      <div class="quickref-block">
+        <div class="quickref-header">demonstration only &mdash; driven from the front</div>
+        <div class="quickref-row"><div class="quickref-k">change set</div><div class="quickref-v">cat /etc/hpcops/lab13-changeset</div></div>
+        <div class="quickref-row"><div class="quickref-k">image</div><div class="quickref-v">sudo wwctl container exec rocky9 /bin/sh -c "&lt;command&gt;"
+sudo wwctl container build rocky9</div></div>
+        <div class="quickref-row"><div class="quickref-k">overlays</div><div class="quickref-v">sudo wwctl overlay edit site-runtime &lt;file&gt;
+sudo wwctl overlay edit site-system &lt;file&gt;
+sudo wwctl overlay build</div></div>
+        <div class="quickref-row"><div class="quickref-k">reprovision</div><div class="quickref-v">ssh cn02 systemctl reboot
+hpcops-power cycle cn02</div></div>
+        <div class="quickref-row"><div class="quickref-k">verify</div><div class="quickref-v">hpcops-check 13</div></div>
+      </div>
+
+      <div class="callout-amber">
+        <p><strong>At the end of the lab day.</strong> Run <code>./destroy.sh</code> and confirm it reports zero surviving resources. An instance left running does not stop costing money because the session ended.</p>
+      </div>
+    </section>
+
+    <div class="footer-wrap">
+      <span class="footer-copy">HPC Operations &middot; Associate Stream &middot; Lab Runbook</span>
+      <span class="footer-badge">mylab.hpc.now &middot; m5.2xlarge &middot; ~$0.38/hr</span>
+      <a href="https://master.hpc.now" class="footer-link">master.hpc.now</a>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.side-nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(i => i.classList.remove('is-active'));
+        const a = document.querySelector('.side-nav-item[href="#' + entry.target.id + '"]');
+        if (a) a.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  function copyCode(btn) {
+    const block = btn.closest('.code-block, .checkpoint-body');
+    const pre = block.querySelector('pre');
+    const text = pre.innerText || pre.textContent;
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      btn.textContent = 'copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
