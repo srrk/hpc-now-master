@@ -204,7 +204,7 @@
     <div class="hero-meta">
       <div class="hero-meta-item"><span class="hero-meta-k">Labs</span><span class="hero-meta-v">8 sections · Lab 1 / 8 through 8 / 8</span></div>
       <div class="hero-meta-item"><span class="hero-meta-k">Head Node</span><span class="hero-meta-v">mylab.hpc.now</span></div>
-      <div class="hero-meta-item"><span class="hero-meta-k">Learners</span><span class="hero-meta-v">chandra · sujith · yogaraj</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-k">Learners</span><span class="hero-meta-v">bhagya · vinod · vrkathi · surya · satya (+ instructor, 3 spares)</span></div>
       <div class="hero-meta-item"><span class="hero-meta-k">Password</span><span class="hero-meta-v">hpcnow2026</span></div>
       <div class="hero-meta-item"><span class="hero-meta-k">Total lab time</span><span class="hero-meta-v">~3.5 hours</span></div>
       <div class="hero-meta-item"><span class="hero-meta-k">URL</span><span class="hero-meta-v">master.hpc.now/slurm-workload-mgmt</span></div>
@@ -260,16 +260,22 @@
       <table class="creds-table">
         <thead><tr><th>Name</th><th>Username</th><th>Password</th><th>Host</th></tr></thead>
         <tbody>
-          <tr><td class="name-col">Chandra</td><td class="mono-col">chandra</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
-          <tr><td class="name-col">Sujith</td><td class="mono-col">sujith</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
-          <tr><td class="name-col">Yogaraj</td><td class="mono-col">yogaraj</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Bhagya</td><td class="mono-col">bhagya</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Vinod</td><td class="mono-col">vinod</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">VRKathi</td><td class="mono-col">vrkathi</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Surya</td><td class="mono-col">surya</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Satya</td><td class="mono-col">satya</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Spare</td><td class="mono-col">labguest1</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Spare</td><td class="mono-col">labguest2</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Spare</td><td class="mono-col">labguest3</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
+          <tr><td class="name-col">Instructor</td><td class="mono-col">instructor</td><td class="pass-col">hpcnow2026</td><td class="mono-col">mylab.hpc.now</td></tr>
         </tbody>
       </table>
       <div class="code-block">
         <div class="code-label">Connect to the cluster</div>
         <button class="copy-btn" onclick="copyCode(this)">copy</button>
-        <pre><span class="cmd">ssh chandra@mylab.hpc.now</span>          <span class="cmt"># replace chandra with your username</span>
-<span class="out">[chandra@ip-172-31-10-125 ~]$</span>          <span class="cmt"># head node prompt — you are on the head node</span></pre>
+        <pre><span class="cmd">ssh bhagya@mylab.hpc.now</span>          <span class="cmt"># replace bhagya with your username</span>
+<span class="out">[bhagya@ip-172-31-10-125 ~]$</span>          <span class="cmt"># head node prompt — you are on the head node</span></pre>
       </div>
       <div class="callout-teal">
         <p><strong>Your jobs directory.</strong> All lab job scripts are pre-loaded in <code>~/jobs/</code>. You can also find them in <code>/shared/lab/</code>. Do not submit jobs from the head node's local disk for anything requiring high I/O — use <code>/shared/</code> for output files in production. For this lab, <code>~/jobs/</code> is fine.</p>
@@ -277,7 +283,7 @@
       <div class="wrong-block">
         <div class="wrong-label">If your connection is refused or times out</div>
         <div class="wrong-body">
-          <p>The head node IP may have changed. Ask Rajesh for the current IP or hostname. If you see <code>Host key verification failed</code>, run <code>ssh-keygen -R mylab.hpc.now</code> and reconnect. If you see <code>Permission denied (publickey)</code>, use the password with <code>ssh -o PreferredAuthentications=password chandra@mylab.hpc.now</code>.</p>
+          <p>The head node IP may have changed. Ask Rajesh for the current IP or hostname. If you see <code>Host key verification failed</code>, run <code>ssh-keygen -R mylab.hpc.now</code> and reconnect. If you see <code>Permission denied (publickey)</code>, use the password with <code>ssh -o PreferredAuthentications=password bhagya@mylab.hpc.now</code>.</p>
         </div>
       </div>
     </section>
@@ -474,7 +480,7 @@ for i in 1 2 3 4 5; do
 done
 echo "==== done ===="</pre></div>
             </div>
-            <p class="step-notice">The <code>%j</code> in the <code>--output</code> path is replaced by the actual job ID when the job runs. <code>%u</code> is replaced by the user name. The full pattern <code>/home/%u/jobs/hello-%j.out</code> resolves to e.g. <code>/home/chandra/jobs/hello-1.out</code> — visible from both head and compute nodes because <code>/home</code> is NFS-exported.</p>
+            <p class="step-notice">The <code>%j</code> in the <code>--output</code> path is replaced by the actual job ID when the job runs. <code>%u</code> is replaced by the user name. The full pattern <code>/home/%u/jobs/hello-%j.out</code> resolves to e.g. <code>/home/bhagya/jobs/hello-1.out</code> — visible from both head and compute nodes because <code>/home</code> is NFS-exported.</p>
           </div>
         </div>
 
@@ -508,10 +514,10 @@ echo "Submitted job ID: $JOBID"</span></pre>
               <div class="expected-label">Expected sequence</div>
               <div class="expected-body"><pre>First appearance — usually goes straight to R on a static node:
   JOBID PARTITION  NAME    USER ST  TIME NODES NODELIST(REASON)
-      1   compute hello chandra  R  0:05     1 compute-st-compute-nodes-1
+      1   compute hello bhagya  R  0:05     1 compute-st-compute-nodes-1
 
 If a dynamic node has to power on, you may briefly see:
-      1   compute hello chandra PD  0:00     1 (Configuration)
+      1   compute hello bhagya PD  0:00     1 (Configuration)
 
 Then gone (job completed — press Ctrl+C after confirming it disappears)</pre></div>
             </div>
@@ -630,7 +636,7 @@ salloc: Nodes debug-st-debug-nodes-1 are ready for job</pre></div>
             <div class="expected-block">
               <div class="expected-label">Expected output</div>
               <div class="expected-body"><pre>Your shell prompt changes — you are now on the compute node:
-[chandra@debug-st-debug-nodes-1 ~]$</pre></div>
+[bhagya@debug-st-debug-nodes-1 ~]$</pre></div>
             </div>
             <p class="step-notice">You are now running a shell on a compute node. This is not an SSH session — it is a SLURM job step. Your resources are governed by the allocation you obtained with salloc. If you run resource-heavy commands here, they are within your allocation's limits.</p>
           </div>
@@ -989,10 +995,10 @@ squeue -u $USER -o "%.10i %.8T %.12R"</span></pre>
             </div>
             <div class="expected-block">
               <div class="expected-label">Expected output</div>
-              <div class="expected-body"><pre>/home/chandra/jobs/array-lab-15_1.out:SLURM_ARRAY_TASK_ID  : 1
-/home/chandra/jobs/array-lab-15_2.out:SLURM_ARRAY_TASK_ID  : 2
-/home/chandra/jobs/array-lab-15_3.out:SLURM_ARRAY_TASK_ID  : 3
-/home/chandra/jobs/array-lab-15_4.out:SLURM_ARRAY_TASK_ID  : 4</pre></div>
+              <div class="expected-body"><pre>/home/bhagya/jobs/array-lab-15_1.out:SLURM_ARRAY_TASK_ID  : 1
+/home/bhagya/jobs/array-lab-15_2.out:SLURM_ARRAY_TASK_ID  : 2
+/home/bhagya/jobs/array-lab-15_3.out:SLURM_ARRAY_TASK_ID  : 3
+/home/bhagya/jobs/array-lab-15_4.out:SLURM_ARRAY_TASK_ID  : 4</pre></div>
             </div>
           </div>
         </div>
@@ -1252,7 +1258,7 @@ Backfill sched: Scheduled:   8</pre></div>
             <div class="expected-block">
               <div class="expected-label">Expected output — all cluster jobs</div>
               <div class="expected-body"><pre>     JOBID NAME            USER       STATE      TIME       TIME_LIMIT NODES NODELIST(REASON)
-        29 monitor-job     chandra    RUNNING    0:42       10:00      1     compute-st-compute-nodes-1</pre></div>
+        29 monitor-job     bhagya    RUNNING    0:42       10:00      1     compute-st-compute-nodes-1</pre></div>
             </div>
           </div>
         </div>
@@ -1289,10 +1295,10 @@ Backfill sched: Scheduled:   8</pre></div>
           <span class="step-num">Scenario A</span>
           <div>
             <p class="step-title">Find the job that will never run — and explain why</p>
-            <p class="step-desc">A job has been submitted as user <code>chandra</code> that has been in PENDING state since before the lab started. Find it, read its pending reason, and diagnose the root cause without running any commands beyond squeue and scontrol.</p>
+            <p class="step-desc">A job has been submitted as user <code>bhagya</code> that has been in PENDING state since before the lab started. Find it, read its pending reason, and diagnose the root cause without running any commands beyond squeue and scontrol.</p>
             <div class="code-block">
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
-              <pre><span class="cmd">squeue --all -u chandra -o "%.8i %-20j %.8T %.20R"</span>  <span class="cmt"># find all pending jobs</span></pre>
+              <pre><span class="cmd">squeue --all -u bhagya -o "%.8i %-20j %.8T %.20R"</span>  <span class="cmt"># find all pending jobs</span></pre>
             </div>
             <div class="expected-block">
               <div class="expected-label">Expected output</div>
@@ -1314,10 +1320,10 @@ Backfill sched: Scheduled:   8</pre></div>
           <span class="step-num">Scenario B</span>
           <div>
             <p class="step-title">Find the job that timed out — read what it produced before dying</p>
-            <p class="step-desc">A job was submitted by user <code>sujith</code> that hit its wall-time limit earlier in the session. Find it in sacct, read its state, and find the output file to determine how far it got before being killed.</p>
+            <p class="step-desc">A job was submitted by user <code>vinod</code> that hit its wall-time limit earlier in the session. Find it in sacct, read its state, and find the output file to determine how far it got before being killed.</p>
             <div class="code-block">
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
-              <pre><span class="cmd">sacct -u sujith \
+              <pre><span class="cmd">sacct -u vinod \
   --format=JobID,JobName,State,ExitCode,Elapsed,TimeLimit \
   --starttime=today -n</span></pre>
             </div>
@@ -1329,8 +1335,8 @@ Backfill sched: Scheduled:   8</pre></div>
             </div>
             <div class="code-block" style="margin-top:12px">
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
-              <pre><span class="cmd">sudo ls /home/sujith/scenB-*.out 2>/dev/null</span>
-<span class="cmd">sudo cat /home/sujith/scenB-2.out</span>      <span class="cmt"># replace 2 with the JobID</span></pre>
+              <pre><span class="cmd">sudo ls /home/vinod/scenB-*.out 2>/dev/null</span>
+<span class="cmd">sudo cat /home/vinod/scenB-2.out</span>      <span class="cmt"># replace 2 with the JobID</span></pre>
             </div>
             <div class="callout-amber" style="margin-top:16px">
               <p><strong>Diagnosis exercise.</strong> The job row reports <code>State=TIMEOUT</code> with <code>ExitCode=0:0</code>, while the <code>.batch</code> step row reports <code>CANCELLED</code> with <code>ExitCode=0:15</code>. Format is <code>exitcode:signal</code> — signal 15 is SIGTERM, which SLURM sends at the wall-time limit to terminate the step. The job's overall state is TIMEOUT (Slurm hit its <code>--time</code> limit); the step was killed by SIGTERM. What would you tell the user about why the job failed? What information do you need from them to help fix it?</p>
@@ -1379,7 +1385,7 @@ Backfill sched: Scheduled:   8</pre></div>
           <span class="step-num">Scenario D</span>
           <div>
             <p class="step-title">Find and clean up DependencyNeverSatisfied jobs</p>
-            <p class="step-desc">A pre-submitted 4-task array job ran as user <code>yogaraj</code>; task 2 failed with exit code 1 (tasks 1, 3, and 4 completed normally). A separate dependent job — <code>chain-step3-notok</code> — was submitted with <code>--dependency=afterok:&lt;array&gt;_2</code>. Because task 2 failed, that dependent is now stuck in <code>DependencyNeverSatisfied</code>. Find it, then cancel it with a single command.</p>
+            <p class="step-desc">A pre-submitted 4-task array job ran as user <code>vrkathi</code>; task 2 failed with exit code 1 (tasks 1, 3, and 4 completed normally). A separate dependent job — <code>chain-step3-notok</code> — was submitted with <code>--dependency=afterok:&lt;array&gt;_2</code>. Because task 2 failed, that dependent is now stuck in <code>DependencyNeverSatisfied</code>. Find it, then cancel it with a single command.</p>
             <div class="code-block">
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
               <pre><span class="cmd">squeue --all -o "%.8i %-20j %.10u %.8T %.30R" | grep -i dependency</span></pre>
@@ -1387,7 +1393,7 @@ Backfill sched: Scheduled:   8</pre></div>
             <div class="expected-block">
               <div class="expected-label">Expected output</div>
               <div class="expected-body"><pre>   JOBID NAME                  USER       STATE   REASON
-       5 chain-step3-notok     yogaraj  PENDING DependencyNeverSatisfied</pre></div>
+       5 chain-step3-notok     vrkathi  PENDING DependencyNeverSatisfied</pre></div>
             </div>
             <div class="code-block" style="margin-top:12px">
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
@@ -1396,8 +1402,8 @@ Backfill sched: Scheduled:   8</pre></div>
             </div>
             <div class="code-block" style="margin-top:12px">
               <button class="copy-btn" onclick="copyCode(this)">copy</button>
-              <pre><span class="cmd">sudo scancel 5</span>                       <span class="cmt"># cancel the stuck dependent (yogaraj's group has sudo for scancel)</span>
-<span class="cmd">squeue -u yogaraj</span>                    <span class="cmt"># confirm it is gone</span></pre>
+              <pre><span class="cmd">sudo scancel 5</span>                       <span class="cmt"># cancel the stuck dependent (vrkathi's group has sudo for scancel)</span>
+<span class="cmd">squeue -u vrkathi</span>                    <span class="cmt"># confirm it is gone</span></pre>
             </div>
             <p class="step-notice">In production, before cancelling stuck dependent jobs, always check what the upstream failure was — that is what <code>scontrol show job &lt;dependent&gt;</code> and <code>sacct -j &lt;upstream&gt;</code> tell you. The user may need to be notified that their pipeline stopped at task 2 and the downstream work needs to be resubmitted from that point (or use <code>afterany</code> if downstream should run regardless of success).</p>
           </div>
@@ -1556,7 +1562,7 @@ Backfill sched: Scheduled:   8</pre></div>
 
       <div class="footer-wrap">
         <span class="footer-copy">SLURM Workload Management · Lab Runbook · HPC Associate · Associate Stream · master.hpc.now/slurm-workload-mgmt</span>
-        <span class="footer-badge">Labs 1–8 · mylab.hpc.now · chandra · sujith · yogaraj</span>
+        <span class="footer-badge">Labs 1–8 · mylab.hpc.now · bhagya · vinod · vrkathi · surya · satya</span>
         <a href="https://master.hpc.now" class="footer-link">master.hpc.now</a>
       </div>
     </section>
