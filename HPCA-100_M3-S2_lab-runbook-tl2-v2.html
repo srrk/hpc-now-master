@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HPCA-100 · M3-S2 · Partitions, Nodes and QOS · Lab Runbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff; --soft:#f6f8fa; --line:#e3e7eb;
+  --ink:#12161b; --ink2:#4f5862; --ink3:#8b949e;
+  --blue:#1f66d0; --blue-bg:#eff5fd;
+  --amber:#a55a12; --amber-bg:#fdf5ea;
+  --green:#0d7a55; --green-bg:#ecf7f2;
+  --code:#111519; --code-ink:#c9d1d9; --code-cmd:#7ee3b8; --code-cmt:#5c6873;
+  --sans:"IBM Plex Sans",-apple-system,Segoe UI,sans-serif;
+  --mono:"IBM Plex Mono","Courier New",monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
+
+.youbar{position:sticky;top:0;z-index:60;background:var(--ink);display:flex;align-items:center;gap:12px;padding:8px 40px;font-size:12px}
+.youbar-k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#7c8691}
+.youbar-v{font-family:var(--mono);font-size:13px;color:#7ee3b8}
+.youbar-v.unset{color:#e0a85f}
+.youbar-a{color:#7c8691;font-size:11px;text-decoration:underline}
+.youbar-p{margin-left:auto;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#7c8691}
+
+.head{border-bottom:1px solid var(--line);padding:32px 40px 24px;background:var(--soft)}
+.head-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.head-title{font-size:26px;font-weight:600;letter-spacing:-.01em}
+.head-sub{font-size:14px;color:var(--ink2);margin-top:8px;max-width:660px}
+
+.wrap{display:grid;grid-template-columns:168px 1fr;gap:0 48px;max-width:1080px;margin:0 auto;padding:0 40px}
+.side{position:sticky;top:44px;align-self:start;padding:32px 0}
+.side-l{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px}
+.side a{display:block;font-size:12.5px;color:var(--ink2);text-decoration:none;padding:5px 0 5px 12px;border-left:2px solid transparent}
+.side a:hover{color:var(--ink)}
+.side a.on{color:var(--blue);border-color:var(--blue)}
+.side hr{border:0;border-top:1px solid var(--line);margin:10px 0}
+main{padding:32px 0 0}
+section{padding:30px 0;border-top:1px solid var(--line)}
+section:first-child{border-top:none;padding-top:8px}
+
+.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
+.sh-n{font-family:var(--mono);font-size:12px;color:var(--blue);font-weight:500}
+.sh-t{font-size:19px;font-weight:600}
+.sh-m{margin-left:auto;font-size:11px;color:var(--ink3);font-family:var(--mono)}
+
+.goal{border-left:3px solid var(--green);background:var(--green-bg);padding:11px 15px;margin:0 0 18px;max-width:700px;font-size:14px;color:var(--ink)}
+.goal b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin-bottom:3px;font-weight:600}
+
+.stept{font-size:14.5px;font-weight:600;margin:22px 0 8px}
+
+.do{background:var(--code);border-radius:3px;padding:14px 16px;margin:8px 0;position:relative;overflow-x:auto;max-width:700px}
+.do pre{font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--code-ink);white-space:pre}
+.do .cmd{color:var(--code-cmd)}
+.do .cmt{color:var(--code-cmt)}
+.dol{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--code-cmt);margin-bottom:9px}
+.cp{position:absolute;top:9px;right:9px;background:#1d242c;border:1px solid #2b333c;color:#7c8691;font-family:var(--mono);font-size:10px;padding:3px 9px;cursor:pointer;border-radius:2px}
+.cp:hover{color:var(--code-cmd);border-color:var(--code-cmd)}
+.cp.ok{color:var(--code-cmd);border-color:var(--code-cmd)}
+
+.see{border:1px solid var(--line);border-left:3px solid var(--ink3);border-radius:3px;margin:8px 0;max-width:700px;overflow-x:auto}
+.see-l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);padding:7px 14px;border-bottom:1px solid var(--line);background:var(--soft)}
+.see pre{font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--ink2);padding:11px 14px;white-space:pre}
+
+.check{border:1px solid var(--blue);border-radius:3px;margin:12px 0;max-width:700px}
+.check-l{background:var(--blue-bg);padding:8px 14px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);border-bottom:1px solid var(--blue);font-weight:600}
+.check-b{padding:12px 14px;position:relative}
+.check-b pre{font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--ink);white-space:pre-wrap;word-break:break-word}
+.check .cp{background:var(--bg);border-color:var(--line);color:var(--ink3);top:11px}
+.check .cp:hover{color:var(--blue);border-color:var(--blue)}
+.pass{font-size:13px;color:var(--ink);margin-top:10px;padding-top:9px;border-top:1px solid var(--line)}
+.pass b{color:var(--green);font-weight:600}
+.fail{font-size:12.5px;color:var(--ink2);margin-top:6px}
+
+.why{font-size:13px;color:var(--ink2);border-left:2px solid var(--line);padding:1px 0 1px 12px;margin:10px 0;max-width:700px}
+.why b{font-weight:600;color:var(--ink)}
+
+.careful{border-left:3px solid var(--amber);background:var(--amber-bg);padding:11px 15px;margin:14px 0;max-width:700px;font-size:13.5px;color:var(--ink2)}
+.careful b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:3px;font-weight:600}
+
+.pick{border:1px solid var(--amber);background:var(--amber-bg);border-radius:3px;padding:16px;max-width:700px;margin:0 0 18px}
+.pick.done{border-color:var(--green);background:var(--green-bg)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--mono);font-size:12px;padding:7px 12px;background:var(--bg);border:1px solid var(--line);color:var(--ink2);cursor:pointer;border-radius:2px}
+.chip:hover{border-color:var(--blue);color:var(--blue)}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.chip.alt{border-style:dashed;color:var(--ink3)}
+.pick-l{font-size:13px;color:var(--ink2);margin-bottom:11px}
+.pick-n{font-size:12.5px;color:var(--ink2);margin-top:10px}
+
+code{font-family:var(--mono);font-size:11.5px;background:var(--soft);padding:1px 5px;border-radius:2px;color:var(--blue)}
+.do code,.see code{background:none;padding:0;color:inherit}
+
+table{width:100%;max-width:700px;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+th{text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);font-weight:500;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--soft)}
+td{padding:8px 12px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+td.m{font-family:var(--mono);font-size:12px}
+tr.me td{background:var(--green-bg)}
+
+.ns{font-weight:500}
+.ns.unset{color:var(--amber)}
+.do .ns{color:#ffd9a0}
+
+.foot{border-top:1px solid var(--line);margin-top:40px;padding:18px 40px;font-size:11px;color:var(--ink3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;background:var(--soft)}
+
+@media print{.youbar,.side,.pick,.cp{display:none!important}.wrap{grid-template-columns:1fr}section{break-inside:avoid}}
+@media (max-width:1000px){.wrap{grid-template-columns:1fr;padding:0 22px}.side{display:none}.head,.youbar,.foot{padding-left:22px;padding-right:22px}}
+</style>
+</head>
+<body>
+
+<div class="youbar">
+  <span class="youbar-k">Your sandbox</span>
+  <span class="youbar-v unset" id="ybv">not selected</span>
+  <a href="#pick" class="youbar-a">change</a>
+  <span class="youbar-p">8 tasks · 65 minutes</span>
+</div>
+
+<div class="head">
+  <p class="head-eyebrow">HPCA-100 · Module 3 · Session 2 · Lab Runbook</p>
+  <h1 class="head-title">Partitions, Nodes and QOS Configuration</h1>
+  <p class="head-sub">Every command you need is on this page. Work the tasks in order and run the Check at the end of each one before you move on.</p>
+</div>
+
+<div class="wrap">
+
+<aside class="side">
+  <div class="side-l">Runbook</div>
+  <a href="#pick">Your sandbox</a>
+  <a href="#read">How to read this</a>
+  <hr />
+  <a href="#t1">1 · What is loaded</a>
+  <a href="#t2">2 · The node that disagrees</a>
+  <a href="#t3">3 · Write three queues</a>
+  <a href="#t4">4 · Apply and read back</a>
+  <a href="#t5">5 · Two QOS</a>
+  <a href="#t6">6 · Prove it in pairs</a>
+  <a href="#t7">7 · Predict the effect</a>
+  <a href="#t8">8 · Policy page</a>
+  <hr />
+  <a href="#reset">If it breaks</a>
+  <a href="#all">All sandboxes</a>
+</aside>
+
+<main>
+
+<section id="pick">
+  <div class="sh"><span class="sh-n">00</span><span class="sh-t">Your sandbox</span></div>
+
+  <div class="pick" id="pickbox">
+    <p class="pick-l">You have a private three-node cluster to yourself. Pick your name once and the commands below fill in your address.</p>
+    <div class="chips">
+      <button class="chip" data-u="1" data-n="Bhagya">Bhagya</button>
+      <button class="chip" data-u="2" data-n="Vinod">Vinod</button>
+      <button class="chip" data-u="3" data-n="Surya">Surya</button>
+      <button class="chip" data-u="4" data-n="Sai">Sai</button>
+      <button class="chip" data-u="5" data-n="Satya">Satya</button>
+      <button class="chip" data-u="6" data-n="Vasavi">Vasavi</button>
+      <button class="chip" data-u="7" data-n="Kathi">Kathi</button>
+      <button class="chip alt" data-u="8" data-n="Rajesh">Rajesh</button>
+      <button class="chip alt" data-u="9" data-n="Guest 1">guest 1</button>
+      <button class="chip alt" data-u="10" data-n="Guest 2">guest 2</button>
+    </div>
+    <p class="pick-n" id="pickn">Nothing selected yet.</p>
+  </div>
+
+  <div class="do">
+    <div class="dol">Do — connect</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh &lt;you&gt;@mylab.hpc.now</span>
+<span class="cmd">hostname</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>head</pre></div>
+  <p class="why">You are root on all three of your nodes. Nothing you do here reaches anyone else. Logging in puts you straight onto your own head node — there is no second hop and no address to remember. Your password is handed to you at the start of the session.</p>
+</section>
+
+<section id="read">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">How to read this page</span></div>
+
+  <div class="goal"><b>Goal</b>What you will have when the task is finished. One sentence at the top of every task.</div>
+
+  <div class="do"><div class="dol">Do</div><pre><span class="cmd">a command to copy and run, exactly as written</span></pre></div>
+
+  <div class="see"><div class="see-l">You should see</div><pre>the output that means it worked</pre></div>
+
+  <div class="check">
+    <div class="check-l">Check</div>
+    <div class="check-b">
+      <pre>a command that confirms the task is really done</pre>
+      <div class="pass"><b>Pass:</b> what a correct result looks like.</div>
+      <div class="fail">If it does not pass: what to do. Usually one line.</div>
+    </div>
+  </div>
+
+  <p class="why"><b>Why</b> — background. Two sentences at most. You can skip these and still finish the lab.</p>
+
+  <div class="careful"><b>Careful</b>Only where something can break or work can be lost. If you do not see this block, nothing on that step is dangerous.</div>
+
+  <p class="why">That is the whole page. Nothing here is written for the instructor, and nothing is hidden from you.</p>
+</section>
+
+<section id="t1">
+  <div class="sh"><span class="sh-n">01</span><span class="sh-t">What the scheduler believes right now</span><span class="sh-m">4 min</span></div>
+  <div class="goal"><b>Goal</b>You have read the loaded configuration, not the file, and you have a record of the job already running.</div>
+
+  <p class="stept">1.1 Read the nodes and the one existing queue</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sinfo -N -l</span>
+<span class="cmd">scontrol show partition normal</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>Sat Sep 19 13:11:03 2026
+NODELIST   NODES PARTITION       STATE CPUS    S:C:T MEMORY TMP_DISK WEIGHT AVAIL_FE REASON
+c1             1   normal*       mixed 2       2:1:1   1600        0      1   (null) none
+c2             1   normal*       inval 2       2:1:1   3000        0      1   (null) Low RealMemory (repo
+
+PartitionName=normal
+   AllowGroups=ALL AllowAccounts=ALL AllowQos=ALL
+   AllocNodes=ALL Default=YES QoS=N/A
+   DefaultTime=01:00:00 DisableRootJobs=NO ExclusiveUser=NO ExclusiveTopo=NO GraceTime=0 Hidden=NO
+   MaxNodes=UNLIMITED MaxTime=04:00:00 MinNodes=0 LLN=NO MaxCPUsPerNode=UNLIMITED MaxCPUsPerSocket=UNLIMITED
+   Nodes=c[1-2]
+   PriorityJobFactor=1 PriorityTier=1 RootOnly=NO ReqResv=NO OverSubscribe=NO
+   OverTimeLimit=NONE PreemptMode=OFF
+   State=UP TotalCPUs=4 TotalNodes=2 SelectTypeParameters=NONE
+   JobDefaults=(null)
+   DefMemPerNode=UNLIMITED MaxMemPerNode=UNLIMITED
+   TRES=cpu=4,mem=4600M,node=2,billing=4</pre></div>
+  <p class="why">One queue, and one node already out of service. Task 2 deals with <code>c2</code>. The MEMORY column is the declared value, not the measurement. The first line is the current date and time, so yours will differ. <code>c2</code> reads <code>inval</code> rather than <code>drain</code>: the node registered and its report did not match the file. The REASON column is 20 characters wide and cuts the reason off mid-word — which is why Task 2 starts by asking the node directly.</p>
+
+  <p class="stept">1.2 Check that limits will actually be enforced</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">scontrol show config | grep -E "AccountingStorageEnforce|StateSaveLocation"</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>AccountingStorageEnforce = associations,limits,qos
+StateSaveLocation       = /var/spool/slurm/ctld</pre></div>
+  <p class="why">A site that does not enforce <code>qos</code> will accept a <code>--qos</code> request and apply none of its limits. Task 5 depends on this line saying what it says.</p>
+
+  <p class="stept">1.3 Record the job that is already running</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">squeue -o "%.10i %.9P %.8u %.8T %.10M %R" | tee ~/before-lab.txt</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>     JOBID PARTITION     USER    STATE       TIME NODELIST(REASON)
+       101    normal lmarchet  RUNNING      18:04 c1</pre></div>
+  <p class="why">Job 101 belongs to a user who does not know you exist. Every change you make today has to leave it running.</p>
+
+  <div class="check">
+    <div class="check-l">Check</div>
+    <div class="check-b">
+      <button class="cp" onclick="cpy(this)">copy</button>
+      <pre>grep -q 101 ~/before-lab.txt &amp;&amp; scontrol show config | grep -q "qos" &amp;&amp; echo "TASK 1 PASS"</pre>
+      <div class="pass"><b>Pass:</b> <code>TASK 1 PASS</code></div>
+      <div class="fail">If nothing prints, re-run 1.3. If the config line has no <code>qos</code>, say so in chat before going further.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t2">
+  <div class="sh"><span class="sh-n">02</span><span class="sh-t">The node that disagrees</span><span class="sh-m">8 min</span></div>
+  <div class="goal"><b>Goal</b><code>c2</code> is back in service, with a declaration that matches its hardware and leaves deliberate headroom.</div>
+
+  <p class="stept">2.1 Read what the scheduler was told about c2</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">scontrol show node c2 | grep -E "NodeName=|CPUAlloc|RealMemory|State=|Reason="</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>NodeName=c2 Arch=x86_64 CoresPerSocket=1
+   CPUAlloc=0 CPUEfctv=2 CPUTot=2 CPULoad=0.05
+   RealMemory=3000 AllocMem=0 FreeMem=1234 Sockets=2 Boards=1
+   State=IDLE+DRAIN+INVALID_REG ThreadsPerCore=1 TmpDisk=0 Weight=1 Owner=N/A MCS_label=N/A
+   Reason=Low RealMemory (reported:1719 &lt; 100.00% of configured:3000) [slurm@2026-09-19T13:07:25]</pre></div>
+  <p class="why"><code>RealMemory=3000</code> is the declaration repeated back. <code>FreeMem=1234</code> is measured. A node with 3000 MB declared and nothing allocated cannot have only 1234 free. The reason string names both sides of the disagreement, so you have the diagnosis before you run anything else. <code>INVALID_REG</code> means the node registered and was rejected, which is not the same as an operator draining it.</p>
+
+  <p class="stept">2.2 Ask the node what it actually has</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh c2 slurmd -C</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>NodeName=c2 CPUs=2 Boards=1 SocketsPerBoard=1 CoresPerSocket=1 ThreadsPerCore=2 RealMemory=1719
+UpTime=0-00:03:10</pre></div>
+  <p class="why">1719 against a declared 3000. The CPU total matches — 2 either way — so the disagreement that matters is memory. The socket and thread split differs, because the hypervisor presents two threads of one core and the file describes them as two single-thread sockets; Slurm accepts either so long as the total agrees, and only a shortfall drains a node. The fault is in a file you can edit; the symptom appeared on a node.</p>
+
+  <p class="stept">2.3 Correct the declaration, with headroom</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cd /etc/slurm &amp;&amp; git diff</span>                <span class="cmt"># should be clean before you start</span>
+<span class="cmd">vi /etc/slurm/slurm.conf</span>                 <span class="cmt"># find NodeName=c2, set RealMemory=1600</span>
+<span class="cmd">git diff -u slurm.conf | grep -E "^[+-]NodeName"</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>-NodeName=c2 CPUs=2 Boards=1 Sockets=2 CoresPerSocket=1 ThreadsPerCore=1 RealMemory=3000 State=UNKNOWN
++NodeName=c2 CPUs=2 Boards=1 Sockets=2 CoresPerSocket=1 ThreadsPerCore=1 RealMemory=1600 State=UNKNOWN</pre></div>
+  <p class="why">Declare <b>below</b> what <code>slurmd -C</code> reports, not at it. The kernel, the page cache and the node's own daemons need memory that jobs cannot have. 119 MB of headroom on a node this small.</p>
+
+  <p class="stept">2.4 Take the node out properly, then apply and return it</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">scontrol update NodeName=c2 State=DRAIN Reason="memory redeclared, $(date +%F) &lt;you&gt;"</span>
+<span class="cmd">scontrol reconfigure</span>
+<span class="cmd">sleep 45</span>
+<span class="cmd">scontrol update NodeName=c2 State=RESUME</span>
+<span class="cmd">sinfo -N -l</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>Sat Sep 19 15:28:29 2026
+NODELIST   NODES PARTITION       STATE CPUS    S:C:T MEMORY TMP_DISK WEIGHT AVAIL_FE REASON
+c1             1   normal*       mixed 2       2:1:1   1600        0      1   (null) none
+c2             1   normal*        idle 2       2:1:1   1600        0      1   (null) none</pre></div>
+  <p class="why">Changing what a node is declared to be changes the terms under which running jobs were allocated, so you drain first even when the node is already idle. The reason text is read by whoever is on shift next — say what, when and who.</p>
+  <p class="why">Both nodes now read 1600, and <code>c2</code>'s REASON is empty. The <code>sleep 20</code> matters: the reconfigure restarts the controller and <code>c2</code> has to register again, and if you resume too early the state prints as <code>idle*</code> — the trailing star means the node is not answering yet, not that anything is wrong. Measured: 20 seconds is not enough and 45 is. If you still see the star, wait and re-run <code>sinfo -N -l</code>; nothing needs fixing.</p>
+
+  <div class="check">
+    <div class="check-l">Check</div>
+    <div class="check-b">
+      <button class="cp" onclick="cpy(this)">copy</button>
+      <pre>sinfo -h -N -o "%N %t" | grep -q "c2 idle" &amp;&amp; test $(scontrol show node c2 | grep -oP 'RealMemory=\K[0-9]+') -lt $(ssh c2 slurmd -C | grep -oP 'RealMemory=\K[0-9]+') &amp;&amp; echo "TASK 2 PASS"</pre>
+      <div class="pass"><b>Pass:</b> <code>TASK 2 PASS</code> — c2 is idle and declared below what it reports.</div>
+      <div class="fail">Still draining? Run <code>scontrol update NodeName=c2 State=RESUME</code> again; the resume has to come after the reconfigure, not before.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t3">
+  <div class="sh"><span class="sh-n">03</span><span class="sh-t">Write the three new queues</span><span class="sh-m">8 min</span></div>
+  <div class="goal"><b>Goal</b>The configuration file describes four queues and the diff shows exactly what you changed. Nothing is live yet.</div>
+
+  <p class="stept">3.1 Move the default off the old queue</p>
+  <div class="do">
+    <div class="dol">Do — edit the existing normal line</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">PartitionName=normal Nodes=c1,c2 Default=NO State=UP \
+  MaxTime=04:00:00 DefaultTime=01:00:00 PriorityTier=1 AllowAccounts=ALL</span></pre>
+  </div>
+  <p class="why">Exactly one partition may carry <code>Default=YES</code>. <code>standard</code> is about to take it. Job 101 keeps running in <code>normal</code> — a partition losing the default flag does not disturb work inside it.</p>
+
+  <p class="stept">3.2 Add the three new partitions</p>
+  <div class="do">
+    <div class="dol">Do — add below the marker line</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">PartitionName=standard Nodes=c1,c2 Default=YES State=UP \
+  MaxTime=04:00:00 DefaultTime=01:00:00 PriorityTier=1 AllowAccounts=ALL
+
+PartitionName=debug Nodes=c1,c2 Default=NO State=UP \
+  MaxTime=00:30:00 DefaultTime=00:10:00 PriorityTier=100 AllowAccounts=ALL
+
+PartitionName=restricted Nodes=c2 Default=NO State=UP \
+  MaxTime=04:00:00 DefaultTime=01:00:00 PriorityTier=1 AllowAccounts=chem</span></pre>
+  </div>
+  <p class="why">Six decisions are encoded there: node set, default flag, default time, maximum time, access control and priority tier. <code>DefaultTime</code> matters most — leave it out and a five-minute test job reserves four hours of the node's future, and the cluster looks full while it is idle.</p>
+  <p class="why"><code>AllowAccounts</code> takes an <b>account</b> name. The accounting database already knows who is in <code>chem</code>, so there is one membership list rather than two.</p>
+
+  <p class="stept">3.3 Read your own diff before you apply it</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cd /etc/slurm &amp;&amp; git diff -u slurm.conf | grep -E "^[+-]Partition"</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>-PartitionName=normal Nodes=c1,c2 Default=YES State=UP \
++PartitionName=normal Nodes=c1,c2 Default=NO State=UP \
++PartitionName=standard Nodes=c1,c2 Default=YES State=UP \
++PartitionName=debug Nodes=c1,c2 Default=NO State=UP \
++PartitionName=restricted Nodes=c2 Default=NO State=UP \</pre></div>
+
+  <div class="careful"><b>Careful</b>There is no offline syntax checker for this file on this release. The diff is the only review you get before the change reaches a running scheduler, which is exactly why the sandbox exists — you make the change here first, where the blast radius is a snapshot.</div>
+
+  <div class="check">
+    <div class="check-l">Check</div>
+    <div class="check-b">
+      <button class="cp" onclick="cpy(this)">copy</button>
+      <pre>test $(grep -cE "^PartitionName=" /etc/slurm/slurm.conf) -eq 4 &amp;&amp; test $(grep -c "Default=YES" /etc/slurm/slurm.conf) -eq 1 &amp;&amp; echo "TASK 3 PASS"</pre>
+      <div class="pass"><b>Pass:</b> <code>TASK 3 PASS</code> — four partitions, exactly one default.</div>
+      <div class="fail">Two defaults are <b>not</b> refused when you apply it — <code>scontrol reconfigure</code> returns success and the last one declared silently becomes the default. Nothing will tell you. Fix it here.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t4">
+  <div class="sh"><span class="sh-n">04</span><span class="sh-t">Apply the change and read it back</span><span class="sh-m">7 min</span></div>
+  <div class="goal"><b>Goal</b>The four queues are loaded, the controller log is clean, and job 101 is untouched.</div>
+
+  <div class="careful"><b>Careful</b>Use <code>scontrol reconfigure</code>, not <code>systemctl restart</code>. Reconfigure makes the running daemons re-read the file and leaves running jobs alone. A restart takes the service down, depends on the state directory and the parse succeeding, and needs a change window even though it is recoverable.</div>
+
+  <p class="stept">4.1 Apply, then read the log immediately</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">scontrol reconfigure</span>
+<span class="cmd">journalctl -u slurmctld --since "2 min ago" --no-pager | tail -15</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>slurmctld[3941]: Recovered state of 2 nodes
+slurmctld[3941]: Recovered JobId=101 StepId=batch
+slurmctld[3941]: Recovered information about 1 jobs
+slurmctld[3941]: select/cons_tres: part_data_create_array: preparing for 4 partitions
+slurmctld[3941]: read_slurm_conf: backup_controller not specified
+slurmctld[3941]: Running as primary controller
+slurmctld[3941]: child started successfully
+slurmctld[3594]: Relinquishing control to new slurmctld process</pre></div>
+  <p class="why">Silence from <code>scontrol reconfigure</code> is not success. A parse error appears here within seconds and names the line, and the controller keeps running on the old configuration while you fix it. On this release a reconfigure does not edit the running daemon in place — it starts a fresh one, hands over and recovers state, which is why you see <code>Relinquishing control</code> and a job being recovered. Running work is untouched either way. The timestamps and process ids will be yours, and <code>preparing for 4 partitions</code> is the line that says your edit landed.</p>
+
+  <p class="stept">4.2 Read back what the scheduler loaded</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sinfo -o "%20P %5a %10l %6D %6t %N"</span>
+<span class="cmd">scontrol show partition restricted | grep -E "AllowAccounts|MaxTime=|^   Nodes="</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>PARTITION            AVAIL TIMELIMIT  NODES  STATE  NODELIST
+normal               up    4:00:00    1      mix    c1
+normal               up    4:00:00    1      idle   c2
+standard*            up    4:00:00    1      mix    c1
+standard*            up    4:00:00    1      idle   c2
+debug                up    30:00      1      mix    c1
+debug                up    30:00      1      idle   c2
+restricted           up    4:00:00    1      idle   c2
+
+   AllowGroups=ALL AllowAccounts=chem AllowQos=ALL
+   MaxNodes=UNLIMITED MaxTime=04:00:00 MinNodes=0 LLN=NO MaxCPUsPerNode=UNLIMITED MaxCPUsPerSocket=UNLIMITED
+   Nodes=c2</pre></div>
+  <p class="why">Do not read the file back — read what the scheduler loaded. The file on disk and the configuration in memory are different objects, and whether they agree is the whole point of the check. <code>sinfo</code> prints one row per partition <b>per node state</b>, so <code>c1</code> and <code>c2</code> split into separate rows while they are in different states. Four partitions, seven rows.</p>
+
+  <p class="stept">4.3 Confirm job 101 came through</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">squeue -o "%.10i %.9P %.8u %.8T %.10M %R"</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>     JOBID PARTITION     USER    STATE       TIME NODELIST(REASON)
+       101    normal lmarchet  RUNNING       4:13 c1</pre></div>
+  <p class="why">Same job number, clock still counting. That is what a reload means for work already running. The TIME column is elapsed wall time, so yours will not read <code>4:13</code> — what matters is that it is job 101, still <code>RUNNING</code>, still on <code>c1</code>, still in <code>normal</code>. <code>%.8u</code> is eight characters wide, which is why <code>lmarchetti</code> prints as <code>lmarchet</code>.</p>
+
+  <div class="check">
+    <div class="check-l">Check</div>
+    <div class="check-b">
+      <button class="cp" onclick="cpy(this)">copy</button>
+      <pre>test $(scontrol show partition | grep -c PartitionName) -eq 4 &amp;&amp; squeue -h -o "%i" | grep -q 101 &amp;&amp; ! journalctl -u slurmctld --since "3 min ago" | grep -qi error &amp;&amp; echo "TASK 4 PASS"</pre>
+      <div class="pass"><b>Pass:</b> <code>TASK 4 PASS</code> — four loaded, job alive, no errors in the log.</div>
+      <div class="fail">If a partition is missing from <code>scontrol show partition</code> after the reload, the reload did not take. Read the journal line the error names.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t5">
+  <div class="sh"><span class="sh-n">05</span><span class="sh-t">Two QOS, with limits, attached</span><span class="sh-m">10 min</span></div>
+  <div class="goal"><b>Goal</b>Two named limit sets exist, each refuses at submission rather than holding jobs pending, and every user can still submit ordinary work.</div>
+
+  <p class="why">These do not go in the configuration file. They live in the accounting database, so the commands are different and no reload is needed — they take effect for new submissions at once.</p>
+
+  <p class="stept">5.1 Create both, then set their limits</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sacctmgr -i add qos debugcap</span>
+<span class="cmd">sacctmgr -i add qos pilotcap</span>
+
+<span class="cmd">sacctmgr -i modify qos debugcap set Priority=1000 \
+  MaxJobsPerUser=2 MaxSubmitJobsPerUser=4 Flags=DenyOnLimit</span>
+<span class="cmd">sacctmgr -i modify qos pilotcap set Priority=0 \
+  MaxWall=02:00:00 Flags=DenyOnLimit</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre> Adding QOS(s)
+  debugcap
+ Settings
+  Description    = debugcap
+ Adding QOS(s)
+  pilotcap
+ Settings
+  Description    = pilotcap
+ Modified qos...
+  debugcap
+ Modified qos...
+  pilotcap</pre></div>
+  <p class="why">A new QOS is <b>unlimited</b> until you set limits, not restrictive. <code>MaxJobsPerUser</code> is how many run at once; <code>MaxSubmitJobsPerUser</code> is how many exist at all, running plus pending.</p>
+  <p class="why"><code>DenyOnLimit</code> is why this is the kinder configuration. Without it a job over its limit pends against something it can never satisfy, and the user gets silence until Thursday. With it they get an error at 09:15 they can act on.</p>
+
+  <p class="stept">5.2 Confirm the limits landed</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sacctmgr show qos format=Name,Priority,MaxWall,MaxJobsPU,MaxSubmitPU,Flags</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>      Name   Priority     MaxWall MaxJobsPU MaxSubmitPU                Flags
+---------- ---------- ----------- --------- ----------- --------------------
+    normal          0
+  debugcap       1000                     2           4          DenyOnLimit
+  pilotcap          0    02:00:00                                DenyOnLimit</pre></div>
+  <p class="why">The names used to set a limit and the names used to display it are not always the same string. You set <code>MaxJobsPerUser</code>; it displays as <code>MaxJobsPU</code>. Blank means unlimited.</p>
+
+  <p class="stept">5.3 Attach them to the three users</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sacctmgr -i modify user lmarchetti set QOS=normal,debugcap,pilotcap DefaultQOS=normal</span>
+<span class="cmd">sacctmgr -i modify user dpatel     set QOS=normal,debugcap,pilotcap DefaultQOS=normal</span>
+<span class="cmd">sacctmgr -i modify user rkoenig    set QOS=normal,debugcap          DefaultQOS=normal</span>
+
+<span class="cmd">sacctmgr show assoc format=Account%-12,User%-12,QOS%-40</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre> Modified user associations...
+  C = hpca100    A = chem                 U = lmarchetti
+ Modified user associations...
+  C = hpca100    A = chem                 U = dpatel
+ Modified user associations...
+  C = hpca100    A = bio                  U = rkoenig
+Account      User         QOS
+------------ ------------ ----------------------------------------
+root                      normal
+root         root         normal
+bio                       normal
+bio          rkoenig      debugcap,normal
+chem                      normal
+chem         dpatel       debugcap,normal,pilotcap
+chem         lmarchetti   debugcap,normal,pilotcap</pre></div>
+
+  <div class="careful"><b>Careful</b><code>set QOS=</code> <b>replaces</b> the whole list, it does not add to it. That is why <code>normal</code> is typed out again each time. Leave it out and the user can no longer submit ordinary work, and the only way back is a reset.</div>
+
+  <p class="why"><code>DefaultQOS</code> matters because most users never pass <code>--qos</code>. Setting it to <code>normal</code> means the caps apply only when somebody asks for them.</p>
+  <p class="why">Seven rows, not three. Every account has a row of its own as well as a row per user, and <code>root</code> has two. Rows sort alphabetically, so <code>bio</code> comes before <code>chem</code>. The <code>%-12</code> and <code>%-40</code> widths are not decoration: at its default width the QOS column is 20 characters and cuts <code>debugcap,normal,pilotcap</code> down to <code>debugcap,normal,pil+</code>, so you cannot see whether the list you set is the list that landed.</p>
+
+  <div class="check">
+    <div class="check-l">Check</div>
+    <div class="check-b">
+      <button class="cp" onclick="cpy(this)">copy</button>
+      <pre>sacctmgr -n -P show qos format=Name,Flags | grep -c DenyOnLimit &amp;&amp; test $(sacctmgr -n -P show assoc format=User,QOS | grep -cE "^(lmarchetti|dpatel|rkoenig)\|.*\bnormal\b") -eq 3 &amp;&amp; echo "TASK 5 PASS"</pre>
+      <div class="pass"><b>Pass:</b> <code>2</code> then <code>TASK 5 PASS</code> — both flagged, all three users keep <code>normal</code>.</div>
+      <div class="fail">If a user has lost <code>normal</code>, re-run their line in 5.3 with the full list.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t6">
+  <div class="sh"><span class="sh-n">06</span><span class="sh-t">Prove each rule in pairs</span><span class="sh-m">12 min</span></div>
+  <div class="goal"><b>Goal</b>Three rules each demonstrated by one submission accepted and one refused, with the refusal wording recorded.</div>
+
+  <p class="why">A rule is not proven by a submission that succeeds. A limit that never refuses anything has not been shown to exist, and the limit nobody exercised is the one that is wrong.</p>
+
+  <p class="stept">6.1 Ask before you submit</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">su - rkoenig -c 'sbatch --test-only -A bio -p restricted -t 00:10:00 --wrap="sleep 20"'</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>allocation failure: Invalid account or account/partition combination specified</pre></div>
+  <p class="why"><code>--test-only</code> validates a submission against the limits without queueing it. Note the wording: a rejected <code>--test-only</code> says <code>allocation failure:</code>, while the same gate reached by a real submission in 6.3 says <code>sbatch: error: Batch job submission failed:</code>. Same gate, two different strings, and Task 8 has to translate both. The refusal message names the gate that refused — read it as the name of a gate, not as an explanation.</p>
+
+  <p class="stept">6.2 Pair one — the walltime ceiling on debug</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">su - dpatel -c 'sbatch -A chem -p debug -t 00:10:00 --wrap="sleep 20"'</span>   <span class="cmt"># accept</span>
+<span class="cmd">su - dpatel -c 'sbatch -A chem -p debug -t 02:00:00 --wrap="sleep 20"'</span>   <span class="cmt"># refuse</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>Submitted batch job 103
+sbatch: error: Batch job submission failed: Requested time limit is invalid (missing or exceeds some limit)</pre></div>
+
+  <p class="stept">6.3 Pair two — the account gate on restricted</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">su - lmarchetti -c 'sbatch -A chem -p restricted -t 00:10:00 --wrap="sleep 20"'</span>  <span class="cmt"># accept</span>
+<span class="cmd">su - rkoenig    -c 'sbatch -A bio  -p restricted -t 00:10:00 --wrap="sleep 20"'</span>  <span class="cmt"># refuse</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>Submitted batch job 104
+sbatch: error: Batch job submission failed: Invalid account or account/partition combination specified</pre></div>
+
+  <p class="stept">6.4 Pair three — the per-user cap, refused rather than hidden</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">for i in 1 2 3 4 5; do \
+  su - dpatel -c "sbatch -A chem -p debug --qos=debugcap -t 00:05:00 --wrap='sleep 90'"; \
+done</span>
+<span class="cmd">sleep 5</span>
+<span class="cmd">squeue -u dpatel -o "%.10i %.9P %.8T %.24R"</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>Submitted batch job 105
+Submitted batch job 106
+Submitted batch job 107
+Submitted batch job 108
+sbatch: error: QOSMaxSubmitJobPerUserLimit
+sbatch: error: Batch job submission failed: Job violates accounting/QOS policy (job submit limit, user's size and/or time limits)
+
+     JOBID PARTITION    STATE         NODELIST(REASON)
+       108     debug  PENDING (QOSMaxJobsPerUserLimit)
+       107     debug  PENDING (QOSMaxJobsPerUserLimit)
+       105     debug  RUNNING                       c1
+       106     debug  RUNNING                       c2</pre></div>
+  <p class="why">Two limits are visible at once. Four submissions were allowed to exist and two of them run, which is <code>MaxJobsPerUser=2</code> holding the third and fourth pending. The fifth was refused outright, which is <code>MaxSubmitJobsPerUser=4</code> with <code>DenyOnLimit</code>. The second user experience is much better than the first.</p>
+  <p class="why">The refusal is <b>two</b> lines: the limit that refused, then the general message. Record both in 6.5 — the first names the gate and the second is what a user will paste into a ticket. The <code>sleep 5</code> is not decoration: run <code>squeue</code> immediately and you catch all four still pending on <code>(Priority)</code>, because the scheduler has not run yet. Pending rows sort above running ones, and your job numbers will differ from these — what matters is two running, two pending, one refused.</p>
+
+  <p class="stept">6.5 Write the matrix</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/course-repo/M3-S2/test-matrix.md</span>   <span class="cmt"># one row per pair: rule, command, expected, actual, message</span></pre>
+  </div>
+  <p class="why">Paste the refusal wording exactly as it appeared, <b>both lines</b> where there were two. It is what a real user will paste into a ticket, and Task 8 has to translate it.</p>
+
+  <div class="check">
+    <div class="check-l">Check</div>
+    <div class="check-b">
+      <button class="cp" onclick="cpy(this)">copy</button>
+      <pre>grep -qi "time limit is invalid" ~/course-repo/M3-S2/test-matrix.md &amp;&amp; grep -qi "Invalid account" ~/course-repo/M3-S2/test-matrix.md &amp;&amp; grep -qi "accounting/QOS policy" ~/course-repo/M3-S2/test-matrix.md &amp;&amp; echo "TASK 6 PASS"</pre>
+      <div class="pass"><b>Pass:</b> <code>TASK 6 PASS</code> — all three refusals recorded verbatim.</div>
+      <div class="fail">Missing one? Re-run that pair and copy the message exactly, including the line break.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t7">
+  <div class="sh"><span class="sh-n">07</span><span class="sh-t">Predict the effect</span><span class="sh-m">6 min</span></div>
+  <div class="goal"><b>Goal</b>Three written lines naming who the debug queue helps, who it hurts, and what breaks, added to your test matrix.</div>
+
+  <p class="stept">7.1 Look at the queue you have</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">squeue -o "%.10i %.9P %.8u %.8T %.10M %.6D %R"</span></pre>
+  </div>
+  <p class="why">Any job whose partition, account or request intersects your change is affected. Work from the queue in front of you, not from an imagined one.</p>
+
+  <p class="stept">7.2 Write the three lines</p>
+  <div class="do">
+    <div class="dol">Do — add this section to ~/course-repo/M3-S2/test-matrix.md</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmt">## Effect of adding debug at PriorityTier=100
+
+Who it helps:
+  (which users, and how — be specific about what they get)
+
+Who it hurts:
+  (which queued work now starts later, and on which nodes)
+
+What breaks:
+  (nothing refuses — so what changes in the arithmetic?)</span></pre>
+  </div>
+  <p class="why">The third line is the hard one and the one that matters. Nothing will refuse at submission. Two of two nodes now carry short high-tier work, so the largest job that can be backfilled reliably has shrunk, and whoever ran long jobs overnight will see them start later with no error to point at.</p>
+  <p class="why">Rejections are visible and users report them. Delay is invisible and users tolerate it until they stop trusting the service. This is also what you owe the person who asked for the change — a requirement goes back as the requirement plus its consequences.</p>
+
+  <div class="check">
+    <div class="check-l">Check</div>
+    <div class="check-b">
+      <button class="cp" onclick="cpy(this)">copy</button>
+      <pre>awk '/^Who it helps/,0' ~/course-repo/M3-S2/test-matrix.md | grep -cv "^\s*$" | awk '$1>5{print "TASK 7 PASS"}'</pre>
+      <div class="pass"><b>Pass:</b> <code>TASK 7 PASS</code> — all three sections have content.</div>
+      <div class="fail">Nothing printed means at least one section is still the placeholder. Two sentences each is enough.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t8">
+  <div class="sh"><span class="sh-n">08</span><span class="sh-t">The queue policy page</span><span class="sh-m">10 min</span></div>
+  <div class="goal"><b>Goal</b>A page a researcher can read and act on, committed with your configuration and your test matrix.</div>
+
+  <div class="careful"><b>Careful</b>These ten minutes are protected. The policy page is the interface to your configuration — if it is wrong, the configuration is unusable however correct it is. If you are behind, stop Task 7 and start this.</div>
+
+  <p class="stept">8.1 Open the template</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/course-repo/M3-S2/queue-policy.md</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see — the opening is written for you</div><pre># Queue policy — chem and bio groups
+
+## Which queue should I use?
+
+Use **debug** when you are testing: a script you just wrote, a job
+that failed and you want to see why, anything finishing in minutes.
+Limited to 30 minutes and starts ahead of ordinary work, so please
+do not use it for real runs.
+
+Use **standard** for real work. Up to 4 hours. If you do not say how
+long your job needs, you get 1 hour.
+
+## You write these three
+## What happens if I ask for too much
+## Why is my job waiting
+## Who can use the restricted queue</pre></div>
+  <p class="why">Notice what the opening does not say: partition, QOS, association, walltime, tier. Your three sections read the same way.</p>
+
+  <p class="stept">8.2 Translate the three refusals</p>
+  <div class="do">
+    <div class="dol">Do — turn each into plain sentences a researcher can act on</div>
+    <pre><span class="cmt">"Requested time limit is invalid"
+     → you asked for longer than this queue allows
+
+"Invalid account or account/partition combination specified"
+     → this queue is not open to your group
+       (a --test-only run says "allocation failure:" instead of
+        "sbatch: error:" — same gate, different wording)
+
+"QOSMaxSubmitJobPerUserLimit"
+     → the name of the rule that stopped you; the line under it
+       is the sentence to translate
+
+"Job violates accounting/QOS policy"
+     → you already have as many jobs queued as you are allowed
+
+QOSMaxJobsPerUserLimit  (a waiting job, not an error)
+     → two of your jobs are running; this one starts when
+       one of them finishes</span></pre>
+  </div>
+
+  <p class="stept">8.3 Commit all three deliverables</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cp /etc/slurm/slurm.conf ~/course-repo/M3-S2/</span>
+<span class="cmd">cd ~/course-repo &amp;&amp; git add M3-S2 &amp;&amp; git commit -m "M3-S2 node fix, four partitions, two QOS, tests and policy"</span></pre>
+  </div>
+
+  <div class="check">
+    <div class="check-l">Check</div>
+    <div class="check-b">
+      <button class="cp" onclick="cpy(this)">copy</button>
+      <pre>cd ~/course-repo &amp;&amp; test $(git status --porcelain M3-S2 | wc -l) -eq 0 &amp;&amp; ls M3-S2/slurm.conf M3-S2/test-matrix.md M3-S2/queue-policy.md &amp;&amp; echo "TASK 8 PASS"</pre>
+      <div class="pass"><b>Pass:</b> three files listed, then <code>TASK 8 PASS</code></div>
+      <div class="fail">Nothing printed means something is uncommitted. Uncommitted work does not survive the session.</div>
+    </div>
+  </div>
+
+  <div class="goal"><b>Done means</b>All eight checks printed PASS, and your policy page explains every refusal message in words a researcher would use.</div>
+</section>
+
+<section id="reset">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">If it breaks</span></div>
+  <p class="why">Breaking your sandbox is expected and costs about eight minutes. It is not a mark against you.</p>
+
+  <p class="why"><b>Try this first.</b> <code>cd /etc/slurm &amp;&amp; git checkout slurm.conf</code> then <code>scontrol reconfigure</code>. That undoes any file change in thirty seconds.</p>
+
+  <div class="do">
+    <div class="dol">Do — only if that did not work. Run from the edge unit.</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">lab-reset.sh sandbox-<span class="ns">N</span></span></pre>
+  </div>
+  <p class="why">You get back the clean starting point and a fresh job 101. You lose your configuration edits and your QOS objects. You keep anything committed to <code>~/course-repo</code>, which is saved before the reset starts.</p>
+  <p class="why"><b>Asking is quicker than guessing.</b> In chat, give three things: which task, the exact command you ran, and what came back.</p>
+</section>
+
+<section id="all">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">All sandboxes</span></div>
+  <table>
+    <thead><tr><th>Name</th><th>Sandbox</th><th>Head node</th></tr></thead>
+    <tbody>
+      <tr data-row="1"><td>Bhagya Raj G</td><td class="m">sandbox-1</td><td class="m">10.30.1.10</td></tr>
+      <tr data-row="2"><td>Vinod Manne</td><td class="m">sandbox-2</td><td class="m">10.30.2.10</td></tr>
+      <tr data-row="3"><td>Surya Pendyala</td><td class="m">sandbox-3</td><td class="m">10.30.3.10</td></tr>
+      <tr data-row="4"><td>Sai Dasari</td><td class="m">sandbox-4</td><td class="m">10.30.4.10</td></tr>
+      <tr data-row="5"><td>Satya Srinivas</td><td class="m">sandbox-5</td><td class="m">10.30.5.10</td></tr>
+      <tr data-row="6"><td>Vasavi Posani</td><td class="m">sandbox-6</td><td class="m">10.30.6.10</td></tr>
+      <tr data-row="7"><td>VR Kathi</td><td class="m">sandbox-7</td><td class="m">10.30.7.10</td></tr>
+      <tr data-row="8"><td>Rajesh</td><td class="m">sandbox-8</td><td class="m">10.30.8.10</td></tr>
+      <tr data-row="9"><td>Guest 1</td><td class="m">sandbox-9</td><td class="m">10.30.9.10</td></tr>
+      <tr data-row="10"><td>Guest 2</td><td class="m">sandbox-10</td><td class="m">10.30.10.10</td></tr>
+    </tbody>
+  </table>
+  <p class="why">Compute nodes are <code>c1</code> and <code>c2</code> inside every sandbox, so every command on this page is the same for everyone. Test users are <code>lmarchetti</code> and <code>dpatel</code> in account <code>chem</code>, and <code>rkoenig</code> in account <code>bio</code>.</p>
+</section>
+
+</main>
+</div>
+
+<div class="foot">
+  <span>HPCA-100 · M3-S2 · Lab Runbook</span>
+  <span>learner copy</span>
+</div>
+
+<script>
+const navs = document.querySelectorAll('.side a');
+const io = new IntersectionObserver(function (entries) {
+  entries.forEach(function (e) {
+    if (!e.isIntersecting) return;
+    navs.forEach(function (n) { n.classList.remove('on'); });
+    const a = document.querySelector('.side a[href="#' + e.target.id + '"]');
+    if (a) a.classList.add('on');
+  });
+}, { rootMargin: '-15% 0px -75% 0px' });
+document.querySelectorAll('section[id]').forEach(function (s) { io.observe(s); });
+
+function cpy(btn) {
+  const box = btn.closest('.do, .check-b');
+  const pre = box.querySelector('pre');
+  navigator.clipboard.writeText((pre.innerText || pre.textContent).trim()).then(function () {
+    btn.textContent = 'copied';
+    btn.classList.add('ok');
+    setTimeout(function () { btn.textContent = 'copy'; btn.classList.remove('ok'); }, 1800);
+  });
+}
+
+const toks = document.querySelectorAll('.ns');
+const ybv  = document.getElementById('ybv');
+const box  = document.getElementById('pickbox');
+const pn   = document.getElementById('pickn');
+toks.forEach(function (t) { t.classList.add('unset'); });
+
+function setUser(n, label) {
+  toks.forEach(function (t) { t.textContent = n; t.classList.remove('unset'); });
+  document.querySelectorAll('.chip').forEach(function (c) { c.classList.toggle('on', c.dataset.u === n); });
+  document.querySelectorAll('tr[data-row]').forEach(function (r) { r.classList.toggle('me', r.dataset.row === n); });
+  ybv.textContent = label + ' · 10.30.' + n + '.10';
+  ybv.classList.remove('unset');
+  box.classList.add('done');
+  pn.innerHTML = 'Your address is <code>10.30.' + n + '.10</code>. After connecting, <code>hostname</code> should say <code>head</code>.';
+}
+
+document.querySelectorAll('.chip').forEach(function (c) {
+  c.addEventListener('click', function () { setUser(c.dataset.u, c.dataset.n); });
+});
+</script>
+</body>
+</html>
