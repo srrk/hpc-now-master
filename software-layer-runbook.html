@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HPCA-100 · M7-S1 · The Scientific Software Problem · Lab Walkthrough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff; --soft:#f6f8fa; --line:#e3e7eb;
+  --ink:#12161b; --ink2:#4f5862; --ink3:#8b949e;
+  --blue:#1f66d0; --blue-bg:#eff5fd;
+  --amber:#a55a12; --amber-bg:#fdf5ea;
+  --green:#0d7a55; --green-bg:#ecf7f2;
+  --code:#111519; --code-ink:#c9d1d9; --code-cmd:#7ee3b8; --code-cmt:#5c6873;
+  --sans:"IBM Plex Sans",-apple-system,Segoe UI,sans-serif;
+  --mono:"IBM Plex Mono","Courier New",monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
+
+.youbar{position:sticky;top:0;z-index:60;background:var(--ink);display:flex;align-items:center;gap:12px;padding:8px 40px;font-size:12px}
+.youbar-k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#7c8691}
+.youbar-v{font-family:var(--mono);font-size:13px;color:#7ee3b8}
+.youbar-p{margin-left:auto;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#7c8691}
+
+.head{border-bottom:1px solid var(--line);padding:32px 40px 24px;background:var(--soft)}
+.head-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.head-title{font-size:26px;font-weight:600;letter-spacing:-.01em}
+.head-sub{font-size:14px;color:var(--ink2);margin-top:8px;max-width:660px}
+
+.wrap{display:grid;grid-template-columns:168px 1fr;gap:0 44px;max-width:1040px;margin:0 auto;padding:0 40px}
+.side{position:sticky;top:44px;align-self:start;padding:32px 0}
+.side-l{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin:0 0 10px}
+.side a{display:block;font-size:12.5px;color:var(--ink2);text-decoration:none;padding:5px 0 5px 12px;border-left:2px solid transparent}
+.side a:hover{color:var(--ink)}
+.side a.on{color:var(--blue);border-color:var(--blue)}
+.side hr{border:0;border-top:1px solid var(--line);margin:10px 0}
+main{padding:32px 0 0}
+section{padding:30px 0;border-top:1px solid var(--line)}
+section:first-child{border-top:none;padding-top:8px}
+
+.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
+.sh-n{font-family:var(--mono);font-size:12px;color:var(--blue);font-weight:500}
+.sh-t{font-size:19px;font-weight:600}
+.sh-m{margin-left:auto;font-size:11px;color:var(--ink3);font-family:var(--mono)}
+
+.goal{border-left:3px solid var(--green);background:var(--green-bg);padding:11px 15px;margin:0 0 18px;max-width:700px;font-size:14px;color:var(--ink)}
+.goal b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin-bottom:3px;font-weight:600}
+
+.stept{font-size:14.5px;font-weight:600;margin:22px 0 8px}
+
+.do{background:var(--code);border-radius:3px;padding:14px 16px;margin:8px 0;position:relative;overflow-x:auto;max-width:700px}
+.do pre{font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--code-ink);white-space:pre}
+.do .cmd{color:var(--code-cmd)}
+.do .cmt{color:var(--code-cmt)}
+.dol{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--code-cmt);margin-bottom:9px}
+.cp{position:absolute;top:9px;right:9px;background:#1d242c;border:1px solid #2b333c;color:#7c8691;font-family:var(--mono);font-size:10px;padding:3px 9px;cursor:pointer;border-radius:2px}
+.cp:hover{color:var(--code-cmd);border-color:var(--code-cmd)}
+.cp.ok{color:var(--code-cmd);border-color:var(--code-cmd)}
+
+.look{border:1px solid var(--blue);border-radius:3px;margin:10px 0;max-width:700px}
+.look-l{background:var(--blue-bg);padding:8px 14px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);border-bottom:1px solid var(--blue);font-weight:600}
+.look ul{margin:0;padding:11px 14px 11px 28px}
+.look li{font-size:13.5px;color:var(--ink);margin-bottom:4px}
+
+.wr{border:1px solid var(--green);border-radius:3px;margin:12px 0;max-width:700px;overflow-x:auto}
+.wr-l{background:var(--green-bg);padding:8px 14px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);border-bottom:1px solid var(--green);font-weight:600;display:flex;justify-content:space-between}
+.wr-l span{text-transform:none;letter-spacing:0;font-size:11px;color:var(--ink3);font-weight:400}
+.wr pre{font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--ink2);padding:12px 14px;white-space:pre}
+
+.why{font-size:13px;color:var(--ink2);border-left:2px solid var(--line);padding:1px 0 1px 12px;margin:10px 0;max-width:700px}
+.why b{font-weight:600;color:var(--ink)}
+
+.careful{border-left:3px solid var(--amber);background:var(--amber-bg);padding:11px 15px;margin:14px 0;max-width:700px;font-size:13.5px;color:var(--ink2)}
+.careful b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:3px;font-weight:600}
+
+code{font-family:var(--mono);font-size:11.5px;background:var(--soft);padding:1px 5px;border-radius:2px;color:var(--blue)}
+.do code{background:none;padding:0;color:inherit}
+
+table{width:100%;max-width:700px;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+th{text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--soft)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+td.m{font-family:var(--mono);font-size:11.5px;color:var(--ink)}
+
+.foot{border-top:1px solid var(--line);margin-top:40px;padding:18px 40px;font-size:11px;color:var(--ink3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;background:var(--soft)}
+
+@media print{.youbar,.side,.cp{display:none!important}.wrap{grid-template-columns:1fr}section{break-inside:avoid}}
+@media (max-width:1000px){.wrap{grid-template-columns:1fr;padding:0 22px}.side{display:none}.head,.youbar,.foot{padding-left:22px;padding-right:22px}}
+</style>
+</head>
+<body>
+
+<div class="youbar">
+  <span class="youbar-k">Cluster</span>
+  <span class="youbar-v">login · c001–c002</span>
+  <span class="youbar-p">5 tasks · 60 minutes · one report</span>
+</div>
+
+<div class="head">
+  <p class="head-eyebrow">HPCA-100 · Module 7 · Session 1 · Lab Walkthrough</p>
+  <h1 class="head-title">The Scientific Software Problem</h1>
+  <p class="head-sub">A real software stack that has grown over years. Nothing today changes it. Your job is to see what is there and write down what you found.</p>
+</div>
+
+<div class="wrap">
+
+<aside class="side">
+  <div class="side-l">Walkthrough</div>
+  <a href="#start">Getting on</a>
+  <a href="#read">How to read this</a>
+  <hr />
+  <a href="#t1">1 · What is installed</a>
+  <a href="#t2">2 · Where libraries come from</a>
+  <a href="#t3">3 · A binary that fails</a>
+  <a href="#t4">4 · Four requests</a>
+  <a href="#t5">5 · No owner</a>
+  <hr />
+  <a href="#commit">Before you commit</a>
+  <a href="#stuck">If you get stuck</a>
+</aside>
+
+<main>
+
+<section id="start">
+  <div class="sh"><span class="sh-n">00</span><span class="sh-t">Getting on</span></div>
+  <table>
+    <thead><tr><th>Your login</th><th>Name</th></tr></thead>
+    <tbody>
+      <tr><td class="m">bhagya</td><td>Bhagya Raj G</td></tr>
+      <tr><td class="m">vinod</td><td>Vinod Manne</td></tr>
+      <tr><td class="m">surya</td><td>Surya Pendyala</td></tr>
+      <tr><td class="m">sai</td><td>Sai Dasari</td></tr>
+      <tr><td class="m">satya</td><td>Satya Srinivas</td></tr>
+      <tr><td class="m">vasavi</td><td>Vasavi Posani</td></tr>
+      <tr><td class="m">kathi</td><td>V R Kathi</td></tr>
+      <tr><td class="m">rajesh</td><td>Rajesh SR Kumar, instructor</td></tr>
+      <tr><td class="m">guest01, guest02</td><td>only if your instructor hands you one</td></tr>
+    </tbody>
+  </table>
+  <p class="why"><b>Password, the same for every login:</b> <code>hpcnow2026</code></p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh-keygen -R mylab.hpc.now</span>
+<span class="cmd">ssh &lt;you&gt;@mylab.hpc.now</span>
+<span class="cmd">ls /projects/course/m7-s1/</span>
+<span class="cmd">cat $HOME/course-repo/m7-s1/report.md</span></pre>
+  </div>
+  <p class="why"><b>The first two lines run on your own laptop.</b> <code>ssh-keygen -R</code> forgets any key your laptop saved for <code>mylab.hpc.now</code> from an earlier lab. It removes that one entry and nothing else; if it says there is no such file, that is fine too. Then <code>ssh</code> with your login in place of <code>&lt;you&gt;</code>. The first time, answer <code>yes</code> to the host question, then type the password.</p>
+  <p class="why">The last two lines run on the cluster, once you see the <code>login</code> prompt.</p>
+  <p class="why">One file today: <code>report.md</code>, already in your repository with five empty headings. Fill them as you go. Keep it open in a second window.</p>
+  <p class="why">You are an ordinary user. No <code>sudo</code>, and nothing here needs it. The software tree is read-only to you, as it is to everyone who did not build it.</p>
+  <div class="careful"><b>Compute nodes are reached with <code>srun</code>, never ssh</b>Nothing today is heavy. The habit is the point.</div>
+</section>
+
+<section id="read">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">How to read this page</span></div>
+
+  <div class="goal"><b>Goal</b>What you will have seen and written by the end of the task.</div>
+  <div class="do"><div class="dol">Do</div><pre><span class="cmd">a command to run, exactly as written</span></pre></div>
+  <div class="look">
+    <div class="look-l">Look for</div>
+    <ul><li>where to put your attention in the output — not what to conclude</li></ul>
+  </div>
+  <div class="wr">
+    <div class="wr-l">Write it like this<span>example from another site</span></div>
+    <pre>the shape your section should take, filled with
+content from somewhere that is not this cluster</pre>
+  </div>
+
+  <div class="careful"><b>No expected output is printed on this page</b>You are reporting on a real system. If the page told you what you would find, there would be nothing to find. Read each output before running the next command.</div>
+
+  <div class="why"><b>The commands are given. The observations are yours.</b> What is assessed is whether your report matches what the cluster actually holds.</div>
+</section>
+
+<section id="t1">
+  <div class="sh"><span class="sh-n">01</span><span class="sh-t">What is actually installed</span><span class="sh-m">12 min</span></div>
+  <div class="goal"><b>Goal</b>A map of the site stack — every application, and every build of it that exists.</div>
+
+  <p class="stept">1.1 Ask what you can load</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">module purge</span>
+<span class="cmd">module avail</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Look for</div>
+    <ul>
+      <li>How many entries, under how many directories.</li>
+      <li>Which are applications, and which are compilers or build tools.</li>
+      <li>Any application you would expect on a research cluster and cannot see.</li>
+    </ul>
+  </div>
+  <div class="why"><b>This site runs far more than you are seeing.</b> A hierarchical module system lists only what is loadable from where you stand. The rest is behind something.</div>
+
+  <p class="stept">1.2 Find the rest</p>
+  <div class="why">There is a second way to question the module system. It reports everything it knows about, loadable or not, and tells you what must be loaded first in each case. Find it and use it — <code>module --help</code>, and your <code>M1-S3</code> notes.</div>
+  <div class="look">
+    <div class="look-l">Look for</div>
+    <ul>
+      <li>How many versions of each application exist.</li>
+      <li>What you are told to load first, and whether that differs between versions of the same application.</li>
+      <li>Which applications appear once, and which appear several times.</li>
+    </ul>
+  </div>
+
+  <p class="stept">1.3 Ask the package manager the same thing</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">spack find</span>
+<span class="cmd">spack find -l --show-full-compiler</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Look for</div>
+    <ul>
+      <li>Whether this agrees with the module system, or shows more.</li>
+      <li>What the compiler column tells you that module names did not.</li>
+      <li>Anything installed with no module at all.</li>
+    </ul>
+  </div>
+
+  <div class="wr">
+    <div class="wr-l">Write it like this<span>example from another site — two toolchains, three applications</span></div>
+    <pre>## 1. Stack map
+
+| Application   | intel-2023 + IMPI | aocc-4.1 + OpenMPI |
+| ------------- | ----------------- | ------------------ |
+| GROMACS 2023  | yes               | yes                |
+| LAMMPS 2Aug23 | yes               | —                  |
+| Quantum ESPRESSO 7.2 | —          | yes                |
+
+Two toolchains. GROMACS is built for both; the other two for one
+each. A user asking for LAMMPS has no choice of toolchain, so any
+other module they load must be the matching one.</pre>
+  </div>
+  <div class="careful"><b>A list of names is not a map</b>If your table has one column, there is a question you have not asked yet. Go back to 1.2.</div>
+</section>
+
+<section id="t2">
+  <div class="sh"><span class="sh-n">02</span><span class="sh-t">Where an application's libraries come from</span><span class="sh-m">13 min</span></div>
+  <div class="goal"><b>Goal</b>Every shared library one binary uses, sorted by where it came from, on the login node and on a compute node.</div>
+
+  <p class="stept">2.1 Load a toolchain, find a binary</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">module purge</span>
+<span class="cmd">module load gcc/12.3.0 openmpi/4.1.6 netcdf-c/4.9.2</span>
+<span class="cmd">which ncdump</span>
+<span class="cmd">module list</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Look for</div>
+    <ul>
+      <li>How many modules ended up loaded, against the three you asked for.</li>
+      <li>What the binary's path says about how this stack is laid out.</li>
+    </ul>
+  </div>
+
+  <p class="stept">2.2 Resolve here, then on a compute node</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ldd $(which ncdump) | tee $HOME/course-repo/m7-s1/login.txt</span>
+
+<span class="cmd">srun -p standard -n 1 -t 00:02:00 \
+  bash -lc 'module load gcc/12.3.0 openmpi/4.1.6 netcdf-c/4.9.2; ldd $(which ncdump)' \
+  | tee $HOME/course-repo/m7-s1/compute.txt</span>
+
+<span class="cmd">diff $HOME/course-repo/m7-s1/login.txt $HOME/course-repo/m7-s1/compute.txt</span>
+<span class="cmd">awk '{print $3}' $HOME/course-repo/m7-s1/login.txt | grep '^/' | sort -u</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Look for</div>
+    <ul>
+      <li>How many libraries one program depends on.</li>
+      <li>How many distinct places they are being found in. Group the paths by their leading directories.</li>
+      <li>Any line with no path, and what that would mean.</li>
+      <li>Whether login and compute agree — and if so, what makes that true rather than lucky.</li>
+    </ul>
+  </div>
+
+  <div class="wr">
+    <div class="wr-l">Write it like this<span>example from another site — name your own groups</span></div>
+    <pre>## 2. Library trace — binary: <name>
+
+### <where this group came from>
+/usr/lib64/libm.so.6
+/usr/lib64/libpthread.so.0
+
+### <where this group came from>
+/opt/apps/intel-2023/impi/lib/libmpi.so.12
+
+### <where this group came from>
+/opt/apps/intel-2023/gromacs-2023/lib/libgromacs.so.8
+
+12 libraries, 3 origins, nothing unresolved.
+Login and compute resolved identically.
+If the user switched toolchain, groups 2 and 3 would change
+and group 1 would not.</pre>
+  </div>
+  <div class="careful"><b>A path is not an origin</b>Two libraries under the same parent can come from different places. Decide each by what put it there. Name your groups for the origin, not the directory.</div>
+</section>
+
+<section id="t3">
+  <div class="sh"><span class="sh-n">03</span><span class="sh-t">A binary that will not run</span><span class="sh-m">9 min</span></div>
+  <div class="goal"><b>Goal</b>The class of failure, the evidence for it, and what you would tell the user.</div>
+
+  <p class="stept">3.1 Read the ticket, then try it in both places</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /projects/course/m7-s1/repro/ticket.txt</span>
+<span class="cmd">/projects/course/m7-s1/repro/wavesolve</span>
+<span class="cmd">srun -p standard -n 1 -t 00:02:00 /projects/course/m7-s1/repro/wavesolve</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Look for</div>
+    <ul>
+      <li>The error text, word by word. It names something specific — write down exactly what.</li>
+      <li>Whether it names a file that is absent, or something else.</li>
+      <li>Whether both runs failed the same way, and what that comparison rules out.</li>
+    </ul>
+  </div>
+
+  <p class="stept">3.2 Look inside the binary</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">file /projects/course/m7-s1/repro/wavesolve</span>
+<span class="cmd">ldd  /projects/course/m7-s1/repro/wavesolve</span>
+<span class="cmd">objdump -T /projects/course/m7-s1/repro/wavesolve | sort -u -k5</span>
+<span class="cmd">ldd --version | head -1</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Look for</div>
+    <ul>
+      <li>Whether <code>ldd</code> found everything it was looking for.</li>
+      <li>In the <code>objdump</code> output, what the binary <em>demands</em> of its libraries — not just which libraries.</li>
+      <li>What this machine reports about itself, and how that compares.</li>
+    </ul>
+  </div>
+  <div class="careful"><b>Four commands, four different questions</b>What kind of file it is; whether its libraries resolve; what it demands of them; what this machine provides. Three can look fine while the program still cannot start.</div>
+
+  <div class="wr">
+    <div class="wr-l">Write it like this<span>example — a different failure class</span></div>
+    <pre>## 3. Failure report — wavesolve
+
+Class:     built for the wrong processor architecture
+Evidence:  `file` reports aarch64; the nodes are x86-64
+Both nodes: failed identically, so this is not a per-node
+           configuration difference
+Remedy:    the user obtained a build for the wrong platform.
+           They need the x86-64 build, or to build here.
+Whose:     theirs — nothing I change on the cluster fixes it</pre>
+  </div>
+  <div class="careful"><b>"It does not work" is not a class</b>Name the mechanism.</div>
+</section>
+
+<section id="t4">
+  <div class="sh"><span class="sh-n">04</span><span class="sh-t">Four requests</span><span class="sh-m">15 min · protected</span></div>
+  <div class="goal"><b>Goal</b>An installation approach for each of four real requests, each justified by a property of that request.</div>
+
+  <div class="careful"><b>Nothing to run in this task</b>The cluster will not tell you the answer. These fifteen minutes are protected — if you are behind, stop task 3 and come here. It is the part of today you will use most at work.</div>
+
+  <p class="stept">4.1 Read all four before deciding any</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /projects/course/m7-s1/requests/*.txt</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Look for</div>
+    <ul>
+      <li>How many people will use each one.</li>
+      <li>How often it changes.</li>
+      <li>Where it comes from, and in what form the supplier ships it.</li>
+      <li>Anything licensed, restricted, or tied to the site's own libraries.</li>
+    </ul>
+  </div>
+  <div class="why">The concept segment gave you five approaches. There are four requests. One approach has no request written for it, deliberately — do not try to use each one once.</div>
+
+  <div class="wr">
+    <div class="wr-l">Write it like this<span>example — a fifth request that is not in your set</span></div>
+    <pre>## 4. Recommendations
+
+### Request 5 — interactive plotting GUI, 2 users
+Approach:  not installed centrally; point them at the
+           visualisation service
+Property:  two users, interactive and graphical, no batch
+           component at all
+Rejected:  site stack — the cost of carrying it centrally is
+           not justified by two users, and it would need a
+           display stack the compute nodes do not have
+Reply:     "This is a desktop tool rather than a batch one.
+           The visualisation service is the right home for it
+           — I can introduce you."
+
+### Request 1 — <yours>
+Approach:
+Property:
+Rejected:
+Reply:</pre>
+  </div>
+  <div class="careful"><b>The Property line is the task</b>Four approaches matched to four requests, with no reasons, is not work anyone can check. A different recommendation from your neighbour's is equally right if the property supports it.</div>
+</section>
+
+<section id="t5">
+  <div class="sh"><span class="sh-n">05</span><span class="sh-t">An application with no owner</span><span class="sh-m">8 min</span></div>
+  <div class="goal"><b>Goal</b>Where one application came from, who owns it, and whether it works where users need it.</div>
+
+  <p class="stept">5.1 Find out what it is</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">module show kestrelfit/0.9.3</span>
+<span class="cmd">ls -la /opt/software/manual/kestrelfit/0.9.3/</span>
+<span class="cmd">stat -c '%U %G %y %n' /opt/software/manual/kestrelfit/0.9.3/bin/*</span>
+<span class="cmd">spack find kestrelfit</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Look for</div>
+    <ul>
+      <li>Where it sits on disk, against everything you found in task 1.</li>
+      <li>The owner column — what it says, and whether that name means anything here.</li>
+      <li>What you would expect beside an installed application and cannot find.</li>
+      <li>What the package manager says, including when it says nothing.</li>
+    </ul>
+  </div>
+
+  <p class="stept">5.2 Run it where users would</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">module load kestrelfit/0.9.3</span>
+<span class="cmd">kestrelfit --version</span>
+<span class="cmd">srun -p standard -n 1 -t 00:02:00 bash -lc 'module load kestrelfit/0.9.3; kestrelfit --version'</span></pre>
+  </div>
+
+  <p class="stept">5.3 If they differ, find out why</p>
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ldd $(which kestrelfit)</span>
+<span class="cmd">srun -p standard -n 1 -t 00:02:00 bash -lc 'module load kestrelfit/0.9.3; ldd $(which kestrelfit)'</span>
+<span class="cmd">ldconfig -p | wc -l</span>
+<span class="cmd">srun -p standard -n 1 -t 00:02:00 bash -c 'ldconfig -p | wc -l'</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Look for</div>
+    <ul>
+      <li>Which <code>ldd</code> line differs between the two, if any.</li>
+      <li>What the two counts say about how these machines were built.</li>
+      <li>Whether this is the same class of failure as task 3 or a different one — and how you can tell.</li>
+    </ul>
+  </div>
+
+  <div class="wr">
+    <div class="wr-l">Write it like this<span>example — a different application at another site</span></div>
+    <pre>## 5. Provenance note — kestrelfit 0.9.3
+
+Established:   installed <date>, under /opt/apps/local/,
+               module file written by hand
+Not established: who requested it, what it was built from,
+               what version of anything it links against
+Owner today:   none — the owning account no longer exists
+Works where:   login node yes, compute nodes no. Evidence:
+               <the line that differs>
+Recommendation: do not remove it; users may depend on it.
+               Trace the users first, then either rebuild it
+               properly or retire it with notice.
+Who agrees:    the service owner, not me
+</pre>
+  </div>
+</section>
+
+<section id="commit">
+  <div class="sh"><span class="sh-n">✓</span><span class="sh-t">Before you commit</span><span class="sh-m">last 3 min</span></div>
+
+  <div class="look">
+    <div class="look-l">Read your own report and ask</div>
+    <ul>
+      <li>Does the stack map show structure, or only names?</li>
+      <li>Is every library path filed under a named origin?</li>
+      <li>Does the failure report name a class, not a symptom?</li>
+      <li>Does every recommendation cite a property of its own request?</li>
+      <li>Does the provenance note say what you could <em>not</em> establish?</li>
+    </ul>
+  </div>
+
+  <div class="do">
+    <div class="dol">Do</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cd $HOME/course-repo &amp;&amp; git add m7-s1 &amp;&amp; git commit -m "M7-S1 report"</span>
+<span class="cmd">git push</span></pre>
+  </div>
+  <div class="careful"><b>Anything not pushed does not count</b>The record read afterwards is the one in your repository.</div>
+</section>
+
+<section id="stuck">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">If you get stuck</span></div>
+  <table>
+    <thead><tr><th>Symptom</th><th>Do this</th></tr></thead>
+    <tbody>
+      <tr><td>A module will not load</td><td class="m">module purge, then load what<br />module spider lists for it, in order</td></tr>
+      <tr><td><code>srun</code> sits there</td><td class="m">squeue -u $USER,<br />read the reason column</td></tr>
+      <tr><td>Works on login, not through srun</td><td class="m">a finding, not a fault.<br />Write it down and carry on</td></tr>
+      <tr><td>Permission denied or Read-only file system under /opt/software</td><td class="m">expected. Nothing today<br />writes there</td></tr>
+      <tr><td>Stuck on task 1 after five minutes</td><td class="m">module --help,<br />and your M1-S3 notes</td></tr>
+    </tbody>
+  </table>
+  <div class="why"><b>Asking beats guessing.</b> In chat: which task, the exact command, what came back.</div>
+</section>
+
+</main>
+</div>
+
+<div class="foot">
+  <span>HPCA-100 · M7-S1 · The Scientific Software Problem · Lab Walkthrough</span>
+  <span>learner copy · commands given, observations yours</span>
+</div>
+
+<script>
+const navs = document.querySelectorAll('.side a');
+const io = new IntersectionObserver(function (entries) {
+  entries.forEach(function (e) {
+    if (!e.isIntersecting) return;
+    navs.forEach(function (n) { n.classList.remove('on'); });
+    const a = document.querySelector('.side a[href="#' + e.target.id + '"]');
+    if (a) a.classList.add('on');
+  });
+}, { rootMargin: '-15% 0px -75% 0px' });
+document.querySelectorAll('section[id]').forEach(function (s) { io.observe(s); });
+
+function cpy(btn) {
+  const box = btn.closest('.do');
+  const pre = box.querySelector('pre');
+  navigator.clipboard.writeText((pre.innerText || pre.textContent).trim()).then(function () {
+    btn.textContent = 'copied';
+    btn.classList.add('ok');
+    setTimeout(function () { btn.textContent = 'copy'; btn.classList.remove('ok'); }, 1800);
+  });
+}
+</script>
+</body>
+</html>
