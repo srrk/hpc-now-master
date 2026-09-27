@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HPCA-100 · M7-SX · The Application Management Ladder · Lab Runbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff; --soft:#f6f8fa; --line:#e3e7eb;
+  --ink:#12161b; --ink2:#4f5862; --ink3:#8b949e;
+  --blue:#1f66d0; --blue-bg:#eff5fd;
+  --amber:#a55a12; --amber-bg:#fdf5ea;
+  --green:#0d7a55; --green-bg:#ecf7f2;
+  --code:#111519; --code-ink:#c9d1d9; --code-cmd:#7ee3b8; --code-cmt:#e0a85f;
+  --sans:"IBM Plex Sans",-apple-system,Segoe UI,sans-serif;
+  --mono:"IBM Plex Mono","Courier New",monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
+
+.youbar{position:sticky;top:0;z-index:60;background:var(--ink);display:flex;align-items:center;gap:14px;padding:8px 40px;font-size:12px}
+.youbar-k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#7c8691}
+.youbar-v{font-family:var(--mono);font-size:13px;color:#7ee3b8}
+.compactbtn{margin-left:auto;background:#1d242c;border:1px solid #2b333c;color:#c9d1d9;font-family:var(--mono);font-size:11px;padding:4px 12px;border-radius:2px;cursor:pointer}
+.compactbtn:hover{border-color:#7ee3b8;color:#7ee3b8}
+.compactbtn.on{background:#7ee3b8;color:#111519;border-color:#7ee3b8}
+
+.head{border-bottom:1px solid var(--line);padding:32px 40px 24px;background:var(--soft)}
+.head-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.head-title{font-size:26px;font-weight:600;letter-spacing:-.01em}
+.head-sub{font-size:14px;color:var(--ink2);margin-top:8px;max-width:680px}
+
+.wrap{display:grid;grid-template-columns:176px 1fr;gap:0 44px;max-width:1060px;margin:0 auto;padding:0 40px}
+.side{position:sticky;top:44px;align-self:start;padding:32px 0}
+.side-l{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin:0 0 10px}
+.side a{display:block;font-size:12.5px;color:var(--ink2);text-decoration:none;padding:5px 0 5px 12px;border-left:2px solid transparent}
+.side a:hover{color:var(--ink)}
+.side a.on{color:var(--blue);border-color:var(--blue)}
+.side hr{border:0;border-top:1px solid var(--line);margin:10px 0}
+main{padding:32px 0 0}
+section{padding:30px 0;border-top:1px solid var(--line)}
+section:first-child{border-top:none;padding-top:8px}
+
+.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:10px}
+.sh-n{font-family:var(--mono);font-size:12px;color:var(--blue);font-weight:500}
+.sh-t{font-size:19px;font-weight:600}
+.sh-m{margin-left:auto;font-size:11px;color:var(--ink3);font-family:var(--mono)}
+
+.goal{font-size:13.5px;color:var(--ink2);margin:0 0 16px;max-width:720px;border-left:2px solid var(--green);padding-left:12px}
+
+.stept{font-size:14px;font-weight:600;margin:20px 0 6px;color:var(--ink)}
+.stept i{font-family:var(--mono);font-style:normal;font-size:11px;color:var(--ink3);font-weight:400;margin-right:8px}
+
+.do{background:var(--code);border-radius:3px;padding:13px 16px;margin:7px 0;position:relative;overflow-x:auto;max-width:720px}
+.do pre{font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--code-ink);white-space:pre}
+.do .cmd{color:var(--code-cmd)}
+.do .cmt{color:var(--code-cmt)}
+.do .dim{color:#5c6873}
+.dol{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#5c6873;margin-bottom:8px}
+.cp{position:absolute;top:8px;right:8px;background:#1d242c;border:1px solid #2b333c;color:#7c8691;font-family:var(--mono);font-size:10px;padding:3px 9px;cursor:pointer;border-radius:2px}
+.cp:hover{color:var(--code-cmd);border-color:var(--code-cmd)}
+.cp.ok{color:var(--code-cmd);border-color:var(--code-cmd)}
+
+.see{border:1px solid var(--line);border-left:3px solid var(--ink3);border-radius:3px;margin:7px 0;max-width:720px;overflow-x:auto}
+.see-l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);padding:6px 14px;border-bottom:1px solid var(--line);background:var(--soft)}
+.see pre{font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--ink2);padding:10px 14px;white-space:pre}
+
+/* THE STOP POINT — one per rung */
+.stop{border:2px solid var(--ink);border-radius:3px;margin:26px 0 6px;max-width:720px;overflow:hidden}
+.stop-l{background:var(--ink);color:#fff;padding:9px 16px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;display:flex;justify-content:space-between}
+.stop-l span{letter-spacing:0;text-transform:none;font-weight:400;color:#7ee3b8;font-size:11px}
+.stop-b{padding:14px 16px}
+.stop-b h5{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin:14px 0 5px}
+.stop-b h5:first-child{margin-top:0}
+.stop-b pre{font-family:var(--mono);font-size:12px;line-height:1.7;background:var(--soft);border:1px solid var(--line);border-radius:2px;padding:9px 12px;white-space:pre-wrap;word-break:break-word;color:var(--ink);position:relative}
+.stop-b ul{margin:0;padding-left:20px}
+.stop-b li{font-size:13.5px;color:var(--ink);margin-bottom:4px}
+.stop-b p{font-size:13.5px;color:var(--ink2)}
+.stop-b p b{color:var(--ink);font-weight:600}
+.stop-rec{margin-top:14px;padding-top:11px;border-top:1px solid var(--line);font-size:13px;color:var(--ink2)}
+.stop-rec b{color:var(--green);font-weight:600}
+
+.careful{border-left:3px solid var(--amber);background:var(--amber-bg);padding:10px 15px;margin:12px 0;max-width:720px;font-size:13.5px;color:var(--ink2)}
+.careful b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:3px;font-weight:600}
+
+code{font-family:var(--mono);font-size:11.5px;background:var(--soft);padding:1px 5px;border-radius:2px;color:var(--blue)}
+.do code,.see code{background:none;padding:0;color:inherit}
+
+table{width:100%;max-width:720px;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+th{text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--soft)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+td.m{font-family:var(--mono);font-size:11.5px;color:var(--ink)}
+td.fill{background:var(--green-bg);color:var(--green);font-family:var(--mono);font-size:11.5px}
+
+.foot{border-top:1px solid var(--line);margin-top:40px;padding:18px 40px;font-size:11px;color:var(--ink3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;background:var(--soft)}
+
+/* compact mode — trainer driving from the front */
+body.compact .stop-b h5, body.compact .stop-b p, body.compact .stop-rec,
+body.compact .careful, body.compact .goal { display:none }
+body.compact .stop { border-color:var(--line) }
+body.compact .stop-l { background:var(--soft); color:var(--ink) }
+body.compact .stop-l span { color:var(--ink3) }
+
+@media print{.youbar,.side,.cp,.compactbtn{display:none!important}.wrap{grid-template-columns:1fr}section{break-inside:avoid}.stop{break-inside:avoid}}
+@media (max-width:1000px){.wrap{grid-template-columns:1fr;padding:0 22px}.side{display:none}.head,.youbar,.foot{padding-left:22px;padding-right:22px}}
+/* concept blocks — solo-learner framing, hidden in compact mode */
+.concept{border:1px solid var(--line);border-left:3px solid var(--blue);background:#fbfdff;border-radius:3px;padding:14px 17px;margin:0 0 18px;max-width:720px}
+.concept h4{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600;margin-bottom:7px}
+.concept p{font-size:13.5px;color:var(--ink2);margin-bottom:9px}
+.concept p:last-child{margin-bottom:0}
+.concept p b{color:var(--ink);font-weight:600}
+.concept ul{margin:4px 0 9px;padding-left:20px}
+.concept li{font-size:13.5px;color:var(--ink2);margin-bottom:4px}
+.concept code{background:#eef3f8}
+.ans{font-size:13.5px;color:var(--ink);background:var(--green-bg);border-left:2px solid var(--green);padding:9px 13px;margin:9px 0 0;border-radius:2px}
+.ans b{color:var(--green);font-weight:600}
+.gloss{max-width:720px;font-size:13px;margin-top:6px}
+.gloss dt{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:500;margin-top:12px}
+.gloss dd{color:var(--ink2);margin:2px 0 0 0}
+body.compact .concept, body.compact .ans, body.compact .gloss{display:none}
+body.compact #before, body.compact #glossary{display:none}
+</style>
+</head>
+<body>
+
+<div class="youbar">
+  <span class="youbar-k">Cluster</span>
+  <span class="youbar-v">mylab.hpc.now</span>
+  <span class="youbar-k">6 rungs · 120 min guided · 3–4 h alone</span>
+  <button class="compactbtn" id="cbtn" onclick="toggleCompact()">compact</button>
+</div>
+
+<div class="head">
+  <p class="head-eyebrow">HPCA-100 · Module 7 · Session X · Lab Runbook</p>
+  <h1 class="head-title">The Application Management Ladder</h1>
+  <p class="head-sub">One command. Six ways of getting it into a job. You start as the package manager and finish by watching four tools do that job for you. This page is the whole lab — you can work it with a trainer or on your own.</p>
+</div>
+
+<div class="wrap">
+
+<aside class="side">
+  <div class="side-l">Runbook</div>
+  <a href="#before">Before you start</a>
+  <a href="#start">Getting on</a>
+  <a href="#story">How this works</a>
+  <hr />
+  <a href="#r0">0 · Orientation</a>
+  <a href="#r1">1 · Tarball</a>
+  <a href="#r2">2 · Lmod</a>
+  <a href="#r3">3 · Spack</a>
+  <a href="#r4">4 · EasyBuild</a>
+  <a href="#r5">5 · Apptainer</a>
+  <hr />
+  <a href="#wrap">The ladder</a>
+  <a href="#stuck">If you get stuck</a>
+  <a href="#glossary">Glossary</a>
+</aside>
+
+<main>
+
+<section id="before">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">Before you start</span><span class="sh-m">read once · 6 min</span></div>
+
+  <div class="concept">
+    <h4>The problem this lab is about</h4>
+    <p>On your laptop you install software with the distribution's package manager. One command, one version, done. On a cluster almost none of that works, for four reasons.</p>
+    <ul>
+      <li><b>The software is not packaged.</b> Scientific applications ship as source tarballs from a research group's web page, not from a distribution repository.</li>
+      <li><b>Versions matter, and several are needed at once.</b> One group's results depend on version 2.1; another needs 3.0 today. Both must exist.</li>
+      <li><b>You are not root.</b> Cluster nodes are shared. Nobody gets to install into <code>/usr</code>.</li>
+      <li><b>The machine that runs the job is not the machine you typed on.</b> Anything installed in the wrong place is invisible to the job.</li>
+    </ul>
+    <p>Every tool in this lab exists because of those four facts. You will meet the problem first, by hand, and then meet each tool as an answer to it.</p>
+  </div>
+
+  <div class="concept">
+    <h4>The two programs you will install</h4>
+    <p><b>hwloc</b> — "hardware locality". It reads the machine's layout: how many processor sockets, how many cores on each, how the caches are shared, which memory belongs to which socket, and which network cards and devices are attached where. On a cluster that layout decides how fast a job runs, so almost every HPC tool depends on hwloc underneath.</p>
+    <p><b>likwid</b> — a set of performance tools built <em>on top of</em> hwloc. You will only use one of them, <code>likwid-topology</code>, which prints the machine layout in a readable form. It is the same command in all six rungs.</p>
+    <p>likwid needs hwloc to work. That single dependency is the reason this lab teaches anything — one package needing another is where all the difficulty in software management comes from.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Three things every installed program needs</h4>
+    <p>When you type a command, the shell has to find it. When that program starts, the system has to find the libraries it was built against. Neither happens by magic.</p>
+    <ul>
+      <li><b><code>PATH</code></b> — a list of directories the shell searches for commands. If your program's <code>bin</code> directory is not on it, you get <code>command not found</code>.</li>
+      <li><b><code>LD_LIBRARY_PATH</code></b> — a list of directories the system searches for shared libraries at the moment a program starts. If your program's <code>lib</code> directory is not on it, you get <code>cannot open shared object file</code>. This one catches everybody, because the command is clearly there and it still will not run.</li>
+      <li><b><code>--prefix</code></b> — not an environment variable, but the flag that decides where a program installs itself. <code>--prefix=/somewhere</code> means binaries land in <code>/somewhere/bin</code>, libraries in <code>/somewhere/lib</code>, manuals in <code>/somewhere/share/man</code>. Get this wrong and everything else fails downstream.</li>
+    </ul>
+    <p>In rung 1 you set the first two by hand. In rungs 2 to 5 something else sets them for you. <b>That is the whole ladder.</b></p>
+  </div>
+
+  <div class="concept">
+    <h4>What "build from source" means</h4>
+    <p>Most of these tarballs use a convention called autotools, which is three commands in a fixed order:</p>
+    <ul>
+      <li><code>./configure</code> — looks around the machine, finds what is available, and writes the build instructions to match. <b>This is the step that quietly decides what your program will and will not be able to do.</b></li>
+      <li><code>make</code> — compiles the source into binaries and libraries, inside the build directory.</li>
+      <li><code>make install</code> — copies the results to wherever <code>--prefix</code> said.</li>
+    </ul>
+    <p>Not everything uses autotools. likwid does not, and rung 1 shows you what that is like.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Working alone?</h4>
+    <p>You can. Allow three to four hours rather than two, and stop wherever you like — the safe resume points are at the end of each rung.</p>
+    <p><b>Rungs 1 and 2 must be done in order</b>, because rung 2 uses what rung 1 built. Rungs 3, 4 and 5 are independent of each other and of rung 1.</p>
+    <p>Each rung ends with a <b>Stop</b>. Those contain the point of the rung and the answers to the questions asked in it. Read them; they are not optional.</p>
+  </div>
+</section>
+
+<section id="start">
+  <div class="sh"><span class="sh-n">00</span><span class="sh-t">Getting on</span></div>
+
+  <table>
+    <thead><tr><th>Who</th><th>Your login — wherever this page says &lt;you&gt;</th></tr></thead>
+    <tbody>
+      <tr><td>Learners</td><td class="m">bhagya · surya · vasu · vinod · vasavi · satya</td></tr>
+      <tr><td>Instructor</td><td class="m">rajesh</td></tr>
+      <tr><td>Spare, for walk-ins</td><td class="m">guest1 · guest2</td></tr>
+    </tbody>
+  </table>
+  <p class="goal">The password is given out in the room.</p>
+  <div class="do">
+    <div class="dol">First, on your own laptop: forget any old key for this name</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh-keygen -R mylab.hpc.now</span></pre>
+  </div>
+  <p class="goal">Any of these three answers is fine: <code>… updated</code> (an old key was removed), <code>not found</code> (there was none), or <code>Cannot stat …</code> (this laptop has never used SSH).</p>
+  <div class="do">
+    <div class="dol">Connect</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh &lt;you&gt;@mylab.hpc.now</span></pre>
+  </div>
+
+  <div class="do">
+    <div class="dol">Make your working directory</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">mkdir -p $HOME/m7sx &amp;&amp; cd $HOME/m7sx &amp;&amp; ls</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>ladder.md</pre></div>
+
+  <div class="careful"><b>If SSH asks "Are you sure you want to continue connecting?"</b>Answer <code>yes</code>. The cluster was rebuilt this morning, so its identity is new — that is what the first command cleared. If SSH still warns about a changed host key, run <code>ssh-keygen -R mylab.hpc.now</code> again and reconnect. This is expected today and not a security problem.</div>
+</section>
+
+<section id="story">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">How this works</span></div>
+
+  <p class="goal">Every rung ends with a Slurm job that runs <code>likwid-topology</code> and nothing else. The job never changes. What changes is how that binary reaches the job's environment.</p>
+
+  <table>
+    <thead><tr><th>Rung</th><th>How the binary gets there</th><th>Min</th></tr></thead>
+    <tbody>
+      <tr><td class="m">0</td><td>Orientation — no software yet</td><td class="m">8</td></tr>
+      <tr><td class="m">1</td><td>You build it. You set the environment by hand.</td><td class="m">32</td></tr>
+      <tr><td class="m">2</td><td>Same binary. A modulefile sets the environment.</td><td class="m">20</td></tr>
+      <tr><td class="m">3</td><td>Spack resolves, builds and writes the module.</td><td class="m">22</td></tr>
+      <tr><td class="m">4</td><td>EasyBuild — reading only, nothing built</td><td class="m">12</td></tr>
+      <tr><td class="m">5</td><td>A container carries the binary and its whole runtime.</td><td class="m">14</td></tr>
+      <tr><td class="m">—</td><td>Fill the ladder table</td><td class="m">12</td></tr>
+    </tbody>
+  </table>
+
+  <div class="careful"><b>No internet from this cluster</b>Every tarball, package and image is already on <code>/apps</code>. If something starts downloading it will hang rather than fail — Ctrl-C and check the path you typed.</div>
+</section>
+
+<section id="r0">
+  <div class="sh"><span class="sh-n">0</span><span class="sh-t">Orientation</span><span class="sh-m">8 min</span></div>
+  <p class="goal">You know who you are here, what machines exist, and where software is allowed to live.</p>
+
+  <div class="concept">
+    <h4>Why this rung exists</h4>
+    <p>A cluster is not one machine. There is a <b>login node</b>, which is what you connect to and where you edit files and compile things. There are <b>compute nodes</b>, which are separate computers that actually run the jobs, and which you never log into directly.</p>
+    <p>They share some filesystems and not others. Knowing which is which is the difference between software that works and software that mysteriously does not, so it is the first thing to establish anywhere.</p>
+  </div>
+
+  <p class="stept"><i>0.1</i> Who am I</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">whoami &amp;&amp; id</span>   <span class="cmt"># hpcadmins should be in your groups</span></pre>
+  </div>
+
+  <p class="stept"><i>0.2</i> What machines exist</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">hostname</span>      <span class="cmt"># you are on the login node</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sinfo -N -l</span>   <span class="cmt"># the compute nodes are other machines</span></pre>
+  </div>
+
+  <p class="stept"><i>0.3</i> Where software lives</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ls -la /apps/</span>   <span class="cmt"># note the 's' in drwxrwsr-x</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>drwxrwsr-x  root hpcadmins  software/     ← install here, under your own name
+drwxrwsr-x  root hpcadmins  modulefiles/  ← your modulefiles
+drwxr-xr-x  root root       spack/        ← shared, read-only
+drwxr-xr-x  root root       spack-mirror/ ← Spack's local cache: no internet here
+drwxr-xr-x  root root       spack-packages/ ← Spack's recipes
+drwxr-xr-x  root root       easybuild/    ← shared, read-only
+drwxrwsr-x  root hpcadmins  containers/   ← container images
+drwxr-xr-x  root root       tarballs/     ← today's sources</pre></div>
+
+  <div class="do">
+    <div class="dol">Your own subtree</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ls -ld /apps/software/$USER</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Where /apps and /home live, seen from here</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">df -h /apps /home | tail -3</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">And seen from a compute node</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">srun df -h /apps /home | tail -3</span>   <span class="cmt"># srun runs one command on a compute node</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>Filesystem      Size  Used Avail Use% Mounted on
+head:/apps       39G  2.6G   37G   7% /apps    ← mounted from the login node
+head:/home       39G  2.6G   37G   7% /home</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · rung 0<span>read before going on</span></div>
+    <div class="stop-b">
+      <ul>
+        <li><b>/apps and /home are shared:</b> the second <code>df</code> shows them mounted from <code>head</code>, the login node.</li>
+        <li><b>The <code>s</code> in <code>drwxrwsr-x</code>:</b> anything you create under <code>/apps</code> belongs to <code>hpcadmins</code>.</li>
+        <li><b>You are not root</b>, and today you will not need to be.</li>
+      </ul>
+      <h5>The point</h5>
+      <p><code>/apps</code> and <code>/home</code> are <b>shared storage</b>. The login node and every compute node see the same files at the same path. The login node keeps them on its own disk — that is the first <code>df</code> — and every compute node mounts them from it over the network: <code>head:/apps</code> in the second <code>df</code> means “<code>/apps</code> on the machine called head”, which is the login node you are typing on. Anything you install anywhere else — <code>/tmp</code>, <code>/usr/local</code>, <code>/opt</code> — exists on one machine only, and a job running on another will not find it.</p>
+      <p><b>That is why there is a <code>/apps</code> at all</b>, and it is the most common first mistake on any cluster: install somewhere local, test it interactively where it works, submit a job, and get <code>No such file or directory</code> for a file you are looking straight at.</p>
+      <h5>The setgid bit</h5>
+      <p>The <code>s</code> in <code>drwxrwsr-x</code> means files you create inherit the directory's group — <code>hpcadmins</code> — rather than your own. Colleagues can read your work without you doing anything, which is what makes a shared software tree practical.</p>
+      <h5>You are not root</h5>
+      <p>And you will not need to be. Everything today is done as yourself, which is how it works at a real site — you will almost never be given root on a production cluster.</p>
+    </div>
+  </div>
+</section>
+
+<section id="r1">
+  <div class="sh"><span class="sh-n">1</span><span class="sh-t">Build it yourself</span><span class="sh-m">32 min</span></div>
+  <p class="goal">hwloc and likwid built from source, installed under your own name, and running in a Slurm job that you taught to find them.</p>
+
+  <div class="concept">
+    <h4>Why this rung exists</h4>
+    <p>This is the baseline: <b>no tools at all.</b> You are the package manager. You unpack the source, configure it, compile it, decide where it goes, and then teach every job you ever submit how to find it.</p>
+    <p>Everything you do here works. It is also the rung you will keep coming back to, because sooner or later somebody needs software nobody has written a recipe for. The point is not that this is wrong — it is to feel exactly what it costs, so that the next four rungs mean something.</p>
+    <p><b>Two things to watch as you go:</b> how many lines of environment setup you end up writing, and whether anything ever warns you that something is missing.</p>
+  </div>
+
+  <p class="stept"><i>1.1</i> Unpack hwloc</p>
+  <div class="do">
+    <div class="dol">Build in local scratch — install to shared storage</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">mkdir -p /tmp/$USER-build &amp;&amp; cd /tmp/$USER-build</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">tar xf /apps/tarballs/hwloc-2.11.2.tar.gz &amp;&amp; cd hwloc-2.11.2</span></pre>
+  </div>
+  <p class="goal">Compiling makes thousands of small temporary files. Doing that on the shared filesystem is slow and rude to everyone else, so you build in local scratch and <em>install</em> to shared storage. Only the install location has to be shared.</p>
+
+  <p class="stept"><i>1.2</i> Configure it</p>
+  <div class="do">
+    <div class="dol">--prefix decides where it lands. The most important flag today.</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">./configure --prefix=/apps/software/$USER/hwloc/2.11.2</span></pre>
+  </div>
+  <div class="careful"><b>Read the summary block before moving on</b><code>configure</code> ends by listing what it found on this machine and what it will therefore support. Find the <code>XML input / output</code> line — it says <code>basic</code>, not <code>full</code>. Nobody asked you: <code>configure</code> looked for a library, did not find its headers, and quietly chose a smaller option. Write that line down. You will see the library's name again at rung 3.</div>
+
+  <p class="stept"><i>1.3</i> Build and install</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">make -j2 &amp;&amp; make install</span>   <span class="cmt"># -j2: two compile jobs; the whole room shares this login node</span></pre>
+  </div>
+
+  <p class="stept"><i>1.4</i> Check it landed</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ls /apps/software/$USER/hwloc/2.11.2/bin/</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>hwloc-bind  hwloc-calc  hwloc-info  hwloc-ls  lstopo  lstopo-no-graphics ...</pre></div>
+
+  <p class="stept"><i>1.5</i> Unpack likwid</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cd /tmp/$USER-build &amp;&amp; tar xf /apps/tarballs/likwid-5.4.1.tar.gz &amp;&amp; cd likwid-5.4.1</span></pre>
+  </div>
+
+  <p class="stept"><i>1.6</i> Find the lines you have to change</p>
+  <div class="do">
+    <div class="dol">No ./configure here. You edit a file.</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">grep -n "^PREFIX\|^ACCESSMODE\|^BUILDDAEMON\|^BUILDFREQ\|^INSTALL_CHOWN\|^#HWLOC_" config.mk</span></pre>
+  </div>
+  <p class="goal">likwid's authors wrote their own build system instead of using autotools. There is no <code>./configure</code> to interrogate the machine — you tell it what is true by editing <code>config.mk</code> by hand. This is common in scientific software and it is one of the reasons "just build it from source" is rarely just anything.</p>
+
+  <p class="stept"><i>1.7</i> Edit <code>config.mk</code></p>
+  <div class="do">
+    <div class="dol">What changes, and why — reference only; the next box makes the edits for you</div>
+    <pre><span class="dim">PREFIX = /apps/software/</span><span class="cmd">&lt;you&gt;</span><span class="dim">/likwid/5.4.1</span>   <span class="cmt"># your username, spelled out</span>
+<span class="dim">ACCESSMODE = perf_event</span>                      <span class="cmt"># was accessdaemon — needs root</span>
+<span class="dim">BUILDDAEMON = false</span>                          <span class="cmt"># needs root</span>
+<span class="dim">BUILDFREQ = false</span>                            <span class="cmt"># needs root</span>
+<span class="dim">INSTALL_CHOWN =</span>                              <span class="cmt"># was -g root -o root</span>
+<span class="dim">HWLOC_INCLUDE_DIR = /apps/software/</span><span class="cmd">&lt;you&gt;</span><span class="dim">/hwloc/2.11.2/include</span>  <span class="cmt"># delete the # first</span>
+<span class="dim">HWLOC_LIB_DIR = /apps/software/</span><span class="cmd">&lt;you&gt;</span><span class="dim">/hwloc/2.11.2/lib</span>
+<span class="dim">HWLOC_LIB_NAME = hwloc</span>                       <span class="cmt"># ← link against YOUR hwloc</span></pre>
+  </div>
+  <p class="goal">Four of those exist only because you are not root — upstream assumed you would be. The last three matter most: likwid ships a copy of hwloc inside its own tarball, and pointing these at yours makes it use the one <em>you</em> built instead. That is what creates the dependency the rest of the lab is about.</p>
+  <div class="do">
+    <div class="dol">Make all eight edits in one go</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sed -i -e "s|^PREFIX ?=.*|PREFIX = /apps/software/$USER/likwid/5.4.1#NO SPACE|" \
+       -e "s|^ACCESSMODE =.*|ACCESSMODE = perf_event#NO SPACE|" \
+       -e "s|^BUILDDAEMON =.*|BUILDDAEMON = false#NO SPACE|" \
+       -e "s|^BUILDFREQ =.*|BUILDFREQ = false#NO SPACE|" \
+       -e "s|^INSTALL_CHOWN =.*|INSTALL_CHOWN =#NO SPACE|" \
+       -e "s|^#HWLOC_INCLUDE_DIR =.*|HWLOC_INCLUDE_DIR = /apps/software/$USER/hwloc/2.11.2/include#NO SPACE|" \
+       -e "s|^#HWLOC_LIB_DIR =.*|HWLOC_LIB_DIR = /apps/software/$USER/hwloc/2.11.2/lib#NO SPACE|" \
+       -e "s|^#HWLOC_LIB_NAME =.*|HWLOC_LIB_NAME = hwloc#NO SPACE|" config.mk</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Check that all eight took</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">grep -n "^PREFIX\|^ACCESSMODE\|^BUILDDAEMON\|^BUILDFREQ\|^INSTALL_CHOWN\|^HWLOC_" config.mk</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see — your username where it says &lt;you&gt;</div><pre>18:PREFIX = /apps/software/&lt;you&gt;/likwid/5.4.1#NO SPACE
+23:ACCESSMODE = perf_event#NO SPACE
+78:BUILDDAEMON = false#NO SPACE
+86:BUILDFREQ = false#NO SPACE
+104:INSTALL_CHOWN =#NO SPACE
+115:HWLOC_INCLUDE_DIR = /apps/software/&lt;you&gt;/hwloc/2.11.2/include#NO SPACE
+116:HWLOC_LIB_DIR = /apps/software/&lt;you&gt;/hwloc/2.11.2/lib#NO SPACE
+117:HWLOC_LIB_NAME = hwloc#NO SPACE</pre></div>
+  <p class="goal">This is what editing <code>config.mk</code> by hand would have produced. The <code>#NO SPACE</code> is likwid's own reminder: a trailing space after a value breaks its build, which is one reason the edit is scripted here.</p>
+
+  <p class="stept"><i>1.8</i> Point it at your hwloc, then build</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">export LIBRARY_PATH=/apps/software/$USER/hwloc/2.11.2/lib</span></pre>
+  </div>
+  <p class="goal"><code>LIBRARY_PATH</code> is where the linker looks for libraries while it <em>builds</em>. Without it, <code>make</code> stops with <code>cannot find -lhwloc</code>. Its partner <code>LD_LIBRARY_PATH</code>, which you meet in step 1.10, is where the system looks while a program <em>runs</em>. Same idea, two moments.</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">make -j2 &amp;&amp; make install</span>   <span class="cmt"># -j2: two compile jobs; the whole room shares this login node</span></pre>
+  </div>
+
+  <p class="stept"><i>1.9</i> Check it landed</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ls /apps/software/$USER/likwid/5.4.1/bin/</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>likwid-topology  likwid-pin  likwid-perfctr  likwid-powermeter ...</pre></div>
+
+  <p class="stept"><i>1.10</i> Write the job script</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat &gt; $HOME/m7sx/stage1.sh &lt;&lt;'EOF'
+#!/bin/bash
+#SBATCH --job-name=stage1
+#SBATCH --output=/home/USERNAME/m7sx/stage1_out.txt
+#SBATCH -n 1 -t 00:05:00
+
+# The job starts with a clean environment on a different machine.
+# Nothing you typed on the login node carries over. These four
+# lines are how the job finds two programs you installed.
+export PATH=/apps/software/USERNAME/likwid/5.4.1/bin:$PATH
+export PATH=/apps/software/USERNAME/hwloc/2.11.2/bin:$PATH
+export LD_LIBRARY_PATH=/apps/software/USERNAME/likwid/5.4.1/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/apps/software/USERNAME/hwloc/2.11.2/lib:$LD_LIBRARY_PATH
+
+likwid-topology
+EOF
+sed -i "s/USERNAME/$USER/g" $HOME/m7sx/stage1.sh</span>   <span class="cmt"># your username where the file says USERNAME</span></pre>
+  </div>
+
+  <p class="stept"><i>1.11</i> Submit and read the output</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cd $HOME/m7sx &amp;&amp; sbatch --wait stage1.sh &amp;&amp; cat stage1_out.txt</span></pre>
+  </div>
+  <p class="goal">A job starts in the directory you submit it from — but on a compute node. <code>/tmp/$USER-build</code> exists only on the login node (rung 0), so submit from your home directory, which every node shares. Submit from <code>/tmp</code> and the first lines of your output are Slurm complaining that it cannot go there. <code>--wait</code> holds your prompt until the job has finished — a few seconds — so the output is there when <code>cat</code> reads it. Without it, <code>sbatch</code> returns at once and the job runs in the background.</p>
+
+  <div class="stop">
+    <div class="stop-l">Stop · rung 1<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>Count and look</h5>
+      <ul>
+        <li><b>Four export lines.</b> You wrote every one, and you had to know both the <code>bin</code> and the <code>lib</code> path of both packages.</li>
+        <li>In the output: sockets, cores, caches, memory.</li>
+        <li><b>Which version of likwid is this?</b> The output will not tell you.</li>
+      </ul>
+      <div class="ans"><b>5.4.1 — you know without asking, because you chose that tarball.</b> Nothing on the machine recorded that you chose it, or that <code>configure</code> chose a smaller XML option for you in step 1.2. Keep both in your pocket; rung 3 shows you what a tool does with them.</div>
+      <h5>The point</h5>
+      <p>Nothing failed anywhere in this rung. <code>configure</code> was happy, <code>make</code> was happy, the job succeeded. You now own two installations that work, and you also own every future consequence of how they were built — <b>and nothing in the process will ever tell you what those are.</b></p>
+      <p>Four of the <code>config.mk</code> edits existed only because you are not root. That is not likwid being awkward; it is the normal state of building upstream software on a shared machine, and it is your problem to solve every single time.</p>
+      <div class="stop-rec"><b>Record</b> — <code>ladder.md</code> row 1: environment lines written, and the version.</div>
+    </div>
+  </div>
+</section>
+
+<section id="r2">
+  <div class="sh"><span class="sh-n">2</span><span class="sh-t">Lmod</span><span class="sh-m">20 min</span></div>
+  <p class="goal">The same two binaries, reached by <code>module load likwid</code>, in a job script with zero export lines.</p>
+
+  <div class="concept">
+    <h4>Why this rung exists — and what Lmod is</h4>
+    <p>Rung 1 left you with four export lines that you must repeat in every job script, and that every colleague must be told about. Multiply by fifty packages and four versions each and it stops being workable.</p>
+    <p><b>Lmod is an environment module system.</b> For each installed package you write one small file — a <b>modulefile</b> — that says what that package needs added to the environment. Users then type <code>module load likwid</code> and Lmod makes those changes. <code>module unload</code> reverses every one of them exactly, which plain <code>export</code> cannot do.</p>
+    <p>A modulefile is written in Lua and is usually five to ten lines. It is a <em>contract</em>: the person who installed the software writes down how to use it, once, and nobody has to know afterwards.</p>
+    <p><b>Watch for this:</b> the binary does not change in this rung. Only how you reach it changes.</p>
+  </div>
+
+  <p class="stept"><i>2.1</i> Make room for your modulefiles</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">mkdir -p /apps/modulefiles/$USER/{hwloc,likwid}</span></pre>
+  </div>
+  <p class="goal">Lmod finds modulefiles by directory layout: <code>&lt;somewhere&gt;/&lt;package&gt;/&lt;version&gt;.lua</code>. That is why the package name is a directory and the version is the filename — it is how <code>module load likwid/5.4.1</code> knows where to look.</p>
+
+  <p class="stept"><i>2.2</i> Install the one you have been given</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cp /apps/tarballs/examples/hwloc-2.11.2.lua /apps/modulefiles/$USER/hwloc/2.11.2.lua
+sed -i "s/USERNAME/$USER/g" /apps/modulefiles/$USER/hwloc/2.11.2.lua</span>   <span class="cmt"># your username where the file says USERNAME</span></pre>
+  </div>
+
+  <p class="stept"><i>2.3</i> Read it before you write your own</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /apps/modulefiles/$USER/hwloc/2.11.2.lua</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>-- hwloc 2.11.2 · hand-written modulefile
+whatis("hwloc 2.11.2 — hardware locality")
+
+local base = "/apps/software/&lt;you&gt;/hwloc/2.11.2"
+
+prepend_path("PATH",            pathJoin(base, "bin"))
+prepend_path("LD_LIBRARY_PATH", pathJoin(base, "lib"))
+prepend_path("MANPATH",         pathJoin(base, "share/man"))
+
+-- prepend_path does what your export lines did in rung 1,
+-- and Lmod reverses every one on `module unload`.</pre></div>
+  <p class="goal">Read it against what you typed in rung 1. <code>prepend_path</code> is the same operation as <code>export PATH=new:$PATH</code> — add to the front, keep what was there. <code>pathJoin</code> just glues directory names together safely. There is nothing exotic here; it is your four export lines, written down where they belong.</p>
+
+  <p class="stept"><i>2.4</i> Write likwid's — the one that has a dependency</p>
+  <div class="do">
+    <div class="dol">Paste it — the last line is the one that matters</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat &gt; /apps/modulefiles/$USER/likwid/5.4.1.lua &lt;&lt;'EOF'
+-- likwid 5.4.1 · hand-written modulefile
+whatis("likwid 5.4.1 — performance tools")
+
+local base = "/apps/software/USERNAME/likwid/5.4.1"
+
+prepend_path("PATH",            pathJoin(base, "bin"))
+prepend_path("LD_LIBRARY_PATH", pathJoin(base, "lib"))
+prepend_path("MANPATH",         pathJoin(base, "man"))
+
+-- likwid needs YOUR hwloc (step 1.7): loading likwid loads hwloc first
+depends_on("hwloc/2.11.2")
+EOF
+sed -i "s/USERNAME/$USER/g" /apps/modulefiles/$USER/likwid/5.4.1.lua</span>   <span class="cmt"># your username where the file says USERNAME</span></pre>
+  </div>
+  <p class="goal">The last line is the one hwloc's file does not have. You built likwid against <em>your</em> hwloc (step 1.7), so it cannot start unless hwloc's library is on <code>LD_LIBRARY_PATH</code> first — in rung 1 that was your second pair of export lines. <code>depends_on</code> loads hwloc whenever likwid is loaded; <code>prereq</code> would only check, and fail, pushing the work back onto the user.</p>
+  <div class="careful"><b>The version is pinned in that line</b><code>depends_on("hwloc/2.11.2")</code> names a version. Write <code>depends_on("hwloc")</code> and Lmod loads whichever hwloc it finds first — which on a real cluster carrying four hwloc versions is a support ticket waiting to happen.</div>
+
+  <p class="stept"><i>2.5</i> Register your modulefile directory</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">module use /apps/modulefiles/$USER</span>   <span class="cmt"># add your modulefiles to the places Lmod looks</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">module --ignore_cache avail</span>   <span class="cmt"># what Lmod can load now (--ignore_cache: your files are new)</span></pre>
+  </div>
+  <p class="goal"><code>module use</code> adds a directory to <code>MODULEPATH</code>, which is the list of places Lmod looks — the same idea as <code>PATH</code>, for modulefiles. <code>--ignore_cache</code> is needed because Lmod caches what it found last time, and your files are new.</p>
+
+  <p class="stept"><i>2.6</i> Load it and check the chain</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">module purge &amp;&amp; module load likwid</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">module list</span>   <span class="cmt"># should show TWO modules, not one</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">which likwid-topology lstopo</span></pre>
+  </div>
+
+  <p class="stept"><i>2.7</i> Write the job script — no exports this time</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat &gt; $HOME/m7sx/stage2.sh &lt;&lt;'EOF'
+#!/bin/bash
+#SBATCH --job-name=stage2
+#SBATCH --output=/home/USERNAME/m7sx/stage2_out.txt
+#SBATCH -n 1 -t 00:05:00
+
+module use /apps/modulefiles/USERNAME
+module purge
+module load likwid
+
+likwid-topology
+EOF
+sed -i "s/USERNAME/$USER/g" $HOME/m7sx/stage2.sh</span>   <span class="cmt"># your username where the file says USERNAME</span></pre>
+  </div>
+
+  <p class="stept"><i>2.8</i> Submit it</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sbatch --wait $HOME/m7sx/stage2.sh</span>   <span class="cmt"># returns when the job has finished</span></pre>
+  </div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · rung 2<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>Compare</h5>
+      <pre>diff &lt;(grep -v 'Free memory' $HOME/m7sx/stage1_out.txt) &lt;(grep -v 'Free memory' $HOME/m7sx/stage2_out.txt) &amp;&amp; echo "IDENTICAL"</pre>
+      <div class="ans"><b>Identical</b> — once the free-memory line is set aside, because that line is the machine's state at that second, not the software. Same binary (<code>likwid-topology -v</code> still says 5.4.1), and zero export lines in the script. One <code>module load</code> brought in two modules, which is <code>depends_on</code> doing what your second pair of export lines did in rung 1, except you will never forget it again and neither will anyone else who uses your modulefile.</div>
+      <h5>The point</h5>
+      <p><b>Lmod fixed the environment, not the software.</b> It is the same binary you built in rung 1, carrying the same gap. A module system makes software usable, shareable and reversible — genuinely valuable, and the single biggest quality-of-life improvement on any cluster.</p>
+      <p>But it operates entirely on <em>paths</em>. It has no idea what is inside the software, it did not build anything, and it will never tell you that something is missing. That limit is precisely what rung 3 addresses.</p>
+      <div class="stop-rec"><b>Record</b> — row 2: environment lines written, the version.</div>
+    </div>
+  </div>
+</section>
+
+<section id="r3">
+  <div class="sh"><span class="sh-n">3</span><span class="sh-t">Spack</span><span class="sh-m">22 min</span></div>
+  <p class="goal">The same command, installed by a tool that worked out the dependencies itself — with a visibly different result.</p>
+
+  <div class="concept">
+    <h4>Why this rung exists — and what Spack is</h4>
+    <p>Rungs 1 and 2 both assumed <em>you</em> know what the software needs. You decided hwloc was the only dependency, because that was the only one you were told about.</p>
+    <p><b>Spack is a source package manager built for HPC.</b> It carries a recipe for each package describing its dependencies, its options, and how to build it. You ask for <code>likwid</code> and Spack works out the full set of packages required — the <b>dependency graph</b> — then builds or fetches each one in the right order.</p>
+    <p>Two ideas worth having before you start:</p>
+    <ul>
+      <li><b>Concretization.</b> Before building anything, Spack turns your loose request ("likwid") into a fully specified plan: exact versions, exact compiler, exact options, for every package in the graph. You can read that plan before committing to it, which is what step 3.2 does.</li>
+      <li><b>The binary cache.</b> Building everything from source would take hours. A cache holds pre-built results, so most of the graph arrives in seconds. Anything not in the cache is compiled for real — you will see both happen.</li>
+    </ul>
+  </div>
+
+  <p class="stept"><i>3.1</i> Enter the Spack environment</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">. /apps/spack/share/spack/setup-env.sh</span></pre>
+  </div>
+
+  <p class="stept"><i>3.2</i> Read the plan before building anything</p>
+  <div class="do">
+    <div class="dol">[b] from the binary cache · [e] already on the system · - built here, from source</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">spack spec -I likwid</span>   <span class="cmt"># the plan only: nothing is built yet. You built TWO by hand</span></pre>
+  </div>
+  <div class="careful"><b>Before you move on</b>Find hwloc in that list, then look at what hwloc itself depends on. One of those names should look familiar from step 1.2. Hold that thought until the Stop.</div>
+
+  <p class="stept"><i>3.3</i> Install it — watch this one happen</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">time spack install likwid</span>   <span class="cmt"># now carry the plan out: [b] from the cache, likwid compiled</span></pre>
+  </div>
+  <div class="careful"><b>If it starts downloading sources</b>Ctrl-C and stop. Everything needed is in the local cache and mirror; a download attempt means something is misconfigured on the cluster, not that you made a mistake.</div>
+
+  <p class="stept"><i>3.4</i> Let Spack write the modulefiles</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">spack module lmod refresh -y --delete-tree</span>   <span class="cmt"># write a modulefile for everything Spack installed</span></pre>
+  </div>
+  <p class="goal">Spack generates a modulefile for every package it installed, from the dependency graph it already knows. Compare that with rung 2, where you wrote two by hand and had to state the dependency yourself.</p>
+
+  <p class="stept"><i>3.5</i> Load Spack's module, not yours</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">module purge</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">module use /apps/software/$USER/spack/lmod/linux-*/Core</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">module load likwid &amp;&amp; which likwid-topology</span>
+                    <span class="cmt"># your Spack tree, not your hand-built one</span></pre>
+  </div>
+
+  <p class="stept"><i>3.6</i> Write the job script</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat &gt; $HOME/m7sx/stage3.sh &lt;&lt;'EOF'
+#!/bin/bash
+#SBATCH --job-name=stage3
+#SBATCH --output=/home/USERNAME/m7sx/stage3_out.txt
+#SBATCH -n 1 -t 00:05:00
+
+. /apps/spack/share/spack/setup-env.sh
+module use /apps/software/USERNAME/spack/lmod/linux-*/Core
+module purge
+module load likwid
+
+likwid-topology
+EOF
+sed -i "s/USERNAME/$USER/g" $HOME/m7sx/stage3.sh</span>   <span class="cmt"># your username where the file says USERNAME</span></pre>
+  </div>
+
+  <p class="stept"><i>3.7</i> Submit it</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sbatch --wait $HOME/m7sx/stage3.sh</span>   <span class="cmt"># returns when the job has finished</span></pre>
+  </div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · rung 3<span>the payoff — take your time here</span></div>
+    <div class="stop-b">
+      <h5>Compare</h5>
+      <pre>diff &lt;(grep -v 'Free memory' $HOME/m7sx/stage2_out.txt) &lt;(grep -v 'Free memory' $HOME/m7sx/stage3_out.txt) &amp;&amp; echo "IDENTICAL"
+likwid-topology -v</pre>
+      <div class="ans"><b>The job's output is identical to rung 2's</b> — it describes the machine, and the machine did not change. <b>The software that printed it did: 5.5.1, not the 5.4.1 you built.</b> You asked for "likwid". Spack chose the version, the compiler, every option, and the hwloc underneath it: 2.13.0, not your 2.11.2. Same command name, same machine, same afternoon, different software.</div>
+      <h5>Why</h5>
+      <p>Go back to the XML line from step 1.2: <code>basic</code>. hwloc reads and writes its picture of the machine as XML, and does it properly with a library called <b>libxml2</b>. Its headers were not on the login node, so <code>configure</code> found nothing, <b>quietly chose a smaller built-in option</b>, and carried on. Nothing failed, and nothing said so.</p>
+      <p>Now look back at <code>spack spec</code> from step 3.2: <b>libxml2</b> is in hwloc's graph. Spack's recipe for hwloc names that dependency, so it was built first and hwloc was built against it. <b>You did not have to know any of that.</b> Spack even supplied the library path you had to set by hand with <code>LIBRARY_PATH</code> in step 1.8 — its compiler wrapper adds one for every dependency.</p>
+      <p>That is the argument for dependency management, and it is worth more than the time it saved. A build that fails is annoying. A build that succeeds and quietly does less is the one that costs you six months later, when somebody asks why the numbers are wrong.</p>
+      <h5>And it wrote down what it did</h5>
+      <pre>spack find --paths likwid
+ls $(spack location -i likwid)/.spack/</pre>
+      <p>There is a JSON file in there recording every dependency, version, compiler and build option used. Hand it to a colleague and they can reproduce exactly this installation. Your rung 1 install recorded nothing at all — the knowledge of how it was built exists only in your memory of this afternoon.</p>
+      <div class="stop-rec"><b>Record</b> — row 3: environment lines, the version, who chose it.</div>
+    </div>
+  </div>
+</section>
+
+<section id="r4">
+  <div class="sh"><span class="sh-n">4</span><span class="sh-t">EasyBuild</span><span class="sh-m">12 min · reading only</span></div>
+  <p class="goal">You can say what EasyBuild does differently from Spack, having read one of each.</p>
+
+  <div class="concept">
+    <h4>Why this rung exists — and what EasyBuild is</h4>
+    <p><b>EasyBuild is the other widely used HPC software build tool</b>, and you will meet it at European sites especially. It solves the same problem as Spack and organises it differently.</p>
+    <p>Its central idea is the <b>toolchain</b>: a named bundle of compiler, MPI library and mathematics libraries — <code>foss</code>, <code>intel</code>, <code>GCCcore</code> and so on. You choose a toolchain, and everything is built against it. A recipe is called an <b>easyconfig</b>, one file per package per version per toolchain.</p>
+    <p>Nothing is built in this rung — a full toolchain takes hours. You are reading the plan and comparing it with Spack's.</p>
+  </div>
+
+  <p class="stept"><i>4.1</i> Load EasyBuild</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">module purge &amp;&amp; module use /apps/easybuild/modules/all</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">module load EasyBuild</span></pre>
+  </div>
+
+  <p class="stept"><i>4.2</i> Find the recipe</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">eb --search likwid</span></pre>
+  </div>
+
+  <p class="stept"><i>4.3</i> Read it</p>
+  <div class="do">
+    <div class="dol">Find the 'toolchain' line</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">eb --show-ec likwid-5.4.1-GCC-14.2.0.eb</span></pre>
+  </div>
+
+  <p class="stept"><i>4.4</i> See the plan without running it</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">eb -D -r likwid-5.4.1-GCC-14.2.0.eb 2&gt;&amp;1 | grep ' \* \['</span>   <span class="cmt"># -r: follow every dependency. [x] installed, [ ] would be built</span></pre>
+  </div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · rung 4<span>put it beside spack spec</span></div>
+    <div class="stop-b">
+      <h5>Compare</h5>
+      <pre>eb -D -r likwid-5.4.1-GCC-14.2.0.eb     vs     spack spec -I likwid</pre>
+      <ul>
+        <li>Both resolve dependencies. Both produce a list of things to build, in order.</li>
+        <li>The version and the toolchain are in EasyBuild's <b>filename</b>. A different version is a different file, written by somebody and reviewed.</li>
+        <li><b>Why nothing is installed here:</b> every <code>[ ]</code> in EasyBuild's plan would be built first — the <b>GCC 14.2.0 compiler itself</b> among them. That is hours of compiling, from sources on the internet this cluster cannot reach. Spack's plan used the compiler already on the system (<code>[e] gcc@11.5.0</code>).</li>
+      </ul>
+      <h5>The point</h5>
+      <p><b>Spack asked "what does this need?" EasyBuild asked "what toolchain is this for?"</b></p>
+      <p>Toolchain-first gives a coherent, reproducible set where everything at a site is built against the same compiler and MPI. That consistency is why large centres favour it, and why their software stacks are easy to reason about.</p>
+      <p>Graph-first gives flexibility: combine a package built today with one built last year, mix compilers, vary options per package. That is why smaller and faster-moving sites favour Spack.</p>
+      <p>Neither is wrong. They optimise for different problems, and most administrators end up able to read both.</p>
+      <div class="stop-rec"><b>Record</b> — row 4: one line on when you would choose each. No job for this rung.</div>
+    </div>
+  </div>
+</section>
+
+<section id="r5">
+  <div class="sh"><span class="sh-n">5</span><span class="sh-t">Apptainer</span><span class="sh-m">14 min</span></div>
+  <p class="goal">The same command again, this time carrying its entire operating system with it.</p>
+
+  <div class="concept">
+    <h4>Why this rung exists — and what a container is</h4>
+    <p>Every rung so far installed software <em>onto this cluster</em>, against this cluster's operating system, compiler and C library. Move to a different machine and you build it again.</p>
+    <p><b>A container is a single file holding an entire filesystem</b> — a whole Linux distribution, the application, and every library it needs. When you run a command "inside" it, the program sees that filesystem instead of the host's. The kernel is still the host's; everything above it is not.</p>
+    <p><b>Apptainer</b> is the container runtime built for HPC. It differs from Docker in ways that matter here: an image is one ordinary file you can copy about, it runs as you rather than as root, and it does not need a daemon. It was called <b>Singularity</b> until 2021 — you will meet both names, same lineage.</p>
+    <p>This rung changes nothing about the cluster. Somebody built the image months ago on a different machine.</p>
+  </div>
+
+  <p class="stept"><i>5.1</i> Look at the image</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">module purge</span>   <span class="cmt"># start clean: no modules loaded</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">apptainer inspect /apps/containers/likwid.sif</span>   <span class="cmt"># the image's own labels: who built it, when, from what</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">One file — that is the whole thing</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ls -lh /apps/containers/likwid.sif</span></pre>
+  </div>
+
+  <p class="stept"><i>5.2</i> Compare the operating system</p>
+  <div class="do">
+    <div class="dol">Outside the container</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /etc/os-release | head -2</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Inside it</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">apptainer exec /apps/containers/likwid.sif cat /etc/os-release | head -2</span></pre>
+  </div>
+
+  <p class="stept"><i>5.3</i> Compare the C library</p>
+  <div class="do">
+    <div class="dol">Outside</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ldd --version | head -1</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Inside</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">apptainer exec /apps/containers/likwid.sif ldd --version | head -1</span></pre>
+  </div>
+  <p class="goal">The C library is the foundation every other library and program is built on. Two different ones, on one machine, at the same time — that is the thing a container actually gives you, and it is why an image built elsewhere runs here unchanged.</p>
+
+  <p class="stept"><i>5.4</i> Run the command inside it</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">apptainer exec /apps/containers/likwid.sif likwid-topology | head -20</span></pre>
+  </div>
+
+  <p class="stept"><i>5.5</i> Write the job script</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat &gt; $HOME/m7sx/stage5.sh &lt;&lt;'EOF'
+#!/bin/bash
+#SBATCH --job-name=stage5
+#SBATCH --output=/home/USERNAME/m7sx/stage5_out.txt
+#SBATCH -n 1 -t 00:05:00
+
+apptainer exec /apps/containers/likwid.sif likwid-topology
+EOF
+sed -i "s/USERNAME/$USER/g" $HOME/m7sx/stage5.sh</span>   <span class="cmt"># your username where the file says USERNAME</span></pre>
+  </div>
+
+  <p class="stept"><i>5.6</i> Submit it</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sbatch --wait $HOME/m7sx/stage5.sh</span>   <span class="cmt"># returns when the job has finished</span></pre>
+  </div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · rung 5<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>Compare</h5>
+      <pre>apptainer exec /apps/containers/likwid.sif likwid-topology -v</pre>
+      <div class="ans"><b>One line in the job script.</b> No modules, no exports, no install, no build. And the version is <b>5.2.2</b> — older than the 5.4.1 you built — running on Ubuntu with its own C library, as steps 5.2 and 5.3 showed. Three rungs, three versions: 5.4.1 because you chose it, 5.5.1 because Spack did, 5.2.2 because whoever built the image did. None of them is wrong. Only one of them was your decision.</div>
+      <h5>The point</h5>
+      <p>The image was built by somebody else, months ago, on a different machine, and it carries its own operating system and C library. That is why it behaves identically here, on a colleague's cluster, and on a laptop. For reproducing a result years later, nothing else comes close.</p>
+      <h5>And what it did not solve</h5>
+      <p>You cannot see inside it without going looking. You did not choose what is in it. If something in it is wrong or out of date you cannot fix it — you ask whoever built it, and wait. It may not use this cluster's network hardware or GPU drivers properly, because it does not know about them.</p>
+      <p><b>Every rung trades control for convenience. This one trades the most of both</b>, which makes it excellent for a fixed, finished application and a poor choice for something you are still developing.</p>
+      <div class="stop-rec"><b>Record</b> — row 5: environment lines, the version, who chose it.</div>
+    </div>
+  </div>
+</section>
+
+<section id="wrap">
+  <div class="sh"><span class="sh-n">✓</span><span class="sh-t">The ladder</span><span class="sh-m">12 min</span></div>
+  <p class="goal">Your own comparison table, and four job outputs proving you ran every rung.</p>
+
+  <p class="stept">Check your evidence</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ls -l $HOME/m7sx/stage*_out.txt</span>   <span class="cmt"># four files — there is no stage4</span></pre>
+  </div>
+
+  <p class="stept">Fill the table</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi $HOME/m7sx/ladder.md</span></pre>
+  </div>
+
+  <table>
+    <thead><tr><th>Rung</th><th>Env lines you wrote</th><th>Version reported</th><th>Who chose the version</th></tr></thead>
+    <tbody>
+      <tr><td class="m">1 · Tarball</td><td class="fill">____</td><td class="fill">____</td><td class="m">you</td></tr>
+      <tr><td class="m">2 · Lmod</td><td class="fill">____</td><td class="fill">____</td><td class="m">you</td></tr>
+      <tr><td class="m">3 · Spack</td><td class="m">0</td><td class="fill">____</td><td class="fill">____</td></tr>
+      <tr><td class="m">4 · EasyBuild</td><td class="m">—</td><td class="m">—</td><td class="fill">____</td></tr>
+      <tr><td class="m">5 · Apptainer</td><td class="m">0</td><td class="fill">____</td><td class="fill">____</td></tr>
+    </tbody>
+  </table>
+
+  <div class="stop">
+    <div class="stop-l">Stop · the last one<span>two sentences, then you are done</span></div>
+    <div class="stop-b">
+      <h5>Write this at the bottom of ladder.md</h5>
+      <p>A colleague needs a package that exists nowhere except as a tarball on a research group's website, and needs it next week. <b>Which rung, and why?</b></p>
+      <div class="ans"><b>There is no single right answer</b>, and that is the point. Rung 1 gets it working today and costs you every time it is rebuilt. Rung 3 costs an afternoon writing a recipe and pays back from the second install onwards. The deciding questions are how many people need it, how often it changes, and whether anyone will have to reproduce the result later.</div>
+      <h5>The point of the whole lab</h5>
+      <p>You climbed the ladder in one direction, once. In real work you choose a rung per package, and the higher rungs are not simply better — each one takes decisions away from you as well as work.</p>
+      <p><b>Rung 1 is not obsolete.</b> It is where you end up whenever nobody has written a recipe yet, which happens constantly in research computing. The difference is that you now know what it costs, what it silently gets wrong, and what the alternatives buy you.</p>
+    </div>
+  </div>
+</section>
+
+<section id="stuck">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">If you get stuck</span></div>
+  <table>
+    <thead><tr><th>Symptom</th><th>What it means · what to do</th></tr></thead>
+    <tbody>
+      <tr><td><code>command not found</code> in a job, fine interactively</td><td class="m">the job's environment is not your shell's.<br />PATH inside the script is wrong or missing</td></tr>
+      <tr><td><code>libhwloc.so.*: cannot open shared object file</code></td><td class="m">PATH found the binary, LD_LIBRARY_PATH<br />did not find its library. Add the lib directory</td></tr>
+      <tr><td><code>cannot find -lhwloc</code> during likwid's <code>make</code></td><td class="m">the linker cannot see your hwloc.<br />export LIBRARY_PATH (step 1.8), make again</td></tr>
+      <tr><td><code>make install</code>: permission denied</td><td class="m">check <code>--prefix</code> / <code>PREFIX</code>.<br />You can write only under /apps/software/$USER</td></tr>
+      <tr><td><code>module avail</code> does not show yours</td><td class="m">module use /apps/modulefiles/$USER<br />then <code>module --ignore_cache avail</code></td></tr>
+      <tr><td><code>module list</code> shows one, not two</td><td class="m">the depends_on line in your likwid<br />modulefile is missing or misspelled</td></tr>
+      <tr><td>Anything starts downloading</td><td class="m">Ctrl-C. There is no internet here by design;<br />something on the cluster is misconfigured</td></tr>
+      <tr><td>Job stays pending: <code>sbatch --wait</code> does not come back</td><td class="m">Ctrl-C, then squeue -u $USER<br />and read the reason column</td></tr>
+      <tr><td>Everything is broken and you want to start a rung again</td><td class="m">rm -rf /tmp/$USER-build and unpack again.<br />Your installs under /apps are untouched</td></tr>
+    </tbody>
+  </table>
+  <div class="goal"><b>Asking beats guessing.</b> With a trainer present, say which rung, the exact command, and what came back. Working alone, note those three things down and bring them to the next session — a precise question gets a precise answer, and a vague one gets a shrug.</div>
+</section>
+
+<section id="glossary">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">Glossary</span></div>
+  <dl class="gloss">
+    <dt>binary cache</dt><dd>A store of pre-built packages. Spack fetches from one instead of compiling, which turns hours into seconds.</dd>
+    <dt>concretization</dt><dd>Spack turning a loose request into a fully specified plan — exact versions, compiler and options for every package in the graph.</dd>
+    <dt>container · image · .sif</dt><dd>A single file holding a whole filesystem: an operating system, an application and its libraries. <code>.sif</code> is Apptainer's image format.</dd>
+    <dt>dependency graph · DAG</dt><dd>The set of packages something needs, and what those need in turn. "Directed acyclic graph" — it has a direction and no loops.</dd>
+    <dt>depends_on</dt><dd>The Lmod function that loads another module. Contrast <code>prereq</code>, which only checks and fails.</dd>
+    <dt>easyconfig</dt><dd>EasyBuild's recipe file. One per package, per version, per toolchain.</dd>
+    <dt>LD_LIBRARY_PATH</dt><dd>Directories searched for shared libraries when a program starts. Missing entries give <code>cannot open shared object file</code>.</dd>
+    <dt>LIBRARY_PATH</dt><dd>Directories the linker searches for libraries while a program is being built. Its run-time partner is <code>LD_LIBRARY_PATH</code>.</dd>
+    <dt>Lmod</dt><dd>The environment module system. <code>module load</code> applies a package's environment changes; <code>module unload</code> reverses them.</dd>
+    <dt>login node · compute node</dt><dd>The machine you connect to, and the separate machines that run jobs. They share filesystems, not processes.</dd>
+    <dt>modulefile</dt><dd>A small Lua file describing what one package needs added to the environment.</dd>
+    <dt>MODULEPATH</dt><dd>Directories Lmod searches for modulefiles. The same idea as <code>PATH</code>, for modules.</dd>
+    <dt>PATH</dt><dd>Directories the shell searches for commands. Missing entries give <code>command not found</code>.</dd>
+    <dt>prefix</dt><dd>The directory a package installs into. <code>--prefix=/x</code> puts binaries in <code>/x/bin</code>, libraries in <code>/x/lib</code>.</dd>
+    <dt>setgid bit</dt><dd>The <code>s</code> in <code>drwxrwsr-x</code>. New files inherit the directory's group rather than the creator's.</dd>
+    <dt>shared filesystem</dt><dd>Storage mounted by every node at the same path. Here, <code>/apps</code> and <code>/home</code>.</dd>
+    <dt>spec</dt><dd>Spack's description of one concrete installation — package, version, compiler, options, dependencies. Saved as JSON alongside the install.</dd>
+    <dt>toolchain</dt><dd>EasyBuild's named bundle of compiler, MPI and mathematics libraries, e.g. <code>foss</code>, <code>intel</code>, <code>GCCcore</code>.</dd>
+  </dl>
+</section>
+
+</main>
+</div>
+
+<div class="foot">
+  <span>HPCA-100 · M7-SX · The Application Management Ladder</span>
+  <span>learner copy · works with a trainer or alone</span>
+</div>
+
+<script>
+const navs = document.querySelectorAll('.side a');
+const io = new IntersectionObserver(function (entries) {
+  entries.forEach(function (e) {
+    if (!e.isIntersecting) return;
+    navs.forEach(function (n) { n.classList.remove('on'); });
+    const a = document.querySelector('.side a[href="#' + e.target.id + '"]');
+    if (a) a.classList.add('on');
+  });
+}, { rootMargin: '-15% 0px -75% 0px' });
+document.querySelectorAll('section[id]').forEach(function (s) { io.observe(s); });
+
+function cpy(btn) {
+  const box = btn.closest('.do');
+  const pre = box.querySelector('pre');
+  navigator.clipboard.writeText((pre.innerText || pre.textContent).trim()).then(function () {
+    btn.textContent = 'copied';
+    btn.classList.add('ok');
+    setTimeout(function () { btn.textContent = 'copy'; btn.classList.remove('ok'); }, 1800);
+  });
+}
+
+function toggleCompact() {
+  document.body.classList.toggle('compact');
+  document.getElementById('cbtn').classList.toggle('on');
+}
+</script>
+</body>
+</html>
