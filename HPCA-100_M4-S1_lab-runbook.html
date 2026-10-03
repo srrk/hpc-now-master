@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HPCA-100 · M4-S1 · The HPC Storage Landscape · Lab Runbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff; --soft:#f6f8fa; --line:#e3e7eb;
+  --ink:#12161b; --ink2:#4f5862; --ink3:#8b949e;
+  --blue:#1f66d0; --blue-bg:#eff5fd;
+  --amber:#a55a12; --amber-bg:#fdf5ea;
+  --green:#0d7a55; --green-bg:#ecf7f2;
+  --code:#111519; --code-ink:#c9d1d9; --code-cmd:#7ee3b8; --code-cmt:#e0a85f;
+  --sans:"IBM Plex Sans",-apple-system,Segoe UI,sans-serif;
+  --mono:"IBM Plex Mono","Courier New",monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
+
+.youbar{position:sticky;top:0;z-index:60;background:var(--ink);display:flex;align-items:center;gap:14px;padding:8px 40px;font-size:12px}
+.youbar-k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#7c8691}
+.youbar-v{font-family:var(--mono);font-size:13px;color:#7ee3b8}
+.compactbtn{margin-left:auto;background:#1d242c;border:1px solid #2b333c;color:#c9d1d9;font-family:var(--mono);font-size:11px;padding:4px 12px;border-radius:2px;cursor:pointer}
+.compactbtn:hover{border-color:#7ee3b8;color:#7ee3b8}
+.compactbtn.on{background:#7ee3b8;color:#111519;border-color:#7ee3b8}
+
+.head{border-bottom:1px solid var(--line);padding:32px 40px 24px;background:var(--soft)}
+.head-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.head-title{font-size:26px;font-weight:600;letter-spacing:-.01em}
+.head-sub{font-size:14px;color:var(--ink2);margin-top:8px;max-width:680px}
+
+.wrap{display:grid;grid-template-columns:176px 1fr;gap:0 44px;max-width:1060px;margin:0 auto;padding:0 40px}
+.side{position:sticky;top:44px;align-self:start;padding:32px 0}
+.side-l{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin:0 0 10px}
+.side a{display:block;font-size:12.5px;color:var(--ink2);text-decoration:none;padding:5px 0 5px 12px;border-left:2px solid transparent}
+.side a:hover{color:var(--ink)}
+.side a.on{color:var(--blue);border-color:var(--blue)}
+.side hr{border:0;border-top:1px solid var(--line);margin:10px 0}
+main{padding:32px 0 0}
+section{padding:30px 0;border-top:1px solid var(--line)}
+section:first-child{border-top:none;padding-top:8px}
+
+.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:10px}
+.sh-n{font-family:var(--mono);font-size:12px;color:var(--blue);font-weight:500}
+.sh-t{font-size:19px;font-weight:600}
+.sh-m{margin-left:auto;font-size:11px;color:var(--ink3);font-family:var(--mono)}
+
+.goal{font-size:13.5px;color:var(--ink2);margin:0 0 16px;max-width:720px;border-left:2px solid var(--green);padding-left:12px}
+
+.stept{font-size:14px;font-weight:600;margin:20px 0 6px;color:var(--ink)}
+.stept i{font-family:var(--mono);font-style:normal;font-size:11px;color:var(--ink3);font-weight:400;margin-right:8px}
+
+.do{background:var(--code);border-radius:3px;padding:13px 16px;margin:7px 0;position:relative;overflow-x:auto;max-width:720px}
+.do pre{font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--code-ink);white-space:pre}
+.do .cmd{color:var(--code-cmd)}
+.do .cmt{color:var(--code-cmt)}
+.do .dim{color:#5c6873}
+.dol{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#5c6873;margin-bottom:8px}
+.cp{position:absolute;top:8px;right:8px;background:#1d242c;border:1px solid #2b333c;color:#7c8691;font-family:var(--mono);font-size:10px;padding:3px 9px;cursor:pointer;border-radius:2px}
+.cp:hover{color:var(--code-cmd);border-color:var(--code-cmd)}
+.cp.ok{color:var(--code-cmd);border-color:var(--code-cmd)}
+
+.see{border:1px solid var(--line);border-left:3px solid var(--ink3);border-radius:3px;margin:7px 0;max-width:720px;overflow-x:auto}
+.see-l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);padding:6px 14px;border-bottom:1px solid var(--line);background:var(--soft)}
+.see pre{font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--ink2);padding:10px 14px;white-space:pre}
+
+/* THE STOP POINT — one per rung */
+.stop{border:2px solid var(--ink);border-radius:3px;margin:26px 0 6px;max-width:720px;overflow:hidden}
+.stop-l{background:var(--ink);color:#fff;padding:9px 16px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;display:flex;justify-content:space-between}
+.stop-l span{letter-spacing:0;text-transform:none;font-weight:400;color:#7ee3b8;font-size:11px}
+.stop-b{padding:14px 16px}
+.stop-b h5{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin:14px 0 5px}
+.stop-b h5:first-child{margin-top:0}
+.stop-b pre{font-family:var(--mono);font-size:12px;line-height:1.7;background:var(--soft);border:1px solid var(--line);border-radius:2px;padding:9px 12px;white-space:pre-wrap;word-break:break-word;color:var(--ink);position:relative}
+.stop-b ul{margin:0;padding-left:20px}
+.stop-b li{font-size:13.5px;color:var(--ink);margin-bottom:4px}
+.stop-b p{font-size:13.5px;color:var(--ink2)}
+.stop-b p b{color:var(--ink);font-weight:600}
+.stop-rec{margin-top:14px;padding-top:11px;border-top:1px solid var(--line);font-size:13px;color:var(--ink2)}
+.stop-rec b{color:var(--green);font-weight:600}
+
+.careful{border-left:3px solid var(--amber);background:var(--amber-bg);padding:10px 15px;margin:12px 0;max-width:720px;font-size:13.5px;color:var(--ink2)}
+.careful b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:3px;font-weight:600}
+
+code{font-family:var(--mono);font-size:11.5px;background:var(--soft);padding:1px 5px;border-radius:2px;color:var(--blue)}
+.do code,.see code{background:none;padding:0;color:inherit}
+
+table{width:100%;max-width:720px;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+th{text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--soft)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+td.m{font-family:var(--mono);font-size:11.5px;color:var(--ink)}
+td.fill{background:var(--green-bg);color:var(--green);font-family:var(--mono);font-size:11.5px}
+
+.foot{border-top:1px solid var(--line);margin-top:40px;padding:18px 40px;font-size:11px;color:var(--ink3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;background:var(--soft)}
+
+/* compact mode — trainer driving from the front */
+body.compact .stop-b h5, body.compact .stop-b p, body.compact .stop-rec,
+body.compact .careful, body.compact .goal { display:none }
+body.compact .stop { border-color:var(--line) }
+body.compact .stop-l { background:var(--soft); color:var(--ink) }
+body.compact .stop-l span { color:var(--ink3) }
+
+@media print{.youbar,.side,.cp,.compactbtn{display:none!important}.wrap{grid-template-columns:1fr}section{break-inside:avoid}.stop{break-inside:avoid}}
+@media (max-width:1000px){.wrap{grid-template-columns:1fr;padding:0 22px}.side{display:none}.head,.youbar,.foot{padding-left:22px;padding-right:22px}}
+/* concept blocks — solo-learner framing, hidden in compact mode */
+.concept{border:1px solid var(--line);border-left:3px solid var(--blue);background:#fbfdff;border-radius:3px;padding:14px 17px;margin:0 0 18px;max-width:720px}
+.concept h4{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600;margin-bottom:7px}
+.concept p{font-size:13.5px;color:var(--ink2);margin-bottom:9px}
+.concept p:last-child{margin-bottom:0}
+.concept p b{color:var(--ink);font-weight:600}
+.concept ul{margin:4px 0 9px;padding-left:20px}
+.concept li{font-size:13.5px;color:var(--ink2);margin-bottom:4px}
+.concept code{background:#eef3f8}
+.ans{font-size:13.5px;color:var(--ink);background:var(--green-bg);border-left:2px solid var(--green);padding:9px 13px;margin:9px 0 0;border-radius:2px}
+.ans b{color:var(--green);font-weight:600}
+.gloss{max-width:720px;font-size:13px;margin-top:6px}
+.gloss dt{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:500;margin-top:12px}
+.gloss dd{color:var(--ink2);margin:2px 0 0 0}
+body.compact .concept, body.compact .ans, body.compact .gloss{display:none}
+body.compact #before, body.compact #glossary{display:none}
+</style>
+</head>
+<body>
+
+<div class="youbar">
+  <span class="youbar-k">Cluster</span>
+  <span class="youbar-v">login01</span>
+  <span class="youbar-k">5 tasks · 60 min guided · 2–3 h alone</span>
+  <button class="compactbtn" id="cbtn" onclick="toggleCompact()">compact</button>
+</div>
+
+<div class="head">
+  <p class="head-eyebrow">HPCA-100 · Module 4 · Session 1 · Lab Runbook</p>
+  <h1 class="head-title">The HPC Storage Landscape</h1>
+  <p class="head-sub">Five places to put a file, and they are not interchangeable. You will work out what each one actually is from evidence on the cluster, measure why the choice matters, read a real filesystem's health report, and write the page a user needs.</p>
+</div>
+
+<div class="wrap">
+
+<aside class="side">
+  <div class="side-l">Runbook</div>
+  <a href="#before">Before you start</a>
+  <a href="#start">Getting on</a>
+  <a href="#story">How this works</a>
+  <hr />
+  <a href="#t1">1 · Fact sheet</a>
+  <a href="#t2">2 · Measure it</a>
+  <a href="#t3">3 · Health report</a>
+  <a href="#t4">4 · Guidance page</a>
+  <a href="#t5">5 · Three questions</a>
+  <hr />
+  <a href="#wrap">Commit</a>
+  <a href="#stuck">If you get stuck</a>
+  <a href="#glossary">Glossary</a>
+</aside>
+
+<main>
+
+<section id="before">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">Before you start</span><span class="sh-m">read once · 6 min</span></div>
+
+  <div class="concept">
+    <h4>Why a cluster has five filesystems instead of one</h4>
+    <p>Your laptop has one disk and every file goes on it. A cluster has several storage systems, each built for a different job, and putting a file in the wrong one is the most common cause of slow jobs and lost work.</p>
+    <p>They differ along four axes, and you will be filling in all four today:</p>
+    <ul>
+      <li><b>Speed, and for what.</b> A system fast at streaming one huge file can be slow at touching ten thousand small ones, and the reverse.</li>
+      <li><b>Size and quota.</b> How much you get, and whether the limit is per user or per project.</li>
+      <li><b>Backup.</b> Whether a copy exists elsewhere. Users assume everything is backed up. On a real cluster most of it is not.</li>
+      <li><b>Purge.</b> Whether files are deleted automatically after a while.</li>
+    </ul>
+    <p><b>Those four things together are a "tier".</b> A tier is a contract, not a device — and today you will meet two tiers that live on exactly the same hardware and differ in every policy.</p>
+  </div>
+
+  <div class="concept">
+    <h4>What a parallel filesystem is</h4>
+    <p>Home directories here are NFS: one server holds the files and every machine mounts it. Simple, and it does not scale — one server, one bottleneck.</p>
+    <p>A <b>parallel filesystem</b> splits the job across machines. This cluster runs Lustre, which has three kinds of participant:</p>
+    <ul>
+      <li><b>MDT — metadata target.</b> Holds the directory tree: names, permissions, timestamps, and which data servers hold which parts of each file. <em>Every</em> file operation starts here.</li>
+      <li><b>OST — object storage target.</b> Holds the actual file contents. There are several, and one file can be spread across them.</li>
+      <li><b>Client.</b> Every login and compute node. It talks to the MDT to find a file and to the OSTs to read it.</li>
+    </ul>
+    <p>That split is the whole reason for the behaviour you will measure in task 2. Reading a big file engages several OSTs at once and goes fast. Creating ten thousand small files is ten thousand conversations with the one MDT, over the network, and goes slowly.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Striping, in one paragraph</h4>
+    <p>When a file is written to Lustre it is cut into pieces and spread across OSTs. How many OSTs, and how big each piece is, is the file's <b>stripe layout</b>. A big file spread across four OSTs can be read four times faster than one sitting on a single OST. A small file spread across four OSTs is slower than one that is not, because now four servers must be contacted instead of one.</p>
+    <p>You are not changing any striping today. Task 5 asks what you would need to know before advising someone else to.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Three ways to find out what is true</h4>
+    <p>Nobody is going to tell you what the tiers are. You will work them out from three kinds of evidence, and knowing which to reach for is half the skill:</p>
+    <ul>
+      <li><b>The system itself.</b> <code>findmnt</code>, <code>df</code>, <code>quota</code>, <code>lfs</code> — what the machine reports about its own storage, right now.</li>
+      <li><b>What the site publishes.</b> <code>/opt/site/storage/</code> holds what this cluster tells its users. Real, and like all site documentation, incomplete.</li>
+      <li><b>Operational records.</b> Logs and reports from the systems that actually do the work — the purge job, the backup system.</li>
+    </ul>
+    <p><b>None of the three is complete on its own.</b> That is not a flaw in this lab; it is what the job is like.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Working alone?</h4>
+    <p>You can. Allow two to three hours rather than one. Tasks 1, 2 and 3 are independent of each other — do them in any order, and stop between them.</p>
+    <p>Tasks 4 and 5 are writing, and need tasks 1 to 3 finished first.</p>
+    <p>Each task ends with a <b>Stop</b> containing the point of the task and the answers to the questions it asked. Read them.</p>
+  </div>
+</section>
+
+<section id="start">
+  <div class="sh"><span class="sh-n">00</span><span class="sh-t">Getting on</span></div>
+
+  <div class="do">
+    <div class="dol">Connect</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh &lt;you&gt;@mylab.hpc.now</span></pre>
+  </div>
+
+  <div class="do">
+    <div class="dol">Open your report</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cd $HOME/course-repo/m4-s1 &amp;&amp; ls</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>report.md</pre></div>
+
+  <p class="goal">One file today: <code>report.md</code>, with five empty sections. Keep it open in a second window and fill it as you go.</p>
+
+  <div class="careful"><b>You are an ordinary user, and nothing here needs more</b>You can write in your home directory, your scratch area and your course repository. Everything else is read-only to you. Two read-only <code>sudo</code> commands exist for task 1 and are named where you need them.</div>
+</section>
+
+<section id="story">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">How this works</span></div>
+
+  <table>
+    <thead><tr><th>Task</th><th>What you produce</th><th>Min</th></tr></thead>
+    <tbody>
+      <tr><td class="m">1</td><td>A fact sheet: every filesystem, what it is, and its policy</td><td class="m">20</td></tr>
+      <tr><td class="m">2</td><td>A measurement: parallel filesystem against node-local</td><td class="m">15</td></tr>
+      <tr><td class="m">3</td><td>A reading of a real production health report</td><td class="m">10</td></tr>
+      <tr><td class="m">4</td><td>The user-facing "which filesystem should I use" page</td><td class="m">9</td></tr>
+      <tr><td class="m">5</td><td>Three questions you would ask before changing striping</td><td class="m">3</td></tr>
+      <tr><td class="m">—</td><td>Commit</td><td class="m">3</td></tr>
+    </tbody>
+  </table>
+
+  <div class="careful"><b>Task 2 is capped at 15 minutes</b>Everyone measures on a compute node of their own, so there is a queue. Submit your job early — the moment you reach task 2 — and carry on with task 1 or 3 while it waits. The result file appears when it is done.</div>
+</section>
+
+<section id="t1">
+  <div class="sh"><span class="sh-n">1</span><span class="sh-t">The storage fact sheet</span><span class="sh-m">20 min</span></div>
+  <p class="goal">A table with one row per filesystem and seven columns: path, backing technology, capacity, quota, backup, purge, and how you found out.</p>
+
+  <div class="concept">
+    <h4>Why this task exists</h4>
+    <p>When a user asks "where should I put my data?", this table is the answer. Most sites do not have one written down, which is why most users guess — and why the first thing anybody asks a new administrator is a question the administrator cannot answer either.</p>
+    <p><b>The backup column is the one that matters most and is hardest to find.</b> Quota and purge are usually published. Backup status usually lives in the backup system's own records, somewhere else entirely, and is the column people forget. Watch for that as you go.</p>
+  </div>
+
+  <p class="stept"><i>1.1</i> Find out what is mounted</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">findmnt -t nfs,nfs4,lustre,xfs,ext4 -o TARGET,SOURCE,FSTYPE,OPTIONS</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">df -hT | grep -v tmpfs</span></pre>
+  </div>
+  <p class="goal">Two views of the same thing. <code>findmnt</code> tells you the type and where it comes from; <code>df</code> tells you how big it is and how full. Between them you have the first three columns for everything mounted here.</p>
+
+  <p class="stept"><i>1.2</i> Read what the site publishes</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ls /opt/site/storage/</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/site/storage/README</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/site/storage/policy.md</span></pre>
+  </div>
+  <div class="careful"><b>Read the policy page carefully, then check it against the machine</b>It is what this site tells its users. Note any column it does not cover — that gap is the point of this task.</div>
+
+  <p class="stept"><i>1.3</i> Your home directory</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">findmnt /home</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">quota -s</span></pre>
+  </div>
+
+  <p class="stept"><i>1.4</i> The parallel filesystem — capacity and architecture</p>
+  <div class="do">
+    <div class="dol">How much space, and across how many servers</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">lfs df -h</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">The same, counted in inodes rather than bytes</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">lfs df -i</span></pre>
+  </div>
+  <p class="goal">Read the left-hand column. Each line is one target, and the name says which kind. Count how many of each you have — that is the architecture, and task 3 will ask you to do the same thing on a much larger system.</p>
+
+  <p class="stept"><i>1.5</i> What the client is actually connected to</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sudo lctl dl</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sudo lctl get_param mdc.*.state osc.*.state</span></pre>
+  </div>
+  <p class="goal">This is the client's own view: one device per target it has connected to, plus the management connection. <code>mdc</code> is the client's connection to a metadata target, <code>osc</code> to an object storage target. Compare the count here with what <code>lfs df</code> showed.</p>
+
+  <p class="stept"><i>1.6</i> Project and scratch — quota and purge</p>
+  <div class="do">
+    <div class="dol">Your scratch quota</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">lfs quota -u $USER /lustre</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Your project's quota — use a project you belong to</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">id -Gn</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">lfs quota -p 1001 /lustre</span>   <span class="cmt"># and 1002, 1003 — one per project</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Is anything removing files?</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ls -l /var/log/hpca100/scratch-purge/</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">tail -20 /var/log/hpca100/scratch-purge/$(ls -t /var/log/hpca100/scratch-purge/ | head -1)</span></pre>
+  </div>
+  <div class="careful"><b>Compare the quota figures carefully</b>Look at the limits on scratch and on a project, and at the capacity in <code>lfs df</code>. One of these numbers should make you stop and look again.</div>
+
+  <p class="stept"><i>1.7</i> The archive</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">archive-ls</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Put something in it and see what happens</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">dd if=/dev/urandom of=$HOME/archive-test.bin bs=1M count=4 status=none &amp;&amp; archive-put $HOME/archive-test.bin</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Now immediately</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">archive-ls</span></pre>
+  </div>
+  <p class="goal">Come back to <code>archive-ls</code> in a few minutes while you work on something else. The delay is not a fault — it is what an archive is.</p>
+
+  <p class="stept"><i>1.8</i> Node-local storage</p>
+  <div class="do">
+    <div class="dol">You cannot see this from the login node — ask a compute node</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">srun -n1 df -hT /local</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">srun -n1 bash -c 'ls -la /local; hostname'</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Write a file there</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">srun -n1 bash -c 'hostname; echo hello &gt; /local/mine.txt; ls -l /local/mine.txt'</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Now read it back — run this two or three times</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">srun -n1 bash -c 'hostname; cat /local/mine.txt'</span></pre>
+  </div>
+  <p class="goal">Watch the hostname each time. Sometimes you land on the node that holds the file and it works; sometimes you land elsewhere and it does not. <b>The fast storage is only fast for the node holding it, and nobody else can read it at all</b> — not another node, not a colleague. Keep that in mind for task 2.</p>
+
+  <p class="stept"><i>1.9</i> The column the policy page does not have</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/site/storage/backup-status</span></pre>
+  </div>
+
+  <p class="stept"><i>1.10</i> Write the fact sheet</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi $HOME/course-repo/m4-s1/report.md</span>   <span class="cmt"># section 1</span></pre>
+  </div>
+  <div class="see"><div class="see-l">The table in your report — fill every cell</div><pre>| Tier | Path | Backing technology | Capacity | Quota | Backup | Purge | Found via |
+|------|------|--------------------|----------|-------|--------|-------|-----------|
+|      |      |                    |          |       |        |       |           |</pre></div>
+  <p class="goal">One row per tier. In the last column name the command or file that told you — if you cannot, you have assumed it rather than found it, and that distinction is the point of the task.</p>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 1<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>Check your sheet against these</h5>
+      <ul>
+        <li><b>Five rows.</b> If you have four, you have missed the one you cannot see from the login node.</li>
+        <li><b>A backup value for every row</b>, and at least one of them is "no".</li>
+        <li><b>Two of your rows share a filesystem.</b> Did you notice which?</li>
+      </ul>
+      <div class="ans"><b>Project and scratch are the same Lustre filesystem.</b> Same MDT, same OSTs, same capacity pool. They differ in quota, in backup and in purge — which is to say they differ in every column that matters to a user and in none that matters to the hardware. <b>A tier is a contract, not a device.</b> That is the single most useful idea in this session.</div>
+      <h5>On the backup column</h5>
+      <p>The site policy page does not state backup status at all. It lives in a separate file, written by the system that does the backing up. That is where it lives on most real clusters, and it is why the most common mistake in this task is a complete-looking fact sheet with that column blank or guessed.</p>
+      <p>Look at <em>when</em> the last backup ran, as well as whether one exists. A user hearing "yes, home is backed up" will assume nightly. Check whether that is what the timestamp says.</p>
+      <h5>On node-local</h5>
+      <p>It exists on every compute node, it is a different filesystem on each, and nothing you put there is guaranteed to survive the job. It is the only tier you cannot inspect from the login node at all, which is exactly why it gets left off fact sheets.</p>
+      <div class="stop-rec"><b>Record</b> — section 1 of <code>report.md</code>, all five rows, all seven columns.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t2">
+  <div class="sh"><span class="sh-n">2</span><span class="sh-t">Measure the difference</span><span class="sh-m">15 min · capped</span></div>
+  <p class="goal">Numbers for the parallel filesystem and node-local storage, on a small-file workload and a large-file workload.</p>
+
+  <div class="concept">
+    <h4>Why this task exists</h4>
+    <p>Task 1 told you what the tiers <em>are</em>. This one shows why it matters, in numbers you measured yourself rather than numbers somebody told you.</p>
+    <p>The harness runs four things on each of two targets: create five thousand small files, stat them all, remove them all, then write and read back one large file. Small-file work is reported in files per second; large-file work in MiB per second.</p>
+    <p><b>Do not assume the same target wins both workloads.</b> Which one wins each, and by how much, is the result — and how far apart those two margins are tells you where each tier belongs. Watch the ratios, not just the winners.</p>
+    <p><b>Submit this first and read on while it queues.</b> Everyone gets a compute node to themselves so the measurement is not contaminated by a neighbour, which means there is a queue. The job takes about a minute once it starts.</p>
+  </div>
+
+  <p class="stept"><i>2.1</i> Submit it now</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sbatch /opt/hpca100/m4s1/bench.sbatch</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Where you are in the queue</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">squeue -u $USER -o "%.10i %.9P %.8T %.10M %.20R"</span></pre>
+  </div>
+  <div class="careful"><b>Do not wait for it</b>Go back to task 1, or ahead to task 3. Come back when <code>squeue</code> shows nothing for you.</div>
+
+  <p class="stept"><i>2.2</i> Read the result</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ls -lt $HOME/m4s1-bench/</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat $HOME/m4s1-bench/$(ls -t $HOME/m4s1-bench | head -1)</span></pre>
+  </div>
+
+  <p class="stept"><i>2.3</i> Look at how the large file was laid out</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">lfs getstripe -d /lustre/scratch/$USER</span></pre>
+  </div>
+  <p class="goal">This is the default stripe layout your scratch directory hands to new files — how many OSTs they are spread across, and in what size pieces. The result file records the layout the large file actually got. Keep that number in mind for task 5.</p>
+
+  <p class="stept"><i>2.4</i> Write the numbers down</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi $HOME/course-repo/m4-s1/report.md</span>   <span class="cmt"># section 2</span></pre>
+  </div>
+  <div class="see"><div class="see-l">The table in your report</div><pre>| Workload              | /lustre/scratch | /local | Ratio |
+|-----------------------|-----------------|--------|-------|
+| small-file create /s  |                 |        |       |
+| small-file stat   /s  |                 |        |       |
+| small-file remove /s  |                 |        |       |
+| large-file write MiB/s|                 |        |       |
+| large-file read  MiB/s|                 |        |       |
+
+Ratio = /local ÷ /lustre/scratch, on every row.
+Above 1, node-local won that row. Below 1, the parallel filesystem won it.
+
+Small-file ratio N (create row) = ___    Large-file ratio M (read row) = ___    N ÷ M = ___
+
+Why the two ratios differ:
+</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 2<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>The two workloads had different winners. Now look at the two ratios.</h5>
+      <ul>
+        <li><b>Small-file:</b> node-local won, by a factor of <em>N</em>. When this cluster was built, <em>N</em> was about 20. Write yours down.</li>
+        <li><b>Large-file:</b> the parallel filesystem won. <em>M</em> is below 1 — it was about 0.25 for reading, meaning the parallel filesystem read the large file about four times faster than the local disk. It won the write too, but by how much depends on how many people were writing at the same moment: the filesystem's bandwidth is shared.</li>
+      </ul>
+      <div class="ans"><b>The interesting number is N ÷ M, not N or M.</b> When this cluster was built it was about 80: the same two places to put a file, eighty times apart depending only on the shape of the work. Neither is "the fast one". Each is fast at something, and the <em>size of the difference between the two gaps</em> is the thing that tells you where each tier belongs. Your numbers will differ a little from these; the shape will not.</div>
+      <h5>Why the two gaps differ</h5>
+      <p><b>Small-file work is latency.</b> Every create, stat and delete is a network round trip to a single metadata server shared by the whole cluster. Five thousand files is five thousand round trips. Node-local is a disk attached to the machine the job is on — no network, no shared server, no queue. Nothing the parallel filesystem can do closes that gap.</p>
+      <p><b>Large-file work is bandwidth.</b> The parallel filesystem spreads the file across its object storage targets, behind a fast network, and moves the pieces at once. A node's local disk is one device — on this cluster a modest one, around 70 MiB/s writing and 150 reading — and nothing adds to it. For big sequential files the architecture is doing exactly what it was built for, and it wins outright.</p>
+      <p>On some clusters the local disks are fast enough to win both workloads. On this one they are not. That is exactly why you measure instead of assuming.</p>
+      <h5>And what one node cannot show you</h5>
+      <p>You measured with <b>one client</b>. The parallel filesystem exists for forty reading the same dataset at once, and its aggregate throughput rises as clients are added. A local disk serves exactly one node and does not rise at all — forty nodes need forty copies, and forty copies of a dataset nobody can share is not storage, it is forty problems.</p>
+      <p><b>So the trade reverses twice</b> — once with the size of the files, which you just measured, and again with the number of nodes, which you cannot measure today. That is why the question is never "which is faster" but "faster at what, for how many". You will meet it for real the first time a user asks why their 200-node job is slow.</p>
+      <div class="stop-rec"><b>Record</b> — section 2: the table, both ratios, and one sentence on why they differ.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t3">
+  <div class="sh"><span class="sh-n">3</span><span class="sh-t">Read a production health report</span><span class="sh-m">10 min</span></div>
+  <p class="goal">A list of the components in a real production filesystem and the state each is in.</p>
+
+  <div class="concept">
+    <h4>Why this task exists</h4>
+    <p>The filesystem you have been looking at is small — one metadata target, two object storage targets. Real ones are not. The bundle on the evidence bench is modelled on a production system — its README says exactly how — and it is much larger.</p>
+    <p>You are reading it cold, which is the normal situation: somebody sends you a health capture and asks what they are looking at. The commands are the same ones you used in task 1. Only the scale changes.</p>
+    <p>The bench is read-only and nothing you do there affects anything.</p>
+  </div>
+
+  <p class="stept"><i>3.1</i> Enter the evidence bench</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">evidence-bench</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cd /evidence/m4/s1/pfs-health &amp;&amp; ls -la</span></pre>
+  </div>
+
+  <p class="stept"><i>3.2</i> Read the provenance first</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat README</span></pre>
+  </div>
+  <p class="goal">Where it came from, when, and what was anonymised. Always read this first on any capture somebody hands you — it tells you what the evidence can and cannot support.</p>
+
+  <p class="stept"><i>3.3</i> Count the components</p>
+  <div class="do">
+    <div class="dol">Capacity view</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat lfs-df-h.txt</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Inode view</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat lfs-df-i.txt</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">The client's device list</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat client/lctl-dl.txt</span></pre>
+  </div>
+
+  <p class="stept"><i>3.4</i> Find the states</p>
+  <div class="do">
+    <div class="dol">What each server says about itself</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">grep -r . server/*/health_check*</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">What the client says about each connection</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat client/import-state.txt</span></pre>
+  </div>
+  <div class="careful"><b>Three different things can be wrong here</b>A server can report itself unhealthy. A target can be present but not connected from the client. And a target can be perfectly healthy and nearly full. Check for all three — they need different responses and only one of them is an emergency.</div>
+
+  <p class="stept"><i>3.5</i> Write it up</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">exit</span>   <span class="cmt"># leave the bench; your notes are in your home directory</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi $HOME/course-repo/m4-s1/report.md</span>   <span class="cmt"># section 3</span></pre>
+  </div>
+  <div class="see"><div class="see-l">The table in your report</div><pre>Filesystem scale: ___ MDTs, ___ OSTs, across ___ servers
+
+| Component | State | Evidence (which file, which line) |
+|-----------|-------|-----------------------------------|
+|           |       |                                   |
+
+Anything not normal:
+</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 3<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>Check your reading</h5>
+      <div class="ans"><b>You should have found at least one component that is not in a normal state, and at least one target far fuller than its peers.</b> They are not the same component. If you found both, and you can point at the file and line for each, you have read the bundle correctly.</div>
+      <h5>The three things, and why they differ</h5>
+      <p><b>A server reporting itself unhealthy</b> is a hardware or software problem on that machine. Jobs touching its targets may hang.</p>
+      <p><b>A target the client cannot reach</b> may be perfectly healthy — the problem could be the network between them, or this one client. Check whether other clients see it before concluding anything.</p>
+      <p><b>A target at 95% while its peers are at 50%</b> is not a failure at all. It is an imbalance, usually caused by one very large file or by a striping choice, and <code>lfs df</code> reports the filesystem as full when <em>any</em> single target fills. Users will report "the filesystem is full" while most of it is empty.</p>
+      <h5>Why inode counts matter separately</h5>
+      <p><code>lfs df -h</code> and <code>lfs df -i</code> can tell opposite stories. A filesystem with plenty of space can be completely unable to create another file because a metadata target has run out of inodes. That is a different emergency, with different symptoms, and it is why you ran both commands.</p>
+      <div class="stop-rec"><b>Record</b> — section 3: the scale, the component table with evidence, and what is not normal.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t4">
+  <div class="sh"><span class="sh-n">4</span><span class="sh-t">The guidance page</span><span class="sh-m">9 min · protected</span></div>
+  <p class="goal">One page a researcher can read and act on, answering "which filesystem should I use?".</p>
+
+  <div class="concept">
+    <h4>Why this task exists</h4>
+    <p>Everything so far has been for you. This is for them — and it is the part of the session that does the most good, because a user who picks the right filesystem never files a ticket.</p>
+    <p><b>Decision-oriented, not descriptive.</b> A page that lists five filesystems and their properties is a fact sheet, and you already wrote one. A guidance page answers the question the user actually has, which is "where do I put <em>this</em>?"</p>
+  </div>
+
+  <div class="careful"><b>These nine minutes are protected</b>This is the deliverable that gets rushed, and it is the one that would be read by real people. If you are behind, stop task 3 and come here.</div>
+
+  <p class="stept"><i>4.1</i> Write it</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi $HOME/course-repo/m4-s1/report.md</span>   <span class="cmt"># section 4</span></pre>
+  </div>
+  <div class="see"><div class="see-l">The shape — write for someone who has never heard "MDT"</div><pre>## Which filesystem should I use?
+
+**Starting a new project** → ...
+**Running a job that reads or writes thousands of small files** → ...
+**I have results I must not lose** → ...
+**I have 50 GB of output I will not touch for six months** → ...
+**My job needs somewhere to put temporary files** → ...
+
+### What is NOT backed up
+...
+
+### What gets deleted automatically, and when
+...
+</pre></div>
+  <p class="goal">Five situations, five answers, each one sentence. Then the two things users assume wrongly: what is not backed up, and what disappears on its own. Those two sections prevent more lost work than everything else combined.</p>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 4<span>read your own page back</span></div>
+    <div class="stop-b">
+      <h5>Three tests</h5>
+      <ul>
+        <li>Does it use the words MDT, OST, inode, stripe or Lustre anywhere? If so, rewrite that sentence — your reader does not know them and will stop reading.</li>
+        <li>Can a user answer "where do I put this?" without reading the whole page? If not, your headings are wrong.</li>
+        <li>Does it state plainly which tiers have no backup? If that is buried or absent, the page has failed at the only thing it really had to do.</li>
+      </ul>
+      <div class="ans"><b>The small-file advice from task 2 belongs here</b>, in plain words: if your job opens thousands of small files, copy them to the node's local disk first and work there. Most users have never been told this, and it is the single highest-value sentence on the page.</div>
+      <div class="stop-rec"><b>Record</b> — section 4.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t5">
+  <div class="sh"><span class="sh-n">5</span><span class="sh-t">Three questions about striping</span><span class="sh-m">3 min</span></div>
+  <p class="goal">Three questions you would need answered before telling a user to change their stripe layout.</p>
+
+  <div class="concept">
+    <h4>Why this task exists</h4>
+    <p>Striping advice is the most commonly given and most commonly wrong piece of HPC storage guidance. "Stripe wider, it will be faster" is repeated everywhere and is false for most workloads — wider striping helps a few large files and actively harms many small ones.</p>
+    <p>The skill is not knowing the right stripe count. It is knowing that you cannot pick one without information you do not yet have, and knowing which information.</p>
+  </div>
+
+  <p class="stept"><i>5.1</i> Write them</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi $HOME/course-repo/m4-s1/report.md</span>   <span class="cmt"># section 5</span></pre>
+  </div>
+  <p class="goal">Three questions. Each one should be something that, answered differently, would change your advice.</p>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 5<span>read before going on</span></div>
+    <div class="stop-b">
+      <div class="ans"><b>There is no fixed list</b>, but a good set covers the shape of the data, the shape of the access, and what the change would cost. If your three questions could all be answered "it depends" without changing your advice, they are not the right three.</div>
+      <h5>Things worth having asked</h5>
+      <p>How big are the files, and how many? A thousand 2 MB files and one 2 TB file want opposite answers.</p>
+      <p>How are they read — one process reading one file, or many processes reading the same file at once?</p>
+      <p>Does the change apply to new files only? Striping is set when a file is created; changing a directory's layout does nothing to what is already in it, and users are routinely surprised by this.</p>
+      <p>How full is the filesystem, and how evenly? Wider striping on an unbalanced filesystem can make the imbalance worse.</p>
+      <div class="stop-rec"><b>Record</b> — section 5: three questions, one line each.</div>
+    </div>
+  </div>
+</section>
+
+<section id="wrap">
+  <div class="sh"><span class="sh-n">✓</span><span class="sh-t">Commit</span><span class="sh-m">3 min</span></div>
+
+  <div class="do">
+    <div class="dol">Check all five sections are filled</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">grep -c "^##" $HOME/course-repo/m4-s1/report.md</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Keep your measurement alongside the report</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cp $HOME/m4s1-bench/*.txt $HOME/course-repo/m4-s1/</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cd $HOME/course-repo &amp;&amp; git add m4-s1 &amp;&amp; git commit -m "M4-S1 storage fact sheet, measurement, guidance"</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">git push</span></pre>
+  </div>
+  <div class="careful"><b>Anything not pushed does not count</b>The cluster is destroyed after the session. Your repository is not.</div>
+</section>
+
+<section id="stuck">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">If you get stuck</span></div>
+  <table>
+    <thead><tr><th>Symptom</th><th>What it means · what to do</th></tr></thead>
+    <tbody>
+      <tr><td><code>lfs: command not found</code></td><td class="m">you are on a node without the Lustre client.<br />Run it on login01</td></tr>
+      <tr><td><code>lfs quota</code> prints nothing useful</td><td class="m">give it the mount point:<br /><code>lfs quota -u $USER /lustre</code></td></tr>
+      <tr><td><code>ls /local</code> on login01 is empty or missing</td><td class="m">correct. It is node-local.<br />Use <code>srun</code> to look at it</td></tr>
+      <tr><td>Your bench job sits in the queue</td><td class="m">expected — everyone gets a node to themselves.<br />Carry on with another task</td></tr>
+      <tr><td>No result file after the job finishes</td><td class="m">check <code>scontrol show job &lt;jobid&gt;</code> for the state,<br />then <code>$HOME/m4s1-bench/&lt;jobid&gt;.log</code></td></tr>
+      <tr><td><code>archive-ls</code> does not show your file</td><td class="m">the mover polls every couple of minutes.<br />Wait and look again</td></tr>
+      <tr><td><code>sudo lctl</code> says not permitted</td><td class="m">only those two exact read-only commands<br />are allowed, only on login01</td></tr>
+      <tr><td>You cannot write somewhere</td><td class="m">home, scratch and the course repo are yours.<br />Everything else is read-only by design</td></tr>
+    </tbody>
+  </table>
+  <div class="goal"><b>Asking beats guessing.</b> With a trainer present, say which task, the exact command and what came back. Working alone, write those three things down for the next session.</div>
+</section>
+
+<section id="glossary">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">Glossary</span></div>
+  <dl class="gloss">
+    <dt>archive</dt><dd>Storage for data you must keep but will rarely read. Retrieval is a request, not an instant read.</dd>
+    <dt>backup</dt><dd>A copy held elsewhere, from which files can be restored. Distinct from redundancy — RAID is not a backup.</dd>
+    <dt>client</dt><dd>Any machine that mounts the parallel filesystem. Every login and compute node here is one.</dd>
+    <dt>inode</dt><dd>The record describing one file — its name, owner, permissions and where its data lives. A filesystem can run out of these while still having free space.</dd>
+    <dt>lfs</dt><dd>The Lustre user command. <code>lfs df</code>, <code>lfs quota</code>, <code>lfs getstripe</code>.</dd>
+    <dt>Lustre</dt><dd>The parallel filesystem running here. Splits metadata and data across separate servers.</dd>
+    <dt>MDT · metadata target</dt><dd>Holds the directory tree. Every file operation starts here, which is why small-file work is slow on a parallel filesystem.</dd>
+    <dt>node-local</dt><dd>A disk physically attached to one compute node. Fast, private to that node, and erased when the job ends.</dd>
+    <dt>OST · object storage target</dt><dd>Holds file contents. Several per filesystem; one file can span many.</dd>
+    <dt>parallel filesystem</dt><dd>Storage spread across many servers so many clients can read and write at once.</dd>
+    <dt>purge</dt><dd>Automatic deletion of files past a certain age. Normal on scratch, and the reason scratch is not storage.</dd>
+    <dt>quota</dt><dd>A limit on space or file count. Can apply per user or per project, and the two can differ on the same filesystem.</dd>
+    <dt>scratch</dt><dd>Large, fast, not backed up, purged by age. For work in progress only.</dd>
+    <dt>stripe · stripe count</dt><dd>How many OSTs a file is spread across. Set when the file is created; changing a directory does not change existing files.</dd>
+    <dt>tier</dt><dd>A storage contract — capacity, quota, backup and purge taken together. Two tiers can share one filesystem.</dd>
+  </dl>
+</section>
+
+</main>
+</div>
+
+<div class="foot">
+  <span>HPCA-100 · M4-S1 · The HPC Storage Landscape</span>
+  <span>learner copy · works with a trainer or alone</span>
+</div>
+
+<script>
+const navs = document.querySelectorAll('.side a');
+const io = new IntersectionObserver(function (entries) {
+  entries.forEach(function (e) {
+    if (!e.isIntersecting) return;
+    navs.forEach(function (n) { n.classList.remove('on'); });
+    const a = document.querySelector('.side a[href="#' + e.target.id + '"]');
+    if (a) a.classList.add('on');
+  });
+}, { rootMargin: '-15% 0px -75% 0px' });
+document.querySelectorAll('section[id]').forEach(function (s) { io.observe(s); });
+
+function cpy(btn) {
+  const box = btn.closest('.do');
+  const pre = box.querySelector('pre');
+  navigator.clipboard.writeText((pre.innerText || pre.textContent).trim()).then(function () {
+    btn.textContent = 'copied';
+    btn.classList.add('ok');
+    setTimeout(function () { btn.textContent = 'copy'; btn.classList.remove('ok'); }, 1800);
+  });
+}
+
+function toggleCompact() {
+  document.body.classList.toggle('compact');
+  document.getElementById('cbtn').classList.toggle('on');
+}
+</script>
+</body>
+</html>
