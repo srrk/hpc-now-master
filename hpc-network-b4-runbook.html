@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HPCA-100 · M5-S3 · Two Networks, One Card · Lab Runbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff; --soft:#f6f8fa; --line:#e3e7eb;
+  --ink:#12161b; --ink2:#4f5862; --ink3:#8b949e;
+  --blue:#1f66d0; --blue-bg:#eff5fd;
+  --amber:#a55a12; --amber-bg:#fdf5ea;
+  --green:#0d7a55; --green-bg:#ecf7f2;
+  --code:#111519; --code-ink:#c9d1d9; --code-cmd:#7ee3b8; --code-cmt:#e0a85f;
+  --sans:"IBM Plex Sans",-apple-system,Segoe UI,sans-serif;
+  --mono:"IBM Plex Mono","Courier New",monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
+
+.youbar{position:sticky;top:0;z-index:60;background:var(--ink);display:flex;align-items:center;gap:14px;padding:8px 40px;font-size:12px}
+.youbar-k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#7c8691}
+.youbar-v{font-family:var(--mono);font-size:13px;color:#7ee3b8}
+.compactbtn{margin-left:auto;background:#1d242c;border:1px solid #2b333c;color:#c9d1d9;font-family:var(--mono);font-size:11px;padding:4px 12px;border-radius:2px;cursor:pointer}
+.compactbtn:hover{border-color:#7ee3b8;color:#7ee3b8}
+.compactbtn.on{background:#7ee3b8;color:#111519;border-color:#7ee3b8}
+
+.head{border-bottom:1px solid var(--line);padding:32px 40px 24px;background:var(--soft)}
+.head-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.head-title{font-size:26px;font-weight:600;letter-spacing:-.01em}
+.head-sub{font-size:14px;color:var(--ink2);margin-top:8px;max-width:680px}
+
+.wrap{display:grid;grid-template-columns:176px 1fr;gap:0 44px;max-width:1060px;margin:0 auto;padding:0 40px}
+.side{position:sticky;top:44px;align-self:start;padding:32px 0}
+.side-l{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin:0 0 10px}
+.side a{display:block;font-size:12.5px;color:var(--ink2);text-decoration:none;padding:5px 0 5px 12px;border-left:2px solid transparent}
+.side a:hover{color:var(--ink)}
+.side a.on{color:var(--blue);border-color:var(--blue)}
+.side hr{border:0;border-top:1px solid var(--line);margin:10px 0}
+main{padding:32px 0 0}
+section{padding:30px 0;border-top:1px solid var(--line)}
+section:first-child{border-top:none;padding-top:8px}
+
+.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:10px}
+.sh-n{font-family:var(--mono);font-size:12px;color:var(--blue);font-weight:500}
+.sh-t{font-size:19px;font-weight:600}
+.sh-m{margin-left:auto;font-size:11px;color:var(--ink3);font-family:var(--mono)}
+
+.goal{font-size:13.5px;color:var(--ink2);margin:0 0 16px;max-width:720px;border-left:2px solid var(--green);padding-left:12px}
+
+.stept{font-size:14px;font-weight:600;margin:20px 0 6px;color:var(--ink)}
+.stept i{font-family:var(--mono);font-style:normal;font-size:11px;color:var(--ink3);font-weight:400;margin-right:8px}
+
+.do{background:var(--code);border-radius:3px;padding:13px 16px;margin:7px 0;position:relative;overflow-x:auto;max-width:720px}
+.do pre{font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--code-ink);white-space:pre}
+.do .cmd{color:var(--code-cmd)}
+.do .cmt{color:var(--code-cmt)}
+.do .dim{color:#5c6873}
+.dol{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#5c6873;margin-bottom:8px}
+.cp{position:absolute;top:8px;right:8px;background:#1d242c;border:1px solid #2b333c;color:#7c8691;font-family:var(--mono);font-size:10px;padding:3px 9px;cursor:pointer;border-radius:2px}
+.cp:hover{color:var(--code-cmd);border-color:var(--code-cmd)}
+.cp.ok{color:var(--code-cmd);border-color:var(--code-cmd)}
+
+.see{border:1px solid var(--line);border-left:3px solid var(--ink3);border-radius:3px;margin:7px 0;max-width:720px;overflow-x:auto}
+.see-l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);padding:6px 14px;border-bottom:1px solid var(--line);background:var(--soft)}
+.see pre{font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--ink2);padding:10px 14px;white-space:pre}
+
+/* THE STOP POINT — one per rung */
+.stop{border:2px solid var(--ink);border-radius:3px;margin:26px 0 6px;max-width:720px;overflow:hidden}
+.stop-l{background:var(--ink);color:#fff;padding:9px 16px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;display:flex;justify-content:space-between}
+.stop-l span{letter-spacing:0;text-transform:none;font-weight:400;color:#7ee3b8;font-size:11px}
+.stop-b{padding:14px 16px}
+.stop-b h5{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin:14px 0 5px}
+.stop-b h5:first-child{margin-top:0}
+.stop-b pre{font-family:var(--mono);font-size:12px;line-height:1.7;background:var(--soft);border:1px solid var(--line);border-radius:2px;padding:9px 12px;white-space:pre-wrap;word-break:break-word;color:var(--ink);position:relative}
+.stop-b ul{margin:0;padding-left:20px}
+.stop-b li{font-size:13.5px;color:var(--ink);margin-bottom:4px}
+.stop-b p{font-size:13.5px;color:var(--ink2)}
+.stop-b p b{color:var(--ink);font-weight:600}
+.stop-rec{margin-top:14px;padding-top:11px;border-top:1px solid var(--line);font-size:13px;color:var(--ink2)}
+.stop-rec b{color:var(--green);font-weight:600}
+
+.careful{border-left:3px solid var(--amber);background:var(--amber-bg);padding:10px 15px;margin:12px 0;max-width:720px;font-size:13.5px;color:var(--ink2)}
+.careful b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:3px;font-weight:600}
+
+code{font-family:var(--mono);font-size:11.5px;background:var(--soft);padding:1px 5px;border-radius:2px;color:var(--blue)}
+.do code,.see code{background:none;padding:0;color:inherit}
+
+table{width:100%;max-width:720px;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+th{text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--soft)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+td.m{font-family:var(--mono);font-size:11.5px;color:var(--ink)}
+td.fill{background:var(--green-bg);color:var(--green);font-family:var(--mono);font-size:11.5px}
+
+.foot{border-top:1px solid var(--line);margin-top:40px;padding:18px 40px;font-size:11px;color:var(--ink3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;background:var(--soft)}
+
+/* compact mode — trainer driving from the front */
+body.compact .stop-b h5, body.compact .stop-b p, body.compact .stop-rec,
+body.compact .careful, body.compact .goal { display:none }
+body.compact .stop { border-color:var(--line) }
+body.compact .stop-l { background:var(--soft); color:var(--ink) }
+body.compact .stop-l span { color:var(--ink3) }
+
+@media print{.youbar,.side,.cp,.compactbtn{display:none!important}.wrap{grid-template-columns:1fr}section{break-inside:avoid}.stop{break-inside:avoid}}
+@media (max-width:1000px){.wrap{grid-template-columns:1fr;padding:0 22px}.side{display:none}.head,.youbar,.foot{padding-left:22px;padding-right:22px}}
+/* concept blocks — solo-learner framing, hidden in compact mode */
+.concept{border:1px solid var(--line);border-left:3px solid var(--blue);background:#fbfdff;border-radius:3px;padding:14px 17px;margin:0 0 18px;max-width:720px}
+.concept h4{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600;margin-bottom:7px}
+.concept p{font-size:13.5px;color:var(--ink2);margin-bottom:9px}
+.concept p:last-child{margin-bottom:0}
+.concept p b{color:var(--ink);font-weight:600}
+.concept ul{margin:4px 0 9px;padding-left:20px}
+.concept li{font-size:13.5px;color:var(--ink2);margin-bottom:4px}
+.concept code{background:#eef3f8}
+.ans{font-size:13.5px;color:var(--ink);background:var(--green-bg);border-left:2px solid var(--green);padding:9px 13px;margin:9px 0 0;border-radius:2px}
+.ans b{color:var(--green);font-weight:600}
+.gloss{max-width:720px;font-size:13px;margin-top:6px}
+.gloss dt{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:500;margin-top:12px}
+.gloss dd{color:var(--ink2);margin:2px 0 0 0}
+body.compact .concept, body.compact .ans, body.compact .gloss{display:none}
+body.compact #before, body.compact #glossary{display:none}
+
+.ticket{border:1px solid var(--line);border-left:3px solid #6b3fa0;background:#f4f0fa;border-radius:3px;padding:15px 17px;margin:0 0 18px;max-width:720px}
+.ticket b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#6b3fa0;margin-bottom:6px}
+.ticket .from{font-family:var(--mono);font-size:11.5px;color:var(--ink2);margin-bottom:9px}
+.ticket p{font-size:14px;color:var(--ink);font-style:italic;margin-bottom:8px}
+.ticket p:last-child{margin-bottom:0}
+body.compact .ticket{display:none}
+</style>
+</head>
+<body>
+
+<div class="youbar">
+  <span class="youbar-k">Cluster</span>
+  <span class="youbar-v">login01 · c001 · c002</span>
+  <span class="youbar-k">4 tasks · 50 min guided · 2 h alone</span>
+  <button class="compactbtn" id="cbtn" onclick="toggleCompact()">compact</button>
+</div>
+
+<div class="head">
+  <p class="head-eyebrow">HPCA-100 · Module 5 · Session 3 · Lab Runbook</p>
+  <h1 class="head-title">Two Networks, One Card</h1>
+  <p class="head-sub">Two nodes, one network adapter each, and two completely different ways of using it. You will measure both, find out how much the choice is worth, and then work out how to tell which one a job actually used — which is the part nobody checks until something is mysteriously slow.</p>
+</div>
+
+<div class="wrap">
+
+<aside class="side">
+  <div class="side-l">Runbook</div>
+  <a href="#before">Before you start</a>
+  <a href="#start">Getting on</a>
+  <hr />
+  <a href="#t1">1 · One card, two paths</a>
+  <a href="#t2">2 · Latency</a>
+  <a href="#t3">3 · Bandwidth and collective</a>
+  <a href="#t4">4 · Which path did it use?</a>
+  <hr />
+  <a href="#wrap">Results</a>
+  <a href="#stuck">If you get stuck</a>
+  <a href="#glossary">Glossary</a>
+</aside>
+
+<main>
+
+<section id="before">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">Before you start</span><span class="sh-m">read once · 7 min</span></div>
+
+  <div class="concept">
+    <h4>The thing that makes this lab worth doing</h4>
+    <p>You have two nodes. Each has <b>one</b> network adapter, one cable, one bandwidth ceiling. There is no second network and no second wire.</p>
+    <p>But there are two entirely different ways for a program to send a message across that one adapter, and the difference between them is large enough to decide whether a job finishes overnight or over a weekend.</p>
+    <p>Because the hardware is identical on both paths, <b>every difference you measure today is purely the software stack.</b> That is a cleaner experiment than you would get comparing two real networks, and it is the reason this lab is two instances rather than a cluster.</p>
+  </div>
+
+  <div class="concept">
+    <h4>The two paths</h4>
+    <p><b>The ordinary path — TCP over the kernel.</b> Your program hands a message to the operating system. The kernel copies it, wraps it in TCP and IP headers, passes it to the driver, and the card sends it. At the far end the same happens in reverse. Every message involves the kernel twice, a context switch each way, and at least one copy of your data.</p>
+    <p><b>The fast path — OS bypass.</b> The program writes directly into a queue the adapter is already watching, and the adapter sends it. <b>The kernel is not involved at all.</b> No system call, no context switch, no copy. On AWS this is called <b>EFA</b>, Elastic Fabric Adapter; on a physical cluster it is usually InfiniBand or RoCE. The idea is the same everywhere.</p>
+    <p>An EFA is not a second card. It is the ordinary adapter with the bypass capability switched on, which is why <code>ip link</code> will show you exactly one interface today and the fast path will not appear in it.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Why the gap is different for different work</h4>
+    <p>The overhead the fast path removes — system calls, context switches, copies — is <b>a fixed cost per message</b>. It does not grow with message size.</p>
+    <ul>
+      <li><b>Small messages:</b> the overhead is a large share of the total time, so removing it shows up directly.</li>
+      <li><b>Large messages:</b> the overhead is a rounding error. What decides the time is how fast each path can push bytes — and on AWS the two paths are not equal there. A single TCP connection between two instances is limited to roughly 10 Gbps; the fast path spreads one stream of messages across many network paths and can use the whole adapter.</li>
+    </ul>
+    <p>So the honest claim is not "the fast path is faster". It is <b>"the fast path is faster by different amounts, for different reasons, and which one matters depends entirely on how your application talks"</b>. An application sending millions of tiny messages — which is most tightly-coupled scientific code — pays the fixed cost on every one. An application moving large blocks of data runs into the bandwidth limit instead.</p>
+    <p>You will measure both ends of that today and work out the ratio yourself.</p>
+  </div>
+
+  <div class="concept">
+    <h4>What a parallel job actually is</h4>
+    <p>Everything you run today is a real multi-node MPI job: two processes, one on each node, exchanging messages and timing them. <code>mpirun</code> starts a process on each host in the hostfile and gives them a way to find each other.</p>
+    <p><b>Three distinct things are happening and it is worth keeping them apart.</b> The <em>launch</em> goes over ordinary SSH. The <em>startup handshake</em> between ranks uses whatever MPI decides. The <em>message traffic</em> uses the transport MPI selected. Only the third is being measured, and only the third changes between your two runs.</p>
+  </div>
+
+  <div class="concept">
+    <h4>The trap, which is task 4</h4>
+    <p>If the fast path is unavailable — a missing library, a security group rule, a configuration that does not match, a node where the installer never ran — <b>MPI does not fail. It quietly falls back to TCP and runs correctly.</b></p>
+    <p>No error. No warning. Correct results. Several times slower, for weeks, until somebody benchmarks it.</p>
+    <p>This is the single most valuable diagnostic pattern in the module, and it is why a cluster administrator checks which transport a job used rather than trusting that it worked. Task 4 is about learning to check.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Working alone?</h4>
+    <p>Allow two hours rather than fifty minutes. Do tasks 1 to 3 in order — task 2 establishes the numbers task 4 compares against. Task 4 needs tasks 1 and 2 finished.</p>
+    <p>Each task ends with a <b>Stop</b> holding the point of the task and the answers to the questions it asks. Read them.</p>
+  </div>
+</section>
+
+<section id="start">
+  <div class="sh"><span class="sh-n">00</span><span class="sh-t">Getting on</span><span class="sh-m">3 min</span></div>
+
+  <div class="do">
+    <div class="dol">First, on your own laptop — forget the old key for this address</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh-keygen -R mylab.hpc.now</span></pre>
+  </div>
+  <p class="goal">An earlier lab used the same address with a different machine behind it. Without this, <code>ssh</code> refuses to connect and warns that the host key has changed. If it says the host was not found, that is fine — there was nothing to remove.</p>
+
+  <div class="do">
+    <div class="dol">Connect to the login node</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh &lt;you&gt;@mylab.hpc.now</span></pre>
+  </div>
+  <div class="see"><div class="see-l">Your login — the password is given by your instructor</div><pre>bhagya     Bhagya Raj G
+vinod      Vinod Manne
+surya      Surya Pendyala
+sai        Sai Dasari
+satya      Satya Srinivas
+vasavi     Vasavi Posani
+kathi      V R Kathi
+rajesh     Rajesh SR Kumar, instructor
+guest01, guest02    only if your instructor hands you one</pre></div>
+
+  <div class="do">
+    <div class="dol">The two nodes you will measure between</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat ~/hostfile</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>c001 slots=1
+c002 slots=1</pre></div>
+  <p class="goal">One process per node. That is deliberate — two ranks on one node would talk through shared memory and measure nothing about the network.</p>
+
+  <div class="do">
+    <div class="dol">Check you can reach both without a password</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">mpirun -n 2 --hostfile ~/hostfile hostname</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>c001
+c002</pre></div>
+
+  <div class="do">
+    <div class="dol">Where your results go</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">mkdir -p ~/lab/m5s3 &amp;&amp; cp /opt/lab/templates/results.md ~/lab/m5s3/ &amp;&amp; ls ~/lab/m5s3</span></pre>
+  </div>
+
+  <div class="careful"><b>You are sharing two nodes with the room</b>Every benchmark command below goes through <code>run-bench</code>, which lets one measurement run at a time. If somebody else is mid-run, yours waits a few seconds and then starts. That is not a fault — <b>a benchmark that shares a node with another benchmark measures neither</b>, which is exactly why real benchmark jobs ask for whole nodes.</div>
+</section>
+
+<section id="t1">
+  <div class="sh"><span class="sh-n">1</span><span class="sh-t">One card, two paths</span><span class="sh-m">8 min</span></div>
+  <p class="goal">Evidence that there is one adapter, that the fast path exists on it, and that both transports are available to MPI.</p>
+
+  <p class="stept"><i>1.1</i> How many network interfaces are there</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">mpirun -n 2 --hostfile ~/hostfile ip -br -color=never link</span></pre>
+  </div>
+  <p class="goal">Ignore the loopback. Count what is left on each node — that number matters for the Stop.</p>
+
+  <p class="stept"><i>1.2</i> Ask the fabric library what it can see</p>
+  <div class="do">
+    <div class="dol">Providers are libfabric's word for transports</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh c001 fi_info -p efa | head -20</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh c001 fi_info -p tcp | head -12</span></pre>
+  </div>
+  <p class="goal">These run on <code>c001</code>, one of the two nodes you are measuring. The login node you are typing on has no fast-path hardware at all — ask it and it finds nothing. That is one reason it is a separate machine: your shell never shares a node with a benchmark.</p>
+  <div class="careful"><b>If <code>fi_info -p efa</code> returns nothing</b>Stop and say so. Every measurement after this point would quietly be a TCP measurement — which is the trap in task 4, arriving early and by accident.</div>
+
+  <p class="stept"><i>1.3</i> Look at the device itself</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh c001 ibv_devinfo</span></pre>
+  </div>
+  <p class="goal">The same adapter you saw in 1.1, described as an RDMA device. One piece of hardware, two descriptions, because two software stacks are looking at it.</p>
+
+  <p class="stept"><i>1.4</i> Read the two commands you will be running all lab</p>
+  <div class="do">
+    <div class="dol">The fast path</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/bin/mpi-efa</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">The ordinary path</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/bin/mpi-tcp</span></pre>
+  </div>
+  <div class="careful"><b>Read both and find the difference</b>They are the same <code>mpirun</code> command. What differs is which transport MPI is told to use, and nothing else — not the hosts, not the process count, not the binary. Everything you measure today rests on that being the only variable.</div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 1<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>Check what you found</h5>
+      <ul>
+        <li>How many non-loopback interfaces on each node?</li>
+        <li>Did both <code>fi_info</code> calls return a provider?</li>
+      </ul>
+      <div class="ans"><b>One interface. Two providers.</b> There is a single adapter per node, and both transports are available over it. If you were expecting the fast path to show up as a separate interface — most people do — this is the moment that assumption dies.</div>
+      <h5>The point</h5>
+      <p>On a physical cluster you would usually see two: an Ethernet port for management and an InfiniBand port for the fabric, two cards and two cables. Here the same hardware does both jobs, which removes a variable rather than adding one.</p>
+      <p><b>It also means you cannot tell which transport a job used by looking at the hardware.</b> The card looks identical either way. Hold that thought until task 4 — it is the whole reason the trap works.</p>
+      <div class="stop-rec"><b>Record</b> — <code>results.md</code> section 1: interface count, and whether both providers were present.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t2">
+  <div class="sh"><span class="sh-n">2</span><span class="sh-t">Latency, on both paths</span><span class="sh-m">12 min</span></div>
+  <p class="goal">Round-trip time for a small message, measured on each transport, with evidence of which transport actually ran.</p>
+
+  <div class="concept">
+    <h4>What is being measured</h4>
+    <p><code>osu_latency</code> bounces a message between the two ranks many times and reports half the average round trip, for a range of message sizes from 1 byte upward. The small sizes are the interesting ones: at 1 byte there is essentially no data to move, so <b>what you are timing is almost entirely overhead</b>.</p>
+  </div>
+
+  <p class="stept"><i>2.1</i> The fast path, with the evidence turned on</p>
+  <div class="do">
+    <div class="dol">Verbose mode makes MPI name the device it is sending through</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">OMPI_MCA_mtl_base_verbose=100 run-bench mpi-efa osu_latency 2&gt;&amp;1 | grep provider:</span></pre>
+  </div>
+  <div class="see"><div class="see-l">The shape — one line per node</div><pre>[c001:NNNN] mtl_ofi_component.c:362: mtl:ofi:provider: rdmap0s31-rdm
+[c002:NNNN] mtl_ofi_component.c:362: mtl:ofi:provider: rdmap0s31-rdm</pre></div>
+  <div class="careful"><b>Read the end of the line</b>That is the device MPI is sending through. Compare it with the device <code>ibv_devinfo</code> named in step 1.3. That one line is the difference between knowing which transport ran and assuming it.</div>
+
+  <p class="stept"><i>2.2</i> Now the clean run, and keep it</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">run-bench mpi-efa osu_latency | tee ~/lab/m5s3/latency-efa.txt</span></pre>
+  </div>
+  <div class="see"><div class="see-l">The shape of the output — the numbers are yours</div><pre># OSU MPI Latency Test v7.5
+# Datatype: MPI_CHAR.
+# Size       Avg Latency(us)
+1                      ...
+2                      ...
+4                      ...
+...
+4194304                ...</pre></div>
+
+  <p class="stept"><i>2.3</i> The same thing on the ordinary path</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">run-bench mpi-tcp osu_latency | tee ~/lab/m5s3/latency-tcp.txt</span></pre>
+  </div>
+
+  <p class="stept"><i>2.4</i> Put them side by side</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">paste ~/lab/m5s3/latency-efa.txt ~/lab/m5s3/latency-tcp.txt | head -25</span></pre>
+  </div>
+
+  <p class="stept"><i>2.5</i> Write down two numbers and one ratio</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/lab/m5s3/results.md</span>   <span class="cmt"># section 2</span></pre>
+  </div>
+  <div class="see"><div class="see-l">The 1-byte row is the one that matters</div><pre>| Transport | 1-byte latency (us) |
+|-----------|---------------------|
+| EFA       |                     |
+| TCP       |                     |
+
+Ratio (TCP / EFA) at 1 byte: ____
+Provider line from 2.1:      ____
+</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 2<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>What your numbers show</h5>
+      <div class="ans"><b>The fast path wins at 1 byte — on these nodes by roughly a third, a ratio near 1.4.</b> Write your own ratio down; it is one of the two headline numbers of this lab and it is yours, not a figure from a slide.</div>
+      <h5>Why</h5>
+      <p>At one byte there is no data worth moving. On the ordinary path you are timing the kernel: two system calls, two context switches, the TCP and IP headers, and a copy — none of which the fast path performs. Remove them and what is left is the network's own cost: the adapter, the switches between the two instances, and the protocol the fast path uses to deliver reliably. On a cloud network that remainder is still most of the time, which is why the ratio here is modest. On an InfiniBand cluster, where the network itself takes a microsecond or two, removing the same kernel cost is worth several times.</p>
+      <h5>And now look at the bottom of the table</h5>
+      <p>Scroll to the largest message sizes in your <code>paste</code> output. <b>The gap has not narrowed — it has grown.</b> Same two transports, same two nodes, same run — a different answer to "how much faster is it", for a different reason, which task 3 explains.</p>
+      <p>That is why "which is faster" is never the right question. <b>Faster at what?</b> is the question, and task 3 makes it concrete.</p>
+      <h5>The evidence line</h5>
+      <p>You now have a device name from step 2.1 sitting next to a latency figure. Either on its own can mislead; together they are proof. That pairing is the method in task 4.</p>
+      <div class="stop-rec"><b>Record</b> — section 2: both latencies, the ratio, and the provider line.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t3">
+  <div class="sh"><span class="sh-n">3</span><span class="sh-t">Bandwidth, and a real collective</span><span class="sh-m">14 min</span></div>
+  <p class="goal">Bandwidth on both paths, then a collective operation on both paths — the pattern that actually dominates scientific applications.</p>
+
+  <div class="concept">
+    <h4>Why two more benchmarks rather than one</h4>
+    <p><b>Bandwidth</b> streams large messages as fast as it can and reports megabytes per second. It is the opposite end of the spectrum from the 1-byte latency you just measured, and it should behave differently.</p>
+    <p><b>A collective</b> is an operation every rank takes part in together. <code>osu_allreduce</code> combines a value from every rank and gives the result back to all of them — every rank waits for every other. Real parallel applications are full of these, and they are where network behaviour shows up most brutally, because <b>the whole job runs at the speed of the slowest participant</b>.</p>
+    <p>With two ranks a collective is almost a round trip. At two hundred ranks it is not, and the gap you see here would widen considerably. That is worth knowing and cannot be shown on two nodes.</p>
+  </div>
+
+  <p class="stept"><i>3.1</i> Bandwidth, fast path</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">run-bench mpi-efa osu_bw | tee ~/lab/m5s3/bw-efa.txt</span></pre>
+  </div>
+
+  <p class="stept"><i>3.2</i> Bandwidth, ordinary path</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">run-bench mpi-tcp osu_bw | tee ~/lab/m5s3/bw-tcp.txt</span></pre>
+  </div>
+
+  <p class="stept"><i>3.3</i> Compare at the largest size</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">tail -3 ~/lab/m5s3/bw-efa.txt; echo '---'; tail -3 ~/lab/m5s3/bw-tcp.txt</span></pre>
+  </div>
+
+  <p class="stept"><i>3.4</i> The collective, both paths</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">run-bench mpi-efa osu_allreduce | tee ~/lab/m5s3/allreduce-efa.txt</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">run-bench mpi-tcp osu_allreduce | tee ~/lab/m5s3/allreduce-tcp.txt</span></pre>
+  </div>
+
+  <p class="stept"><i>3.5</i> Fill in the rest of the table</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/lab/m5s3/results.md</span>   <span class="cmt"># section 3</span></pre>
+  </div>
+  <div class="see"><div class="see-l">Three ratios, and they will not match</div><pre>| Measurement              | EFA | TCP | Ratio |
+|--------------------------|-----|-----|-------|
+| latency, 1 byte (us)     |     |     |       |
+| bandwidth, largest (MB/s)|     |     |       |
+| allreduce, 8 bytes (us)  |     |     |       |
+| allreduce, largest (us)  |     |     |       |
+
+Which ratio is largest, and why:
+</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 3<span>the comparison is the lesson</span></div>
+    <div class="stop-b">
+      <h5>Line your ratios up</h5>
+      <div class="ans"><b>The bandwidth ratio is the largest — around five times. The latency ratio is modest.</b> That is the reverse of what most people expect, and the reason is not per-message overhead. On AWS a single TCP connection between two instances is limited to roughly 10 Gbps, so your TCP bandwidth figure flattens out near 1,200 MB/s however large the message gets. The fast path spreads one stream across many network paths and fills the adapter. <b>The small-message collective looks like the latency result</b>, which is the point of running it.</div>
+      <h5>What this means for a user</h5>
+      <p>A user whose job moves large blocks of data between nodes would notice the most — several times slower on the ordinary path. A user running a tightly-coupled simulation that exchanges small messages thousands of times a second would notice too, a fixed cost on every message. Both would describe it as "the cluster is slow", not as a transport problem, because from inside the application there is nothing to see.</p>
+      <p><b>So the first question when somebody reports a slow parallel job is not "how big is your data" on its own.</b> It is how their code talks — how often and how much — and whether it is on the path it should be.</p>
+      <h5>What two nodes cannot show you</h5>
+      <p>Your collective had two participants. At scale, every rank waits for the slowest, and the per-message overhead you measured is paid on every exchange by every rank. The gap widens with node count — sharply. You cannot measure that here, but it is the reason sites pay for fast interconnects at all.</p>
+      <div class="stop-rec"><b>Record</b> — section 3: all four rows, and which ratio is largest.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t4">
+  <div class="sh"><span class="sh-n">4</span><span class="sh-t">Which path did it use?</span><span class="sh-m">9 min</span></div>
+  <p class="goal">A verdict on a run whose transport you were not told, with the evidence that settles it.</p>
+
+  <div class="concept">
+    <h4>The situation</h4>
+    <p>A user tells you their job runs, produces correct results, and is slower than they expected on the new cluster. Nothing in their output says anything is wrong — because nothing <em>is</em> wrong, as far as the application knows.</p>
+    <p>There is a third wrapper on this system. Nobody will tell you what it does. <b>Find out which transport it uses, and prove it two different ways</b> — because one piece of evidence can mislead and two agreeing cannot.</p>
+  </div>
+
+  <p class="stept"><i>4.1</i> Run it</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">run-bench mpi-mystery osu_latency | tee ~/lab/m5s3/latency-mystery.txt</span></pre>
+  </div>
+
+  <p class="stept"><i>4.2</i> First piece of evidence — compare the numbers</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">head -8 ~/lab/m5s3/latency-mystery.txt; echo '--- efa ---'; head -8 ~/lab/m5s3/latency-efa.txt; echo '--- tcp ---'; head -8 ~/lab/m5s3/latency-tcp.txt</span></pre>
+  </div>
+
+  <p class="stept"><i>4.3</i> Second piece of evidence — ask the library directly</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">OMPI_MCA_mtl_base_verbose=100 run-bench mpi-mystery osu_latency 2&gt;&amp;1 | grep provider:</span></pre>
+  </div>
+  <div class="careful"><b>Compare with step 2.1</b>Same command, same <code>grep</code>. Either you get the same device line, or you don't — and either result is evidence.</div>
+
+  <p class="stept"><i>4.4</i> Only now, look at what the wrapper does</p>
+  <div class="do">
+    <div class="dol">Write your verdict down first — then check it</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/bin/mpi-mystery</span></pre>
+  </div>
+
+  <p class="stept"><i>4.5</i> Write the finding</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/lab/m5s3/results.md</span>   <span class="cmt"># section 4</span></pre>
+  </div>
+  <div class="see"><div class="see-l">Four lines</div><pre>Verdict:               &lt;which transport&gt;
+Evidence 1 (numbers):  &lt;what you compared, and what it showed&gt;
+Evidence 2 (provider): &lt;the line you found, or that there was none&gt;
+Did the wrapper agree with your verdict?   yes / no
+</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 4<span>the point of the whole lab</span></div>
+    <div class="stop-b">
+      <h5>How the two kinds of evidence differ</h5>
+      <div class="ans"><b>The numbers tell you how it behaved. The provider line tells you what it used.</b> You need both. A number can be slow for a dozen reasons that have nothing to do with transport — a busy node, a thermal limit, somebody else benchmarking. A provider line names the mechanism. Agreeing, they are conclusive.</div>
+      <h5>Why this matters more than the ratio you measured</h5>
+      <p>Nothing failed. There was no error, no warning, no exit code, no log entry. The job produced correct results. <b>The only symptom was a number that somebody had to go and look for.</b></p>
+      <p>On a real cluster this happens for mundane reasons — a node where the fabric package was never installed, a security group missing a rule, a container image without the right libraries, a user who copied an <code>mpirun</code> line from a blog post. All of them produce exactly what you just saw.</p>
+      <h5>What you do about it</h5>
+      <p>Two things, and they are the deliverables of this session rather than the numbers. <b>Know how to check</b> — a provider line and a comparison against a known-good figure takes two minutes. And <b>keep the known-good figure</b>, which is why section 2's numbers belong in a file rather than in your head. A baseline you measured on a healthy day is the most useful diagnostic artefact you will ever produce, and nobody has one until they have needed it twice.</p>
+      <div class="stop-rec"><b>Record</b> — section 4, all four lines.</div>
+    </div>
+  </div>
+</section>
+
+<section id="wrap">
+  <div class="sh"><span class="sh-n">✓</span><span class="sh-t">Results</span><span class="sh-m">4 min</span></div>
+
+  <div class="do">
+    <div class="dol">Everything you measured, in one place</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ls ~/lab/m5s3/</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>results.md
+latency-efa.txt     latency-tcp.txt     latency-mystery.txt
+bw-efa.txt          bw-tcp.txt
+allreduce-efa.txt   allreduce-tcp.txt</pre></div>
+
+  <div class="do">
+    <div class="dol">One sentence at the bottom of results.md</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/lab/m5s3/results.md</span></pre>
+  </div>
+  <p class="goal">A user says their multi-node job is slower on the new cluster than the old one. <b>What are the first two things you check, and why those two?</b> Two sentences.</p>
+
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cd ~/lab &amp;&amp; tar czf ~/m5s3-results.tgz m5s3 &amp;&amp; ls -lh ~/m5s3-results.tgz</span></pre>
+  </div>
+  <div class="careful"><b>These two nodes self-destruct on a timer</b>The deadline is printed in the message of the day when you log in. Take the archive off the machine before then — your baseline numbers are the one thing here worth keeping.</div>
+</section>
+
+<section id="stuck">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">If you get stuck</span></div>
+  <table>
+    <thead><tr><th>Symptom</th><th>What it means · what to do</th></tr></thead>
+    <tbody>
+      <tr><td><code>fi_info -p efa</code> returns nothing</td><td class="m">the fast path is not available on this node.<br />Stop and say so — do not carry on measuring</td></tr>
+      <tr><td><code>mpirun</code> asks for a password</td><td class="m">key-based SSH between nodes is not set up.<br />Say so; it is not something you fix</td></tr>
+      <tr><td>Your run waits before starting</td><td class="m">expected. <code>run-bench</code> lets one<br />measurement run at a time</td></tr>
+      <tr><td>Two runs of the same thing differ a lot</td><td class="m">something else was running.<br />Repeat both and use the lower figures</td></tr>
+      <tr><td>EFA numbers look like TCP numbers</td><td class="m">that is task 4 arriving early.<br />Check the provider line</td></tr>
+      <tr><td><code>osu_allreduce</code> errors with 2 ranks</td><td class="m">check the hostfile has two hosts,<br />one slot each</td></tr>
+      <tr><td>A benchmark hangs</td><td class="m">Ctrl-C, then <code>pkill -u $USER mpirun</code>,<br />then say so — you may have left a lock held</td></tr>
+    </tbody>
+  </table>
+  <div class="goal"><b>Asking beats guessing.</b> With a trainer present, say which task, the exact command and what came back. Working alone, note those three things for the next session.</div>
+</section>
+
+<section id="glossary">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">Glossary</span></div>
+  <dl class="gloss">
+    <dt>bandwidth</dt><dd>How many bytes per second a link can carry. Dominates large-message transfers.</dd>
+    <dt>collective</dt><dd>An MPI operation every rank takes part in together — a broadcast, a reduction, an all-reduce. Runs at the speed of the slowest participant.</dd>
+    <dt>context switch</dt><dd>The processor changing between your program and the kernel. Cheap individually, expensive millions of times.</dd>
+    <dt>EFA</dt><dd>Elastic Fabric Adapter. The OS-bypass capability on this cluster's network adapter. Not a separate card.</dd>
+    <dt>fabric</dt><dd>The network carrying messages between a job's processes, as distinct from the management network.</dd>
+    <dt>hostfile</dt><dd>The list of hosts and slot counts <code>mpirun</code> places processes onto.</dd>
+    <dt>latency</dt><dd>Time for one small message to get there. Dominated by per-message overhead, not by the wire.</dd>
+    <dt>libfabric</dt><dd>The library sitting between MPI and the network, choosing a provider.</dd>
+    <dt>MPI</dt><dd>Message Passing Interface. How the processes of a parallel job communicate.</dd>
+    <dt>OS bypass</dt><dd>Writing to the network adapter directly, without the kernel. The reason the fast path is fast.</dd>
+    <dt>OSU micro-benchmarks</dt><dd>A standard set of MPI measurements. <code>osu_latency</code>, <code>osu_bw</code>, <code>osu_allreduce</code> and others.</dd>
+    <dt>provider</dt><dd>libfabric's word for a transport implementation — <code>efa</code>, <code>tcp</code>, <code>shm</code> and so on.</dd>
+    <dt>rank</dt><dd>One process of a parallel job, numbered from zero.</dd>
+    <dt>RDMA</dt><dd>Remote direct memory access — one machine reading or writing another's memory without involving its CPU.</dd>
+    <dt>transport fallback</dt><dd>MPI quietly using a slower path when the fast one is unavailable. Correct results, no error, much slower.</dd>
+  </dl>
+</section>
+
+</main>
+</div>
+
+<div class="foot">
+  <span>HPCA-100 · M5-S3 · Two Networks, One Card</span>
+  <span>learner copy · works with a trainer or alone</span>
+</div>
+
+<script>
+const navs = document.querySelectorAll('.side a');
+const io = new IntersectionObserver(function (entries) {
+  entries.forEach(function (e) {
+    if (!e.isIntersecting) return;
+    navs.forEach(function (n) { n.classList.remove('on'); });
+    const a = document.querySelector('.side a[href="#' + e.target.id + '"]');
+    if (a) a.classList.add('on');
+  });
+}, { rootMargin: '-15% 0px -75% 0px' });
+document.querySelectorAll('section[id]').forEach(function (s) { io.observe(s); });
+
+function cpy(btn) {
+  const box = btn.closest('.do');
+  const pre = box.querySelector('pre');
+  navigator.clipboard.writeText((pre.innerText || pre.textContent).trim()).then(function () {
+    btn.textContent = 'copied';
+    btn.classList.add('ok');
+    setTimeout(function () { btn.textContent = 'copy'; btn.classList.remove('ok'); }, 1800);
+  });
+}
+
+function toggleCompact() {
+  document.body.classList.toggle('compact');
+  document.getElementById('cbtn').classList.toggle('on');
+}
+</script>
+</body>
+</html>
