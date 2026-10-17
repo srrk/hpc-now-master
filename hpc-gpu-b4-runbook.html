@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HPCA-100 · M6-S1 · Accelerator Node Anatomy · Lab Runbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff; --soft:#f6f8fa; --line:#e3e7eb;
+  --ink:#12161b; --ink2:#4f5862; --ink3:#8b949e;
+  --blue:#1f66d0; --blue-bg:#eff5fd;
+  --amber:#a55a12; --amber-bg:#fdf5ea;
+  --green:#0d7a55; --green-bg:#ecf7f2;
+  --code:#111519; --code-ink:#c9d1d9; --code-cmd:#7ee3b8; --code-cmt:#e0a85f;
+  --sans:"IBM Plex Sans",-apple-system,Segoe UI,sans-serif;
+  --mono:"IBM Plex Mono","Courier New",monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
+
+.youbar{position:sticky;top:0;z-index:60;background:var(--ink);display:flex;align-items:center;gap:14px;padding:8px 40px;font-size:12px}
+.youbar-k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#7c8691}
+.youbar-v{font-family:var(--mono);font-size:13px;color:#7ee3b8}
+.compactbtn{margin-left:auto;background:#1d242c;border:1px solid #2b333c;color:#c9d1d9;font-family:var(--mono);font-size:11px;padding:4px 12px;border-radius:2px;cursor:pointer}
+.compactbtn:hover{border-color:#7ee3b8;color:#7ee3b8}
+.compactbtn.on{background:#7ee3b8;color:#111519;border-color:#7ee3b8}
+
+.head{border-bottom:1px solid var(--line);padding:32px 40px 24px;background:var(--soft)}
+.head-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.head-title{font-size:26px;font-weight:600;letter-spacing:-.01em}
+.head-sub{font-size:14px;color:var(--ink2);margin-top:8px;max-width:680px}
+
+.wrap{display:grid;grid-template-columns:176px 1fr;gap:0 44px;max-width:1060px;margin:0 auto;padding:0 40px}
+.side{position:sticky;top:44px;align-self:start;padding:32px 0}
+.side-l{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin:0 0 10px}
+.side a{display:block;font-size:12.5px;color:var(--ink2);text-decoration:none;padding:5px 0 5px 12px;border-left:2px solid transparent}
+.side a:hover{color:var(--ink)}
+.side a.on{color:var(--blue);border-color:var(--blue)}
+.side hr{border:0;border-top:1px solid var(--line);margin:10px 0}
+main{padding:32px 0 0}
+section{padding:30px 0;border-top:1px solid var(--line)}
+section:first-child{border-top:none;padding-top:8px}
+
+.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:10px}
+.sh-n{font-family:var(--mono);font-size:12px;color:var(--blue);font-weight:500}
+.sh-t{font-size:19px;font-weight:600}
+.sh-m{margin-left:auto;font-size:11px;color:var(--ink3);font-family:var(--mono)}
+
+.goal{font-size:13.5px;color:var(--ink2);margin:0 0 16px;max-width:720px;border-left:2px solid var(--green);padding-left:12px}
+
+.stept{font-size:14px;font-weight:600;margin:20px 0 6px;color:var(--ink)}
+.stept i{font-family:var(--mono);font-style:normal;font-size:11px;color:var(--ink3);font-weight:400;margin-right:8px}
+
+.do{background:var(--code);border-radius:3px;padding:13px 16px;margin:7px 0;position:relative;overflow-x:auto;max-width:720px}
+.do pre{font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--code-ink);white-space:pre}
+.do .cmd{color:var(--code-cmd)}
+.do .cmt{color:var(--code-cmt)}
+.do .dim{color:#5c6873}
+.dol{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#5c6873;margin-bottom:8px}
+.cp{position:absolute;top:8px;right:8px;background:#1d242c;border:1px solid #2b333c;color:#7c8691;font-family:var(--mono);font-size:10px;padding:3px 9px;cursor:pointer;border-radius:2px}
+.cp:hover{color:var(--code-cmd);border-color:var(--code-cmd)}
+.cp.ok{color:var(--code-cmd);border-color:var(--code-cmd)}
+
+.see{border:1px solid var(--line);border-left:3px solid var(--ink3);border-radius:3px;margin:7px 0;max-width:720px;overflow-x:auto}
+.see-l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);padding:6px 14px;border-bottom:1px solid var(--line);background:var(--soft)}
+.see pre{font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--ink2);padding:10px 14px;white-space:pre}
+
+/* THE STOP POINT — one per rung */
+.stop{border:2px solid var(--ink);border-radius:3px;margin:26px 0 6px;max-width:720px;overflow:hidden}
+.stop-l{background:var(--ink);color:#fff;padding:9px 16px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;display:flex;justify-content:space-between}
+.stop-l span{letter-spacing:0;text-transform:none;font-weight:400;color:#7ee3b8;font-size:11px}
+.stop-b{padding:14px 16px}
+.stop-b h5{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin:14px 0 5px}
+.stop-b h5:first-child{margin-top:0}
+.stop-b pre{font-family:var(--mono);font-size:12px;line-height:1.7;background:var(--soft);border:1px solid var(--line);border-radius:2px;padding:9px 12px;white-space:pre-wrap;word-break:break-word;color:var(--ink);position:relative}
+.stop-b ul{margin:0;padding-left:20px}
+.stop-b li{font-size:13.5px;color:var(--ink);margin-bottom:4px}
+.stop-b p{font-size:13.5px;color:var(--ink2)}
+.stop-b p b{color:var(--ink);font-weight:600}
+.stop-rec{margin-top:14px;padding-top:11px;border-top:1px solid var(--line);font-size:13px;color:var(--ink2)}
+.stop-rec b{color:var(--green);font-weight:600}
+
+.careful{border-left:3px solid var(--amber);background:var(--amber-bg);padding:10px 15px;margin:12px 0;max-width:720px;font-size:13.5px;color:var(--ink2)}
+.careful b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:3px;font-weight:600}
+
+code{font-family:var(--mono);font-size:11.5px;background:var(--soft);padding:1px 5px;border-radius:2px;color:var(--blue)}
+.do code,.see code{background:none;padding:0;color:inherit}
+
+table{width:100%;max-width:720px;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+th{text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--soft)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+td.m{font-family:var(--mono);font-size:11.5px;color:var(--ink)}
+td.fill{background:var(--green-bg);color:var(--green);font-family:var(--mono);font-size:11.5px}
+
+.foot{border-top:1px solid var(--line);margin-top:40px;padding:18px 40px;font-size:11px;color:var(--ink3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;background:var(--soft)}
+
+/* compact mode — trainer driving from the front */
+body.compact .stop-b h5, body.compact .stop-b p, body.compact .stop-rec,
+body.compact .careful, body.compact .goal { display:none }
+body.compact .stop { border-color:var(--line) }
+body.compact .stop-l { background:var(--soft); color:var(--ink) }
+body.compact .stop-l span { color:var(--ink3) }
+
+@media print{.youbar,.side,.cp,.compactbtn{display:none!important}.wrap{grid-template-columns:1fr}section{break-inside:avoid}.stop{break-inside:avoid}}
+@media (max-width:1000px){.wrap{grid-template-columns:1fr;padding:0 22px}.side{display:none}.head,.youbar,.foot{padding-left:22px;padding-right:22px}}
+/* concept blocks — solo-learner framing, hidden in compact mode */
+.concept{border:1px solid var(--line);border-left:3px solid var(--blue);background:#fbfdff;border-radius:3px;padding:14px 17px;margin:0 0 18px;max-width:720px}
+.concept h4{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600;margin-bottom:7px}
+.concept p{font-size:13.5px;color:var(--ink2);margin-bottom:9px}
+.concept p:last-child{margin-bottom:0}
+.concept p b{color:var(--ink);font-weight:600}
+.concept ul{margin:4px 0 9px;padding-left:20px}
+.concept li{font-size:13.5px;color:var(--ink2);margin-bottom:4px}
+.concept code{background:#eef3f8}
+.ans{font-size:13.5px;color:var(--ink);background:var(--green-bg);border-left:2px solid var(--green);padding:9px 13px;margin:9px 0 0;border-radius:2px}
+.ans b{color:var(--green);font-weight:600}
+.gloss{max-width:720px;font-size:13px;margin-top:6px}
+.gloss dt{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:500;margin-top:12px}
+.gloss dd{color:var(--ink2);margin:2px 0 0 0}
+body.compact .concept, body.compact .ans, body.compact .gloss{display:none}
+body.compact #before, body.compact #glossary{display:none}
+
+/* look blocks — direct attention without confirming a result */
+.look{border:1px solid var(--line);border-left:3px solid var(--ink3);background:var(--soft);border-radius:3px;padding:12px 16px;margin:8px 0;max-width:720px}
+.look-l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin-bottom:6px}
+.look ul{margin:0;padding-left:20px}
+.look li{font-size:13.5px;color:var(--ink2);margin-bottom:4px}
+
+/* provenance strip — marks output captured from a node that is not yours */
+.prov{display:flex;flex-wrap:wrap;gap:5px 14px;align-items:baseline;max-width:720px;margin:16px 0 0;padding:7px 14px;background:#eef2f6;border:1px solid #d4dde6;border-left:3px solid #45586b;border-radius:3px}
+.prov b{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#45586b;font-weight:600}
+.prov span{font-family:var(--mono);font-size:11.5px;color:var(--ink2)}
+.prov em{font-style:normal;font-size:12.5px;color:#45586b}
+
+.ticket{border:1px solid var(--line);border-left:3px solid #6b3fa0;background:#f4f0fa;border-radius:3px;padding:15px 17px;margin:0 0 18px;max-width:720px}
+.ticket b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#6b3fa0;margin-bottom:6px}
+.ticket .from{font-family:var(--mono);font-size:11.5px;color:var(--ink2);margin-bottom:9px}
+.ticket p{font-size:14px;color:var(--ink);font-style:italic;margin-bottom:8px}
+.ticket p:last-child{margin-bottom:0}
+body.compact .ticket{display:none}
+</style>
+</head>
+<body>
+
+<div class="youbar">
+  <span class="youbar-k">Live node</span>
+  <span class="youbar-v">gpu01 · 1 device</span>
+  <span class="youbar-k">Evidence bench</span>
+  <span class="youbar-v">4-device capture</span>
+  <span class="youbar-k">5 tasks · 60 min guided · 2–3 h alone</span>
+  <button class="compactbtn" id="cbtn" onclick="toggleCompact()">compact</button>
+</div>
+
+<div class="head">
+  <p class="head-eyebrow">HPCA-100 · Module 6 · Session 1 · Lab Runbook</p>
+  <h1 class="head-title">Accelerator Node Anatomy</h1>
+  <p class="head-sub">One accelerator you can touch, a four-card node you can only read, and a software stack five layers deep where every layer has an opinion about the ones around it. You will inventory both, measure what the silicon is actually good at, build the compatibility table, and then read three user complaints and decide which of them that table explains.</p>
+</div>
+
+<div class="wrap">
+
+<aside class="side">
+  <div class="side-l">Runbook</div>
+  <a href="#before">Before you start</a>
+  <a href="#start">Getting on</a>
+  <hr />
+  <a href="#t1">1 · Inventory</a>
+  <a href="#t2">2 · What it is good at</a>
+  <a href="#t3">3 · The stack</a>
+  <a href="#t4">4 · Three complaints</a>
+  <a href="#t5">5 · Topology</a>
+  <hr />
+  <a href="#wrap">Commit</a>
+  <a href="#stuck">If you get stuck</a>
+  <a href="#glossary">Glossary</a>
+</aside>
+
+<main>
+
+<section id="before">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">Before you start</span><span class="sh-m">read once · 8 min</span></div>
+
+  <div class="concept">
+    <h4>What a GPU node actually is</h4>
+    <p>A GPU node is an ordinary server with accelerator cards bolted into it. That phrasing matters, because almost every operational problem in this session comes from forgetting the "ordinary server" half.</p>
+    <ul>
+      <li><b>Host CPUs and memory.</b> The machine still runs Linux, still has NUMA nodes, still schedules processes.</li>
+      <li><b>Accelerator devices.</b> One, on the node you will log into. Production cluster GPU nodes carry two, four or eight, which is why you will also read the captured state of a four-card node — see the next panel. Each device has its own memory, entirely separate from host memory.</li>
+      <li><b>The bus between them.</b> PCIe. Every byte a device reads from host memory crosses it, and how a card is attached decides how far that journey is.</li>
+      <li><b>Direct device-to-device links, where present.</b> Some node types have dedicated card-to-card interconnect. Many do not. <b>Finding out which you have is task 5.</b></li>
+      <li><b>Network adapters.</b> Also on PCIe, also attached somewhere specific, which matters the moment a job spans nodes.</li>
+    </ul>
+    <p>An accelerator is not a peripheral the operating system manages for you. It is a second computer in the box, reached across a bus, with its own memory and its own driver — and the administrator's job is mostly about the seam between the two.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Two nodes, and you can only log into one</h4>
+    <p>Your live node has <b>one</b> accelerator. Everything you run today, you run on that. But a single card cannot show you how cards relate to each other, so the lab also ships the <b>captured state of a four-card node</b> — real output, from real hardware, sitting in <code>/opt/lab/evidence/</code> as plain files.</p>
+    <p>Every captured file opens with a header saying which node it came from, how many devices it had, and when it was taken. <b>Read that header first, every time.</b> Mistaking another machine's output for your own is a real operational error, not a lab inconvenience — it is how people end up reporting a fault on a healthy node.</p>
+    <p><b>Reading captured state is the normal case, not the exception.</b> When a node is down you cannot log into it. When a vendor sends you a support bundle, it is files. When a colleague escalates at two in the morning, you get a paste. Working out what a machine is from output somebody else collected is a skill you will use more often than the skill of running the commands yourself.</p>
+    <p>Steps that read the bench carry a <b>captured</b> strip above the command. Steps without one run on your own node.</p>
+  </div>
+
+  <div class="concept">
+    <h4>The five-layer stack, bottom to top</h4>
+    <p>This is the spine of the session. Each layer has a version, and each version constrains its neighbours.</p>
+    <ul>
+      <li><b>1 · Device firmware.</b> On the card itself. Rarely touched, occasionally the answer.</li>
+      <li><b>2 · Kernel driver.</b> A kernel module that owns the device. <b>This is the layer that breaks most often</b>, because a kernel update can leave it unbuilt and the devices simply vanish.</li>
+      <li><b>3 · User-space runtime.</b> The library applications actually call. Ships with the driver and is tied to it.</li>
+      <li><b>4 · Toolkit and libraries.</b> The compiler and the mathematical and communication libraries. Installed separately from the driver, and this is where version confusion lives.</li>
+      <li><b>5 · The application.</b> The molecular dynamics code, the solver, the CFD package — compiled against a specific toolkit version, for a specific set of device architectures.</li>
+    </ul>
+    <p><b>The relationship that catches everyone:</b> a driver supports toolkit versions up to a maximum, and newer drivers support older toolkits. So a node can have a driver advertising support for one toolkit version while a completely different toolkit version is installed, and a user's application compiled against a third. All three numbers are real, all three are different, and <b>only one of them governs whether the application runs.</b></p>
+  </div>
+
+  <div class="concept">
+    <h4>Compute capability — the one that is not a version number</h4>
+    <p>Alongside the version chain there is a separate axis: the device's <b>compute capability</b>, which describes its hardware generation. It is written like a version — <code>7.5</code>, <code>8.0</code>, <code>9.0</code> — but it is a property of the silicon and cannot be upgraded.</p>
+    <p>A compiled CUDA application contains machine code for a <em>list</em> of architectures, fixed when it was built. If your device's generation is not on that list, the application will start, initialise, report the devices as present, and then fail the moment it tries to run anything on one.</p>
+    <p><b>Every version in your table can agree and the thing can still not run</b>, because compatibility and architecture support are different questions that fail in different ways and at different moments. Task 3 has you check both, on two supplied binaries.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Not every accelerator is for every workload</h4>
+    <p>Accelerators are specialised, and the specialisation is in the silicon. The headline number on a datasheet is usually single-precision throughput, because that is what graphics and rendering work uses.</p>
+    <p><b>Most classical HPC does not.</b> Molecular dynamics, computational fluid dynamics, finite-element analysis and linear algebra at scale run in double precision, and a card's double-precision rate can be anywhere from one half to one sixty-fourth of its single-precision rate depending on what it was designed for.</p>
+    <p>A card with excellent single-precision figures and crippled double-precision is a perfectly good card — for a workload that is not yours. <b>Task 2 has you measure both rates on this node and work out which kind of card you are looking at</b>, which is the question nobody asks until a research group has already been told the cluster is slow.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Telemetry, read comparatively</h4>
+    <p>The vendor management tool reports utilisation, memory, power draw, temperature, clock speeds, error counters and which processes hold each device. Task 2 has you record it idle and under load.</p>
+    <p><b>None of these numbers means anything absolutely.</b> They mean something against the other three devices in the same box, and against what the same device read yesterday. A device at 40&nbsp;°C and 20&nbsp;W idle is healthy; the same device at 70&nbsp;°C idle has something running on it, and that something is usually somebody's forgotten process holding memory nobody can reclaim.</p>
+    <p>Two comparisons are available to you and you need both. <b>Against time:</b> your own device idle, then the same device under load — which you measure live. <b>Against peers:</b> four devices under one load — which you read from the bench. A single card can only ever give you the first, and an administrator who has only ever had the first will miss the one card in eight that is quietly throttling.</p>
+  </div>
+
+  <div class="concept">
+    <h4>This node is shared, and read-only to you</h4>
+    <p>One node for the whole room, and one card in it. Everything in tasks 1, 3, 4 and 5 is a read, so there is no contention worth worrying about — and the evidence bench is a directory of files, which everyone can read at once.</p>
+    <p>Task 2's measurements are different — they load the device deliberately, and there is one device to load. They run behind a lock, so one person measures at a time and the rest wait a moment. <b>If somebody else's load is running while you take your idle reading, your idle reading is wrong</b>, which is itself the lesson about measuring on shared infrastructure. With a single shared card it matters more than it would with four.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Working alone?</h4>
+    <p>Allow two to three hours rather than sixty minutes. <b>Do tasks 1, 2 and 3 in order</b> — task 4 is unanswerable without the table from task 3, and task 5 wants the transfer figure you measure at 2.3 to compare its captured numbers against.</p>
+    <p>Each task ends with a <b>Stop</b> holding the point of the task and the answers to the questions it asks. Read them.</p>
+  </div>
+</section>
+
+<section id="start">
+  <div class="sh"><span class="sh-n">00</span><span class="sh-t">Getting on</span><span class="sh-m">3 min</span></div>
+
+  <div class="do">
+    <div class="dol">First, on your own laptop — forget the old key for this address</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh-keygen -R mylab.hpc.now</span></pre>
+  </div>
+  <p class="goal">An earlier lab used the same address with a different machine behind it. Without this, <code>ssh</code> refuses to connect and warns that the host key has changed. If it says the host was not found, that is fine — there was nothing to remove.</p>
+
+  <div class="do">
+    <div class="dol">Connect to the login node</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh &lt;you&gt;@mylab.hpc.now</span></pre>
+  </div>
+  <div class="see"><div class="see-l">Your login — the password is given by your instructor</div><pre>bhagya     Bhagya Raj G
+vinod      Vinod Manne
+surya      Surya Pendyala
+sai        Sai Dasari
+satya      Satya Srinivas
+vasavi     Vasavi Posani
+kathi      V R Kathi
+rajesh     Rajesh SR Kumar, instructor
+guest01, guest02    only if your instructor hands you one</pre></div>
+
+  <div class="do">
+    <div class="dol">Then onto the GPU node</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh gpu01</span></pre>
+  </div>
+  <p class="goal">It asks for the same password again. That is the only question it should ask.</p>
+
+  <div class="do">
+    <div class="dol">Confirm the device is visible at all</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">nvidia-smi -L</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see — one line, one device</div><pre>GPU 0: ... (UUID: GPU-...)</pre></div>
+
+  <div class="careful"><b>If that fails or lists nothing</b>Stop and say so. A node where the management tool cannot enumerate devices has a driver problem — layer 2 of the stack failing, which is the most common failure in accelerator operations, arriving before the lab has started.</div>
+
+  <div class="do">
+    <div class="dol">Confirm the evidence bench is staged</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ls /opt/lab/evidence/</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see — seven files</div><pre>README.txt
+inventory-4gpu.csv
+telemetry-idle-4gpu.csv    telemetry-load-4gpu.csv
+p2p-4gpu.txt
+topo-4gpu.txt              nvlink-status-4gpu.txt</pre></div>
+  <div class="careful"><b>Read README.txt before you use anything in there</b>It names the node the captures came from, its device count, and the date. Tasks 1, 2 and 5 all read from this directory, and every one of them wants that provenance copied into your report.</div>
+
+  <div class="do">
+    <div class="dol">Your working directory and report</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">mkdir -p ~/lab/m6s1 &amp;&amp; cp /opt/lab/templates/report.md ~/lab/m6s1/ &amp;&amp; ls ~/lab/m6s1</span></pre>
+  </div>
+  <p class="goal">One file, five sections. Keep it open in a second window — this lab produces a lot of output and you want to be writing as you go rather than at the end.</p>
+</section>
+
+<section id="t1">
+  <div class="sh"><span class="sh-n">1</span><span class="sh-t">Inventory the node</span><span class="sh-m">12 min</span></div>
+  <p class="goal">Every device, its memory, its compute capability, its place on the bus, and the host it is attached to — written down so somebody else could act on it.</p>
+
+  <div class="concept">
+    <h4>Why this task exists</h4>
+    <p>When a user says "the GPU node is broken", the first question is which node and which device. When a vendor asks what you have, this is what they want. And when you build the compatibility table in task 3, half of it comes from here.</p>
+    <p><b>Read the output, do not just capture it.</b> The tools print a great deal, and the skill is knowing which fields matter.</p>
+  </div>
+
+  <p class="stept"><i>1.1</i> The summary view, which you will use every day</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">nvidia-smi</span></pre>
+  </div>
+  <div class="careful"><b>Read the header line before the table</b>It carries two version numbers and they are not the same thing. Note both, exactly as written. Task 3 is where you find out why that distinction matters more than anything else on this page.</div>
+
+  <p class="stept"><i>1.2</i> The fields that matter, as data rather than a picture</p>
+  <div class="do">
+    <div class="dol">Machine-readable, and the form you would script against</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">nvidia-smi --query-gpu=index,name,uuid,memory.total,compute_cap,pci.bus_id,driver_version --format=csv</span></pre>
+  </div>
+  <p class="goal">Seven fields, one row — this node has one device. <b>Never parse the pretty table when a query form exists</b> — the pretty table's column widths change between driver versions and will break your script silently. You will meet the identical query form again at 1.7, run against a four-device node, where it produces four rows and nothing else changes.</p>
+
+  <p class="stept"><i>1.3</i> The deeper inventory the management tool does not give you</p>
+  <div class="do">
+    <div class="dol">The canonical device-properties tool</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">deviceQuery | head -45</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Find these five, for device 0</div>
+    <ul>
+      <li>CUDA capability major and minor — the compute capability, again, from a different source.</li>
+      <li>Number of multiprocessors, and cores per multiprocessor.</li>
+      <li>Total global memory, and the memory bus width.</li>
+      <li>Maximum clock rates, both device and memory.</li>
+      <li>Whether concurrent copy and kernel execution is supported.</li>
+    </ul>
+  </div>
+  <p class="goal">This is the tool you reach for when a user asks something the management tool does not report, and it is the same on every site you will ever work at.</p>
+
+  <p class="stept"><i>1.4</i> Where the device sits on the bus</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">lspci | grep -i nvidia</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">And the negotiated link, which is not always the maximum</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">nvidia-smi --query-gpu=index,pcie.link.gen.current,pcie.link.gen.max,pcie.link.width.current,pcie.link.width.max --format=csv</span></pre>
+  </div>
+  <div class="careful"><b>Compare current against maximum</b>A card negotiated below its maximum link width is a real fault with a real performance cost, and nothing will warn you. If yours matches, say so — a clean result recorded is worth as much as a problem found, because it is what lets you notice a change in six months. On a multi-card node you would also compare the cards against each other, and you will see what that looks like at 1.7.</div>
+
+  <p class="stept"><i>1.5</i> What the host looks like</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">lscpu | grep -E '^CPU\(s\)|Socket|NUMA|Model name'</span></pre>
+  </div>
+
+  <p class="stept"><i>1.6</i> The full per-device dump, for the file</p>
+  <div class="do">
+    <div class="dol">Long. Skim once, then keep it.</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">nvidia-smi -q | tee ~/lab/m6s1/nvidia-smi-full.txt | head -50</span></pre>
+  </div>
+  <p class="goal">Everything the driver knows about the device — serial numbers, firmware versions, error-correction state and counters. You will not read it all today. You will be glad it is in a file the first time a vendor asks you something specific.</p>
+
+  <p class="stept"><i>1.7</i> The same inventory, from a four-card node</p>
+  <div class="prov"><b>captured</b><span>4 × accelerator · see README.txt</span><em>not your node — read the header line first</em></div>
+  <div class="do">
+    <div class="dol">The identical query form, run on a node with four devices</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/evidence/inventory-4gpu.csv</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Four rows now — read down the columns, not across</div>
+    <ul>
+      <li>Are the four devices the same model, with the same memory and the same compute capability? On a healthy node they are, and a node where they are not is a node somebody has serviced without writing it down.</li>
+      <li>Do all four report the same driver version? They must — one driver serves every device in a host, and four different values would mean the file is not from one machine.</li>
+      <li>The PCI bus IDs differ. Here they are consecutive and, as task 5 will show, all four sit behind the same host bridge; on many physical servers they are spread across several buses, and that spacing is what task 5 reads.</li>
+      <li>Compare any one of those rows against your own device's row from 1.2. Same model? Same compute capability? If so, everything you measure on your own card today transfers to that node unchanged.</li>
+    </ul>
+  </div>
+
+  <p class="stept"><i>1.8</i> Write the inventory</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/lab/m6s1/report.md</span>   <span class="cmt"># section 1</span></pre>
+  </div>
+  <div class="see"><div class="see-l">Your node first, then the captured one</div><pre>LIVE NODE
+Node: ____   Host CPUs: ____   Sockets: ____   NUMA nodes: ____
+
+| Dev | Model | Memory | Compute cap | SMs | PCI bus ID | Link now / max |
+|-----|-------|--------|-------------|-----|------------|----------------|
+| 0   |       |        |             |     |            |                |
+
+Driver version: ____
+The two version numbers in the nvidia-smi header: ____ and ____
+
+CAPTURED NODE    source file: ____________    captured: ____________
+
+| Dev | Model | Memory | Compute cap | PCI bus ID |
+|-----|-------|--------|-------------|------------|
+| 0   |       |        |             |            |
+| 1   |       |        |             |            |
+| 2   |       |        |             |            |
+| 3   |       |        |             |            |
+
+Same device model as yours?          yes / no
+One driver version across all four?  yes / no
+</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 1<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>Check your inventory</h5>
+      <ul>
+        <li>One row for your node, four for the captured one, every cell filled.</li>
+        <li><b>Compute capability recorded.</b> It is not a software version and you cannot change it. Task 3 needs it.</li>
+        <li>Both header version numbers written down, separately.</li>
+        <li>The captured file's source node and capture date copied into your report. <b>An inventory that does not say which machine it describes is not an inventory</b>, and six months from now you will not remember.</li>
+      </ul>
+      <div class="ans"><b>The two numbers in the header are a driver version and a toolkit version — and the toolkit version shown there is the newest the driver can support, not what is installed on this machine.</b> That single misreading is behind an enormous share of accelerator support tickets, including one of the three in task 4. You will find the actually-installed version yourself at task 3.</div>
+      <h5>On the link width</h5>
+      <p>If yours negotiated its maximum, write that down as a finding rather than skipping it. Nobody can tell that a card dropped from sixteen lanes to eight unless somebody recorded that it used to be sixteen.</p>
+      <h5>What you did not need</h5>
+      <p>No root, no privileged tooling, nothing that could change the node's state. <b>The entire inventory is readable by an ordinary user</b>, which means there is no excuse for a site not having one — and most do not.</p>
+      <div class="stop-rec"><b>Record</b> — <code>report.md</code> section 1.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t2">
+  <div class="sh"><span class="sh-n">2</span><span class="sh-t">What this silicon is good at</span><span class="sh-m">14 min</span></div>
+  <p class="goal">Telemetry idle and under load on your own device, the same reading across four devices on the bench, host-to-device transfer rate, and the single- against double-precision throughput — which together say what workload this card suits.</p>
+
+  <div class="concept">
+    <h4>Why three measurements rather than one</h4>
+    <p><b>Telemetry</b> tells you whether a device is healthy, and on a multi-card node whether the cards agree with each other. You measure the first on your own card and read the second from the bench. <b>Transfer rate</b> is the number a user actually feels, because data has to get onto the device before anything can happen to it. <b>Single against double precision</b> tells you what the silicon was built for, and it is the measurement that decides whether this card suits a classical HPC group at all.</p>
+    <p>The live measurements run behind a lock. If somebody else is measuring, yours waits. Watch theirs in the meantime — one card, one set of numbers, and they will be the same as yours. The bench reads are files and need no lock.</p>
+  </div>
+
+  <p class="stept"><i>2.1</i> Is anything running right now</p>
+  <div class="do">
+    <div class="dol">Processes holding a device</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">nvidia-smi --query-compute-apps=pid,process_name,used_gpu_memory --format=csv</span></pre>
+  </div>
+  <div class="careful"><b>If that returns rows, your idle reading will be wrong</b>Wait for it to clear. On a shared node this is the normal state of affairs, and noticing it is the point — an "idle" baseline taken while somebody else was working is worse than no baseline at all.</div>
+
+  <p class="stept"><i>2.2</i> The idle reading</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">nvidia-smi --query-gpu=index,utilization.gpu,memory.used,power.draw,temperature.gpu,clocks.sm --format=csv | tee ~/lab/m6s1/telemetry-idle.csv</span></pre>
+  </div>
+
+  <p class="stept"><i>2.3</i> How fast data gets onto the device</p>
+  <div class="do">
+    <div class="dol">Host to device, device to host, device to device</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">run-bench bandwidthTest --device=all --memory=pinned | tee ~/lab/m6s1/bandwidth.txt</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Three numbers per device, and they are not equal</div>
+    <ul>
+      <li>Host to device, and device to host. These cross PCIe and are bounded by it.</li>
+      <li>Device to device — within one card's own memory. An order of magnitude higher.</li>
+      <li>Compare host-to-device against the PCIe generation and width you recorded at 1.4. Does the figure make sense for that link?</li>
+    </ul>
+  </div>
+
+  <p class="stept"><i>2.4</i> Start the load, then watch it</p>
+  <div class="do">
+    <div class="dol">Saturates the device for about 90 seconds, then releases</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">run-load 90 &amp;</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">One line per device per second</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">nvidia-smi dmon -s pucvmet -c 20</span></pre>
+  </div>
+  <div class="careful"><b>Watch the order the columns move in</b>Utilisation jumps first. Power follows. Temperature lags behind both by several seconds and keeps climbing after utilisation has already peaked. That lag is thermal mass, and it is why a card that looks cool in a single sample can still be in trouble.</div>
+
+  <p class="stept"><i>2.5</i> The loaded reading, while it is still running</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">nvidia-smi --query-gpu=index,utilization.gpu,memory.used,power.draw,temperature.gpu,clocks.sm --format=csv | tee ~/lab/m6s1/telemetry-load.csv</span></pre>
+  </div>
+
+  <p class="stept"><i>2.6</i> What four devices under one load look like</p>
+  <div class="prov"><b>captured</b><span>4 × accelerator · same load generator</span><em>not your node</em></div>
+  <div class="do">
+    <div class="dol">The identical query form, on a four-card node, under load</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/evidence/telemetry-load-4gpu.csv</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Read down each column and ask whether the four agree</div>
+    <ul>
+      <li><b>Utilisation</b> — all four near the same figure under an even load.</li>
+      <li><b>Power draw</b> — within a few watts of each other.</li>
+      <li><b>Temperature</b> — the spread matters more than the values. Cards in the middle of a chassis run hotter than cards at the edges, and a few degrees of spread is airflow, not a fault.</li>
+      <li><b>SM clock</b> — one card clocked materially lower than its peers on equal work would be throttling. On this capture all four held the same clock, and that is the finding: a healthy baseline, with the middle cards running warmer than the edges, which is airflow, not a fault.</li>
+    </ul>
+  </div>
+  <div class="do">
+    <div class="dol">And the same node idle, which is the half people skip</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/evidence/telemetry-idle-4gpu.csv</span></pre>
+  </div>
+  <div class="careful"><b>You have now made both comparisons</b>Against time, on your own card: idle, then load. Against peers, on the bench: four cards at one moment. Neither alone is enough. A card that is slow in a way all four share is a node problem; a card that is slow on its own is a card problem — and you cannot tell those apart from one device's reading, however carefully you take it.</div>
+
+  <p class="stept"><i>2.7</i> Single precision, then double</p>
+  <div class="do">
+    <div class="dol">The same kernel in 32-bit floating point</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">run-bench fp-compare fp32 | tee ~/lab/m6s1/fp32.txt</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">And in 64-bit</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">run-bench fp-compare fp64 | tee ~/lab/m6s1/fp64.txt</span></pre>
+  </div>
+  <div class="careful"><b>Work out the ratio before you read the Stop</b>Divide the single-precision figure by the double-precision one. <b>That number is the most important thing you will measure today.</b> Have it in front of you.</div>
+
+  <p class="stept"><i>2.8</i> Write all four up</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/lab/m6s1/report.md</span>   <span class="cmt"># section 2</span></pre>
+  </div>
+  <div class="see"><div class="see-l">Four blocks</div><pre>YOUR DEVICE — IDLE, THEN UNDER LOAD
+| Dev | State | Util % | Mem used | Power W | Temp C | SM clock |
+|-----|-------|--------|----------|---------|--------|----------|
+| 0   | idle  |        |          |         |        |          |
+| 0   | load  |        |          |         |        |          |
+
+CAPTURED FOUR-CARD NODE, UNDER LOAD    source: ____________
+Did all four behave the same?              yes / no
+Widest spread, and in which column:        ____________
+Any card clocked below its peers?          yes / no — which: ____
+
+Host to device: ____ GB/s      Device to host: ____ GB/s
+Device to device: ____ GB/s    Consistent with the PCIe link at 1.4?  yes / no
+
+FP32: ____ GFLOP/s    FP64: ____ GFLOP/s    Ratio: ____ : 1
+
+What workload is this card suited to, and what is it not suited to:
+</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 2<span>the measurement that decides the node's purpose</span></div>
+    <div class="stop-b">
+      <h5>Your precision ratio</h5>
+      <div class="ans"><b>If that ratio came out large — many times, not two — this node's cards are not built for double precision.</b> Their double-precision units are a small fraction of their single-precision ones, deliberately, because they were designed for workloads that do not need it.</div>
+      <h5>Why that is the finding that matters</h5>
+      <p>Classical HPC runs in double precision. Molecular dynamics, computational fluid dynamics, finite-element work, linear algebra at scale — all of it. <b>A research group handed a node of these cards for a double-precision code would get a fraction of the performance the datasheet's headline number implies</b>, and would report that the cluster is slow.</p>
+      <p>A card with a ratio near 2:1 is an HPC accelerator. A ratio of thirty or sixty to one is a card built for single-precision work. Both are good cards. Only one of them is the right purchase for a chemistry group, and <b>buying the wrong one is a mistake an administrator is often the first person in the organisation able to detect</b> — because it is visible in two commands and nowhere else.</p>
+      <h5>Compare, and never against zero</h5>
+      <p>On the captured node the four cards should have moved together under load. One sitting noticeably cooler, drawing less power, or clocked lower on the same work is the thing to notice: either it was not given equal work, or it is throttling, and both are worth knowing. If all four tracked each other, record that — that is what a healthy baseline looks like.</p>
+      <p><b>Your own card gave you the other comparison, and it is the one you will have most days.</b> Idle against load, the same device, an hour apart or a month apart. Plenty of estates run single-accelerator nodes — visualisation hosts, licence servers with a card in them, development boxes — and on those this is the only comparison there is, which is exactly why the reading has to be written down. A number with nothing to compare it to becomes a baseline the moment you record it, and stays useless until you do.</p>
+      <h5>Idle is a reading, not a formality</h5>
+      <p>Memory still in use with no process listed is the classic shape of a leaked allocation from a crashed job. Nothing reclaims it until the driver is reset or the node reboots, and the next user gets a device with less memory than it should have and no explanation. Check your idle row again.</p>
+      <h5>And the transfer rate</h5>
+      <p>Device-to-device being far higher than host-to-device is the whole reason data is staged onto a card once and left there. A code that copies across PCIe on every iteration is bounded by the slowest number in your table, not the fastest — and that is a conversation to have with the user, not a fault to escalate.</p>
+      <div class="stop-rec"><b>Record</b> — section 2: all three blocks, and the suitability sentence.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t3">
+  <div class="sh"><span class="sh-n">3</span><span class="sh-t">The stack, layer by layer</span><span class="sh-m">12 min</span></div>
+  <p class="goal">Every layer of the accelerator software stack as installed, with its version and where you found it — and a verdict on two supplied binaries.</p>
+
+  <div class="concept">
+    <h4>Why this is the most valuable thing you will produce today</h4>
+    <p>Five layers, five versions, five different commands. No single command tells you all of it, which is precisely why so few sites have it written down — and why "works on my machine" tickets take days.</p>
+    <p><b>Two of these numbers are routinely confused with each other</b>, and a third axis is not a version at all. Finding all of them separately, and knowing which governs what, is the heart of this session.</p>
+  </div>
+
+  <p class="stept"><i>3.1</i> Kernel driver — the layer that owns the device</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /proc/driver/nvidia/version</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">And against the running kernel, which is what it was built for</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">uname -r; lsmod | grep -E '^nvidia'</span></pre>
+  </div>
+
+  <p class="stept"><i>3.2</i> The maximum toolkit version this driver supports</p>
+  <div class="do">
+    <div class="dol">This is the number in the nvidia-smi header</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">nvidia-smi | head -4</span></pre>
+  </div>
+
+  <p class="stept"><i>3.3</i> The toolkit version actually installed</p>
+  <div class="do">
+    <div class="dol">A different question, with a different command</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">nvcc --version</span></pre>
+  </div>
+  <div class="careful"><b>Compare 3.2 and 3.3 before going on</b>They are very likely different numbers, and both are correct. One is a ceiling, the other is what is on disk. <b>Neither is necessarily what a user's application was built against.</b></div>
+
+  <p class="stept"><i>3.4</i> What a compiled application was actually built for</p>
+  <div class="do">
+    <div class="dol">Two supplied solvers. Nobody will tell you how they were compiled.</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ls -l /opt/lab/bin/solver-*</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Read the architectures inside the first one</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cuobjdump --list-elf /opt/lab/bin/solver-a | grep -o 'sm_[0-9]*' | sort -u</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">And the second</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cuobjdump --list-elf /opt/lab/bin/solver-b | grep -o 'sm_[0-9]*' | sort -u</span></pre>
+  </div>
+  <p class="goal">This is the tool that answers "why will this binary not run here" on any CUDA application — a user's own code, a vendor package, something out of a container. It reads the machine code the compiler actually embedded.</p>
+
+  <p class="stept"><i>3.5</i> Your devices' architecture</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">nvidia-smi --query-gpu=index,name,compute_cap --format=csv</span></pre>
+  </div>
+  <div class="careful"><b>Predict before you test</b>Put your devices' compute capability beside the two lists from 3.4. <b>Write down which solver you expect to run and which you expect to fail</b>, then run them. Predicting first is the difference between learning the rule and watching a demonstration.</div>
+
+  <p class="stept"><i>3.6</i> Now run both</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">/opt/lab/bin/solver-a</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">/opt/lab/bin/solver-b</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">If one of them failed, read the error exactly</div>
+    <ul>
+      <li>Did it fail at startup, or after reporting that it had found the devices?</li>
+      <li>Write the error text down verbatim. You will see it again in task 4.</li>
+    </ul>
+  </div>
+
+  <p class="stept"><i>3.7</i> Write the table</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/lab/m6s1/report.md</span>   <span class="cmt"># section 3</span></pre>
+  </div>
+  <div class="see"><div class="see-l">The "found with" column is what makes it useful to anyone else</div><pre>| Layer                        | Version / value | Found with |
+|------------------------------|-----------------|------------|
+| running kernel               |                 |            |
+| kernel driver                |                 |            |
+| max toolkit driver supports  |                 |            |
+| toolkit installed            |                 |            |
+| devices' compute capability  |                 |            |
+| solver-a architectures       |                 |            |
+| solver-b architectures       |                 |            |
+
+Which solver ran:  ____    Which failed:  ____
+The error, verbatim:
+Which single thing governs whether a binary runs here, and why:
+</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 3<span>the centre of the session</span></div>
+    <div class="stop-b">
+      <h5>The two numbers you compared at 3.2 and 3.3</h5>
+      <div class="ans"><b>The header's toolkit number is a ceiling — the newest the driver could support. The installed toolkit is what is on disk. Neither one decides whether a given binary runs.</b> A user who reads only the header and concludes "this node has toolkit X" is wrong, and will build against X, and it may well work anyway because of how the compatibility rules fall. Which is the worst outcome available: right result, wrong reasoning, and no idea why it breaks next time.</div>
+      <h5>What actually decided it</h5>
+      <p>The architecture list inside the binary, against the compute capability of the silicon. <b>That is not a version-compatibility question at all</b>, which is why it fails differently — later, on first execution, with a message about no suitable code being available rather than anything about versions.</p>
+      <p>Version compatibility asks whether these pieces can talk to each other. Architecture support asks whether the compiled code inside the application includes anything your devices can execute. Both can be checked in advance. Only one of them is checked by anybody.</p>
+      <h5>The command to remember</h5>
+      <p><code>cuobjdump --list-elf</code> works on any CUDA binary — a user's own build, a vendor's package, something extracted from a container image. <b>It is the two-minute answer to a class of ticket that otherwise takes days</b>, and almost nobody on a service desk knows it exists.</p>
+      <h5>The thing to take away</h5>
+      <p>You have just produced, in twelve minutes, the artefact that answers most of this module's tickets. <b>Keep it, date it, and regenerate it after every driver or toolkit change</b> — because a table that is six months stale is worse than none, in that people trust it.</p>
+      <div class="stop-rec"><b>Record</b> — section 3, all seven rows, the verdict, and the error text.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t4">
+  <div class="sh"><span class="sh-n">4</span><span class="sh-t">Three complaints</span><span class="sh-m">10 min</span></div>
+  <p class="goal">Three user reports, each classified: is this a version or architecture problem, is it something else, or can you not tell from what they have told you.</p>
+
+  <div class="concept">
+    <h4>Why this task exists</h4>
+    <p>Users do not report causes. They report what they saw, in their own words, usually omitting the one detail that would settle it. Your table from task 3 is the tool, and the skill is knowing when it applies and when reaching for it would send you down the wrong road entirely.</p>
+    <p><b>Not all three of these are stack problems.</b> A classification that puts everything in the same bucket is not a classification.</p>
+  </div>
+
+  <p class="stept"><i>4.1</i> Read all three before deciding any</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/reports/report-1.txt</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/reports/report-2.txt</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/reports/report-3.txt</span></pre>
+  </div>
+
+  <p class="stept"><i>4.2</i> Check each against the node you just inventoried</p>
+  <div class="do">
+    <div class="dol">Your own section-3 table is the reference. Re-read it rather than guessing.</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sed -n '/## 3/,/## 4/p' ~/lab/m6s1/report.md</span></pre>
+  </div>
+  <div class="careful"><b>Classify what the report says, not what you suspect</b>If a report is missing the one fact that would settle it, the correct answer is to name that fact and the question you would ask. <b>"Cannot determine, and here is my question" is a complete and correct classification</b>, and on at least one of these it is the best available answer.</div>
+
+  <p class="stept"><i>4.3</i> Write the three classifications</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/lab/m6s1/report.md</span>   <span class="cmt"># section 4</span></pre>
+  </div>
+  <div class="see"><div class="see-l">The evidence column is what is being assessed</div><pre>| # | Classification | Which layer, or what else | Evidence from my table | What I would ask the user |
+|---|----------------|---------------------------|------------------------|---------------------------|
+| 1 |                |                           |                        |                           |
+| 2 |                |                           |                        |                           |
+| 3 |                |                           |                        |                           |
+</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 4<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>Check the shape of your three answers</h5>
+      <div class="ans"><b>If all three came out as stack problems, read them again.</b> They were written so that your table explains some of what is in front of you and not all of it — because on a real service desk, reaching for the same explanation every time is how you spend a week on the wrong thing.</div>
+      <h5>One of them you have already seen</h5>
+      <p>You produced that exact failure yourself at step 3.6, deliberately, and wrote the error down. <b>That is what a reproducible diagnosis looks like</b> — you are not matching symptoms to a remembered cause, you are matching them to something you caused on purpose twenty minutes ago on this node.</p>
+      <h5>What separates a good classification from a guess</h5>
+      <p>A named layer. "Version problem" is not actionable; <b>"the binary contains machine code for architectures this node's devices are not among"</b> tells somebody exactly what to change. Your table gives you the vocabulary to be that specific, which is most of its value.</p>
+      <h5>On the one you could not settle</h5>
+      <p>Saying so is correct, provided you name the missing fact and the question. The failure mode is not uncertainty — it is <b>inventing certainty</b> and sending a user to rebuild something that was never the problem. One precise question costs them an hour. A wrong confident answer costs them a week.</p>
+      <h5>And the reply the user eventually gets</h5>
+      <p>Each of these ends with somebody telling a researcher what to do next, and your table is what lets that sentence be specific. <b>"Your binary was built for architectures &lt;X&gt; and these devices are &lt;Y&gt;; rebuild with that architecture added, or use the site build"</b> is an answer. "It is a compatibility issue" is not.</p>
+      <div class="stop-rec"><b>Record</b> — section 4, all three rows, with evidence.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t5">
+  <div class="sh"><span class="sh-n">5</span><span class="sh-t">Topology, and what it costs</span><span class="sh-m">7 min</span></div>
+  <p class="goal">The device-to-device link type between every pair of cards on a four-card node, read from its captured topology matrix, and a written statement of what that means for a job using more than one of them.</p>
+
+  <div class="concept">
+    <h4>Why this is last, and why it is read rather than run</h4>
+    <p>Everything so far has treated accelerators as independent things. On a multi-card node they are not. A job using two of them makes them talk to each other, and <b>how they are connected decides how expensive that conversation is.</b></p>
+    <p>Your own node has one card, so it has no pairs — a topology grid of one device against itself tells you nothing, and the runbook is not going to pretend otherwise. The four-card matrix on the bench does tell you something, and it is real output from real hardware.</p>
+    <p>Reading a topology matrix out of a file is also the realistic case. The node whose topology you need is usually the one with a job failing on it, which is the one you have been asked to keep your hands off. <b>The matrix is a thing you receive far more often than a thing you run.</b></p>
+  </div>
+
+  <p class="stept"><i>5.1</i> Your own node's affinity, which is still worth having</p>
+  <div class="do">
+    <div class="dol">One device — but the CPU and NUMA columns are real, and yours</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">nvidia-smi topo -m</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Ignore the grid. Read the two columns to the right of it.</div>
+    <ul>
+      <li><b>CPU affinity</b> — which host cores sit nearest this card. A process pinned to the wrong cores pays for it on every transfer, and nothing reports that it is happening.</li>
+      <li><b>NUMA affinity</b> — which memory node is local to the card. Compare it against the NUMA count you recorded at 1.5.</li>
+      <li>The grid itself is one cell wide. That is the honest output of a single-card node, and it is why the next step reads somebody else's.</li>
+    </ul>
+  </div>
+
+  <p class="stept"><i>5.2</i> The matrix, from a node that has pairs</p>
+  <div class="prov"><b>captured</b><span>4 × accelerator · topo -m</span><em>not your node — the header says which</em></div>
+  <div class="do">
+    <div class="dol">Read the legend printed underneath the grid — that is where the answer is</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/evidence/topo-4gpu.txt</span></pre>
+  </div>
+  <p class="goal">A grid of every device against every other, plus columns for CPU and NUMA affinity. Each cell holds a code, and the legend below the grid says what each code means. <b>Work out what the codes mean before reading on.</b> Take them from the legend in the file and nowhere else — the legend is authoritative for the driver version that produced it, and the codes have changed between versions.</p>
+
+  <p class="stept"><i>5.3</i> Are there direct card-to-card links at all</p>
+  <div class="prov"><b>captured</b><span>4 × accelerator · nvlink --status</span><em>not your node</em></div>
+  <div class="do">
+    <div class="dol">Reports per-link state where the hardware has such links</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/evidence/nvlink-status-4gpu.txt</span></pre>
+  </div>
+  <div class="careful"><b>A reply saying the devices have no such links is a result, not an error</b>Record it. Most GPU nodes in the world answer exactly that way, and establishing it about a node you have been handed is the point of the task. The absence is what makes the codes in the matrix matter.</div>
+
+  <p class="stept"><i>5.4</i> Put the matrix beside a measured number</p>
+  <div class="prov"><b>captured</b><span>4 × accelerator · p2pBandwidthLatencyTest</span><em>not your node</em></div>
+  <div class="do">
+    <div class="dol">Every device copying to every device, with no direct link used</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">grep -A5 'Unidirectional P2P=Disabled Bandwidth Matrix' /opt/lab/evidence/p2p-4gpu.txt</span></pre>
+  </div>
+  <p class="goal">Rows are the sending device, columns the receiving one, figures in GB/s. The diagonal is each card copying within its own memory — compare it against your own device-to-device figure from 2.3. Every cell off the diagonal is a copy between two <em>different</em> cards, across whatever the matrix at 5.2 says connects them — and the gap between the diagonal and the rest is the entire content of this task.</p>
+
+  <p class="stept"><i>5.5</i> Write what it implies</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/lab/m6s1/report.md</span>   <span class="cmt"># section 5</span></pre>
+  </div>
+  <div class="see"><div class="see-l">The last line is the task</div><pre>LIVE NODE
+CPU affinity for device 0: ____     NUMA node: ____
+
+CAPTURED FOUR-CARD NODE    source: ____________    captured: ____________
+Link code between devices: ____
+Meaning, from the legend in that file: ____________
+Direct device-to-device links present:   yes / no
+Within one card, device to device: ____ GB/s
+Between two cards:                 ____ GB/s
+
+What this means for a job using all four devices of that node, in two sentences:
+</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 5<span>and the close of the session</span></div>
+    <div class="stop-b">
+      <h5>What the matrix said</h5>
+      <div class="ans"><b>Whatever code appeared, the legend inside that file defines it — and if there were no direct device-to-device links, that is the node's honest answer and the common one.</b> On a node without them, every byte exchanged between two cards travels out over PCIe, through the host, and back in. A job that moves a lot of data between devices pays that on every exchange, and no tuning inside the application removes it.</div>
+      <h5>What you would tell a user</h5>
+      <p>Two things, and they are the useful output of this task. <b>A job that fits on one device should stay on one device</b> — splitting it across four on a node like that can be slower than not splitting it at all. And <b>a job that genuinely needs four devices should have them inside one node rather than spread across two</b>, because as slow as the host path is, the network is slower.</p>
+      <h5>On having read it rather than run it</h5>
+      <p>You have just answered a hardware question about a machine you never logged into, from four files and a legend. <b>That is the ordinary shape of the work.</b> The node you need to characterise is usually the broken one, the busy one, or the one in a facility where you have no account. What made it answerable was that the capture was complete and said where it came from.</p>
+      <p>Which is the other half of the lesson, and it points back at you. <b>A support bundle without its provenance is a bundle nobody can use</b> — and the next one somebody cannot use may well be one you collected. Date it, name the node, say how many devices it had.</p>
+      <h5>The thread running through all five tasks</h5>
+      <p>Every answer today came from reading something that was already being reported, with no privilege and no changes to anything. The inventory, the precision ratio, the transfer rates, the stack table, the architecture lists, the topology — <b>none of it required permission, and all of it is missing at most sites.</b></p>
+      <p>That is the lesson of the session, and of the module. The hard part of accelerator administration is not access or tooling. It is that the information is freely available and nobody writes it down, so every ticket starts from nothing.</p>
+      <h5>And the one judgement that is not a reading</h5>
+      <p>Your precision ratio from task 2 told you what this class of card is for. <b>That is the question to ask before a purchase, not after a research group complains</b> — and asking it is firmly within an administrator's scope, however far outside it the purchasing decision itself may sit.</p>
+      <div class="stop-rec"><b>Record</b> — section 5, including the two-sentence implication.</div>
+    </div>
+  </div>
+</section>
+
+<section id="wrap">
+  <div class="sh"><span class="sh-n">✓</span><span class="sh-t">Commit</span><span class="sh-m">2 min</span></div>
+
+  <div class="do">
+    <div class="dol">All five sections filled</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">grep -c '^## ' ~/lab/m6s1/report.md</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Everything you captured</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ls -l ~/lab/m6s1/</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>report.md
+nvidia-smi-full.txt
+telemetry-idle.csv   telemetry-load.csv
+bandwidth.txt
+fp32.txt             fp64.txt</pre></div>
+
+  <div class="do">
+    <div class="dol">Take it off the node</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cd ~/lab &amp;&amp; tar czf ~/m6s1-report.tgz m6s1 &amp;&amp; ls -lh ~/m6s1-report.tgz</span></pre>
+  </div>
+
+  <div class="careful"><b>This node self-destructs on a timer</b>The deadline is in the message of the day when you log in. The stack table and the precision ratio are the two artefacts worth keeping — on a real estate the table is a document you would date, commit, and regenerate after every driver change.</div>
+</section>
+
+<section id="stuck">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">If you get stuck</span></div>
+  <table>
+    <thead><tr><th>Symptom</th><th>What it means · what to do</th></tr></thead>
+    <tbody>
+      <tr><td><code>nvidia-smi</code> cannot communicate with the driver</td><td class="m">layer 2 is down — the module is not loaded or<br />does not match the kernel. Say so; not yours to fix today</td></tr>
+      <tr><td><code>nvidia-smi -L</code> lists nothing</td><td class="m">the card has fallen off the bus, or layer 2 is down.<br />That is a finding — record it and say so</td></tr>
+      <tr><td><code>/opt/lab/evidence/</code> empty or missing</td><td class="m">the captured bench did not stage. Steps 1.7, 2.6 and all<br />of task 5 need it — say so, it is not fixable from your account</td></tr>
+      <tr><td><code>nvcc</code> or <code>cuobjdump</code> not found</td><td class="m">toolkit binaries are not on PATH.<br />Try <code>ls /usr/local/cuda*/bin/</code></td></tr>
+      <tr><td><code>deviceQuery</code> not found</td><td class="m">try <code>ls /opt/lab/bin/</code> — it ships there, not with<br />the toolkit. If it is missing the image is wrong; say so</td></tr>
+      <tr><td>One solver fails at 3.6</td><td class="m">expected, and it is the task.<br />Record the error verbatim</td></tr>
+      <tr><td>A <code>run-bench</code> or <code>run-load</code> waits</td><td class="m">expected. One measurement at a time.<br />Watch someone else's meanwhile</td></tr>
+      <tr><td>Your idle reading shows memory in use</td><td class="m">either a load is running, or something leaked.<br />Check 2.1 again. Both are findings</td></tr>
+      <tr><td><code>nvidia-smi nvlink</code> errors or says unsupported</td><td class="m">correct answer for most nodes.<br />Record it as "none present"</td></tr>
+      <tr><td>Two runs of the same measurement differ a lot</td><td class="m">something else was running.<br />Repeat both and use the consistent pair</td></tr>
+    </tbody>
+  </table>
+  <div class="goal"><b>Asking beats guessing.</b> With a trainer present, say which task, the exact command and what came back. Working alone, note those three things for the next session.</div>
+</section>
+
+<section id="glossary">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">Glossary</span></div>
+  <dl class="gloss">
+    <dt>compute capability</dt><dd>A device's hardware generation, written like a version. A property of the silicon; cannot be changed. Decides whether a compiled binary's machine code can run on it.</dd>
+    <dt>cuobjdump</dt><dd>The toolkit utility that reads what is inside a compiled CUDA binary, including which architectures it contains.</dd>
+    <dt>deviceQuery</dt><dd>The standard device-properties tool. Reports multiprocessor count, cores, clocks, memory width and capability — things the management tool does not.</dd>
+    <dt>double precision · FP64</dt><dd>64-bit floating point. What classical HPC computes in. A card's FP64 rate relative to FP32 says what it was designed for.</dd>
+    <dt>ECC</dt><dd>Error-correcting code on device memory. Corrected and uncorrected counts are in the full dump from 1.6; interpreting them is beyond this session.</dd>
+    <dt>evidence bench</dt><dd>A directory of output captured from hardware the lab does not provide live — real output from a real node, read as files. Used here because accelerator time is the constraint.</dd>
+    <dt>fatbinary</dt><dd>The container inside a CUDA executable holding machine code for one or more architectures. What <code>cuobjdump</code> reads.</dd>
+    <dt>GFLOP/s</dt><dd>Billions of floating-point operations per second. Quoted separately for single and double precision, and the two can differ by a factor of sixty.</dd>
+    <dt>kernel driver</dt><dd>The kernel module that owns the device. Layer 2, and the layer that breaks most often, usually after a kernel update.</dd>
+    <dt>link width</dt><dd>How many PCIe lanes a card negotiated. Below maximum is a real fault with a performance cost and no warning.</dd>
+    <dt>NUMA node</dt><dd>A group of CPUs with their own local memory. A card is attached nearer one group than another, which affects transfer speed.</dd>
+    <dt>NVLink</dt><dd>Dedicated direct device-to-device interconnect, present on some node types and absent from most. Appears in the topology matrix when present.</dd>
+    <dt>PCIe</dt><dd>The bus connecting devices to the host. Where device-to-device traffic goes when there is no direct link.</dd>
+    <dt>persistence mode</dt><dd>Whether the driver stays initialised when no process is using a device. Off means a startup cost on every job.</dd>
+    <dt>provenance header</dt><dd>The opening lines of a captured file, stating which node it came from, how many devices it had and when it was taken. A capture without one cannot safely be used, because nothing in the output itself says which machine it describes.</dd>
+    <dt>SM · multiprocessor</dt><dd>A streaming multiprocessor — the device's unit of parallel execution. Their number and the cores in each set the card's throughput.</dd>
+    <dt>toolkit</dt><dd>The compiler and libraries, installed separately from the driver. The number in the management tool's header is the newest the driver supports, not what is installed.</dd>
+    <dt>topology matrix</dt><dd>The grid showing how every device connects to every other, plus CPU and NUMA affinity. Its legend defines the codes.</dd>
+  </dl>
+</section>
+
+</main>
+</div>
+
+<div class="foot">
+  <span>HPCA-100 · M6-S1 · Accelerator Node Anatomy</span>
+  <span>learner copy · works with a trainer or alone</span>
+</div>
+
+<script>
+const navs = document.querySelectorAll('.side a');
+const io = new IntersectionObserver(function (entries) {
+  entries.forEach(function (e) {
+    if (!e.isIntersecting) return;
+    navs.forEach(function (n) { n.classList.remove('on'); });
+    const a = document.querySelector('.side a[href="#' + e.target.id + '"]');
+    if (a) a.classList.add('on');
+  });
+}, { rootMargin: '-15% 0px -75% 0px' });
+document.querySelectorAll('section[id]').forEach(function (s) { io.observe(s); });
+
+function cpy(btn) {
+  const box = btn.closest('.do');
+  const pre = box.querySelector('pre');
+  navigator.clipboard.writeText((pre.innerText || pre.textContent).trim()).then(function () {
+    btn.textContent = 'copied';
+    btn.classList.add('ok');
+    setTimeout(function () { btn.textContent = 'copy'; btn.classList.remove('ok'); }, 1800);
+  });
+}
+
+function toggleCompact() {
+  document.body.classList.toggle('compact');
+  document.getElementById('cbtn').classList.toggle('on');
+}
+</script>
+</body>
+</html>
