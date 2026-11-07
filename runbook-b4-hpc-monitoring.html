@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HPCA-100 · M8-S1 · The Observability Model · Lab Runbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff; --soft:#f6f8fa; --line:#e3e7eb;
+  --ink:#12161b; --ink2:#4f5862; --ink3:#8b949e;
+  --blue:#1f66d0; --blue-bg:#eff5fd;
+  --amber:#a55a12; --amber-bg:#fdf5ea;
+  --green:#0d7a55; --green-bg:#ecf7f2;
+  --code:#111519; --code-ink:#c9d1d9; --code-cmd:#7ee3b8; --code-cmt:#e0a85f;
+  --sans:"IBM Plex Sans",-apple-system,Segoe UI,sans-serif;
+  --mono:"IBM Plex Mono","Courier New",monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
+
+.youbar{position:sticky;top:0;z-index:60;background:var(--ink);display:flex;align-items:center;gap:14px;padding:8px 40px;font-size:12px;flex-wrap:wrap}
+.youbar-k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#7c8691}
+.youbar-v{font-family:var(--mono);font-size:13px;color:#7ee3b8}
+.compactbtn{margin-left:auto;background:#1d242c;border:1px solid #2b333c;color:#c9d1d9;font-family:var(--mono);font-size:11px;padding:4px 12px;border-radius:2px;cursor:pointer}
+.compactbtn:hover{border-color:#7ee3b8;color:#7ee3b8}
+.compactbtn.on{background:#7ee3b8;color:#111519;border-color:#7ee3b8}
+
+.head{border-bottom:1px solid var(--line);padding:32px 40px 24px;background:var(--soft)}
+.head-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.head-title{font-size:26px;font-weight:600;letter-spacing:-.01em}
+.head-sub{font-size:14px;color:var(--ink2);margin-top:8px;max-width:680px}
+
+.wrap{display:grid;grid-template-columns:176px 1fr;gap:0 44px;max-width:1060px;margin:0 auto;padding:0 40px}
+.side{position:sticky;top:44px;align-self:start;padding:32px 0}
+.side-l{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin:0 0 10px}
+.side a{display:block;font-size:12.5px;color:var(--ink2);text-decoration:none;padding:5px 0 5px 12px;border-left:2px solid transparent}
+.side a:hover{color:var(--ink)}
+.side a.on{color:var(--blue);border-color:var(--blue)}
+.side hr{border:0;border-top:1px solid var(--line);margin:10px 0}
+main{padding:32px 0 0}
+section{padding:30px 0;border-top:1px solid var(--line)}
+section:first-child{border-top:none;padding-top:8px}
+
+.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:10px}
+.sh-n{font-family:var(--mono);font-size:12px;color:var(--blue);font-weight:500}
+.sh-t{font-size:19px;font-weight:600}
+.sh-m{margin-left:auto;font-size:11px;color:var(--ink3);font-family:var(--mono)}
+
+.goal{font-size:13.5px;color:var(--ink2);margin:0 0 16px;max-width:720px;border-left:2px solid var(--green);padding-left:12px}
+
+.stept{font-size:14px;font-weight:600;margin:20px 0 6px;color:var(--ink)}
+.stept i{font-family:var(--mono);font-style:normal;font-size:11px;color:var(--ink3);font-weight:400;margin-right:8px}
+
+.do{background:var(--code);border-radius:3px;padding:13px 16px;margin:7px 0;position:relative;overflow-x:auto;max-width:720px}
+.do pre{font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--code-ink);white-space:pre}
+.do .cmd{color:var(--code-cmd)}
+.do .cmt{color:var(--code-cmt)}
+.do .dim{color:#5c6873}
+.dol{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#5c6873;margin-bottom:8px}
+.cp{position:absolute;top:8px;right:8px;background:#1d242c;border:1px solid #2b333c;color:#7c8691;font-family:var(--mono);font-size:10px;padding:3px 9px;cursor:pointer;border-radius:2px}
+.cp:hover{color:var(--code-cmd);border-color:var(--code-cmd)}
+.cp.ok{color:var(--code-cmd);border-color:var(--code-cmd)}
+
+.see{border:1px solid var(--line);border-left:3px solid var(--ink3);border-radius:3px;margin:7px 0;max-width:720px;overflow-x:auto}
+.see-l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);padding:6px 14px;border-bottom:1px solid var(--line);background:var(--soft)}
+.see pre{font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--ink2);padding:10px 14px;white-space:pre}
+
+.look{border:1px solid var(--line);border-left:3px solid var(--ink3);background:var(--soft);border-radius:3px;padding:12px 16px;margin:8px 0;max-width:720px}
+.look-l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin-bottom:6px}
+.look ul{margin:0;padding-left:20px}
+.look li{font-size:13.5px;color:var(--ink2);margin-bottom:4px}
+.look p{font-size:13.5px;color:var(--ink2);margin-bottom:6px}
+.look p:last-child{margin-bottom:0}
+.look b{color:var(--ink);font-weight:600}
+
+.browser{border:1px solid #cfd9e4;border-left:3px solid #4a6b8a;background:#f2f6fa;border-radius:3px;padding:12px 16px;margin:10px 0;max-width:720px}
+.browser b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#4a6b8a;margin-bottom:5px;font-weight:600}
+.browser p{font-size:13.5px;color:var(--ink2);margin-bottom:6px}
+.browser p:last-child{margin-bottom:0}
+.browser code{background:#e3ecf4}
+
+.stop{border:2px solid var(--ink);border-radius:3px;margin:26px 0 6px;max-width:720px;overflow:hidden}
+.stop-l{background:var(--ink);color:#fff;padding:9px 16px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;display:flex;justify-content:space-between}
+.stop-l span{letter-spacing:0;text-transform:none;font-weight:400;color:#7ee3b8;font-size:11px}
+.stop-b{padding:14px 16px}
+.stop-b h5{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin:14px 0 5px}
+.stop-b h5:first-child{margin-top:0}
+.stop-b pre{font-family:var(--mono);font-size:12px;line-height:1.7;background:var(--soft);border:1px solid var(--line);border-radius:2px;padding:9px 12px;white-space:pre-wrap;word-break:break-word;color:var(--ink)}
+.stop-b ul{margin:0;padding-left:20px}
+.stop-b li{font-size:13.5px;color:var(--ink);margin-bottom:4px}
+.stop-b p{font-size:13.5px;color:var(--ink2)}
+.stop-b p b{color:var(--ink);font-weight:600}
+.stop-rec{margin-top:14px;padding-top:11px;border-top:1px solid var(--line);font-size:13px;color:var(--ink2)}
+.stop-rec b{color:var(--green);font-weight:600}
+
+.careful{border-left:3px solid var(--amber);background:var(--amber-bg);padding:10px 15px;margin:12px 0;max-width:720px;font-size:13.5px;color:var(--ink2)}
+.careful b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:3px;font-weight:600}
+
+code{font-family:var(--mono);font-size:11.5px;background:var(--soft);padding:1px 5px;border-radius:2px;color:var(--blue)}
+.do code,.see code{background:none;padding:0;color:inherit}
+
+table{width:100%;max-width:720px;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+th{text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--soft)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+td.m{font-family:var(--mono);font-size:11.5px;color:var(--ink)}
+
+.foot{border-top:1px solid var(--line);margin-top:40px;padding:18px 40px;font-size:11px;color:var(--ink3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;background:var(--soft)}
+
+.concept{border:1px solid var(--line);border-left:3px solid var(--blue);background:#fbfdff;border-radius:3px;padding:14px 17px;margin:0 0 18px;max-width:720px}
+.concept h4{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600;margin-bottom:7px}
+.concept p{font-size:13.5px;color:var(--ink2);margin-bottom:9px}
+.concept p:last-child{margin-bottom:0}
+.concept p b{color:var(--ink);font-weight:600}
+.concept ul{margin:4px 0 9px;padding-left:20px}
+.concept li{font-size:13.5px;color:var(--ink2);margin-bottom:4px}
+.concept code{background:#eef3f8}
+.ans{font-size:13.5px;color:var(--ink);background:var(--green-bg);border-left:2px solid var(--green);padding:9px 13px;margin:9px 0 0;border-radius:2px}
+.ans b{color:var(--green);font-weight:600}
+.ans pre{font-family:var(--mono);font-size:12px;line-height:1.7;background:#fff;border:1px solid #cfe6dc;border-radius:2px;padding:8px 11px;margin:7px 0 0;white-space:pre-wrap;word-break:break-all;color:var(--ink)}
+.gloss{max-width:720px;font-size:13px;margin-top:6px}
+.gloss dt{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:500;margin-top:12px}
+.gloss dd{color:var(--ink2);margin:2px 0 0 0}
+
+body.compact .stop-b h5, body.compact .stop-b p, body.compact .stop-rec,
+body.compact .careful, body.compact .goal { display:none }
+body.compact .stop { border-color:var(--line) }
+body.compact .stop-l { background:var(--soft); color:var(--ink) }
+body.compact .stop-l span { color:var(--ink3) }
+body.compact .concept, body.compact .ans, body.compact .gloss{display:none}
+body.compact #before, body.compact #glossary{display:none}
+
+@media print{.youbar,.side,.cp,.compactbtn{display:none!important}.wrap{grid-template-columns:1fr}section{break-inside:avoid}.stop{break-inside:avoid}}
+@media (max-width:1000px){.wrap{grid-template-columns:1fr;padding:0 22px}.side{display:none}.head,.youbar,.foot{padding-left:22px;padding-right:22px}}
+</style>
+</head>
+<body>
+
+<div class="youbar">
+  <span class="youbar-k">Cluster</span>
+  <span class="youbar-v">mylab.hpc.now</span>
+  <span class="youbar-k">Monitoring</span>
+  <span class="youbar-v">mon01</span>
+  <span class="youbar-k">5 tasks · 60 min guided · 2–3 h alone</span>
+  <button class="compactbtn" id="cbtn" onclick="toggleCompact()">compact</button>
+</div>
+
+<div class="head">
+  <p class="head-eyebrow">HPCA-100 · Module 8 · Session 1 · Lab Runbook</p>
+  <h1 class="head-title">The Observability Model for Clusters</h1>
+  <p class="head-sub">A running cluster, a monitoring system holding its recent history, and six questions somebody actually asked. You will work out what is being collected, answer the six using the right signal each time, write the five queries you will reuse for the rest of your career, catch a dashboard telling you something untrue, and name one thing nobody is watching.</p>
+</div>
+
+<div class="wrap">
+
+<aside class="side">
+  <div class="side-l">Runbook</div>
+  <a href="#before">Before you start</a>
+  <a href="#start">Getting on</a>
+  <hr />
+  <a href="#t1">1 · What is collected</a>
+  <a href="#t2">2 · Six questions</a>
+  <a href="#t3">3 · Five queries</a>
+  <a href="#t4">4 · The panel that lies</a>
+  <a href="#t5">5 · The gap</a>
+  <hr />
+  <a href="#wrap">Commit</a>
+  <a href="#stuck">If you get stuck</a>
+  <a href="#glossary">Glossary</a>
+</aside>
+
+<main>
+
+<section id="before">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">Before you start</span><span class="sh-m">read once · 10 min</span></div>
+
+  <div class="concept">
+    <h4>What monitoring is actually for</h4>
+    <p>Not to look impressive on a wall screen. <b>To shorten the time between something breaking and somebody knowing.</b> Every judgement in this session comes back to that sentence, including the uncomfortable one at the end about whether you should fix what you find.</p>
+    <p>The measure of a site's monitoring is not how many dashboards it has. It is whether the administrator hears about a problem from the system or from an angry user. Most sites fail that test while having a great many dashboards.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Ask · Pick · Open · Split — the working rule</h4>
+    <p>Everything in this session is four moves, in this order, every time.</p>
+    <ul>
+      <li><b>Ask</b> — say the question out loud before touching a tool. "Is node c003 up?" is a different question from "has c003 ever been down this week?" The question decides everything that follows.</li>
+      <li><b>Pick</b> — which of the three signals answers it? Metrics, logs, or events. One word, before any command. The wrong pick wastes an hour and delivers a confident wrong answer.</li>
+      <li><b>Open</b> — go get it from the right source. That is what tasks 1 and 2 are for.</li>
+      <li><b>Split</b> — if you get an aggregate back, break it apart and look at the members. That is task 4. An aggregate that hides a problem is not broken — <b>it is doing exactly what it was built to do</b>, and the split is the only way to see past it.</li>
+    </ul>
+    <p>The move people skip is <b>Pick</b>. They open a dashboard, start looking around, find something, and call it the answer. Something is not the answer. <b>Pick before you open anything.</b></p>
+  </div>
+
+  <div class="concept">
+    <h4>Three signals, and most failed investigations pick the wrong one</h4>
+    <p>This is the spine of the session and the whole of task 2.</p>
+    <ul>
+      <li><b>Metrics</b> answer <em>how much, and trending which way.</em> Numbers sampled at intervals, kept for a long time, cheap to aggregate. They are very good at "is this worse than last week" and very bad at "why".</li>
+      <li><b>Logs</b> answer <em>what exactly happened.</em> Lines of text, written when something occurs, expensive to keep and awkward to aggregate. Good at one job on one evening; hopeless for a trend.</li>
+      <li><b>Events</b> answer <em>what changed.</em> A record that somebody or something altered the system — a reboot, an upgrade, a configuration change. Usually the sparsest signal and almost always the one nobody collects.</li>
+    </ul>
+    <p><b>The failure mode is to reach for whichever one you are most comfortable with.</b> People fluent in dashboards try to find a root cause in a graph. People fluent in the shell grep a month of logs looking for a trend. Both waste an hour and arrive nowhere, and both would have been five minutes with the right signal.</p>
+    <p>Before you type anything in task 2, say out loud which signal answers the question. That habit, and not the query syntax, is what this session is for.</p>
+  </div>
+
+  <div class="concept">
+    <h4>The time-series model, in one panel</h4>
+    <p>A <b>metric</b> has a name, like <code>node_memory_MemAvailable_bytes</code>. It carries <b>labels</b> — key-value pairs such as <code>instance="c003"</code> — and the name plus one exact set of labels identifies one <b>series</b>. A series is a long list of <b>samples</b>: a number and a timestamp, repeated at the scrape interval for as long as retention keeps it.</p>
+    <p><b>Cardinality is the number of distinct series</b>, and it is the thing that kills monitoring systems. Every distinct value of every label multiplies it. Six nodes times forty metrics is nothing. Add a label carrying the job identifier on a busy cluster and you have millions of series and an outage in your monitoring — which is how you lose visibility at precisely the moment you need it.</p>
+    <p>Two kinds of number matter today. A <b>gauge</b> goes up and down and means something on its own — free memory, temperature. A <b>counter</b> only ever increases, and <b>means nothing until you take its rate.</b> CPU time and completed-job totals are counters. Reading a counter's raw value tells you how much has happened since the machine booted, which is almost never the question.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Scraping, the roll call, and what happens when a node goes silent</h4>
+    <p>Nothing pushes. Every 30 seconds, the monitoring server takes a <b>roll call</b>: it fetches a page of numbers from an <b>exporter</b> on each <b>target</b> and stores what it gets. The metric <code>up</code> records the result — 1 for every target that answered, 0 for every one that did not. Miss two calls in a row and nothing you had from that target exists in the data until it comes back.</p>
+    <p>That has a consequence people get wrong constantly. <b>When a node goes down, its metrics do not go to zero. They stop existing.</b> A graph of CPU on a dead node is not a flat line at the bottom; it is nothing at all. <b>Absence is a signal in its own right,</b> and it never reads as zero — it reads as fewer rows in a query, a silently narrowed average, and a graph that does not say so.</p>
+    <p><b>A node that is up is not a node that is working.</b> <code>up</code> tells you the exporter answered the roll call; it says nothing about whether <code>slurmd</code> is running or the node can accept jobs. Hold on to that distinction — it matters in task 2.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Five query patterns answer most operational questions</h4>
+    <p>You will write five queries in task 3 and they are deliberately the five you will reuse forever.</p>
+    <ul>
+      <li><b>Select</b> — name a metric, get every series it has.</li>
+      <li><b>Filter</b> — narrow by label to one node, one mount point, one job.</li>
+      <li><b>Rate</b> — turn a counter into a per-second figure over a window. Without this, counters are useless.</li>
+      <li><b>Aggregate</b> — collapse a fleet into one number with <code>sum</code>, <code>avg</code>, <code>max</code>. Powerful and, as task 4 shows, dangerous.</li>
+      <li><b>Project</b> — take a trend and say where it goes. "Will this fill before month end" is a query, not a guess.</li>
+    </ul>
+    <p>Everything beyond these five is a refinement. An administrator who owns these five and nothing else is already more use than one who browses dashboards.</p>
+  </div>
+
+  <div class="concept">
+    <h4>How a dashboard lies to you</h4>
+    <p>Dashboards do not lie about the numbers. They lie by <b>aggregation</b>, and they do it in good faith.</p>
+    <p>A panel showing average CPU across six nodes is honest arithmetic and can still conceal a node that has been doing nothing for a fortnight, because five healthy nodes drown it. A panel showing total free space across four filesystems hides the one that is full. A maximum hides everything that is not the maximum. <b>Every aggregate discards information, and the question is always whether it discarded the thing you needed.</b></p>
+    <p>The technique for catching it is one move: <b>take the aggregate apart and look at the members.</b> If one member diverges from the others, the aggregate was hiding it. That is task 4, and it is the single most portable skill in this session — it works on any dashboard, in any tool, at any site.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Variants — what this looks like elsewhere</h4>
+    <p>This cluster runs the scrape-and-query model: a time-series database pulling from exporters, with a separate dashboard tool on top. You will meet two other shapes.</p>
+    <ul>
+      <li><b>The older aggregation model</b>, still running at many long-established sites. Agents push to a collector, the data is pre-aggregated on the way in, and storage is cheap. The cost is that <b>you cannot ask a question nobody anticipated</b> — the detail was averaged away at collection, not at display.</li>
+      <li><b>Log-centric stacks</b>, where everything including numbers is shipped as log lines and queried as text. Enormously flexible, enormously expensive, and the trend questions get slow.</li>
+    </ul>
+    <p>What transfers is everything in this runbook except the syntax: the three signals, the series model, cardinality, the five patterns, and aggregation artefacts. <b>What changes is who owns the collection decision</b> — and in a vendor cluster manager that supplies monitoring as part of the product, the answer may be that you do not own it at all, which is a different conversation with the vendor than with yourself.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Working alone?</h4>
+    <p>Allow two to three hours rather than sixty minutes, and <b>do task 2 properly before anything else</b> — it is half the lab by design and the rest leans on it.</p>
+    <p>Each task ends with a <b>Stop</b> holding the point of the task and the answers to the questions it asks. Task 4's Stop is the one exception: it tells you how to prove your own answer rather than handing you one, because the finding is the task.</p>
+  </div>
+</section>
+
+<section id="start">
+  <div class="sh"><span class="sh-n">00</span><span class="sh-t">Getting on</span><span class="sh-m">3 min</span></div>
+
+  <div class="browser">
+    <b>Your login</b>
+    <p>User name: yours from this list — <code>bhagya</code> · <code>vinod</code> · <code>surya</code> · <code>sai</code> · <code>satya</code> · <code>vasavi</code> · <code>kathi</code> · <code>rajesh</code> (instructor) · <code>guest01</code>, <code>guest02</code> only if your instructor hands you one.</p>
+    <p>Password: <code>hpcnow2026</code> — the same for everyone, and only for today. Once you are on the login node, every other host is one <code>ssh</code> away with no password.</p>
+  </div>
+
+  <div class="do">
+    <div class="dol">On your own laptop, first: forget any old host key for this name — it has pointed at earlier labs</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh-keygen -R mylab.hpc.now</span></pre>
+  </div>
+  <p class="goal">If it says the host was not found, that is fine: there was nothing to forget. The <code>ssh</code> below then asks you to accept the cluster's key — type <code>yes</code>.</p>
+
+  <div class="do">
+    <div class="dol">Connect to the login node</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh &lt;you&gt;@mylab.hpc.now</span></pre>
+  </div>
+
+  <div class="do">
+    <div class="dol">Confirm the monitoring server is answering</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">curl -s http://mon01:9090/-/healthy</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>Prometheus Server is Healthy.</pre></div>
+
+  <div class="careful"><b>If that times out or refuses</b>Say so. Everything in this lab is a read against that one host, and nothing else you do today will work until it answers. This is also the shape of a real morning: the monitoring is the first thing you check and the first thing you miss when it is gone.</div>
+
+  <div class="browser">
+    <b>And open the dashboards in a browser</b>
+    <p>Open <code>http://mylab.hpc.now:3000</code> — the same name you used for <code>ssh</code>; the page itself is served by <code>mon01</code>. On Grafana's sign-in page:</p>
+    <p>1. <b>Email or username:</b> <code>viewer</code> &nbsp; 2. <b>Password:</b> <code>P8tpTaflXNEQ0Z</code> &nbsp; 3. <b>Log in</b>. Everyone shares this one viewer account. If Grafana offers to change the password, choose <b>Skip</b>.</p>
+    <p>Then open <b>Dashboards → Cluster overview</b> (it is also the home page). Leave it open in a second window — tasks 1 and 4 need it, and the rest of the lab is easier with a picture beside the shell.</p>
+    <p>You have <b>viewer</b> rights. You can look at anything and change nothing, which is the correct level of access for an administrator who has not yet been asked to change anything.</p>
+  </div>
+
+  <div class="do">
+    <div class="dol">Your working directory and report</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">mkdir -p ~/lab/m8s1 &amp;&amp; cp /opt/lab/templates/report.md ~/lab/m8s1/ &amp;&amp; ls ~/lab/m8s1</span></pre>
+  </div>
+  <p class="goal">One file, five sections. Keep it open — task 2 in particular wants you writing as you think, not reconstructing afterwards.</p>
+</section>
+
+<section id="t1">
+  <div class="sh"><span class="sh-n">1</span><span class="sh-t">What is actually being collected</span><span class="sh-m">8 min</span></div>
+  <p class="goal">The components, what each one does, what is being scraped and how often, how far back the data goes, and what else exists besides metrics.</p>
+
+  <div class="concept">
+    <h4>Why this is first</h4>
+    <p>You cannot answer a question with data you do not have, and the commonest waste of an hour in this job is searching for a signal that was never collected. <b>Five minutes spent establishing what exists saves that hour every time.</b></p>
+    <p>It is also the question a new administrator should ask on their first week and almost never does, which is why so many people work for years at a site without knowing its retention period.</p>
+  </div>
+
+  <p class="stept"><i>1.1</i> What is being scraped, and is it healthy</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">curl -s http://mon01:9090/api/v1/targets | jq -r '.data.activeTargets[] | [.labels.job, .labels.instance, .health] | @tsv'</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Three columns, and read all three</div>
+    <ul>
+      <li><b>Job</b> — the group a target belongs to. Targets are configured in groups, not individually, which is why adding a node is usually a one-line change.</li>
+      <li><b>Instance</b> — the individual target. These are the names you will filter on all session.</li>
+      <li><b>Health</b> — whether the last scrape worked. Anything that is not <code>up</code> is a finding, today and every day.</li>
+    </ul>
+  </div>
+
+  <p class="stept"><i>1.2</i> How many of each</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">curl -s http://mon01:9090/api/v1/targets | jq -r '.data.activeTargets[].labels.job' | sort | uniq -c</span></pre>
+  </div>
+  <p class="goal">Write these down. The job names are the vocabulary of every query you write for the rest of the day, and guessing one wrong returns an empty result that looks exactly like "nothing is wrong".</p>
+
+  <p class="stept"><i>1.3</i> How often, and for how long</p>
+  <div class="do">
+    <div class="dol">The scrape interval, from the running configuration</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">curl -s http://mon01:9090/api/v1/status/config | jq -r '.data.yaml' | grep -A2 'global:'</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">And how long data is kept before it is deleted</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">curl -s http://mon01:9090/api/v1/status/flags | jq -r '.data."storage.tsdb.retention.time"'</span></pre>
+  </div>
+  <div class="careful"><b>Retention is a number with consequences, not a setting</b>It decides which questions this site can answer. A thirty-day retention means nobody can tell you whether this quarter is busier than last quarter — not because the data is hard to find, but because it no longer exists. <b>Anyone who wants a year-on-year comparison needs to have decided that a year ago.</b></div>
+
+  <p class="stept"><i>1.4</i> The raw query form — what everything else is a wrapper around</p>
+  <div class="do">
+    <div class="dol">An instant query against the API directly</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">curl -sG http://mon01:9090/api/v1/query \
+  --data-urlencode 'query=up'</span></pre>
+  </div>
+  <div class="careful"><b>Use <code>--data-urlencode</code>, not a bare <code>?query=</code> in the URL</b><code>curl</code> treats <code>{</code> and <code>}</code> in URLs as glob patterns and will mangle any label selector. <code>--data-urlencode</code> encodes them correctly. This is the one thing that makes raw queries fail silently — the response comes back but matches nothing, which looks identical to a healthy system with no results.</div>
+  <p class="goal">On any site that does not have a convenience wrapper, this is the query. The API is the same everywhere; only the wrapper changes.</p>
+
+  <p class="stept"><i>1.5</i> The wrapper you will use all session</p>
+  <div class="do">
+    <div class="dol">Read it before you rely on it</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/bin/promq</span></pre>
+  </div>
+  <p class="goal">A short wrapper around the same <code>curl</code> call you just ran, with <code>-r</code> for a range query. Nothing in it is special — you now know exactly what it does, and on a site without it you write the <code>curl</code> yourself.</p>
+
+  <p class="stept"><i>1.6</i> How far back it actually goes</p>
+  <div class="do">
+    <div class="dol">Retention is the policy. This is the reality.</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">promq -r 24h 'count(up)'</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Read the first timestamp, not the values</div>
+    <p>The query asks a trivial question — how many targets existed — over a window that may be longer than the data covers. <b>The answer you want is where the series begins</b>, because that is the real edge of what this site can tell you right now. The retention setting is a promise; this is the fact.</p>
+  </div>
+
+  <p class="stept"><i>1.7</i> How large this is, which is how it breaks</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">curl -s http://mon01:9090/api/v1/status/tsdb | jq '.data.headStats'</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">The number to care about is the series count</div>
+    <p>That is this system's cardinality. Compare it with the number of targets you counted at 1.2 and work out roughly how many series each target contributes. <b>Then imagine adding one label with a few thousand distinct values</b> — that multiplication is the whole of the cardinality problem, and it is why "can you just add a metric" is not always a small request.</p>
+  </div>
+
+  <p class="stept"><i>1.8</i> What else exists besides metrics</p>
+  <div class="concept">
+    <h4>Logs live on the node — and so does the problem with that</h4>
+    <p>The metrics are on <code>mon01</code>, collected from every target. The logs are <em>on each node</em> — in <code>journald</code> on the compute nodes and in flat files for the Slurm controller. <b>When a node is unreachable, so are its logs.</b> That is not a design flaw you can work around; it is the shape of the tool, and knowing it in advance is the difference between a methodical investigation and an afternoon of wondering why nothing is showing up.</p>
+  </div>
+  <div class="do">
+    <div class="dol">Slurm daemon logs on a compute node</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh c001 journalctl -u slurmd --since today --no-pager | tail -20</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Controller log on the management node</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh mgmt01 tail -20 /var/log/slurm/slurmctld.log</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">The events signal — what changed on the cluster today</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sacct -X -S $(date -d '1 day ago' +%Y-%m-%dT%H:%M:%S) -E now -o JobID,User,Node,State,Start,End | head -30</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">And the scheduler's view of any node trouble</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sinfo -R</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Three signals, three different places</div>
+    <ul>
+      <li>Metrics are on <code>mon01</code> — always reachable, as long as mon01 is up.</li>
+      <li>Logs are on the <b>node where the event happened</b> — reachable only if that node is up.</li>
+      <li>Events are in the <b>scheduler</b> — <code>sacct</code> and <code>sinfo -R</code> for job and node state history, <code>scontrol show node</code> for current state including reason strings.</li>
+    </ul>
+    <p><b>Most sites have the first two and not a clean third.</b> The gap you will find in task 5 is almost certainly here.</p>
+  </div>
+  <p class="goal">Write down where each signal lives before going to task 2. When something is broken and you are deciding which signal to reach for first, the question is partly "which one answers this" and partly "which one is still reachable".</p>
+
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/lab/m8s1/report.md</span>   <span class="cmt"># section 1</span></pre>
+  </div>
+  <div class="see"><div class="see-l">What belongs in section 1</div><pre>COMPONENTS
+| Component | Runs on | What it does | How I verified it |
+|-----------|---------|--------------|-------------------|
+|           |         |              |                   |
+
+SCRAPED
+Jobs and target counts: ____________
+Any target not healthy:  ____________
+Scrape interval: ____    Retention setting: ____
+Oldest data actually present: ____________
+
+SCALE
+Total series: ________   Roughly ______ series per target
+
+THE OTHER TWO SIGNALS
+Logs: live on each node — accessed via ssh + journalctl / slurmctld.log
+Events: sacct + sinfo -R for job/node state history
+Where the gap is: ____________
+</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 1<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>Check what you have</h5>
+      <ul>
+        <li>Every job name written down exactly as it appears. You will type them all day.</li>
+        <li><b>Retention and oldest-actual-data recorded separately.</b> They are different facts and the gap between them is interesting.</li>
+        <li>All three signals located, not just the metrics.</li>
+      </ul>
+      <div class="ans"><b>If retention is longer than the data that exists, the system simply has not been running that long — which is normal and worth writing down.</b> If the data goes back further than retention, something has been backfilled or retention was recently reduced, and the older data is living on borrowed time: the next compaction will take it. Either way, <b>the number that governs what you can answer is the smaller of the two.</b></div>
+      <h5>On the health column</h5>
+      <p>If every target was healthy, record that as a finding rather than skipping it. A clean scrape list on a particular date is what lets somebody six months from now say when a target stopped reporting — and the usual answer at a site with no record is "we don't know, it's been like that a while".</p>
+      <h5>What you did not need — and what you did</h5>
+      <p>The metrics inventory is a handful of HTTP requests any user can make. The log and events inventory required SSH to a compute node and to <code>mgmt01</code>, and <code>sacct</code> access — normal unprivileged access on a correctly configured cluster. <b>None of it required root, and none of it changed anything.</b> There is no excuse for a site not having this written down.</p>
+      <p>Notice where each signal lives: metrics on <code>mon01</code>, logs on the node that generated them, events in the scheduler. That geography matters in task 2 when you are deciding which signal to reach for first.</p>
+      <div class="stop-rec"><b>Record</b> — <code>report.md</code> section 1.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t2">
+  <div class="sh"><span class="sh-n">2</span><span class="sh-t">Six questions, and the right signal for each</span><span class="sh-m">25 min</span></div>
+  <p class="goal">Six questions somebody actually asked. For each one: decide which signal answers it, answer it, and record why that signal and not the other two.</p>
+
+  <div class="concept">
+    <h4>This task is the session — and it is where Ask · Pick · Open pays</h4>
+    <p>Twenty-five of your sixty minutes are here, which is deliberate. The other four tasks teach tools. <b>This one teaches the judgement the tools are for.</b></p>
+    <p>The discipline: for each question, <b>Ask</b> — say the question out loud. <b>Pick</b> — one word: metrics, logs, or events. <b>Open</b> — go get it from the right source. That sequence, done six times in a row, is the whole of task 2. The rule is harder to follow than it sounds: <b>Pick before you open anything.</b></p>
+    <p>If you open a dashboard and start looking around, you have already skipped Pick. You will find <em>something</em>, and something is not the answer. The most common failure in this session is exactly that — a person who reached for the comfortable tool and found a plausible story in it that had nothing to do with the actual cause.</p>
+  </div>
+
+  <p class="stept"><i>2.1</i> Read all six before answering any</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/questions/six-questions.md</span></pre>
+  </div>
+  <div class="careful"><b>Read the whole file first, then come back to question 1</b>They are not ordered by difficulty and two of them are close enough to each other that reading both changes how you answer either. Five minutes of reading before any querying is the right ratio here.</div>
+
+  <p class="stept"><i>2.2</i> The metrics tool, worked once</p>
+  <div class="do">
+    <div class="dol">An instant query — what is true right now</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">promq 'up'</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">A range query — what was true over a window</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">promq -r 24h 'sum(up)'</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">The roll call across the whole window — did anything miss it?</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">promq 'min_over_time(up{job="node"}[24h])'</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">The difference matters more than it looks</div>
+    <ul>
+      <li>An <b>instant</b> query returns one value per series: the state now. Good for "is it broken".</li>
+      <li>A <b>range</b> query returns a line: the state over time. Good for "was it always like this", which is most of what you will be asked.</li>
+      <li><b>The window form</b> asks whether a target <em>ever</em> missed the roll call in the window. <code>min_over_time</code> returns the lowest value recorded across the whole window per target. Any 0 means at least one missed call. Check the row count too — a target that never answered is simply absent, which is different from a target that answered mostly 1s and once returned 0.</li>
+      <li>Nearly every unhelpful monitoring answer is an instant query where a range was needed. <b>"Memory is at 90%" is not information. "Memory has been at 90% since Tuesday" is.</b></li>
+    </ul>
+  </div>
+
+  <p class="stept"><i>2.3</i> The logs, and how to reach them</p>
+  <div class="do">
+    <div class="dol">The slurm daemon log on a compute node — this is where job execution events are written</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh c001 journalctl -u slurmd --since today --no-pager</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">The controller log — drain decisions, node state changes, failed launches</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh mgmt01 tail -50 /var/log/slurm/slurmctld.log</span></pre>
+  </div>
+  <div class="careful"><b>These logs are on the node where the event happened.</b> When a compute node is unreachable, so is its journal. If you are investigating a node that is currently down, the last entries before it went silent are on that node and you cannot read them until it comes back. This is not a gap you can close by being clever — it is the shape of the tool. The monitoring system already showed you the node is down; the logs would tell you why, and they are exactly where you cannot go.</div>
+  <div class="look">
+    <div class="look-l">Searching logs well is two habits</div>
+    <ul>
+      <li><b>Narrow by time, then by content.</b> <code>journalctl -u slurmd --since "2026-11-07 07:00" --until "2026-11-07 07:30"</code> is faster than grepping the full day, and shows you the context around the event.</li>
+      <li><b>The lines around the hit are usually the answer.</b> A bare match tells you something happened; the lines before it tell you what led there. Under pressure people grep for the error and miss the cause three lines above it.</li>
+      <li><b>Absence is evidence.</b> If a job failed and nothing appears in the log at that time, that is a finding — the failure happened somewhere the daemon does not write about.</li>
+    </ul>
+  </div>
+
+  <p class="stept"><i>2.4</i> The events signal — what changed, from the scheduler</p>
+  <div class="do">
+    <div class="dol">Node state history — drains, fails, returns to service</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sinfo -R</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Current state of a specific node, including any reason string</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">scontrol show node c001</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Job accounting — what ran, on which nodes, in what state</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sacct -X -S $(date -d '1 day ago' +%Y-%m-%dT%H:%M:%S) -E now \
+  -o JobID,User,Node,State,ExitCode,Start,End --parsable2</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Boot history on a node — how many times has it restarted?</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh c001 journalctl --list-boots --no-pager</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">The previous boot's log — the last entries before the most recent restart (a node that has never restarted says so, and that is an answer too)</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh c001 journalctl -b -1 --no-pager | tail -30</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">This is the thinnest signal at most sites — read it end to end before you need it</div>
+    <ul>
+      <li><code>sinfo -R</code> tells you which nodes have been in a non-idle state and the reason each one was set. If a node was drained manually and nobody documented why, the reason string is the only record.</li>
+      <li><code>sacct</code> is the job ledger. A job that completed with <code>NODE_FAIL</code> rather than <code>COMPLETED</code> is an event, even if the node looks fine now.</li>
+      <li>Boot history is the event you will most often need and least often check. A node that rebooted at 03:17 and a metric that changed shape at 03:17 are almost certainly the same thing.</li>
+      <li>In <code>scontrol show node</code> output, look for <code>BootTime=</code>. An unexpected reboot time is an event even when the node's current state looks normal and <code>sinfo -R</code> is empty.</li>
+    </ul>
+  </div>
+  <p class="goal">Read this signal now, before you work the six questions. When a metric changes shape on a date and you want to know why, <b>the question you are asking is an events question</b>, and the answer is in one of these four commands — not in the graph.</p>
+
+  <p class="stept"><i>2.5</i> Now work the six</p>
+  <div class="look">
+    <div class="look-l">For each question, in this order</div>
+    <ul>
+      <li><b>Write the signal down first.</b> Metrics, logs or events. Before any command.</li>
+      <li><b>Write one line saying why</b> — and specifically why the other two would fail. That sentence is the deliverable, more than the answer is.</li>
+      <li><b>Then go and get the answer</b>, and write it in a form a user could read.</li>
+      <li>If your chosen signal turns out not to answer it, <b>do not quietly switch and move on.</b> Record that you were wrong and what the right one was. That is the most valuable line in your report and the one everybody leaves out.</li>
+    </ul>
+  </div>
+  <div class="careful"><b>One of the six is harder than the other five</b>It will feel as though two signals could answer it, and one of them will give you something that looks like an answer and is not. <b>When two signals both seem to apply, ask which one would tell you the cause rather than the symptom.</b> If you get five of six, you are where this task wants you.</div>
+
+  <p class="stept"><i>2.6</i> Write it up as you go, not at the end</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/lab/m8s1/report.md</span>   <span class="cmt"># section 2</span></pre>
+  </div>
+  <div class="see"><div class="see-l">Six blocks, same shape each time</div><pre>Q1
+Signal chosen:  metrics / logs / events
+Why that one, and why not the other two:
+What I found:
+Was my signal choice right?  yes / no — if no, which was:
+
+Q2
+...through Q6
+</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 2<span>the heart of the session</span></div>
+    <div class="stop-b">
+      <h5>The signal each one wanted</h5>
+      <div class="ans"><b>Two of the six are metrics questions, two are logs questions, and two are events questions.</b> If your six choices came out two-two-two, that is a good sign; if they came out five metrics and one log, you reached for the comfortable tool, which is the thing this task exists to catch.</div>
+      <h5>How to tell them apart, for the rest of your career</h5>
+      <ul>
+        <li><b>Does the question contain a comparison, a trend, or a quantity?</b> "Busier than usual", "will it fill", "how much". That is metrics. The giveaway is that the answer is a number or a direction.</li>
+        <li><b>Does it name one specific thing that happened once?</b> One job, one evening, one failure. That is logs. The giveaway is a single identifier — a job number, a user, a timestamp.</li>
+        <li><b>Did something change shape on a date, with nothing obviously broken?</b> That is events. The giveaway is the phrase "it started on the…", and the answer is in <code>sinfo -R</code>, <code>sacct</code>, or the boot history — not in the metric. The reason it is so often missed is that <b>nothing is wrong</b> — somebody or something changed state and nobody wrote it where you would look.</li>
+      </ul>
+      <h5>Why the wrong signal wastes an hour rather than a minute</h5>
+      <p>Each wrong choice fails differently, and none of them fails fast. <b>Metrics asked a logs question give you a shape with no cause</b> — you can see the job stopped, which you already knew. <b>Logs asked a metrics question give you six weeks of text</b> and an afternoon of grepping toward a trend you could have seen in one graph. <b>And either one asked an events question gives you a confident, complete, wrong answer</b>, because the data really does change on that date and you will find a plausible story in it that has nothing to do with the config change somebody made that morning.</p>
+      <p>That last case is the dangerous one, and it is dangerous precisely because it does not feel like failure.</p>
+      <h5>If you got one wrong</h5>
+      <p>Good — write it down. <b>The administrator who records their own wrong turn is the one who stops taking it</b>, and in a year the only part of this report you will still find useful is that line.</p>
+      <div class="stop-rec"><b>Record</b> — section 2, all six, including the signal choice and the honest verdict on it.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t3">
+  <div class="sh"><span class="sh-n">3</span><span class="sh-t">Five queries you will keep</span><span class="sh-m">12 min</span></div>
+  <p class="goal">Node availability, cluster CPU utilisation, memory pressure on a named node, filesystem fill rate, and job throughput — written by you, returning sensible results, and recorded somewhere you will find them again.</p>
+
+  <div class="concept">
+    <h4>These five, and why these five</h4>
+    <p>They are not an exercise. <b>They are the five questions you will be asked most often</b>, in roughly this order, for as long as you do this work: is everything up, how busy are we, what is wrong with that node, are we going to run out of space, and how much work are we getting through.</p>
+    <p>Each one is a different pattern from the five in the panel above, which is also deliberate — between them they cover select, filter, rate, aggregate and project. Learn these and the sixth question you have never seen before is a variation rather than a wall.</p>
+  </div>
+
+  <p class="stept"><i>3.1</i> Find out what the metrics are actually called</p>
+  <div class="do">
+    <div class="dol">Every metric name this system holds, filtered to the interesting ones</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">curl -s http://mon01:9090/api/v1/label/__name__/values | jq -r '.data[]' | grep -E 'cpu|memory|filesystem|job'</span></pre>
+  </div>
+  <div class="careful"><b>Never guess a metric name</b>A query against a metric that does not exist returns an empty result, and an empty result looks exactly like a healthy system with nothing to report. <b>This is the most dangerous failure mode in monitoring</b>, because it is silent, it is reassuring, and it can sit in an alert rule for a year. Look the name up, every time.</div>
+
+  <p class="stept"><i>3.2</i> Query one — node availability. Worked, so you have the shape.</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">promq 'up{job="node"}'</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">That is the select-and-filter pattern, complete</div>
+    <ul>
+      <li><code>up</code> is the metric. <code>{job="node"}</code> is the filter.</li>
+      <li>One line per target, value 1 or 0. This is the simplest useful query in monitoring and most incidents start with it.</li>
+      <li><b>Now ask the better version of the question:</b> run it as a range over a week and see whether anything was ever 0. A node that is up now and was down twice last Thursday is a different conversation.</li>
+    </ul>
+  </div>
+
+  <p class="stept"><i>3.3</i> Query two — cluster CPU utilisation</p>
+  <div class="look">
+    <div class="look-l">Write this one yourself</div>
+    <p><b>The question:</b> how busy is the cluster as a whole, as a percentage?</p>
+    <p><b>The pattern:</b> rate, then aggregate. CPU time is a counter and means nothing raw. The usual trick is that the <em>idle</em> mode is the easiest one to reason about — measure how much of the time the processors did nothing, and the rest is work.</p>
+  </div>
+
+  <p class="stept"><i>3.4</i> Query three — memory pressure on one named node</p>
+  <div class="look">
+    <div class="look-l">Write this one yourself</div>
+    <p><b>The question:</b> on a node you name, what fraction of memory is still available?</p>
+    <p><b>The pattern:</b> filter, then divide one gauge by another. <b>Use available rather than free</b> — they are different numbers and the difference is cache the kernel will give back under pressure. A node reporting almost no <em>free</em> memory is usually perfectly healthy; a node with little <em>available</em> memory is in trouble.</p>
+  </div>
+
+  <p class="stept"><i>3.5</i> Query four — filesystem fill rate</p>
+  <div class="look">
+    <div class="look-l">Write this one yourself</div>
+    <p><b>The question:</b> is the scratch filesystem on a compute node filling, and if so how fast? (Each compute node has its own <code>/scratch</code>.)</p>
+    <p><b>The pattern:</b> project. "How full is it" is a gauge you can read off any dashboard; <b>"when will it be full" is the question that is actually useful</b>, and it needs a slope over a window long enough to be meaningful. Use the last six hours for today's data — that is enough to establish a trend if the write pattern is consistent. On a site with weeks of history, use a week; a day is noise and a month is too slow to warn you.</p>
+  </div>
+
+  <p class="stept"><i>3.6</i> Query five — job throughput</p>
+  <div class="look">
+    <div class="look-l">Write this one yourself</div>
+    <p><b>The question:</b> how many jobs is the cluster completing per hour?</p>
+    <p><b>The pattern:</b> rate, on a counter you found at 3.1. Watch your units — the rate functions work in per-second terms, and a number like 0.004 is correct and useless. <b>Convert it to the unit the question was asked in</b>, which is almost never per-second.</p>
+  </div>
+
+  <p class="stept"><i>3.7</i> Write all five down properly</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/lab/m8s1/report.md</span>   <span class="cmt"># section 3</span></pre>
+  </div>
+  <div class="see"><div class="see-l">Query, result, and — the part people skip — what it is for</div><pre>1. Node availability
+   Query:   ____________________________________________
+   Returned: ____________   Sensible?  yes / no
+   I would use this when: ____________________________
+
+2. Cluster CPU utilisation
+   ... and so on for all five
+</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 3<span>check yours against these</span></div>
+    <div class="stop-b">
+      <h5>The five</h5>
+      <div class="ans"><b>Yours do not have to match these character for character — several shapes are correct. They do have to return the same answer.</b>
+<pre>1.  up{job="node"}
+
+2.  100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+
+3.  node_memory_MemAvailable_bytes{instance="c003"}
+      / node_memory_MemTotal_bytes{instance="c003"}
+
+4.  predict_linear(node_filesystem_avail_bytes{mountpoint="/scratch"}[6h], 30*24*3600)
+
+5.  rate(JOBS_COMPLETED_TOTAL[1h]) * 3600
+       substitute the counter name you found at 3.1</pre></div>
+      <h5>The two mistakes almost everybody makes</h5>
+      <p><b>Reading a counter raw.</b> If query two or five returned an enormous number that only ever goes up, you read the counter instead of its rate. The number is real — it is seconds of CPU time since boot — and it answers nothing.</p>
+      <p><b>Forgetting the units.</b> A rate is per second. Query five in per-second terms is a tiny decimal that nobody can act on; multiplied by 3600 it is a number a user understands. <b>The query is not finished until it is in the unit the question was asked in.</b></p>
+      <h5>Query four is the one worth keeping</h5>
+      <p>The other four describe the present. This one makes a claim about the future, and it is the difference between telling a research group that scratch is 80% full — which they can see — and telling them it will be full on the 23rd, which they can act on.</p>
+      <p><b>It is also the one that will embarrass you if you are careless.</b> A projection from a window containing one big delete will cheerfully predict the filesystem emptying itself. Look at the underlying line before you trust the projection, every time.</p>
+      <h5>The habit, not the queries</h5>
+      <p>Your async work is to put these five in your own runbook with a note on what each is for. <b>Do that today rather than next week</b> — the queries take two minutes to write down now and half an hour to reconstruct in six months, and the note saying what each is for is what makes them findable at all.</p>
+      <div class="stop-rec"><b>Record</b> — section 3, all five with results and purpose.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t4">
+  <div class="sh"><span class="sh-n">4</span><span class="sh-t">The panel that lies</span><span class="sh-m">6 min</span></div>
+  <p class="goal">One dashboard panel that is telling you something untrue, the aggregation artefact that causes it, and the evidence that it is genuinely misleading rather than merely ugly.</p>
+
+  <div class="concept">
+    <h4>What you are looking for, and what you are not</h4>
+    <p>You are not hunting for a badly designed panel. Plenty of panels are cluttered, mislabelled or pointless; none of that is this task. <b>You are looking for a panel a competent person could read correctly and still come away with the wrong belief about the cluster.</b></p>
+    <p>The mechanism is always the same: a display choice — an average, a step, a denominator, a stacking setting — collapses or transforms the data, and one of those choices hides something. The panel is not broken. The conclusion a reader draws from it is wrong.</p>
+    <p><b>This is a judgement task with a test attached</b>, and the Stop gives you the test rather than the answer, because finding it is the task.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Five questions that expose an aggregation artefact — work through all five</h4>
+    <p>When a panel looks suspect, ask these five questions in order. <b>One of them is the mechanism. The other four rule out false paths.</b> Knowing which four did not apply is as important as knowing which one did.</p>
+    <ul>
+      <li><b>1 · Who is in this number?</b> An average or sum across instances hides a diverging member. Break the aggregation apart — <code>avg by (instance)</code> instead of <code>avg</code> — and ask whether one member is doing something the others are not. If yes, the aggregate was hiding it. <em>This is the split move from Ask · Pick · Open · Split.</em></li>
+      <li><b>2 · Who is missing?</b> An average across five nodes when there should be eight is not just a low number — it is covering a gap. If a target stopped reporting mid-window, the average narrows silently. Check whether every expected instance appears in the broken-out result.</li>
+      <li><b>3 · How often was it sampled?</b> A panel configured with a step longer than the scrape interval averages samples together on the way to the screen, discarding peaks. A one-minute panel step on a 30-second series drops half the data. The panel looks smoother than reality.</li>
+      <li><b>4 · Percentage of what?</b> A CPU percentage across a fleet that includes login and management nodes is not compute utilisation — it is a different number. What is in the denominator decides what the percentage means, and dashboards rarely say.</li>
+      <li><b>5 · In what units, stacked or not?</b> A stacked graph of per-node memory shows totals that dwarf the per-node reality. A rate converted to the wrong time unit is a number that cannot be acted on. Units and display mode can multiply a number by a factor of hundreds without touching the underlying data.</li>
+    </ul>
+  </div>
+
+  <p class="stept"><i>4.1</i> Go to the dashboards and read the cluster overview</p>
+  <div class="browser">
+    <b>In the browser</b>
+    <p>Open the cluster overview dashboard and set the time range to <b>the last six hours</b> — the full window of this morning's data. Most panels default to a few hours, and at a few hours the artefact may be invisible: it has been in place since the cluster started and only becomes clear when you look at the full window.</p>
+    <p>Read it the way a manager would: what would you conclude about this cluster from this screen alone? Write that sentence down before you go further. You are going to test it.</p>
+  </div>
+
+  <p class="stept"><i>4.2</i> Find out what a panel is actually asking</p>
+  <div class="browser">
+    <b>In the browser</b>
+    <p>For any panel, open its menu and choose <b>Inspect → Panel JSON</b>, or the <b>Explore</b> button if your account offers it. Either way you want the query behind the picture.</p>
+    <p><b>Look for an aggregation function wrapping the whole expression</b> — an average, a sum, a maximum across instances. Those are the candidates. A panel already broken out per node cannot hide anything.</p>
+  </div>
+
+  <p class="stept"><i>4.3</i> The move that catches it, demonstrated once</p>
+  <div class="do">
+    <div class="dol">An aggregate — one number, six things inside it</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">promq 'sum(up)'</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">The same question, with the members kept apart</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">promq 'sum by (instance) (up)'</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">That is the whole technique, and it is two characters</div>
+    <ul>
+      <li>Add <code>by (instance)</code> to the aggregation and the single number becomes one number per node.</li>
+      <li><b>Then ask one question: does any member diverge from the rest?</b> If yes, the aggregate was hiding it.</li>
+      <li>It works on <code>avg</code>, <code>sum</code>, <code>max</code> and the rest, on any metric, in any tool that has a group-by. <b>Take the aggregate apart and look at the members</b> is the sentence to remember from this session.</li>
+    </ul>
+  </div>
+
+  <p class="stept"><i>4.4</i> Work the five questions against the suspect panels</p>
+  <div class="look">
+    <div class="look-l">For each panel that uses an aggregation, ask all five in order</div>
+    <ul>
+      <li><b>Q1 — who is in this number?</b> Copy the panel's query, add <code>by (instance)</code> to its outermost aggregation, run it as a range over the full window. Do the members agree? If one diverges, the aggregate was hiding it.</li>
+      <li><b>Q2 — who is missing?</b> Count the instances in the broken-out result — are all eight there? Run <code>count(up{job="node"})</code> to compare the number of targets answering now against the fleet size. If a target dropped out of the rollup mid-window, the aggregate narrowed silently and nobody's alert fired.</li>
+      <li><b>Q3 — how often was it sampled?</b> Look at the panel's step setting, or the visible resolution of the line. Does it match the 30-second scrape interval? A step of 1 minute on a 30-second series means every other scrape is averaged away.</li>
+      <li><b>Q4 — percentage of what?</b> If the panel shows a percentage, ask what is in the denominator. Is this compute nodes only, or does it include login and management nodes? The panel title usually does not say.</li>
+      <li><b>Q5 — units and stacking?</b> Is the panel stacked? A stacked display adds series rather than overlaying them — the top of the stack is a total, not an individual value. A per-node rate displayed as a stacked area multiplies by node count. Check the display mode in the panel JSON.</li>
+    </ul>
+  </div>
+  <div class="look">
+    <div class="look-l">The discipline</div>
+    <ul>
+      <li><b>Compare the members against each other, not against zero.</b> You are not asking whether a number is high; you are asking whether they agree, whether they are all present, and whether the display is representing them faithfully.</li>
+      <li>When you find the mechanism, go back to the panel and ask: <b>would somebody reading that panel have known?</b> If the answer is no, you have found a genuine artefact.</li>
+      <li>If every question comes back clean, say so and move on. <b>A clean result honestly checked is worth more than a forced finding.</b></li>
+    </ul>
+  </div>
+  <div class="careful"><b>Beware the panel that is merely ugly</b>A confusing legend, a bad axis, a daft unit — all real problems, none of them this task. The success criterion is that the panel is <em>genuinely misleading</em>. The test is whether a reader would form a false belief, not whether they would be annoyed.</div>
+
+  <p class="stept"><i>4.5</i> Write what you found</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/lab/m8s1/report.md</span>   <span class="cmt"># section 4</span></pre>
+  </div>
+  <div class="see"><div class="see-l">Work the five questions, record each one</div><pre>Panel:  ____________________________________________
+Its query: _________________________________________
+
+Q1 — who is in this number?    diverges / all track
+Q2 — who is missing?           all 8 present / _____ absent
+Q3 — step vs scrape interval?  matches / step is ___ on ___s scrape
+Q4 — percentage of what?       compute only / includes login+mgmt / N/A
+Q5 — units and stacking?       stacked / not stacked / rate unit: ___
+
+The mechanism I found: ____________________________
+What a reader would conclude from it: ______________
+What is actually true:                 ______________
+
+My evidence (the query and what it returned):
+
+How I would fix the panel:
+</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 4<span>a test, not an answer</span></div>
+    <div class="stop-b">
+      <h5>Prove your own finding</h5>
+      <div class="ans"><b>This Stop does not name the panel or the mechanism. Here is how to know whether you are right.</b> Take your answer and ask: which of the five questions revealed it? Now check the other four — do they come up clean on the same panel? If one question found a genuine divergence and the other four rule out alternative explanations, you have found a real artefact. <b>Report which of the five it was.</b> That answer, not the panel name, is the deliverable.</div>
+      <h5>Five mechanisms, in rough order of how often you will meet them</h5>
+      <ul>
+        <li><b>Averaging across a fleet (Q1).</b> Five healthy members dilute one unhealthy one until it disappears. The more nodes, the better the hiding.</li>
+        <li><b>Missing members (Q2).</b> A target that stopped reporting mid-window silently narrows the average. The panel looks fine; a node has vanished from it.</li>
+        <li><b>Step vs scrape (Q3).</b> A panel step longer than the scrape interval averages samples on the way to the display, discarding peaks. The line looks smoother than the cluster is.</li>
+        <li><b>Denominator includes non-compute nodes (Q4).</b> Login and management nodes at low CPU drag a "cluster utilisation" figure to a number that is arithmetically correct and operationally meaningless.</li>
+        <li><b>Units and stacking (Q5).</b> A stacked display is a sum, not an overlay. The top of the stack is a fleet total; reading it as a per-node figure overstates by the number of nodes.</li>
+      </ul>
+      <h5>Why nobody caught it before you</h5>
+      <p>Because the panel is correct. Nobody built it to deceive and nobody has been ignoring a warning — <b>there was no warning.</b> That is the uncomfortable part: this class of problem produces no alert, no error and no complaint until somebody is affected badly enough to ask, by which time it has often been true for days.</p>
+      <p>Which is also the answer to "how do I find these at my own site". You do not find them by watching the dashboard. <b>You find them by periodically working the five questions against your most-trusted panels</b>, which takes ten minutes and nobody does it.</p>
+      <h5>And the fix is usually not a new panel</h5>
+      <p>The instinct is to add a per-node panel beside it. Often the better fix is to change the existing one — a maximum alongside the average, or a per-member breakdown behind a click — because <b>a dashboard that grows a panel every time somebody is surprised becomes a wall nobody reads</b>, which is its own failure mode and a more common one.</p>
+      <div class="stop-rec"><b>Record</b> — section 4, with the evidence, not just the claim.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t5">
+  <div class="sh"><span class="sh-n">5</span><span class="sh-t">The gap</span><span class="sh-m">4 min</span></div>
+  <p class="goal">One thing that is not being monitored and should be — named, justified, and followed by the question of whether it is yours to add.</p>
+
+  <div class="concept">
+    <h4>Gaps come in three shapes</h4>
+    <ul>
+      <li><b>A host or service nobody scrapes.</b> The easiest to find and the easiest to fix. Compare what exists against what is collected.</li>
+      <li><b>A signal nobody keeps.</b> The metric is collected but retention is too short to answer the question that matters, or one of the three signals is simply absent. Harder to see, because everything looks healthy.</li>
+      <li><b>A condition that cannot be seen from any of it.</b> The most interesting kind. Something is wrong and no combination of the collected data would ever reveal it — which you may have met already today.</li>
+    </ul>
+  </div>
+
+  <p class="stept"><i>5.1</i> What is collected</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">curl -s http://mon01:9090/api/v1/targets | jq -r '.data.activeTargets[].labels.instance' | sort -u</span></pre>
+  </div>
+
+  <p class="stept"><i>5.2</i> What exists</p>
+  <div class="do">
+    <div class="dol">The scheduler's view of the cluster, which is the other census</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sinfo -Nho '%N %T' | sort -u</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Compare the two lists, then look past them</div>
+    <ul>
+      <li>Anything in one list and not the other is a gap of the first kind, and you should say so.</li>
+      <li><b>But do not stop at hosts.</b> Think about the services on them — the scheduler controller, the accounting database, the shared filesystem, the monitoring server itself. Which of those would you find out about from this system if it stopped?</li>
+      <li>And think about the three signals. <b>One of them is thinner here than the other two.</b> A site that cannot answer "what changed" has a gap, even though every host is scraped.</li>
+    </ul>
+  </div>
+
+  <p class="stept"><i>5.3</i> Write it, and answer the hard question</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/lab/m8s1/report.md</span>   <span class="cmt"># section 5</span></pre>
+  </div>
+  <div class="see"><div class="see-l">The last two lines are the session</div><pre>The gap:                        ____________________
+Which of the three shapes:      ____________________
+What would go wrong because of it:
+
+What it would take to close it: ____________________
+Who would need to agree:        ____________________
+
+Do I add it?  yes / no — and why:
+</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 5<span>and the close of the session</span></div>
+    <div class="stop-b">
+      <h5>The gap you were most likely to find</h5>
+      <div class="ans"><b>If you noticed that the record of what changed is far thinner than the metrics and the logs, that is a real finding and a very common one.</b> Almost every site collects metrics well, logs adequately, and events barely at all — and then spends its afternoons asking "what changed?" of two signals that cannot answer it. <b>A gap does not have to be a missing host. A missing signal is worse, because nothing looks broken.</b></div>
+      <h5>Now the question in the title of this task</h5>
+      <p>You have found something that is not monitored and should be. <b>Do you add it?</b></p>
+      <p>The honest answer is that it depends on which of two things you have found, and telling them apart is the judgement being asked for.</p>
+      <ul>
+        <li><b>Adding a target that should obviously have been there</b> — a node that was commissioned and nobody registered — is routine work. It is reversible, it is within an administrator's remit, and asking permission for it wastes everybody's time. Do it, and record that you did.</li>
+        <li><b>Adding a new metric, a new label, or a new signal type is an operational change to a shared system.</b> It costs storage, it costs cardinality, it may cost somebody else's query performance, and on a busy cluster the wrong label can take the monitoring system down — which removes everybody's visibility, including yours, at the worst possible moment. That is not yours to do quietly.</li>
+      </ul>
+      <p><b>The line is not about how hard it is. It is about who absorbs the consequence if it goes wrong.</b> When the answer is "me, and I can undo it in a minute", go ahead. When it is "everybody, and the failure mode is that monitoring stops working", it is a change with a plan, a window and somebody else's agreement — and you are the person who proposes it, with the evidence you collected today attached.</p>
+      <h5>The thread running through all five tasks</h5>
+      <p>Everything today came from asking a question first and then going to get the answer. The inventory, the six questions, the five queries, the broken-out aggregate, the gap — <b>none of it required privilege, and all of it started with a sentence rather than a screen.</b></p>
+      <p>The administrator who browses dashboards finds what is on them. The one who asks a question first finds what is wrong. That is the whole session, and it is why task 2 took half of it.</p>
+      <div class="stop-rec"><b>Record</b> — section 5, including your answer to the boundary question and your reasoning.</div>
+    </div>
+  </div>
+</section>
+
+<section id="wrap">
+  <div class="sh"><span class="sh-n">✓</span><span class="sh-t">Commit</span><span class="sh-m">2 min</span></div>
+
+  <div class="do">
+    <div class="dol">All five sections filled</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">grep -c '^## ' ~/lab/m8s1/report.md</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Take it off the cluster</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cd ~/lab &amp;&amp; tar czf ~/m8s1-report.tgz m8s1 &amp;&amp; ls -lh ~/m8s1-report.tgz</span></pre>
+  </div>
+
+  <div class="careful"><b>The five queries are the part that outlives this lab</b>Put them in your own runbook today, with the one-line note saying what each is for. <b>This cluster goes away; the five questions do not.</b> You will be asked all five in your first month at any site, and the only difference will be the metric names.</div>
+</section>
+
+<section id="stuck">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">If you get stuck</span></div>
+  <table>
+    <thead><tr><th>Symptom</th><th>What it means · what to do</th></tr></thead>
+    <tbody>
+      <tr><td>A query returns an empty result</td><td class="m">almost always a wrong metric or label name.<br />Check it against 3.1 before assuming nothing is wrong</td></tr>
+      <tr><td>A query returns a huge number that only grows</td><td class="m">you read a counter raw.<br />Wrap it in a rate over a window</td></tr>
+      <tr><td>A rate returns a tiny decimal</td><td class="m">correct, but per second.<br />Multiply into the unit the question used</td></tr>
+      <tr><td>A range query returns nothing beyond a few days</td><td class="m">you are past the edge of the data.<br />Check what you found at 1.4</td></tr>
+      <tr><td><code>promq</code> not found</td><td class="m">try <code>ls /opt/lab/bin/</code>.<br />It is staged at deploy, not in the base image</td></tr>
+      <tr><td><code>sacct</code> returns no rows</td><td class="m">add <code>-S</code> with a time earlier than you expect jobs.<br /><code>sacct</code> defaults to midnight today; jobs from earlier hours need an explicit start time</td></tr>
+      <tr><td>Grafana will not let you edit a panel</td><td class="m">you are a viewer, correctly.<br />Use Inspect → Panel JSON to read the query</td></tr>
+      <tr><td>A graph stops dead rather than dropping to zero</td><td class="m">that is a target that stopped reporting.<br />It is a finding, not a display fault</td></tr>
+      <tr><td>Nothing on <code>mon01</code> answers at all</td><td class="m">say so. Everything today is a read against that<br />one host, and nothing else will work until it responds</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="glossary">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">Glossary</span></div>
+  <dl class="gloss">
+    <dt>aggregation artefact</dt><dd>A true number that produces a false belief, because a display choice — averaging, missing members, step, denominator, stacking — discarded or transformed the thing that mattered. Task 4's subject.</dd>
+    <dt>Ask · Pick · Open · Split</dt><dd>The session's working rule. Ask the question before touching a tool. Pick the signal — one word. Open the right source. Split any aggregate and look at the members. In that order, every time.</dd>
+    <dt>annotation</dt><dd>An event recorded against a point in time, usually in a dashboard tool. A common way to record "what changed" at sites that use it. At this cluster, the equivalent is <code>sinfo -R</code>, <code>sacct</code>, and the boot history from <code>journalctl --list-boots</code>.</dd>
+    <dt>cardinality</dt><dd>The number of distinct series a monitoring system holds. Multiplied by every distinct value of every label, and the thing that takes monitoring systems down.</dd>
+    <dt>counter</dt><dd>A number that only ever increases. Meaningless raw; meaningful as a rate. CPU time and completed-job totals are counters.</dd>
+    <dt>deriv · predict_linear</dt><dd>Functions that fit a slope to a range and, for the second, project it forward. How "when will it fill" becomes a query rather than a guess.</dd>
+    <dt>exporter</dt><dd>A small service on a host that presents its numbers for collection. One per thing being measured — host, scheduler, filesystem.</dd>
+    <dt>gauge</dt><dd>A number that goes up and down and means something on its own. Free memory, temperature, queue depth.</dd>
+    <dt>instant query · range query</dt><dd>One value per series now, versus a line over a window. Most unhelpful monitoring answers are an instant query where a range was needed.</dd>
+    <dt>label</dt><dd>A key-value pair attached to a metric, such as <code>instance</code> or <code>mountpoint</code>. What you filter and group by, and what drives cardinality.</dd>
+    <dt>metric</dt><dd>A named measurement. The name plus one exact set of labels identifies one series.</dd>
+    <dt>rate()</dt><dd>Per-second increase of a counter over a window. The function that makes counters usable, and the one most often left out.</dd>
+    <dt>retention</dt><dd>How long samples are kept before deletion. It decides which questions a site can answer, and a year-on-year comparison must have been decided a year ago.</dd>
+    <dt>sample</dt><dd>One number with one timestamp, in one series.</dd>
+    <dt>scrape</dt><dd>The monitoring server fetching numbers from a target on an interval. Nothing is pushed, which is why a dead node's metrics stop existing rather than going to zero.</dd>
+    <dt>series</dt><dd>One metric name with one exact label set, and the list of samples beneath it.</dd>
+    <dt>signal types</dt><dd>Metrics, logs and events — how much, what happened, what changed. Choosing wrongly is the commonest way to waste an hour.</dd>
+    <dt>target</dt><dd>One thing being scraped, grouped into a job. Its health is whether the last scrape succeeded.</dd>
+    <dt>up</dt><dd>The metric that is 1 when a scrape succeeded and 0 when it failed. A node that is up is not necessarily a node that is working.</dd>
+  </dl>
+</section>
+
+</main>
+</div>
+
+<div class="foot">
+  <span>HPCA-100 · M8-S1 · The observability model for clusters · lab runbook</span>
+  <span>LT-1 guided walkthrough · 60 min · ENV-A</span>
+</div>
+
+<script>
+function cpy(b){
+  var pre = b.parentElement.querySelector('pre');
+  var t = pre.innerText.replace(/\s+#.*$/gm,'').trim();
+  navigator.clipboard.writeText(t).then(function(){
+    b.textContent='copied'; b.classList.add('ok');
+    setTimeout(function(){ b.textContent='copy'; b.classList.remove('ok'); },1200);
+  });
+}
+function toggleCompact(){
+  document.body.classList.toggle('compact');
+  document.getElementById('cbtn').classList.toggle('on');
+}
+var links = document.querySelectorAll('.side a');
+var secs  = document.querySelectorAll('main section');
+window.addEventListener('scroll', function(){
+  var y = window.scrollY + 120, cur = '';
+  secs.forEach(function(s){ if(s.offsetTop <= y) cur = s.id; });
+  links.forEach(function(a){
+    a.classList.toggle('on', a.getAttribute('href') === '#' + cur);
+  });
+});
+</script>
+</body>
+</html>
