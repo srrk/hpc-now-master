@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HPCA-100 · M11-S1 · Operational Scripting and Safe Automation · Lab Runbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff; --soft:#f6f8fa; --line:#e3e7eb;
+  --ink:#12161b; --ink2:#4f5862; --ink3:#8b949e;
+  --blue:#1f66d0; --blue-bg:#eff5fd;
+  --amber:#a55a12; --amber-bg:#fdf5ea;
+  --green:#0d7a55; --green-bg:#ecf7f2;
+  --code:#111519; --code-ink:#c9d1d9; --code-cmd:#7ee3b8; --code-cmt:#e0a85f;
+  --sans:"IBM Plex Sans",-apple-system,Segoe UI,sans-serif;
+  --mono:"IBM Plex Mono","Courier New",monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
+
+.youbar{position:sticky;top:0;z-index:60;background:var(--ink);display:flex;align-items:center;gap:14px;padding:8px 40px;font-size:12px;flex-wrap:wrap}
+.youbar-k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#7c8691}
+.youbar-v{font-family:var(--mono);font-size:13px;color:#7ee3b8}
+.compactbtn{margin-left:auto;background:#1d242c;border:1px solid #2b333c;color:#c9d1d9;font-family:var(--mono);font-size:11px;padding:4px 12px;border-radius:2px;cursor:pointer}
+.compactbtn:hover{border-color:#7ee3b8;color:#7ee3b8}
+.compactbtn.on{background:#7ee3b8;color:#111519;border-color:#7ee3b8}
+
+.head{border-bottom:1px solid var(--line);padding:32px 40px 24px;background:var(--soft)}
+.head-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.head-title{font-size:26px;font-weight:600;letter-spacing:-.01em}
+.head-sub{font-size:14px;color:var(--ink2);margin-top:8px;max-width:680px}
+
+.wrap{display:grid;grid-template-columns:176px 1fr;gap:0 44px;max-width:1060px;margin:0 auto;padding:0 40px}
+.side{position:sticky;top:44px;align-self:start;padding:32px 0}
+.side-l{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin:0 0 10px}
+.side a{display:block;font-size:12.5px;color:var(--ink2);text-decoration:none;padding:5px 0 5px 12px;border-left:2px solid transparent}
+.side a:hover{color:var(--ink)}
+.side a.on{color:var(--blue);border-color:var(--blue)}
+.side hr{border:0;border-top:1px solid var(--line);margin:10px 0}
+main{padding:32px 0 0}
+section{padding:30px 0;border-top:1px solid var(--line)}
+section:first-child{border-top:none;padding-top:8px}
+
+.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:10px}
+.sh-n{font-family:var(--mono);font-size:12px;color:var(--blue);font-weight:500}
+.sh-t{font-size:19px;font-weight:600}
+.sh-m{margin-left:auto;font-size:11px;color:var(--ink3);font-family:var(--mono)}
+
+.goal{font-size:13.5px;color:var(--ink2);margin:0 0 16px;max-width:720px;border-left:2px solid var(--green);padding-left:12px}
+
+.stept{font-size:14px;font-weight:600;margin:20px 0 6px;color:var(--ink)}
+.stept i{font-family:var(--mono);font-style:normal;font-size:11px;color:var(--ink3);font-weight:400;margin-right:8px}
+
+.do{background:var(--code);border-radius:3px;padding:13px 16px;margin:7px 0;position:relative;overflow-x:auto;max-width:720px}
+.do pre{font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--code-ink);white-space:pre}
+.do .cmd{color:var(--code-cmd)}
+.do .cmt{color:var(--code-cmt)}
+.do .dim{color:#5c6873}
+.dol{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#5c6873;margin-bottom:8px}
+.cp{position:absolute;top:8px;right:8px;background:#1d242c;border:1px solid #2b333c;color:#7c8691;font-family:var(--mono);font-size:10px;padding:3px 9px;cursor:pointer;border-radius:2px}
+.cp:hover{color:var(--code-cmd);border-color:var(--code-cmd)}
+.cp.ok{color:var(--code-cmd);border-color:var(--code-cmd)}
+
+.see{border:1px solid var(--line);border-left:3px solid var(--ink3);border-radius:3px;margin:7px 0;max-width:720px;overflow-x:auto}
+.see-l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);padding:6px 14px;border-bottom:1px solid var(--line);background:var(--soft)}
+.see pre{font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--ink2);padding:10px 14px;white-space:pre}
+
+.look{border:1px solid var(--line);border-left:3px solid var(--ink3);background:var(--soft);border-radius:3px;padding:12px 16px;margin:8px 0;max-width:720px}
+.look-l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin-bottom:6px}
+.look ul{margin:0;padding-left:20px}
+.look li{font-size:13.5px;color:var(--ink2);margin-bottom:4px}
+.look p{font-size:13.5px;color:var(--ink2);margin-bottom:6px}
+.look p:last-child{margin-bottom:0}
+.look b{color:var(--ink);font-weight:600}
+
+.browser{border:1px solid #cfd9e4;border-left:3px solid #4a6b8a;background:#f2f6fa;border-radius:3px;padding:12px 16px;margin:10px 0;max-width:720px}
+.browser b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#4a6b8a;margin-bottom:5px;font-weight:600}
+.browser p{font-size:13.5px;color:var(--ink2);margin-bottom:6px}
+.browser p:last-child{margin-bottom:0}
+.browser code{background:#e3ecf4}
+
+.stop{border:2px solid var(--ink);border-radius:3px;margin:26px 0 6px;max-width:720px;overflow:hidden}
+.stop-l{background:var(--ink);color:#fff;padding:9px 16px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;display:flex;justify-content:space-between}
+.stop-l span{letter-spacing:0;text-transform:none;font-weight:400;color:#7ee3b8;font-size:11px}
+.stop-b{padding:14px 16px}
+.stop-b h5{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin:14px 0 5px}
+.stop-b h5:first-child{margin-top:0}
+.stop-b pre{font-family:var(--mono);font-size:12px;line-height:1.7;background:var(--soft);border:1px solid var(--line);border-radius:2px;padding:9px 12px;white-space:pre-wrap;word-break:break-word;color:var(--ink)}
+.stop-b ul{margin:0;padding-left:20px}
+.stop-b li{font-size:13.5px;color:var(--ink);margin-bottom:4px}
+.stop-b p{font-size:13.5px;color:var(--ink2)}
+.stop-b p b{color:var(--ink);font-weight:600}
+.stop-rec{margin-top:14px;padding-top:11px;border-top:1px solid var(--line);font-size:13px;color:var(--ink2)}
+.stop-rec b{color:var(--green);font-weight:600}
+
+.careful{border-left:3px solid var(--amber);background:var(--amber-bg);padding:10px 15px;margin:12px 0;max-width:720px;font-size:13.5px;color:var(--ink2)}
+.careful b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:3px;font-weight:600}
+
+code{font-family:var(--mono);font-size:11.5px;background:var(--soft);padding:1px 5px;border-radius:2px;color:var(--blue)}
+.do code,.see code{background:none;padding:0;color:inherit}
+
+table{width:100%;max-width:720px;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+th{text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--soft)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+td.m{font-family:var(--mono);font-size:11.5px;color:var(--ink)}
+
+.foot{border-top:1px solid var(--line);margin-top:40px;padding:18px 40px;font-size:11px;color:var(--ink3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;background:var(--soft)}
+
+.concept{border:1px solid var(--line);border-left:3px solid var(--blue);background:#fbfdff;border-radius:3px;padding:14px 17px;margin:0 0 18px;max-width:720px}
+.concept h4{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600;margin-bottom:7px}
+.concept p{font-size:13.5px;color:var(--ink2);margin-bottom:9px}
+.concept p:last-child{margin-bottom:0}
+.concept p b{color:var(--ink);font-weight:600}
+.concept ul{margin:4px 0 9px;padding-left:20px}
+.concept li{font-size:13.5px;color:var(--ink2);margin-bottom:4px}
+.concept code{background:#eef3f8}
+.ans{font-size:13.5px;color:var(--ink);background:var(--green-bg);border-left:2px solid var(--green);padding:9px 13px;margin:9px 0 0;border-radius:2px}
+.ans b{color:var(--green);font-weight:600}
+.ans pre{font-family:var(--mono);font-size:12px;line-height:1.7;background:#fff;border:1px solid #cfe6dc;border-radius:2px;padding:8px 11px;margin:7px 0 0;white-space:pre-wrap;word-break:break-all;color:var(--ink)}
+.gloss{max-width:720px;font-size:13px;margin-top:6px}
+.gloss dt{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:500;margin-top:12px}
+.gloss dd{color:var(--ink2);margin:2px 0 0 0}
+
+body.compact .stop-b h5, body.compact .stop-b p, body.compact .stop-rec,
+body.compact .careful, body.compact .goal { display:none }
+body.compact .stop { border-color:var(--line) }
+body.compact .stop-l { background:var(--soft); color:var(--ink) }
+body.compact .stop-l span { color:var(--ink3) }
+body.compact .concept, body.compact .ans, body.compact .gloss{display:none}
+body.compact #before, body.compact #glossary{display:none}
+
+@media print{.youbar,.side,.cp,.compactbtn{display:none!important}.wrap{grid-template-columns:1fr}section{break-inside:avoid}.stop{break-inside:avoid}}
+@media (max-width:1000px){.wrap{grid-template-columns:1fr;padding:0 22px}.side{display:none}.head,.youbar,.foot{padding-left:22px;padding-right:22px}}
+</style>
+</head>
+<body>
+<!--
+artefact:        lab-runbook
+session_id:      M11-S1
+session_name:    Operational scripting and safe automation
+module:          M11 — Automation, Scripting, Infrastructure as Code and Hybrid HPC
+session_class:   A
+audience:        LEARNER
+duration_min:    120
+environment:     ENV-B
+lab_type:        LT-5
+capabilities:    ADM-D11-T01
+checkpoint:      none
+curriculum:      HPCA-100 v1.0 canonical build 1.0c
+generated:       2026-11-11
+curriculum_conflict: Task 6 compares against an instructor-measured manual onboarding, not the learner's own M3-S3 timing; M3-S3 was not delivered to this cohort. See lab design D8.
+render_tokens:   mylab.hpc.now, hpcnow2026 — substituted at deploy; never committed with values
+proposed_output: none. The three shape blocks were replaced with output captured on the pilot (bhagya sandbox, 2026-11-11). The motd deadline line differs per session.
+-->
+<div class="youbar">
+  <span class="youbar-k">Cluster</span><span class="youbar-v">mylab.hpc.now</span>
+  <span class="youbar-k">Your sandbox</span><span class="youbar-v">head · c1 · c2</span>
+  <span class="youbar-k">6 tasks · 65 min guided · 2 h alone</span>
+  <button class="compactbtn" id="cbtn" onclick="toggleCompact()">compact</button>
+</div>
+
+<div class="head">
+  <p class="head-eyebrow">HPCA-100 · Module 11 · Session 1 · Lab Runbook</p>
+  <h1 class="head-title">Operational Scripting and Safe Automation</h1>
+  <p class="head-sub">A three-node cluster of your own, six existing users, and three new starters waiting to be onboarded. You will score the jobs you have done by hand on this course, automate the one that scores highest, and prove the script is safe to hand to somebody else: it does nothing unless told to, it changes nothing the second time, it cannot run twice at once, it refuses to destroy without being asked, and it leaves a log you can rebuild the run from. Then you will find out whether it was worth writing.</p>
+</div>
+
+<div class="wrap">
+<aside class="side">
+  <div class="side-l">Runbook</div>
+  <a href="#before">Before you start</a>
+  <a href="#start">Getting on</a>
+  <hr />
+  <a href="#t1">1 · Score it</a>
+  <a href="#t2">2 · Build it</a>
+  <a href="#t3">3 · Dry run, then act</a>
+  <a href="#t4">4 · Run it twice</a>
+  <a href="#t5">5 · The log</a>
+  <a href="#t6">6 · The clock</a>
+  <hr />
+  <a href="#wrap">Commit</a>
+  <a href="#stuck">If you get stuck</a>
+  <a href="#glossary">Glossary</a>
+</aside>
+
+<main>
+
+<section id="before">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">Before you start</span><span class="sh-m">read once · 8 min</span></div>
+
+  <div class="concept">
+    <h4>What makes a script operational</h4>
+    <p>A personal script is one you run, at your desk, when you are paying attention. <b>An operational script is one somebody else runs at 2 a.m. with a queue stopped and a principal investigator on the phone</b>, or one a timer runs while nobody is watching at all. The difference is six habits, and every one of them exists because somebody's script once did damage that the habit would have stopped.</p>
+    <p>Most HPC sites run on one or two administrators. At that staffing level automation is not an efficiency gain. It is the only way the week's work fits into the week.</p>
+  </div>
+
+  <div class="concept">
+    <h4>The six safety patterns — these are graded</h4>
+    <table>
+      <thead><tr><th>Pattern</th><th>What it protects against</th></tr></thead>
+      <tbody>
+        <tr><td><b>Fail fast</b> on any error and on any unset variable</td><td>a script that carries on after step 3 failed and does steps 4 to 8 against a half-built user</td></tr>
+        <tr><td><b>Dry run by default</b>, explicit flag to act</td><td>running it to see what it does, and finding out by it doing it</td></tr>
+        <tr><td><b>Idempotent</b>: running it again is safe</td><td>the second run after a partial failure creating duplicates, or worse, changing a number that is already in use</td></tr>
+        <tr><td><b>Log every action</b></td><td>"something changed last night" with no way to say what</td></tr>
+        <tr><td><b>Confirm anything destructive</b></td><td>overwriting the thing a user already depends on because it looked like a re-run</td></tr>
+        <tr><td><b>Lock</b>, so two copies cannot run at once</td><td>two colleagues, or a colleague and a timer, both picking UID 2007</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="concept">
+    <h4>What to automate, and what not to</h4>
+    <p><b>Frequency × duration × error rate.</b> A task done twice a week, taking ten minutes, that goes wrong one time in five, is worth automating. A task done once a year whose failure is expensive and hard to check is not: you will not trust the script, and you will be right not to. Nor is a task where the thinking is the work. A script can create an account; it cannot decide whether somebody should have one.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Where a user lives on this cluster</h4>
+    <p>Onboarding one person touches four systems, and they all have to agree.</p>
+    <ul>
+      <li><b>Local identity on three nodes.</b> The same username, the same UID and the same GID, on <code>head</code>, <code>c1</code> and <code>c2</code>. There is no directory service here; each node keeps its own <code>/etc/passwd</code> and <code>/etc/group</code>.</li>
+      <li><b>A home directory</b> on <code>/home</code>, which <code>head</code> exports and both compute nodes mount.</li>
+      <li><b>An SSH key</b> in <code>~/.ssh/authorized_keys</code>.</li>
+      <li><b>A scheduler association</b>, without which the user exists everywhere and can run nothing.</li>
+    </ul>
+    <p>Get one of the four wrong and the user does not find out at login. They find out when their first job fails on <code>c2</code> and not on <code>c1</code>.</p>
+  </div>
+
+  <div class="concept">
+    <h4>The contract your script must meet</h4>
+    <p>So that you, your neighbour and the instructor can run each other's scripts the same way, every script in this lab takes the same arguments. Everything inside it is yours to design.</p>
+    <table>
+      <thead><tr><th>Invocation</th><th>Must</th></tr></thead>
+      <tbody>
+        <tr><td><code>./onboard.sh REQUESTS.csv</code></td><td>print what it would do for every request, change nothing, exit 0</td></tr>
+        <tr><td><code>./onboard.sh --apply REQUESTS.csv</code></td><td>do it, log every action, exit 0 when every request is complete</td></tr>
+        <tr><td><code>./onboard.sh --apply --force REQUESTS.csv</code></td><td>as <code>--apply</code>, and also replace something that already exists and differs</td></tr>
+      </tbody>
+    </table>
+    <p>On any failure it exits non-zero. Two failures need their own exit codes, documented in your README: <b>the input was invalid</b> (so nothing was touched), and <b>another copy holds the lock</b>. If you write it in Python, call it <code>onboard.py</code> and substitute it wherever this runbook says <code>onboard.sh</code>.</p>
+  </div>
+
+  <div class="careful"><b>You are root on three machines</b>This sandbox is yours and disposable, and you will probably break it once. That is expected. Type <code>exit</code>, choose <b>reset</b>, and you are back to the starting state in about four minutes. Everything inside <code>~/course-repo</code> survives a reset, including work you have not committed. Everything outside it does not. <b>Keep your script and its log inside <code>~/course-repo/m11s1/</code>.</b></div>
+</section>
+
+<section id="start">
+  <div class="sh"><span class="sh-n">00</span><span class="sh-t">Getting on</span><span class="sh-m">3 min</span></div>
+
+  <div class="do">
+    <div class="dol">Connect. The password is hpcnow2026</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh &lt;you&gt;@mylab.hpc.now</span></pre>
+  </div>
+  <p class="goal">You land directly on the head node of your own sandbox, as root. You do not choose a sandbox and you cannot land in anyone else's.</p>
+
+  <div class="do">
+    <div class="dol">Confirm where you are</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">hostname; whoami; cat /etc/motd</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>head
+root
+HPCA-100 · M11-S1 · sandbox for bhagya
+This sandbox is destroyed at 00:21 IST on Thu 12 Nov.
+type exit for: re-enter · reset · log out</pre></div>
+
+  <div class="do">
+    <div class="dol">Reach both compute nodes without a password</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh c1 hostname; ssh c2 hostname; sinfo</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>c1
+c2
+PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST
+debug*       up   infinite      2   idle c[1-2]</pre></div>
+
+  <div class="do">
+    <div class="dol">What you have been given</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ls -l /opt/lab/reference/ /opt/lab/bin/</span></pre>
+  </div>
+
+  <div class="do">
+    <div class="dol">Your course repository, and a place for today's work</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">mkdir -p ~/course-repo/m11s1/logs &amp;&amp; cd ~/course-repo/m11s1 &amp;&amp; git -C ~/course-repo log --oneline | head -5</span></pre>
+  </div>
+
+  <div class="careful"><b>When you type exit</b>You get a three-line menu: go back into your sandbox, reset it, or log out. Reset lives there because it rebuilds the machine you would otherwise be standing on.</div>
+</section>
+
+<section id="t1">
+  <div class="sh"><span class="sh-n">1</span><span class="sh-t">Score what you have done by hand</span><span class="sh-m">10 min</span></div>
+  <p class="goal">Five tasks you have performed manually so far on this course, each scored on frequency, duration and error rate, and the one that wins.</p>
+
+  <div class="concept">
+    <h4>Why score before writing anything</h4>
+    <p>The commonest automation mistake is automating the task that was interesting rather than the task that was expensive. <b>The score stops you writing a script nobody needed.</b> It also gives you the number you will defend in task 6 when somebody asks whether the hour you spent writing it was well spent.</p>
+  </div>
+
+  <p class="stept"><i>1.1</i> Remind yourself what you have done</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/reference/course-so-far.md</span></pre>
+  </div>
+
+  <p class="stept"><i>1.2</i> Score five of them</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/course-repo/m11s1/README.md</span>   <span class="cmt"># section: what to automate</span></pre>
+  </div>
+  <div class="see"><div class="see-l">The shape of the table</div><pre>| Task | Times per month | Minutes each | Goes wrong (1 in N) | Score |
+|------|-----------------|--------------|---------------------|-------|
+|      |                 |              |                     |       |</pre></div>
+  <div class="look">
+    <div class="look-l">Three judgements, not three measurements</div>
+    <ul>
+      <li><b>Frequency</b> at a real site of a few hundred users, not on this course. Ask yourself how often it would land in your queue.</li>
+      <li><b>Duration</b> doing it carefully, including the checking, not the fastest you have ever managed.</li>
+      <li><b>Error rate</b> counts the times it was done wrong and noticed later. Use a fraction: one in five is 0.2. Score is the product of the three.</li>
+    </ul>
+  </div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 1<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>Check what you have</h5>
+      <ul>
+        <li>Five tasks, all things you have done, not things you have read about.</li>
+        <li>A number in every cell, and a score for each row.</li>
+        <li>One sentence under the table naming the task you will automate and why.</li>
+      </ul>
+      <div class="ans"><b>Onboarding nearly always wins, and it wins on error rate as much as frequency.</b> It is the single most frequent ticket category in the role, it is almost entirely mechanical, and its mistakes are the quiet kind: a UID that differs on one node, a home directory owned by root, a user with no association who finds out at their first job. Mechanical, frequent and error-prone is the profile of a task worth a script.</div>
+      <h5>If something else scored higher</h5>
+      <p>Look at the row again and ask whether a script could do it without you deciding anything along the way. If it could not, the score is real but the task is not automatable, and you automate the next one down. For this lab, the materials are built for onboarding; automate onboarding and record your top-scoring task as the next candidate in your README.</p>
+    </div>
+  </div>
+</section>
+
+<section id="t2">
+  <div class="sh"><span class="sh-n">2</span><span class="sh-t">Build the onboarding script with all six patterns</span><span class="sh-m">22 min</span></div>
+  <p class="goal">A script at <code>~/course-repo/m11s1/onboard.sh</code> that meets the contract in <a href="#before">Before you start</a>, reads the request file, and has every one of the six patterns in it.</p>
+
+  <p class="stept"><i>2.1</i> Note the time. Task 6 needs it</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">date '+%H:%M' | tee ~/course-repo/m11s1/started.txt</span></pre>
+  </div>
+
+  <p class="stept"><i>2.2</i> Read the procedure you are automating, and the input</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/reference/manual-onboarding.md</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/reference/new-starters.csv</span></pre>
+  </div>
+  <p class="goal">Eight steps, each with a check after it. <b>Every check in that procedure is a line your script needs</b>: it is the question an idempotent script asks before it acts.</p>
+
+  <p class="stept"><i>2.3</i> See what "done" looks like for a user who already exists</p>
+  <div class="do">
+    <div class="dol">The instrument you will use all lab</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">user-check lmarchetti; echo "exit $?"</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>user   lmarchetti
+node   uid    gid    groups
+head   2001   2001   lmarchetti chem
+c1     2001   2001   lmarchetti chem
+c2     2001   2001   lmarchetti chem
+home   /home/lmarchetti   lmarchetti:lmarchetti   0700
+key    /home/lmarchetti/.ssh/authorized_keys   0600   1 key
+slurm  chem|lmarchetti
+state  CONSISTENT
+exit 0</pre></div>
+  <p class="goal"><code>user-check</code> reads and never writes. Exit <code>0</code> means present and consistent everywhere, <code>1</code> absent everywhere, <code>2</code> partial or inconsistent. Read it once to see that there is nothing clever inside it.</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/bin/user-check</span></pre>
+  </div>
+
+  <p class="stept"><i>2.4</i> Shell or Python</p>
+  <div class="concept">
+    <h4>Pick the tool for the shape of the work</h4>
+    <p>Most of onboarding is running commands on three hosts, which is what shell does well. Reading a CSV, deciding what to do when a field is missing, and keeping a list of what changed is structured data and real logic, which is where shell gets fragile and Python does not. Either is acceptable. <b>Mixed is often best</b>: a shell script that calls short commands, or a Python script that calls <code>subprocess.run([...], check=True)</code> for each one. Python's standard library is all that is installed; there is no package index from here.</p>
+  </div>
+
+  <p class="stept"><i>2.5</i> The six patterns, as fragments</p>
+  <p class="goal">These are the building blocks the demo used, shown in isolation and not as an onboarding script. Assembling them around the eight steps is the task.</p>
+  <div class="careful"><b>These go in your script file, not at your prompt</b>Pasted at the <code>root@head</code> prompt, two of them change the shell you are typing in. After <code>set -Eeuo pipefail</code>, the next command that fails logs you out of <code>head</code>. After the lock lines, your shell holds <code>/run/onboard.lock</code> until you log out, so your own script will refuse to run. If either happens, type <code>exit</code> and choose 1.</div>
+
+  <div class="do">
+    <div class="dol">Fail fast, and say where</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">set -Eeuo pipefail
+trap 'echo "failed at line $LINENO: $BASH_COMMAND" &gt;&amp;2' ERR</span></pre>
+  </div>
+  <div class="careful"><b>What <code>set -e</code> does not catch</b>A command whose result is tested (<code>if</code>, <code>||</code>, <code>&amp;&amp;</code>, <code>while</code>) does not stop the script when it fails, because you asked to handle the failure yourself. And without <code>pipefail</code>, a pipeline's status is its last command's, so <code>getent passwd x | cut -d: -f3</code> succeeds even when <code>getent</code> found nothing.</div>
+
+  <div class="do">
+    <div class="dol">Dry run by default: one function decides whether anything happens</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">APPLY=0
+run() {
+  if (( APPLY )); then "$@"; else echo "would run: $*"; fi
+}</span></pre>
+  </div>
+
+  <div class="do">
+    <div class="dol">Idempotent: ask before acting, every time</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">[ -d /srv/example ] || run mkdir /srv/example       <span class="cmt"># the check, then the act</span>
+mkdir -p /srv/example                               <span class="cmt"># or a command that is idempotent itself</span></pre>
+  </div>
+
+  <div class="do">
+    <div class="dol">Log every action, not the start and the end</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">LOG=~/course-repo/m11s1/logs/onboard-$(date +%Y%m%d).log
+log() { printf '%s %s %s\n' "$(date -Is)" "$(hostname -s)" "$*" | tee -a "$LOG"; }</span></pre>
+  </div>
+
+  <div class="do">
+    <div class="dol">Confirm anything destructive</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">if [ -e "$target" ] &amp;&amp; ! cmp -s "$new" "$target" &amp;&amp; (( ! FORCE )); then
+  log "REFUSED replace $target: differs; re-run with --force to replace"
+  exit 4
+fi</span></pre>
+  </div>
+
+  <div class="do">
+    <div class="dol">Lock: one copy at a time</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">exec 9&gt;/run/onboard.lock
+flock -n 9 || { echo "another onboard is running" &gt;&amp;2; exit 3; }</span></pre>
+  </div>
+
+  <p class="stept"><i>2.6</i> Write it</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/course-repo/m11s1/onboard.sh &amp;&amp; chmod +x ~/course-repo/m11s1/onboard.sh</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Questions your script has to answer for itself</div>
+    <ul>
+      <li>Which UID is free on <b>all three</b> nodes, not only on <code>head</code>?</li>
+      <li>If this user already exists, which UID do they have, and does the script use that one rather than choosing again?</li>
+      <li>What does it do with the CSV's header line?</li>
+      <li>Which commands prompt for confirmation and would sit waiting for an answer that never comes?</li>
+      <li>What does it do if one request is bad: stop before touching anything, or finish the good ones? Either is defensible. Choose, and write the choice in your README.</li>
+    </ul>
+  </div>
+  <div class="do">
+    <div class="dol">If <code>shellcheck</code> is installed, use it</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">command -v shellcheck &amp;&amp; shellcheck ~/course-repo/m11s1/onboard.sh</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">git -C ~/course-repo add m11s1 &amp;&amp; git -C ~/course-repo commit -m "m11s1: onboarding script, first draft"</span></pre>
+  </div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 2<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>Check what you have</h5>
+      <ul>
+        <li>Run with no flags, the script prints and changes nothing. You have not yet used <code>--apply</code>.</li>
+        <li>You can point at the line that implements each of the six patterns.</li>
+        <li>It is committed.</li>
+      </ul>
+      <div class="ans"><b>The script that acts by default is the most common failure in this lab and the most expensive one at a real site.</b> If yours does anything without <code>--apply</code>, fix that before task 3. Everything else can be wrong for a while; that cannot.</div>
+      <h5>On choosing the UID</h5>
+      <p>"Highest UID on <code>head</code> plus one" works here only because the three nodes currently agree. At a site where somebody once created a user by hand on one compute node, it hands out a number that is already in use there. Ask all three nodes.</p>
+    </div>
+  </div>
+</section>
+
+<section id="t3">
+  <div class="sh"><span class="sh-n">3</span><span class="sh-t">Test the dry-run path, then the acting path</span><span class="sh-m">10 min</span></div>
+  <p class="goal">Proof that the dry run changed nothing; proof that the acting run onboarded all three new starters across all four systems; and proof that a bad request stops before touching anything.</p>
+
+  <div class="concept">
+    <h4>Test against a known state, before it runs anywhere else</h4>
+    <p>A test is a comparison. <b>Record the state, run the thing, record the state again, compare.</b> "It looked fine" is not a test, because you only looked at what you expected to change.</p>
+  </div>
+
+  <p class="stept"><i>3.1</i> Record the state before</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">for u in awilliams snair tokafor; do user-check $u; done &gt; /tmp/before.txt; tail -3 /tmp/before.txt</span></pre>
+  </div>
+
+  <p class="stept"><i>3.2</i> Dry run, and compare</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">./onboard.sh /opt/lab/reference/new-starters.csv; echo "exit $?"</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">for u in awilliams snair tokafor; do user-check $u; done &gt; /tmp/after-dry.txt; diff /tmp/before.txt /tmp/after-dry.txt &amp;&amp; echo "NO CHANGE"</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>NO CHANGE</pre></div>
+
+  <p class="stept"><i>3.3</i> A bad request must stop before anything happens</p>
+  <div class="do">
+    <div class="dol">A copy of the requests with one account that does not exist</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sed 's/,bio,/,nosuchproject,/' /opt/lab/reference/new-starters.csv &gt; /tmp/bad.csv
+./onboard.sh --apply /tmp/bad.csv; echo "exit $?"</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">for u in awilliams snair tokafor; do user-check $u; done | diff /tmp/before.txt - &amp;&amp; echo "NO CHANGE"</span></pre>
+  </div>
+  <p class="goal">A non-zero exit, a message naming the problem, and <code>NO CHANGE</code>. If your design finishes the good requests and skips the bad one, you will see changes for the other two instead. That is acceptable only if your README says it is the design.</p>
+
+  <p class="stept"><i>3.4</i> Act</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">./onboard.sh --apply /opt/lab/reference/new-starters.csv; echo "exit $?"</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">for u in awilliams snair tokafor; do user-check $u &gt;/dev/null; echo "$u exit $?"; done</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>awilliams exit 0
+snair exit 0
+tokafor exit 0</pre></div>
+
+  <p class="stept"><i>3.5</i> Onboarded means able to work</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">su - awilliams -c 'srun -N2 hostname'</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see, in either order</div><pre>c1
+c2</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 3<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>Check what you have</h5>
+      <ul>
+        <li><code>NO CHANGE</code> after the dry run, saved as evidence: copy <code>/tmp/before.txt</code> and <code>/tmp/after-dry.txt</code> into <code>~/course-repo/m11s1/evidence/</code>.</li>
+        <li>The bad request stopped with a non-zero exit and a message you could act on.</li>
+        <li>All three users at exit <code>0</code>, and a job that ran on both compute nodes.</li>
+      </ul>
+      <div class="ans"><b>The dry run is only worth having if it is trustworthy, and it is only trustworthy if it was compared, not watched.</b> A dry run that prints sensible-looking lines while quietly creating a directory is worse than no dry run, because somebody will rely on it.</div>
+      <h5>If a user came back exit 2</h5>
+      <p>Read the <code>user-check</code> output for that user and find which of the four systems disagrees with the other three. That is the step your script got wrong. Fix the script, not the user: reset if you need a clean state, then run again.</p>
+    </div>
+  </div>
+</section>
+
+<section id="t4">
+  <div class="sh"><span class="sh-n">4</span><span class="sh-t">Prove it is safe to run again</span><span class="sh-m">8 min</span></div>
+  <p class="goal">A second run that changes nothing, and the two patterns that only show themselves under pressure: the lock and the refusal.</p>
+
+  <div class="concept">
+    <h4>Idempotency is tested, never assumed</h4>
+    <p>The second run is the one that happens at a real site after the first one died halfway, at the moment you most need it to be harmless. <b>"It checks first" is a claim. Two identical states either side of a second run is the proof.</b></p>
+  </div>
+
+  <p class="stept"><i>4.1</i> Run it twice, compare</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">for u in awilliams snair tokafor; do user-check $u; done &gt; /tmp/after-1.txt
+./onboard.sh --apply /opt/lab/reference/new-starters.csv; echo "exit $?"
+for u in awilliams snair tokafor; do user-check $u; done &gt; /tmp/after-2.txt
+diff /tmp/after-1.txt /tmp/after-2.txt &amp;&amp; echo "NO CHANGE"</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see, after the script's own output</div><pre>exit 0
+NO CHANGE</pre></div>
+  <div class="do">
+    <div class="dol">And exactly one association each, not two</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sacctmgr -n -P show assoc format=account,user | grep -E 'awilliams|snair|tokafor'</span></pre>
+  </div>
+
+  <p class="stept"><i>4.2</i> The lock: start two at once</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">./onboard.sh --apply /opt/lab/reference/new-starters.csv &amp; ./onboard.sh --apply /opt/lab/reference/new-starters.csv; echo "second exit $?"; wait</span></pre>
+  </div>
+  <p class="goal">One of the two refuses with your lock-held exit code. If both report success, your second run is fast enough that the first had finished; add <code>sleep 5</code> straight after taking the lock, run this again, then take the <code>sleep</code> out.</p>
+
+  <p class="stept"><i>4.3</i> The refusal: a key that differs</p>
+  <div class="do">
+    <div class="dol">A new key for awilliams, as if she had lost her laptop</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh-keygen -q -t ed25519 -N '' -f /tmp/awilliams-new
+grep awilliams /opt/lab/reference/new-starters.csv | sed 's#,[^,]*$#,/tmp/awilliams-new.pub#' | cat &lt;(head -1 /opt/lab/reference/new-starters.csv) - &gt; /tmp/rekey.csv
+./onboard.sh --apply /tmp/rekey.csv; echo "exit $?"</span></pre>
+  </div>
+  <p class="goal">Without <code>--force</code> it refuses and the old key is still there. Then run it again with <code>--force</code> and check that the key changed and that the log says so.</p>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 4<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>Check what you have</h5>
+      <ul>
+        <li><code>NO CHANGE</code> on the second run, and one association per user. Copy both files into <code>evidence/</code>.</li>
+        <li>One of two concurrent runs refused.</li>
+        <li>The key replacement refused without <code>--force</code> and happened with it.</li>
+      </ul>
+      <div class="ans"><b>If the second run changed a UID, the step that asks "does this user already exist" is in the wrong place.</b> It has to come before the step that chooses a number, and when the user exists, the number is theirs and is not chosen again.</div>
+      <h5>Why the refusal is the right default</h5>
+      <p>A re-run with different input is indistinguishable, from inside the script, from a mistake. The script cannot know whether you meant to replace the key a user logs in with. The person running it can, so the script asks them to say so.</p>
+    </div>
+  </div>
+</section>
+
+<section id="t5">
+  <div class="sh"><span class="sh-n">5</span><span class="sh-t">A log you can rebuild the run from</span><span class="sh-m">6 min</span></div>
+  <p class="goal">Evidence that your log alone, with no other information, tells someone exactly what changed, where and when.</p>
+
+  <div class="concept">
+    <h4>The log is for a reader who was not there</h4>
+    <p><b>A log that says "onboard started" and "onboard finished" records that something happened and nothing about what.</b> Each line needs the time, the host it changed, the object it changed, and what it did to it. The reader is you, three weeks from now, asked why <code>snair</code> has UID 2008 on two nodes and 2009 on the third.</p>
+  </div>
+
+  <p class="stept"><i>5.1</i> Read your own log as a stranger would</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat ~/course-repo/m11s1/logs/*.log</span></pre>
+  </div>
+
+  <p class="stept"><i>5.2</i> Rebuild the first acting run from the log alone</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/course-repo/m11s1/README.md</span>   <span class="cmt"># section: reconstruction</span></pre>
+  </div>
+  <p class="goal">Without looking at the script or the system, write the list of changes your first <code>--apply</code> made: each user, each host, each thing created. Then check it against <code>diff /tmp/before.txt /tmp/after-1.txt</code>. Every change in the diff should be in your list, and nothing in your list should be missing from the diff.</p>
+
+  <p class="stept"><i>5.3</i> The harder test</p>
+  <p class="goal">Swap logs with your neighbour, without the script. Ask them to tell you what your run did. Anything they cannot tell you is a missing log line.</p>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 5<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>Check what you have</h5>
+      <ul>
+        <li>The reconstruction in your README matches the diff.</li>
+        <li>The second run's log shows that it checked and did nothing, not silence.</li>
+        <li>The refused key replacement is in the log with the reason.</li>
+      </ul>
+      <div class="ans"><b>A second run that logs nothing at all is indistinguishable from a second run that never happened.</b> "awilliams: present on head, c1, c2; no change" is a line worth writing, because it is the evidence that the run took place and decided correctly.</div>
+      <h5>On time</h5>
+      <p>The three nodes' clocks agree to within a second here. At a real site, check that before trusting a log that spans hosts; a timeline assembled from clocks five minutes apart tells a story that did not happen.</p>
+    </div>
+  </div>
+</section>
+
+<section id="t6">
+  <div class="sh"><span class="sh-n">6</span><span class="sh-t">Was it worth writing?</span><span class="sh-m">4 min</span></div>
+  <p class="goal">The automated time against the manual time, honestly, including the time it took you to write the script.</p>
+
+  <p class="stept"><i>6.1</i> The manual time</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">head -5 /opt/lab/reference/manual-onboarding.md</span></pre>
+  </div>
+  <div class="careful"><b>Whose number this is</b>This is your instructor's time for one careful manual onboarding from that procedure, measured on a sandbox identical to yours. It is not your own time, because this cohort did not time one. Say so in your README.</div>
+
+  <p class="stept"><i>6.2</i> The automated time, for one new starter</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh-keygen -q -t ed25519 -N '' -f /tmp/tnew
+printf 'username,full_name,account,pubkey_file\ntnew,Test Newstarter,chem,/tmp/tnew.pub\n' &gt; /tmp/one.csv
+time ./onboard.sh --apply /tmp/one.csv</span></pre>
+  </div>
+
+  <p class="stept"><i>6.3</i> The writing time</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">echo "started $(cat ~/course-repo/m11s1/started.txt), now $(date '+%H:%M')"</span></pre>
+  </div>
+
+  <p class="stept"><i>6.4</i> The comparison</p>
+  <div class="see"><div class="see-l">The shape, in your README</div><pre>Manual, one onboarding (instructor-measured):  ____ min
+Automated, one onboarding:                     ____ s
+Time to write and test the script:             ____ min
+Onboardings until the script has paid for itself:  writing ÷ (manual − automated) = ____</pre></div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 6<span>read before going on</span></div>
+    <div class="stop-b">
+      <div class="ans"><b>The writing time is part of the answer.</b> A script that saves ten minutes per onboarding and took fifty minutes to write has paid for itself on the fifth new starter, which at most sites is a matter of weeks. The number that is rarely written down, and matters more, is the error rate: the script makes the same choice on all three nodes every time.</div>
+      <p>If your break-even came out at more onboardings than your site will see this year, the honest conclusion is that this task was not worth automating there, and your scoring in task 1 should have said so.</p>
+    </div>
+  </div>
+</section>
+
+<section id="wrap">
+  <div class="sh"><span class="sh-n">✓</span><span class="sh-t">Commit</span><span class="sh-m">2 min</span></div>
+
+  <div class="look">
+    <div class="look-l">Your README has, in this order</div>
+    <ul>
+      <li><b>What it does</b>, in two sentences, and the invocation contract.</li>
+      <li><b>Exit codes</b>: every code your script can return and what each means to a caller.</li>
+      <li><b>The safety-pattern checklist</b>: each of the six, the line or function that implements it, and the task in which you demonstrated it.</li>
+      <li><b>What to automate</b>: the task 1 scoring table.</li>
+      <li><b>Reconstruction</b>: task 5.</li>
+      <li><b>Timing</b>: task 6, with the writing time included.</li>
+    </ul>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cd ~/course-repo &amp;&amp; git add m11s1 &amp;&amp; git commit -m "m11s1: onboarding automation, evidence, timing" &amp;&amp; git log --oneline | head -3</span></pre>
+  </div>
+  <div class="careful"><b>Your repository leaves with you</b>It is copied off the cluster at the end of the session and restored into your sandbox next time. You will build on this script later in the course, so write the README for the person who will run it without you there to explain it.</div>
+</section>
+
+<section id="stuck">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">If you get stuck</span></div>
+  <table>
+    <thead><tr><th>Symptom</th><th>What it means · what to do</th></tr></thead>
+    <tbody>
+      <tr><td>The script stops at once with no message</td><td class="m"><code>set -e</code> stopped it on a failing command.<br />Add the <code>trap ... ERR</code> line from 2.5 to see which</td></tr>
+      <tr><td>The script hangs</td><td class="m">a command is waiting for an answer.<br /><code>sacctmgr</code> asks for confirmation unless given <code>-i</code></td></tr>
+      <tr><td>The header line becomes a user called <code>username</code></td><td class="m">skip the first line of the CSV.<br />Then reset, because that user now exists</td></tr>
+      <tr><td>Variables set inside a <code>while read</code> loop are empty afterwards</td><td class="m">the loop ran in a subshell because of a pipe.<br />Feed it with <code>done &lt; file</code> instead of <code>cat file |</code></td></tr>
+      <tr><td><code>user-check</code> exits 2</td><td class="m">one system disagrees with the others.<br />Read its output; the odd line out is the step to fix</td></tr>
+      <tr><td><code>ssh c1</code> asks for a password</td><td class="m">you are not root on <code>head</code>.<br />Check <code>whoami; hostname</code></td></tr>
+      <tr><td><code>Permission denied</code> creating something under <code>/home</code> from <code>c1</code> or <code>c2</code></td><td class="m"><code>/home</code> lives on <code>head</code>; root on the compute nodes is not root there.<br />Make home directories on <code>head</code></td></tr>
+      <tr><td>Connecting fails with <code>REMOTE HOST IDENTIFICATION HAS CHANGED</code></td><td class="m">the entry host was rebuilt since you last used it.<br /><code>ssh-keygen -R mylab.hpc.now</code>, then connect again</td></tr>
+      <tr><td>The sandbox is in a state you cannot reason about</td><td class="m">type <code>exit</code>, choose reset, about four minutes.<br /><code>~/course-repo</code> comes back with you</td></tr>
+      <tr><td>Still stuck after five minutes</td><td class="m">ask in chat with: the command, the full error, and the <code>user-check</code> output</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="glossary">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">Glossary</span></div>
+  <dl class="gloss">
+    <dt>association</dt><dd>The scheduler's record that a user may run work under an account. A user without one exists on every node and can run nothing.</dd>
+    <dt>break-even</dt><dd>The number of runs after which the time spent writing a script is repaid by the time it saves. Writing time divided by the saving per run.</dd>
+    <dt>dry run</dt><dd>A run that reports what it would do and changes nothing. In an operational script, the default.</dd>
+    <dt>exit code</dt><dd>The number a program returns to whatever ran it. Zero for success; any other value is a failure the caller can act on, if the code means something specific.</dd>
+    <dt>fail fast</dt><dd>Stopping at the first error rather than continuing against a state the script no longer understands. In bash, <code>set -Eeuo pipefail</code>; the <code>-E</code> lets an <code>ERR</code> trap fire inside functions too.</dd>
+    <dt>idempotent</dt><dd>Safe to run again: a second run with the same input reaches the same state and changes nothing on the way.</dd>
+    <dt>lock</dt><dd>A mark one running copy holds so that a second copy refuses to start. <code>flock</code> on a file is the usual form.</dd>
+    <dt>operational script</dt><dd>A script written to be run by someone else, or by a timer, without the author present.</dd>
+  </dl>
+</section>
+
+</main>
+</div>
+
+<script>
+function cpy(b){
+  var pre = b.parentElement.querySelector('pre');
+  var t = pre.innerText.replace(/\s+#.*$/gm,'').trim();
+  navigator.clipboard.writeText(t).then(function(){
+    b.textContent='copied'; b.classList.add('ok');
+    setTimeout(function(){ b.textContent='copy'; b.classList.remove('ok'); },1200);
+  });
+}
+function toggleCompact(){
+  document.body.classList.toggle('compact');
+  document.getElementById('cbtn').classList.toggle('on');
+}
+var links = document.querySelectorAll('.side a');
+var secs  = document.querySelectorAll('main section');
+window.addEventListener('scroll', function(){
+  var y = window.scrollY + 120, cur = '';
+  secs.forEach(function(s){ if(s.offsetTop <= y) cur = s.id; });
+  links.forEach(function(a){
+    a.classList.toggle('on', a.getAttribute('href') === '#' + cur);
+  });
+});
+</script>
+</body>
+</html>
