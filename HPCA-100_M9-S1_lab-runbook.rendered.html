@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HPCA-100 · M9-S1 · Identity, Directory Integration and Account Lifecycle · Lab Runbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff; --soft:#f6f8fa; --line:#e3e7eb;
+  --ink:#12161b; --ink2:#4f5862; --ink3:#8b949e;
+  --blue:#1f66d0; --blue-bg:#eff5fd;
+  --amber:#a55a12; --amber-bg:#fdf5ea;
+  --green:#0d7a55; --green-bg:#ecf7f2;
+  --code:#111519; --code-ink:#c9d1d9; --code-cmd:#7ee3b8; --code-cmt:#e0a85f;
+  --sans:"IBM Plex Sans",-apple-system,Segoe UI,sans-serif;
+  --mono:"IBM Plex Mono","Courier New",monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
+
+.youbar{position:sticky;top:0;z-index:60;background:var(--ink);display:flex;align-items:center;gap:14px;padding:8px 40px;font-size:12px;flex-wrap:wrap}
+.youbar-k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#7c8691}
+.youbar-v{font-family:var(--mono);font-size:13px;color:#7ee3b8}
+.compactbtn{margin-left:auto;background:#1d242c;border:1px solid #2b333c;color:#c9d1d9;font-family:var(--mono);font-size:11px;padding:4px 12px;border-radius:2px;cursor:pointer}
+.compactbtn:hover{border-color:#7ee3b8;color:#7ee3b8}
+.compactbtn.on{background:#7ee3b8;color:#111519;border-color:#7ee3b8}
+
+.head{border-bottom:1px solid var(--line);padding:32px 40px 24px;background:var(--soft)}
+.head-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.head-title{font-size:26px;font-weight:600;letter-spacing:-.01em}
+.head-sub{font-size:14px;color:var(--ink2);margin-top:8px;max-width:680px}
+
+.wrap{display:grid;grid-template-columns:176px 1fr;gap:0 44px;max-width:1060px;margin:0 auto;padding:0 40px}
+.side{position:sticky;top:44px;align-self:start;padding:32px 0}
+.side-l{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin:0 0 10px}
+.side a{display:block;font-size:12.5px;color:var(--ink2);text-decoration:none;padding:5px 0 5px 12px;border-left:2px solid transparent}
+.side a:hover{color:var(--ink)}
+.side a.on{color:var(--blue);border-color:var(--blue)}
+.side hr{border:0;border-top:1px solid var(--line);margin:10px 0}
+main{padding:32px 0 0}
+section{padding:30px 0;border-top:1px solid var(--line)}
+section:first-child{border-top:none;padding-top:8px}
+
+.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:10px}
+.sh-n{font-family:var(--mono);font-size:12px;color:var(--blue);font-weight:500}
+.sh-t{font-size:19px;font-weight:600}
+.sh-m{margin-left:auto;font-size:11px;color:var(--ink3);font-family:var(--mono)}
+
+.goal{font-size:13.5px;color:var(--ink2);margin:0 0 16px;max-width:720px;border-left:2px solid var(--green);padding-left:12px}
+
+.stept{font-size:14px;font-weight:600;margin:20px 0 6px;color:var(--ink)}
+.stept i{font-family:var(--mono);font-style:normal;font-size:11px;color:var(--ink3);font-weight:400;margin-right:8px}
+
+.do{background:var(--code);border-radius:3px;padding:13px 16px;margin:7px 0;position:relative;overflow-x:auto;max-width:720px}
+.do pre{font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--code-ink);white-space:pre}
+.do .cmd{color:var(--code-cmd)}
+.do .cmt{color:var(--code-cmt)}
+.do .dim{color:#5c6873}
+.dol{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#5c6873;margin-bottom:8px}
+.cp{position:absolute;top:8px;right:8px;background:#1d242c;border:1px solid #2b333c;color:#7c8691;font-family:var(--mono);font-size:10px;padding:3px 9px;cursor:pointer;border-radius:2px}
+.cp:hover{color:var(--code-cmd);border-color:var(--code-cmd)}
+.cp.ok{color:var(--code-cmd);border-color:var(--code-cmd)}
+
+.see{border:1px solid var(--line);border-left:3px solid var(--ink3);border-radius:3px;margin:7px 0;max-width:720px;overflow-x:auto}
+.see-l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);padding:6px 14px;border-bottom:1px solid var(--line);background:var(--soft)}
+.see pre{font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--ink2);padding:10px 14px;white-space:pre}
+
+.look{border:1px solid var(--line);border-left:3px solid var(--ink3);background:var(--soft);border-radius:3px;padding:12px 16px;margin:8px 0;max-width:720px}
+.look-l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin-bottom:6px}
+.look ul{margin:0;padding-left:20px}
+.look li{font-size:13.5px;color:var(--ink2);margin-bottom:4px}
+.look p{font-size:13.5px;color:var(--ink2);margin-bottom:6px}
+.look p:last-child{margin-bottom:0}
+.look b{color:var(--ink);font-weight:600}
+
+.browser{border:1px solid #cfd9e4;border-left:3px solid #4a6b8a;background:#f2f6fa;border-radius:3px;padding:12px 16px;margin:10px 0;max-width:720px}
+.browser b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#4a6b8a;margin-bottom:5px;font-weight:600}
+.browser p{font-size:13.5px;color:var(--ink2);margin-bottom:6px}
+.browser p:last-child{margin-bottom:0}
+.browser code{background:#e3ecf4}
+
+.stop{border:2px solid var(--ink);border-radius:3px;margin:26px 0 6px;max-width:720px;overflow:hidden}
+.stop-l{background:var(--ink);color:#fff;padding:9px 16px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;display:flex;justify-content:space-between}
+.stop-l span{letter-spacing:0;text-transform:none;font-weight:400;color:#7ee3b8;font-size:11px}
+.stop-b{padding:14px 16px}
+.stop-b h5{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin:14px 0 5px}
+.stop-b h5:first-child{margin-top:0}
+.stop-b pre{font-family:var(--mono);font-size:12px;line-height:1.7;background:var(--soft);border:1px solid var(--line);border-radius:2px;padding:9px 12px;white-space:pre-wrap;word-break:break-word;color:var(--ink)}
+.stop-b ul{margin:0;padding-left:20px}
+.stop-b li{font-size:13.5px;color:var(--ink);margin-bottom:4px}
+.stop-b p{font-size:13.5px;color:var(--ink2)}
+.stop-b p b{color:var(--ink);font-weight:600}
+.stop-rec{margin-top:14px;padding-top:11px;border-top:1px solid var(--line);font-size:13px;color:var(--ink2)}
+.stop-rec b{color:var(--green);font-weight:600}
+
+.careful{border-left:3px solid var(--amber);background:var(--amber-bg);padding:10px 15px;margin:12px 0;max-width:720px;font-size:13.5px;color:var(--ink2)}
+.careful b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:3px;font-weight:600}
+
+code{font-family:var(--mono);font-size:11.5px;background:var(--soft);padding:1px 5px;border-radius:2px;color:var(--blue)}
+.do code,.see code{background:none;padding:0;color:inherit}
+
+table{width:100%;max-width:720px;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+th{text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--soft)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+td.m{font-family:var(--mono);font-size:11.5px;color:var(--ink)}
+
+.foot{border-top:1px solid var(--line);margin-top:40px;padding:18px 40px;font-size:11px;color:var(--ink3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;background:var(--soft)}
+
+.concept{border:1px solid var(--line);border-left:3px solid var(--blue);background:#fbfdff;border-radius:3px;padding:14px 17px;margin:0 0 18px;max-width:720px}
+.concept h4{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600;margin-bottom:7px}
+.concept p{font-size:13.5px;color:var(--ink2);margin-bottom:9px}
+.concept p:last-child{margin-bottom:0}
+.concept p b{color:var(--ink);font-weight:600}
+.concept ul{margin:4px 0 9px;padding-left:20px}
+.concept li{font-size:13.5px;color:var(--ink2);margin-bottom:4px}
+.concept code{background:#eef3f8}
+.ans{font-size:13.5px;color:var(--ink);background:var(--green-bg);border-left:2px solid var(--green);padding:9px 13px;margin:9px 0 0;border-radius:2px}
+.ans b{color:var(--green);font-weight:600}
+.ans pre{font-family:var(--mono);font-size:12px;line-height:1.7;background:#fff;border:1px solid #cfe6dc;border-radius:2px;padding:8px 11px;margin:7px 0 0;white-space:pre-wrap;word-break:break-all;color:var(--ink)}
+.gloss{max-width:720px;font-size:13px;margin-top:6px}
+.gloss dt{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:500;margin-top:12px}
+.gloss dd{color:var(--ink2);margin:2px 0 0 0}
+
+body.compact .stop-b h5, body.compact .stop-b p, body.compact .stop-rec,
+body.compact .careful, body.compact .goal { display:none }
+body.compact .stop { border-color:var(--line) }
+body.compact .stop-l { background:var(--soft); color:var(--ink) }
+body.compact .stop-l span { color:var(--ink3) }
+body.compact .concept, body.compact .ans, body.compact .gloss{display:none}
+body.compact #before, body.compact #glossary{display:none}
+
+@media print{.youbar,.side,.cp,.compactbtn{display:none!important}.wrap{grid-template-columns:1fr}section{break-inside:avoid}.stop{break-inside:avoid}}
+@media (max-width:1000px){.wrap{grid-template-columns:1fr;padding:0 22px}.side{display:none}.head,.youbar,.foot{padding-left:22px;padding-right:22px}}
+</style>
+</head>
+<body>
+<!--
+artefact:        lab-runbook
+session_id:      M9-S1
+session_name:    Identity, directory integration and account lifecycle
+module:          M9 — Security, Identity, Access and Compliance
+session_class:   A
+audience:        LEARNER
+duration_min:    120
+environment:     ENV-B
+lab_type:        LT-2
+capabilities:    ADM-D9-T01, ADM-D9-T04
+checkpoint:      none
+curriculum:      HPCA-100 v1.0 canonical build 1.0c
+generated:       2026-11-13
+curriculum_conflict: none
+format:          task-ladder runbook, at the instructor's decision, in place of the LT-2 lab brief. Task 2 is method-only (KF-02 §7).
+render_tokens:   mylab.hpc.now, hpcnow2026 (substituted at deploy, never committed with values)
+proposed_output: none left. Every "You should see" block is a capture from the pilot learner walk, 2026-11-13 (out/walk-m9s1.txt).
+verify_at_probe: confirmed at Phase 0b, 2026-11-13 (out/probe-findings-m9s1.md): authselect profile "sssd"; sssctl user-show (package sssd-tools); ldapsearch -y with /root/.ldaprc BINDDN, password file without a trailing newline; memberUid (rfc2307compat schema); last-login attribute lastLoginTime; CA path /etc/openldap/certs/hpca100-ca.crt, named by TLS_CACERT in /etc/openldap/ldap.conf.
+-->
+<div class="youbar">
+  <span class="youbar-k">Cluster</span><span class="youbar-v">mylab.hpc.now</span>
+  <span class="youbar-k">Your sandbox</span><span class="youbar-v">head · c1 · c2</span>
+  <span class="youbar-k">5 tasks · 60 min guided · 2 h alone</span>
+  <button class="compactbtn" id="cbtn" onclick="toggleCompact()">compact</button>
+</div>
+
+<div class="head">
+  <p class="head-eyebrow">HPCA-100 · Module 9 · Session 1 · Lab Runbook</p>
+  <h1 class="head-title">Identity, Directory Integration and Account Lifecycle</h1>
+  <p class="head-sub">A cluster whose users live in a directory, two compute nodes the previous administrator did not finish, three tickets in the queue, a new starter, and a colleague who leaves today. You will finish the integration, work out what is behind each ticket, create one account so that every system agrees about it, take another account away properly, and produce the access review that nobody has run for a year.</p>
+</div>
+
+<div class="wrap">
+<aside class="side">
+  <div class="side-l">Runbook</div>
+  <a href="#before">Before you start</a>
+  <a href="#start">Getting on</a>
+  <hr />
+  <a href="#t1">1 · Finish the integration</a>
+  <a href="#t2">2 · Three tickets</a>
+  <a href="#t3">3 · A new starter</a>
+  <a href="#t4">4 · A leaver</a>
+  <a href="#t5">5 · The access review</a>
+  <hr />
+  <a href="#wrap">Commit</a>
+  <a href="#stuck">If you get stuck</a>
+  <a href="#glossary">Glossary</a>
+</aside>
+
+<main>
+
+<section id="before">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">Before you start</span><span class="sh-m">read once · 8 min</span></div>
+
+  <div class="concept">
+    <h4>Four places a user lives, and they must agree</h4>
+    <p>Yesterday's sandbox kept users in each node's own <code>/etc/passwd</code>. This one keeps them in a directory on <code>head</code>, and that changes where the truth is, not how many places it has to be true. <b>One person is four records</b>, and any one of them can disagree with the others.</p>
+    <table>
+      <thead><tr><th>Place</th><th>What it holds</th><th>How to ask it</th></tr></thead>
+      <tbody>
+        <tr><td><b>The directory</b>, on <code>head</code></td><td>The account, its numbers, its groups, whether it is enabled</td><td><code>ldapsearch -x -ZZ -y /root/.dirmgr "(uid=jchen)"</code></td></tr>
+        <tr><td><b>The node's view</b>, on every node</td><td>What this node currently believes, which may be a cached copy</td><td><code>getent passwd jchen</code> · <code>id jchen</code> · <code>sssctl user-show jchen</code></td></tr>
+        <tr><td><b>The scheduler</b></td><td>Who may run work under which account, and what they ran</td><td><code>sacctmgr -n -P show assoc user=jchen</code> · <code>sacct -u jchen</code></td></tr>
+        <tr><td><b>The filesystem</b></td><td>Ownership as numbers; names are looked up afterwards</td><td><code>ls -ln /home</code></td></tr>
+      </tbody>
+    </table>
+    <p>The node's view is the one that surprises people. A node does not ask the directory every time; it keeps a copy, for speed and so that it keeps working when the directory is briefly unreachable. <b>A cluster that stops working whenever its directory blinks is a design problem.</b> A cluster that keeps working on an old copy has a different problem, and you need to know which one you have.</p>
+  </div>
+
+  <div class="concept">
+    <h4>The account lifecycle</h4>
+    <p>Request, approval, creation in all four places, first login, changes, suspension, de-provisioning, and what happens to the data afterwards. Creation is the step everyone practises. <b>De-provisioning is where the problems come from, months later.</b> Disabling access takes a minute. Deciding what happens to the person's data, their groups, their running jobs and their accounting history is the part that gets missed.</p>
+    <p>Accounting history is the record of what an account did and what it used. Allocation reports and audits depend on it after the person has gone, so it is kept.</p>
+  </div>
+
+  <div class="concept">
+    <h4>Your access</h4>
+    <p>You are root on your own three nodes. On <code>head</code> you can bind to the directory as its manager with the password file <code>/root/.dirmgr</code>; <code>/root/.ldaprc</code> already names the server, the base and the manager's DN. The requirement specification is the contract for this lab, and <code>verify-spec</code> checks tasks 1, 3, 4 and 5 against it.</p>
+  </div>
+
+  <div class="careful"><b>You will break identity on a node at some point today</b>Change one node at a time, and leave <code>c2</code> alone until <code>c1</code> works. If a node stops resolving users and you cannot see why, type <code>exit</code>, choose <b>reset</b>, and you are back to the starting state in a few minutes. <code>~/course-repo</code> survives the reset; nothing else does. <b>Write your diagnoses and decisions there as you go.</b></div>
+</section>
+
+<section id="start">
+  <div class="sh"><span class="sh-n">00</span><span class="sh-t">Getting on</span><span class="sh-m">3 min</span></div>
+
+  <div class="do">
+    <div class="dol">Connect. The password is hpcnow2026</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh &lt;you&gt;@mylab.hpc.now</span></pre>
+  </div>
+  <p class="goal">You land on the head node of your own sandbox, as root.</p>
+
+  <div class="do">
+    <div class="dol">Only if ssh refuses with "REMOTE HOST IDENTIFICATION HAS CHANGED". On your own computer, then connect again</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh-keygen -R mylab.hpc.now</span></pre>
+  </div>
+  <p class="goal">Your computer remembered the key of the machine mylab.hpc.now pointed to in an earlier lab. This forgets it; the next <code>ssh</code> asks once to trust the new one: type <code>yes</code>.</p>
+
+  <div class="do">
+    <div class="dol">Read the contract</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">less /opt/lab/spec/requirement-spec.md</span></pre>
+  </div>
+
+  <div class="do">
+    <div class="dol">Where the verifier says you are</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">verify-spec</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see</div><pre>task 1  1.1  compute nodes resolve from the directory ................ NOT YET
+task 1  1.2  every directory user the same on head, c1, c2 ........... NOT YET
+task 1  1.3  local accounts, root included, still resolve ............ PASS
+task 1  1.4  node client enabled and running on all three ............ NOT YET
+task 1  1.5  StartTLS, server checked against the sandbox CA ......... PASS
+task 3  3.1  lbianchi exists in the directory ........................ NOT YET
+task 3  3.2  lbianchi's UID is used by no other account .............. NOT YET
+task 3  3.3  lbianchi's entries as section 3 specifies ............... NOT YET
+task 3  3.4  lbianchi is in p_shared ................................. NOT YET
+task 3  3.5  lbianchi resolves the same on head, c1, c2 .............. NOT YET
+task 3  3.6  /home/lbianchi owned, 0700, with the supplied key ....... NOT YET
+task 3  3.7  lbianchi has an association under p_shared .............. NOT YET
+task 4  4.1  mrossi cannot obtain a session on any node .............. NOT YET
+task 4  4.2  mrossi is in no project group ........................... NOT YET
+task 4  4.3  mrossi has no job, or the decision says why ............. NOT YET
+task 4  4.4  mrossi's accounting history is intact ................... PASS
+task 4  4.5  decisions file: five headings, each filled in ........... NOT YET
+task 5  5.1  access review script exists and reads the directory ..... NOT YET
+task 5  5.2  today's report exists ................................... NOT YET
+task 5  5.3  report lists exactly the accounts idle 90 days+ ......... NOT YET
+task 5  5.4  one line each: name, days, date; most idle first ........ NOT YET</pre></div>
+
+  <div class="do">
+    <div class="dol">A place for today's work</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">mkdir -p ~/course-repo/m9s1 &amp;&amp; cd ~/course-repo/m9s1 &amp;&amp; git -C ~/course-repo log --oneline | head -3</span></pre>
+  </div>
+</section>
+
+<section id="t1">
+  <div class="sh"><span class="sh-n">1</span><span class="sh-t">Finish the directory integration</span><span class="sh-m">10 min</span></div>
+  <p class="goal"><code>c1</code> and <code>c2</code> resolving directory users exactly as <code>head</code> does, through the node client, surviving a reboot.</p>
+
+  <p class="stept"><i>1.1</i> See the difference</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">for n in head c1 c2; do echo "== $n"; ssh $n getent passwd jchen; done</span></pre>
+  </div>
+  <p class="goal"><code>head</code> answers. The compute nodes do not, which is the "user not found on one node" class of problem in its plainest form. Every job <code>jchen</code> submits would fail on a compute node right now.</p>
+
+  <p class="stept"><i>1.2</i> What the previous administrator left on <code>c1</code></p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh c1 'authselect current; grep -E "^(passwd|group):" /etc/nsswitch.conf; systemctl is-enabled sssd; ls -l /etc/sssd/sssd.conf'</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">And how <code>head</code>, which works, is set up</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">authselect current; grep -E "^(passwd|group):" /etc/nsswitch.conf; systemctl is-enabled sssd</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Installed is not integrated</div>
+    <ul>
+      <li>The <b>client configuration</b> says where the directory is and how to talk to it.</li>
+      <li>The <b>profile</b> decides whether the system's name service consults the client at all.</li>
+      <li>The <b>service</b> has to be running for the client to answer.</li>
+    </ul>
+    <p>A node can have all the software and a configuration file and still resolve nobody. Compare the two nodes line by line before you change anything, and read the configuration file you are about to switch on. It was written by someone else.</p>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">diff &lt;(cat /etc/sssd/sssd.conf) &lt;(ssh c1 cat /etc/sssd/sssd.conf)</span></pre>
+  </div>
+
+  <p class="stept"><i>1.3</i> Complete it on <code>c1</code></p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh c1 'authselect select sssd --force &amp;&amp; systemctl enable --now sssd'</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh c1 'getent passwd jchen; id jchen'</span></pre>
+  </div>
+
+  <p class="stept"><i>1.4</i> Then <code>c2</code>, and prove all three agree</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ssh c2 'authselect select sssd --force &amp;&amp; systemctl enable --now sssd'</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">U=$(ldapsearch -LLL -x -ZZ -y /root/.dirmgr "(objectClass=posixAccount)" uid | awk '/^uid:/ {printf "%s ", $2}')
+for n in head c1 c2; do ssh $n "for u in $U; do getent passwd \$u; done" | md5sum; done</span></pre>
+  </div>
+  <p class="goal">Three identical checksums. If one differs, compare that node's output with <code>head</code>'s and find the line. A plain <code>getent passwd</code> with no name lists only local accounts here, because the node client does not enumerate the directory; that is why the loop asks for each user by name.</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">verify-spec 1</span></pre>
+  </div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 1<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>Check what you have</h5>
+      <ul>
+        <li><code>verify-spec 1</code> passes.</li>
+        <li><code>root</code> still resolves on every node: <code>ssh c1 id root</code>.</li>
+        <li>You can say, for each of configuration, profile and service, what would happen if it alone were missing.</li>
+      </ul>
+      <div class="ans"><b>Agreement on the user list is not the same as agreement on everything.</b> The checksum compares names and numbers. It says nothing about group membership.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t2">
+  <div class="sh"><span class="sh-n">2</span><span class="sh-t">Three tickets</span><span class="sh-m">15 min</span></div>
+  <p class="goal">A written diagnosis for each ticket in <code>~/course-repo/m9s1/diagnoses.md</code>, using the headings in section 2 of the specification, and a repair for each one that is yours to repair.</p>
+
+  <div class="concept">
+    <h4>The method, for every identity ticket</h4>
+    <ul>
+      <li><b>Reproduce it as the user, where the user was.</b> <code>su - &lt;user&gt;</code> on the node they named, the command they ran. A ticket you cannot reproduce is a ticket you have not understood.</li>
+      <li><b>Same user, same command, different host.</b> If it works on one node and not another, the difference is on the node, not in the user.</li>
+      <li><b>Ask all four places, and find where they disagree.</b> The disagreement is the diagnosis. Which place is right is a separate question, and the answer is not always the directory.</li>
+      <li><b>Ownership is a number.</b> <code>ls -l</code> shows names that were looked up a moment ago; <code>ls -ln</code> shows what is actually stored.</li>
+      <li><b>Ask when and why the disagreement started</b>, because the repair is not finished until it cannot happen again.</li>
+    </ul>
+  </div>
+
+  <p class="stept"><i>2.1</i> Read all three before touching anything</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cat /opt/lab/tickets/ticket-*.txt</span></pre>
+  </div>
+
+  <p class="stept"><i>2.2</i> Start the diagnoses file</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/course-repo/m9s1/diagnoses.md</span>   <span class="cmt"># one section per ticket</span></pre>
+  </div>
+  <p class="goal">Write as you go: what you ran, on which node, and what came back. The diagnosis is the record of the evidence, not a sentence at the end.</p>
+
+  <div class="careful"><b>Two rules for every repair</b>Never make a symptom go away by deleting an account or a user's data. And never fix a node by making it disagree with the source, for example by adding a user or a group locally to match what the user expects. Both stop the ticket and leave a worse problem behind.</div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 2<span>read before going on</span></div>
+    <div class="stop-b">
+      <p>This Stop does not give the answers. Here is how to know you have them.</p>
+      <h5>Test each diagnosis against three questions</h5>
+      <ul>
+        <li><b>Did you reproduce it</b> as the user, on the node they named, before you changed anything, and does the same action now behave correctly?</li>
+        <li><b>Can you name the two places that disagreed</b>, and show the evidence from each?</li>
+        <li><b>Can you say why they came to disagree</b>, and what you changed so they will not again?</li>
+      </ul>
+      <p>If you can answer all three for a ticket, the diagnosis is complete. If you repaired something without being able to answer the third, the ticket will come back.</p>
+      <h5>Own or escalate</h5>
+      <p>For each ticket, decide whether anything in it belongs to someone else, a data owner or a security contact, and write who. Some of what you found today is a decision, not a repair.</p>
+    </div>
+  </div>
+</section>
+
+<section id="t3">
+  <div class="sh"><span class="sh-n">3</span><span class="sh-t">A new starter, in all four places</span><span class="sh-m">8 min</span></div>
+  <p class="goal"><code>lbianchi</code> created as section 3 of the specification requires, agreeing in the directory, on every node, on disk and in the scheduler.</p>
+
+  <p class="stept"><i>3.1</i> A UID nobody has, anywhere</p>
+  <div class="do">
+    <div class="dol">Every number the directory holds</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ldapsearch -LLL -x -ZZ -y /root/.dirmgr "(uidNumber=*)" uidNumber | awk '/^uidNumber:/ {print $2}' | sort -n | uniq -c</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">And every number a node holds locally</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">for n in head c1 c2; do ssh $n "awk -F: '\$3&gt;=1000 &amp;&amp; \$3&lt;60000 {print \$3}' /etc/passwd"; done | sort -n | uniq</span></pre>
+  </div>
+  <p class="goal">The <code>uniq -c</code> count beside each directory number should be 1. Choose a number that appears in neither list, and use the same number for the personal group.</p>
+
+  <p class="stept"><i>3.2</i> Create the directory entries</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cp /opt/lab/spec/templates/user.ldif ~/course-repo/m9s1/lbianchi.ldif &amp;&amp; vi ~/course-repo/m9s1/lbianchi.ldif</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ldapadd -x -ZZ -y /root/.dirmgr -f ~/course-repo/m9s1/lbianchi.ldif</span></pre>
+  </div>
+  <div class="do">
+    <div class="dol">Add her to the project group</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">printf 'dn: cn=p_shared,ou=Groups,dc=hpca100,dc=lab\nchangetype: modify\nadd: memberUid\nmemberUid: lbianchi\n' | ldapmodify -x -ZZ -y /root/.dirmgr</span></pre>
+  </div>
+
+  <p class="stept"><i>3.3</i> Home, key, scheduler</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">mkdir /home/lbianchi &amp;&amp; cp -r /etc/skel/. /home/lbianchi/ &amp;&amp; chown -R lbianchi:lbianchi /home/lbianchi &amp;&amp; chmod 700 /home/lbianchi
+install -d -m 700 -o lbianchi -g lbianchi /home/lbianchi/.ssh
+install -m 600 -o lbianchi -g lbianchi /opt/lab/spec/keys/lbianchi.pub /home/lbianchi/.ssh/authorized_keys
+sacctmgr -i add user lbianchi account=p_shared</span></pre>
+  </div>
+
+  <p class="stept"><i>3.4</i> Prove the four agree</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">for n in head c1 c2; do ssh $n id lbianchi; done; ls -lnd /home/lbianchi; sacctmgr -n -P show assoc user=lbianchi format=account,user</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">su - lbianchi -c 'srun -N2 id'</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">verify-spec 3</span></pre>
+  </div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 3<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>Check what you have</h5>
+      <ul>
+        <li><code>id lbianchi</code> identical on all three nodes, including <code>p_shared</code>.</li>
+        <li>The numbers in <code>ls -lnd</code> are the numbers in the directory.</li>
+        <li>The job ran on both compute nodes as her. <code>verify-spec 3</code> passes.</li>
+      </ul>
+      <div class="ans"><b>Creation is only finished when all four places agree.</b> A directory entry with no home, or a home with no association, is an account that fails on its first job, and the user finds out before you do.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t4">
+  <div class="sh"><span class="sh-n">4</span><span class="sh-t">A leaver, taken away properly</span><span class="sh-m">18 min</span></div>
+  <p class="goal"><code>mrossi</code> de-provisioned on all five aspects, with every decision written down before it is carried out.</p>
+
+  <div class="concept">
+    <h4>Disabling access is the easy fifth</h4>
+    <p>The five aspects are access, data, group membership, running work and accounting history. <b>Each is a decision with a reason and an owner</b>, not a command. The commonest failure at real sites is stopping after the first. The second commonest is deleting the accounting history, which removes the record that allocation reports and audits depend on.</p>
+  </div>
+
+  <p class="stept"><i>4.1</i> Everything <code>mrossi</code> has, in every place</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ldapsearch -LLL -x -ZZ -y /root/.dirmgr "(|(uid=mrossi)(memberUid=mrossi))" dn</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">ls -la /home/mrossi /home/mrossi/results | head -20</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">squeue -u mrossi; sacct -u mrossi -S 2026-01-01 -X -o JobID,JobName,Account,State,Start,End; sacctmgr -n -P show assoc user=mrossi format=account,user</span></pre>
+  </div>
+
+  <p class="stept"><i>4.2</i> Decide, and write it down, before acting</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/course-repo/m9s1/deprovision-mrossi.md</span>   <span class="cmt"># five headings, section 4 of the specification</span></pre>
+  </div>
+  <div class="look">
+    <div class="look-l">Questions each heading has to answer</div>
+    <ul>
+      <li><b>Access.</b> How is the account disabled at the source, and how will you prove every node now refuses it, not only <code>head</code>?</li>
+      <li><b>Data.</b> Who needs <code>results/</code>, who may decide that, and what happens to the rest of the home directory? If the decision is not yours, what do you need and from whom?</li>
+      <li><b>Group membership.</b> Which groups, and does removing them affect anyone else's access?</li>
+      <li><b>Running work.</b> Cancel it, or let it finish? What does each cost the group, and who decides?</li>
+      <li><b>Accounting history.</b> What is kept, and who will ask for it later?</li>
+    </ul>
+  </div>
+
+  <p class="stept"><i>4.3</i> Act on your decisions</p>
+  <div class="do">
+    <div class="dol">Disable the account at the source</div>
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">printf 'dn: uid=mrossi,ou=People,dc=hpca100,dc=lab\nchangetype: modify\nreplace: nsAccountLock\nnsAccountLock: TRUE\n' | ldapmodify -x -ZZ -y /root/.dirmgr</span></pre>
+  </div>
+  <p class="goal">The group removals, the data and the running job follow your decisions file. Use the commands from task 3 and from the four-places table; this runbook does not choose for you.</p>
+
+  <p class="stept"><i>4.4</i> Prove it on every node</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">for n in head c1 c2; do echo "== $n"; ssh $n "su - mrossi -c true" &amp;&amp; echo "STILL ALLOWED"; ssh $n id mrossi; done</span></pre>
+  </div>
+  <p class="goal">Every node refuses the session, and no node lists a project group. If any node still allows it, ask that node what it believes about <code>mrossi</code>, and compare that with the directory.</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">sacct -u mrossi -S 2026-01-01 -X -n | wc -l; verify-spec 4</span></pre>
+  </div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 4<span>read before going on</span></div>
+    <div class="stop-b">
+      <h5>Check what you have</h5>
+      <ul>
+        <li>Five headings, each with a decision, a reason, an owner, an action and a verification.</li>
+        <li>Refused on all three nodes, proved, not assumed.</li>
+        <li>Past jobs still reported by <code>sacct</code>.</li>
+      </ul>
+      <div class="ans"><b>A de-provisioning that disables login and stops there is the failure this task exists to prevent.</b> The four headings after the first are where the problems come from months later: a group still holding a former member, data nobody can read, a job billed to an account nobody watches, an audit question nobody can answer.</div>
+    </div>
+  </div>
+</section>
+
+<section id="t5">
+  <div class="sh"><span class="sh-n">5</span><span class="sh-t">The access review</span><span class="sh-m">6 min</span></div>
+  <p class="goal">A script that generates the list of accounts idle for 90 days or more, from the directory, and its output for today.</p>
+
+  <div class="concept">
+    <h4>A review is a recurring obligation, so it is a script</h4>
+    <p>An access review compiled by hand is done once and never again, because nobody has the afternoon twice. <b>Generated, it runs every quarter for the cost of reading its output.</b> That is section 5's first requirement.</p>
+  </div>
+
+  <p class="stept"><i>5.1</i> Where last login lives</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">A=$(cat /opt/lab/spec/last-login-attribute); ldapsearch -LLL -x -ZZ -y /root/.dirmgr "(uid=jchen)" uid "$A"</span></pre>
+  </div>
+  <div class="see"><div class="see-l">You should see a timestamp in this form</div><pre>dn: uid=jchen,ou=People,dc=hpca100,dc=lab
+uid: jchen
+lastLoginTime: 20261113040122Z</pre></div>
+  <p class="goal">Year, month, day, hours, minutes, seconds, then <code>Z</code> for UTC. Your script converts it, compares it with today, and keeps the accounts at 90 days or more.</p>
+
+  <p class="stept"><i>5.2</i> Write it, run it</p>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">vi ~/course-repo/m9s1/access-review.sh &amp;&amp; chmod +x ~/course-repo/m9s1/access-review.sh &amp;&amp; ~/course-repo/m9s1/access-review.sh &amp;&amp; cat ~/course-repo/m9s1/access-review-$(date +%F).txt</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">verify-spec 5</span></pre>
+  </div>
+
+  <div class="stop">
+    <div class="stop-l">Stop · task 5<span>read before going on</span></div>
+    <div class="stop-b">
+      <ul>
+        <li>Generated, not typed. Run it twice; the output is the same.</li>
+        <li>Read your own list. Is there an account on it that you met earlier today? What does that tell you about how long the problem behind it had been there?</li>
+      </ul>
+      <div class="ans"><b>The list is the start of the review, not the end.</b> Each name on it is a question for its PI: still needed, suspend, or de-provision. The review that produces a list and no follow-up is the one that finds the same names next quarter.</div>
+    </div>
+  </div>
+</section>
+
+<section id="wrap">
+  <div class="sh"><span class="sh-n">✓</span><span class="sh-t">Commit</span><span class="sh-m">2 min</span></div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">verify-spec</span></pre>
+  </div>
+  <div class="do">
+    <button class="cp" onclick="cpy(this)">copy</button>
+    <pre><span class="cmd">cd ~/course-repo &amp;&amp; git add m9s1 &amp;&amp; git commit -m "m9s1: integration, diagnoses, new starter, leaver, access review" &amp;&amp; git log --oneline | head -3</span></pre>
+  </div>
+  <div class="careful"><b>The decisions file is the deliverable that matters most</b>The integration and the new account are checked by the verifier. The diagnoses and the de-provisioning decisions are read by a person, and they are the part of today's work that shows judgement.</div>
+</section>
+
+<section id="stuck">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">If you get stuck</span></div>
+  <table>
+    <thead><tr><th>Symptom</th><th>What it means · what to do</th></tr></thead>
+    <tbody>
+      <tr><td><code>ldapsearch</code> says it cannot contact the server or start TLS</td><td class="m">run it on <code>head</code>, with <code>-ZZ</code>.<br />The server name and CA come from <code>/root/.ldaprc</code> and <code>/etc/openldap/ldap.conf</code></td></tr>
+      <tr><td><code>ldap_bind: Invalid credentials</code></td><td class="m">the bind DN or password file is wrong.<br />Use <code>-y /root/.dirmgr</code>, not <code>-w</code></td></tr>
+      <tr><td><code>ldapadd</code> says the entry already exists</td><td class="m">read it first with <code>ldapsearch</code>.<br />Change it with <code>ldapmodify</code>, never by deleting and re-adding</td></tr>
+      <tr><td>A node resolves nobody after a change</td><td class="m">check the profile, the configuration and the service, in that order.<br /><code>journalctl -u sssd -n 30</code> on that node</td></tr>
+      <tr><td><code>sssctl</code> reports the service is not running</td><td class="m">start it, then read why it stopped.<br />A configuration file with the wrong permissions stops it</td></tr>
+      <tr><td><code>Permission denied</code> writing under <code>/home</code> as root from a compute node</td><td class="m"><code>/home</code> is exported with root squashed.<br />Create and change homes on <code>head</code></td></tr>
+      <tr><td><code>REMOTE HOST IDENTIFICATION HAS CHANGED</code> when you connect</td><td class="m">this address served another lab before.<br /><code>ssh-keygen -R mylab.hpc.now</code>, then connect again</td></tr>
+      <tr><td>The sandbox is in a state you cannot reason about</td><td class="m">type <code>exit</code>, choose reset.<br /><code>~/course-repo</code> comes back with you</td></tr>
+      <tr><td>Still stuck after five minutes</td><td class="m">ask in chat with: the ticket or task, the command, the node, and the full output</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="glossary">
+  <div class="sh"><span class="sh-n">—</span><span class="sh-t">Glossary</span></div>
+  <dl class="gloss">
+    <dt>access review</dt><dd>A recurring check of who still holds access and whether they should. Generated from data, owned by the people who can say "still needed".</dd>
+    <dt>bind DN</dt><dd>The identity a client presents to the directory. Here, the directory manager.</dd>
+    <dt>de-provisioning</dt><dd>Removing a person from the cluster on all five aspects: access, data, group membership, running work and accounting history.</dd>
+    <dt>directory</dt><dd>The service that holds accounts and groups centrally. Here, on <code>head</code>, queried with <code>ldapsearch</code>.</dd>
+    <dt>node client</dt><dd>The service on each node that answers identity questions from the directory and keeps a local copy of the answers. Here, sssd.</dd>
+    <dt>profile</dt><dd>The setting that decides which sources the system's name service consults. Set with <code>authselect</code>.</dd>
+    <dt>StartTLS</dt><dd>Upgrading a directory connection to an encrypted one before anything is exchanged. <code>-ZZ</code> makes <code>ldapsearch</code> refuse to continue without it.</dd>
+    <dt>uidNumber, gidNumber</dt><dd>The numbers the filesystem actually stores. Names are looked up from them each time something is listed.</dd>
+  </dl>
+</section>
+
+</main>
+</div>
+
+<script>
+function cpy(b){
+  var pre = b.parentElement.querySelector('pre');
+  var t = pre.innerText.replace(/\s+#.*$/gm,'').trim();
+  navigator.clipboard.writeText(t).then(function(){
+    b.textContent='copied'; b.classList.add('ok');
+    setTimeout(function(){ b.textContent='copy'; b.classList.remove('ok'); },1200);
+  });
+}
+function toggleCompact(){
+  document.body.classList.toggle('compact');
+  document.getElementById('cbtn').classList.toggle('on');
+}
+var links = document.querySelectorAll('.side a');
+var secs  = document.querySelectorAll('main section');
+window.addEventListener('scroll', function(){
+  var y = window.scrollY + 120, cur = '';
+  secs.forEach(function(s){ if(s.offsetTop <= y) cur = s.id; });
+  links.forEach(function(a){
+    a.classList.toggle('on', a.getAttribute('href') === '#' + cur);
+  });
+});
+</script>
+</body>
+</html>
